@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <launchConfiguration type="org.eclipse.jdt.launching.localJavaApplication">
 <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
-<listEntry value="/GeneiousFiles/iSeek.jar"/>
+<listEntry value="/SBOLDesigner"/>
 </listAttribute>
 <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
-<listEntry value="1"/>
+<listEntry value="4"/>
 </listAttribute>
 <mapAttribute key="org.eclipse.debug.core.environmentVariables">
 <mapEntry key="DYLD_LIBRARY_PATH" value="./activation/macos:./trusted_storage_libs/macos"/>
@@ -22,7 +22,7 @@
 <booleanAttribute key="org.eclipse.jdt.launching.DEFAULT_CLASSPATH" value="false"/>
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="com.biomatters.iseek.application.ISeekMain"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="extraPlugins=&quot;com.clarkparsia.geneious.SBOLDesignerPlugin&quot;"/>
-<stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="sbol"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="SBOLDesigner"/>
 <stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-ea -Xss512K -Xms256M -Xmx768M -XX:MaxPermSize=96M -Djava.util.logging.config.file=no_logging.properties"/>
 <stringAttribute key="org.eclipse.jdt.launching.WORKING_DIRECTORY" value="${workspace_loc:GeneiousFiles}"/>
 </launchConfiguration>
