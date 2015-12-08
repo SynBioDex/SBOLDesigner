@@ -15,6 +15,8 @@ simply double click the jar file. If your OS does not support running Java appli
 double clicking, you can run the designer from command-line by using the `java -jar <jarFileName>`
 command at a terminal where `jarFileName` will be the name of the SBOL Designer jar file you
 downloaded.
+
+UPDATE: Alternatively, you can build the program yourself since all of the dependencies are included.
  
 Using SBOL Designer plugin in Geneious
 ======================================
@@ -26,9 +28,13 @@ the SBOL designer gplugin file. The plugin will be ready to use immediately.
 If you download a newer version of the plugin at a later time you can follow the same steps and
 the new version of the plugin will replace the old version.
 
+UPDATE: Geneious plugin dependencies have been removed.  SBOL Designer will function more as a standalone application in the future.
+
 More information
 ================
 
-See [http://clarkparsia.github.io/sbol/](http://clarkparsia.github.io/sbol/) for more information
+See [http://github.com/SynBioDex/SBOLDesigner/](http://github.com/SynBioDex/SBOLDesigner/) for more information
 on SBOL designer. Send your questions and comments about SBOL Designer to 
-[sbol@clarkparsia.com](mailto:sbol@clarkparsia.com).
+[michael13162@gmail.com](mainto:michael13162@gmail.com).
+
+For the previous version (unsupported) of SBOL Designer, see [http://github.com/clarkparsia/sbol/](http://github.com/clarkparsia/sbol/)
