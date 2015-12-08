@@ -1,0 +1,117 @@
+@prefix : <http://sbols.org/v1#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix so: <http://purl.obolibrary.org/obo/> .
+@base <http://sbols.org/v1#> .
+
+<http://sbols.org/v1#> rdf:type owl:Ontology .
+
+
+#################################################################
+#
+#    Object Properties
+#
+#################################################################
+
+
+###  http://sbols.org/v1#annotation
+
+<http://sbols.org/v1#annotation> rdf:type owl:ObjectProperty .
+
+
+
+###  http://sbols.org/v1#precedes
+
+<http://sbols.org/v1#precedes> rdf:type owl:ObjectProperty .
+
+
+
+###  http://sbols.org/v1#subComponent
+
+<http://sbols.org/v1#subComponent> rdf:type owl:ObjectProperty .
+
+
+
+
+
+#################################################################
+#
+#    Classes
+#
+#################################################################
+
+
+###  http://sbols.org/v1#CDS
+
+<http://sbols.org/v1#CDS> rdf:type owl:Class .
+
+
+
+###  http://sbols.org/v1#DnaComponent
+
+<http://sbols.org/v1#DnaComponent> rdf:type owl:Class ;
+                                   
+                                   rdfs:subClassOf [ rdf:type owl:Class ;
+                                                     owl:intersectionOf ( [ rdf:type owl:Restriction ;
+                                                                            owl:onProperty <http://sbols.org/v1#annotation> ;
+                                                                            owl:someValuesFrom [ rdf:type owl:Restriction ;
+                                                                                                 owl:onProperty <http://sbols.org/v1#subComponent> ;
+                                                                                                 owl:someValuesFrom so:SO_0000167
+                                                                                               ]
+                                                                          ]
+                                                                          [ rdf:type owl:Restriction ;
+                                                                            owl:onProperty <http://sbols.org/v1#precedes> ;
+                                                                            owl:someValuesFrom [ rdf:type owl:Class ;
+                                                                                                 owl:intersectionOf ( [ rdf:type owl:Restriction ;
+                                                                                                                        owl:onProperty <http://sbols.org/v1#precedes> ;
+                                                                                                                        owl:someValuesFrom [ rdf:type owl:Class ;
+                                                                                                                                             owl:intersectionOf ( [ rdf:type owl:Restriction ;
+                                                                                                                                                                    owl:onProperty <http://sbols.org/v1#precedes> ;
+                                                                                                                                                                    owl:someValuesFrom [ rdf:type owl:Restriction ;
+                                                                                                                                                                                         owl:onProperty <http://sbols.org/v1#subComponent> ;
+                                                                                                                                                                                         owl:someValuesFrom so:SO_0000141
+                                                                                                                                                                                       ]
+                                                                                                                                                                  ]
+                                                                                                                                                                  [ rdf:type owl:Restriction ;
+                                                                                                                                                                    owl:onProperty <http://sbols.org/v1#subComponent> ;
+                                                                                                                                                                    owl:someValuesFrom so:SO_0000316
+                                                                                                                                                                  ]
+                                                                                                                                                                )
+                                                                                                                                           ]
+                                                                                                                      ]
+                                                                                                                      [ rdf:type owl:Restriction ;
+                                                                                                                        owl:onProperty <http://sbols.org/v1#subComponent> ;
+                                                                                                                        owl:someValuesFrom so:SO_0000139
+                                                                                                                      ]
+                                                                                                                    )
+                                                                                               ]
+                                                                          ]
+                                                                        )
+                                                   ] .
+
+
+
+###  http://sbols.org/v1#Promoter
+
+<http://sbols.org/v1#Promoter> rdf:type owl:Class .
+
+
+
+###  http://sbols.org/v1#RBS
+
+<http://sbols.org/v1#RBS> rdf:type owl:Class .
+
+
+
+###  http://sbols.org/v1#Terminator
+
+<http://sbols.org/v1#Terminator> rdf:type owl:Class .
+
+
+
+
+###  Generated by the OWL API (version 3.4.2) http://owlapi.sourceforge.net
+

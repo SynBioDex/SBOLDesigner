@@ -1,0 +1,10 @@
+/build
+/classes
+/bin
+/.settings
+*~
+~*
+*.swp
+/nbproject
+/build.properties
+/obfuscation.map

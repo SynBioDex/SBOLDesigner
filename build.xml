@@ -1,0 +1,137 @@
+<?xml version="1.0" ?>
+
+<project name="sbol" default="plugin" basedir=".">
+    <property file="plugin.properties"/>
+    <property name="build" location="build"/>
+    <property name="classes" location="classes"/>
+    <property name="src" location="src"/>
+    <property name="plugin.src" location="plugin/src"/>
+    <property name="versioning.src" location="versioning/src"/>
+    <property name="servlet.src" location="servlet/src"/>
+	
+	<property name="main.class" value="com.clarkparsia.sbol.editor.SBOLDesigner"/>
+	<property name="output.file" location="${build}/${short-plugin-name}-${plugin-version}"/>
+	
+    <path id="classpath">
+        <fileset dir="../GeneiousFiles/lib">
+            <include name="GeneiousPublicAPI.jar"/>
+            <include name="jdom.jar"/>
+            <include name="jebl.jar"/>
+            <include name="guava-r09.jar"/>
+        </fileset>
+        <fileset dir="lib">
+            <include name="*.jar"/>
+        </fileset>
+        <fileset dir="versioning/lib">
+            <include name="*.jar"/>
+        </fileset>
+    </path>
+
+    <path id="classpath-designer">
+        <fileset dir="../GeneiousFiles/lib">
+            <include name="guava-r09.jar"/>
+        </fileset>
+        <fileset dir="lib">
+            <include name="*.jar"/>
+        </fileset>
+    </path>
+
+    <path id="classpath-servlet">
+        <path refid="classpath-designer"/>
+        <fileset dir="servlet/lib">
+            <include name="*.jar"/>
+        </fileset>
+    </path>
+
+    <target name= "plugin" depends="compile-plugin" description="Builds the Geneious plugin">
+        <jar jarfile="${output.file}.gplugin">
+            <fileset dir="${classes}"/>
+            <fileset dir="">
+                <include name="plugin.properties"/>
+            </fileset>
+            <fileset dir="src">
+                <include name="**/*.owl"/>
+            	<include name="**/*.rdf"/>
+            	<include name="**/*.png"/>
+            	<include name="**/*.gif"/>
+            </fileset>
+        	<zipgroupfileset dir="lib" includes="*.jar"/>
+        </jar>
+        <echo message="Created ${output.file}.gplugin"/>
+    </target>
+	
+    <target name="designer" depends="compile-designer" description="Builds the standalone SBOL designer">
+        <jar jarfile="${output.file}.jar">
+			<manifest>
+				<attribute name="Main-Class" value="${main.class}"/>
+			</manifest>
+        	<fileset dir="${classes}"/>
+            <fileset dir="">
+                <include name="plugin.properties"/>
+                <include name="${src}/logging.properties"/>
+            </fileset>
+            <fileset dir="src">
+                <include name="**/*.owl"/>
+            	<include name="**/*.rdf"/>
+            	<include name="**/*.png"/>
+            	<include name="**/*.gif"/>
+            </fileset>
+        	<zipgroupfileset dir="lib" includes="*.jar"/>
+            <zipgroupfileset dir="../GeneiousFiles/lib" includes="guava-r09.jar"/>
+        </jar>
+    </target>
+	
+    <target name="servlet" depends="compile-servlet" description="Builds the SBOL visual servlet">
+	    <war destfile="${output.file}.war" webxml="servlet/WEB-INF/web.xml">
+        	<classes dir="${classes}"/>
+            <classes dir="">
+                <include name="plugin.properties"/>
+                <include name="${src}/logging.properties"/>
+            </classes>
+            <classes dir="src">
+                <include name="**/*.owl"/>
+            	<include name="**/*.rdf"/>
+            	<include name="**/*.png"/>
+            	<include name="**/*.gif"/>
+            </classes>
+
+	        	<lib dir="lib" includes="*.jar"/>
+	            <lib dir="../GeneiousFiles/lib" includes="guava-r09.jar"/>
+	    </war>
+    </target>
+	
+    <target name="compile-plugin" depends="prepare">
+        <javac destdir="${classes}" debug="true" target="1.5">
+            <classpath refid="classpath"/>
+            <src path="${src}"/>
+        	<src path="${plugin.src}"/>
+        	<src path="${versioning.src}"/>
+        </javac>
+    </target>
+
+    <target name="compile-designer" depends="prepare">
+        <javac destdir="${classes}" debug="true" target="1.5">
+            <classpath refid="classpath-designer"/>
+            <src path="${src}"/>
+        	<src path="${versioning.src}"/>
+        </javac>
+    </target>
+
+    <target name="compile-servlet" depends="compile-designer">
+        <javac destdir="${classes}" debug="true" target="1.5">
+            <classpath refid="classpath-servlet"/>
+        	<src path="${servlet.src}"/>
+        </javac>
+    </target>
+
+    <target name="prepare">
+        <mkdir dir="${build}"/>
+        <mkdir dir="${classes}"/>
+    </target>
+
+    <target name="clean">
+        <delete dir="${build}"/>
+        <delete dir="${classes.base}"/>
+    </target>
+
+</project>
