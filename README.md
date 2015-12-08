@@ -5,7 +5,7 @@ SBOL designer allows you to visualize SBOL designs using SBOL visual icons, edit
 in a GUI, import DNA components from an SBOL parts registry, and save your design an SBOL RDF/XML
 file.
 
-SBOL Designer can be used either as a standalone program or a as a [Geneious](http://www.geneious.com/) plugin.
+SBOL Designer can be used as a standalone program or as a [Geneious](http://www.geneious.com/) plugin.
 
 Running SBOL Designer stand-alone
 =================================
@@ -16,7 +16,7 @@ double clicking, you can run the designer from command-line by using the `java -
 command at a terminal where `jarFileName` will be the name of the SBOL Designer jar file you
 downloaded.
 
-UPDATE: Alternatively, you can build the program yourself since all of the dependencies are included.
+UPDATE: Alternatively, you can build the program yourself; all of the dependencies are included.
  
 Using SBOL Designer plugin in Geneious
 ======================================
@@ -28,7 +28,7 @@ the SBOL designer gplugin file. The plugin will be ready to use immediately.
 If you download a newer version of the plugin at a later time you can follow the same steps and
 the new version of the plugin will replace the old version.
 
-UPDATE: Geneious plugin dependencies have been removed.  SBOL Designer will function more as a standalone application in the future.
+UPDATE: Geneious plugin dependencies have been removed.  SBOL Designer will function more as a standalone application in the future.  See below if you wish to use the unsupported version of SBOL Designer (with Geneious plugin capabilities).
 
 More information
 ================
