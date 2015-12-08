@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF
+	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+	xmlns:sbol="http://sbols.org/v1#"
+	xmlns:sublime="http://clarkparsia.com/sublime#"
+	xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">
+<sbol:DnaComponent rdf:about="http://partsregistry.org/part/BBa_I0462">
+	<sbol:displayId>BBa_I0462</sbol:displayId>
+	<sbol:description>LuxR protein generator</sbol:description>
+	<sbol:dnaSequence>
+		<sbol:DnaSequence rdf:about="http://sbols.org/seq#d23749adb3a7e0e2f09168cb7267a6113b238973">
+			<sbol:nucleotides>aaagaggagaaatactagatgaaaaacataaatgccgacgacacatacagaataattaataaaattaaagcttgtagaagcaataatgatattaatcaatgcttatctgatatgactaaaatggtacattgtgaatattatttactcgcgatcatttatcctcattctatggttaaatctgatatttcaatcctagataattaccctaaaaaatggaggcaatattatgatgacgctaatttaataaaatatgatcctatagtagattattctaactccaatcattcaccaattaattggaatatatttgaaaacaatgctgtaaataaaaaatctccaaatgtaattaaagaagcgaaaacatcaggtcttatcactgggtttagtttccctattcatacggctaacaatggcttcggaatgcttagttttgcacattcagaaaaagacaactatatagatagtttatttttacatgcgtgtatgaacataccattaattgttccttctctagttgataattatcgaaaaataaatatagcaaataataaatcaaacaacgatttaaccaaaagagaaaaagaatgtttagcgtgggcatgcgaaggaaaaagctcttgggatatttcaaaaatattaggttgcagtgagcgtactgtcactttccatttaaccaatgcgcaaatgaaactcaatacaacaaaccgctgccaaagtatttctaaagcaattttaacaggagcaattgattgcccatactttaaaaattaataacactgatagtgctagtgtagatcactactagagccaggcatcaaataaaacgaaaggctcagtcgaaagactgggcctttcgttttatctgttgtttgtcggtgaacgctctctactagagtcacactggctcaccttcgggtgggcctttctgcgtttata</sbol:nucleotides>
+		</sbol:DnaSequence>
+	</sbol:dnaSequence>
+	<sbol:annotation>
+		<sbol:SequenceAnnotation rdf:about="http://sbols.org/anot#1234567">
+			<sbol:bioStart>1</sbol:bioStart>
+			<sbol:bioEnd>12</sbol:bioEnd>
+			<sbol:strand>+</sbol:strand>
+			<sbol:subComponent>
+				<sbol:DnaComponent rdf:about="http://partsregistry.org/part/BBa_B0034">
+					<sbol:displayId>BBa_B0034</sbol:displayId>
+					<rdf:type rdf:resource="http://purl.obolibrary.org/obo/SO_0000139"/>
+				</sbol:DnaComponent>
+			</sbol:subComponent>
+		</sbol:SequenceAnnotation>
+	</sbol:annotation>
+	<sbol:annotation>
+		<sbol:SequenceAnnotation rdf:about="http://sbols.org/anot#2345678">
+			<sbol:bioStart>19</sbol:bioStart>
+			<sbol:bioEnd>774</sbol:bioEnd>
+			<sbol:strand>+</sbol:strand>
+			<sbol:subComponent>
+				<sbol:DnaComponent rdf:about="http://partsregistry.org/part/BBa_C0062">
+					<sbol:displayId>BBa_C0062</sbol:displayId>
+					<rdf:type rdf:resource="http://purl.obolibrary.org/obo/SO_0000316"/>
+				</sbol:DnaComponent>
+			</sbol:subComponent>
+		</sbol:SequenceAnnotation>
+	</sbol:annotation>
+	<sbol:annotation>
+		<sbol:SequenceAnnotation rdf:about="http://sbols.org/anot#3456789">
+			<sbol:bioStart>808</sbol:bioStart>
+			<sbol:bioEnd>936</sbol:bioEnd>
+			<sbol:strand>+</sbol:strand>
+			<sbol:subComponent>
+				<sbol:DnaComponent rdf:about="http://partsregistry.org/part/BBa_B0015">
+					<sbol:displayId>BBa_B0015</sbol:displayId>
+					<rdf:type rdf:resource="http://purl.obolibrary.org/obo/SO_0000141"/>
+				</sbol:DnaComponent>
+			</sbol:subComponent>
+		</sbol:SequenceAnnotation>
+	</sbol:annotation>
+</sbol:DnaComponent>
+
+</rdf:RDF>
