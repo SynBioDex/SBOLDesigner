@@ -35,6 +35,6 @@ More information
 
 See [http://github.com/SynBioDex/SBOLDesigner/](http://github.com/SynBioDex/SBOLDesigner/) for more information
 on SBOL designer. Send your questions and comments about SBOL Designer to 
-[michael13162@gmail.com](mainto:michael13162@gmail.com).
+[michael13162@gmail.com](mailto:michael13162@gmail.com).
 
 For the previous version (unsupported) of SBOL Designer, see [http://github.com/clarkparsia/sbol/](http://github.com/clarkparsia/sbol/).
