@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.sbolstandard.core2.ComponentDefinition;
-import org.sbolstandard.core2.util.SequenceOntology;
+import org.sbolstandard.core2.SequenceOntology;
 
 import com.clarkparsia.sbol.editor.Part.ImageType;
 import com.google.common.collect.Lists;

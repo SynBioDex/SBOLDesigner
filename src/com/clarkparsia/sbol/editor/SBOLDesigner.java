@@ -40,7 +40,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 
 import org.sbolstandard.core2.ComponentDefinition;
 import org.sbolstandard.core2.SBOLDocument;
-import org.sbolstandard.core2.SBOLFactory;
+//import org.sbolstandard.core2.SBOLFactory;
 
 import com.adamtaft.eb.EventHandler;
 import com.clarkparsia.sbol.SBOLUtils;
@@ -389,7 +389,8 @@ public class SBOLDesigner extends JFrame {
 	}
 	
 	private void newDesign() {
-		editor.getDesign().load(SBOLFactory.createDocument());
+		//editor.getDesign().load(SBOLFactory.createDocument());
+		editor.getDesign().load(new SBOLDocument());
 		setCurrentFile(null);
 	}
 	

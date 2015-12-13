@@ -29,7 +29,7 @@ import org.openrdf.query.TupleQueryResultHandlerException;
 import org.sbolstandard.core2.ComponentDefinition;
 import org.sbolstandard.core2.DnaSequence;
 import org.sbolstandard.core2.SBOLFactory;
-import org.sbolstandard.core2.util.SequenceOntology;
+import org.sbolstandard.core2.SequenceOntology;
 
 import com.clarkparsia.sbol.editor.dialog.UserCredentialsDialog;
 import com.clarkparsia.sbol.editor.sparql.SPARQLEndpoint;
