@@ -26,10 +26,10 @@ import org.openrdf.query.Binding;
 import org.openrdf.query.BindingSet;
 import org.openrdf.query.TupleQueryResultHandlerBase;
 import org.openrdf.query.TupleQueryResultHandlerException;
-import org.sbolstandard.core.DnaComponent;
-import org.sbolstandard.core.DnaSequence;
-import org.sbolstandard.core.SBOLFactory;
-import org.sbolstandard.core.util.SequenceOntology;
+import org.sbolstandard.core2.ComponentDefinition;
+import org.sbolstandard.core2.DnaSequence;
+import org.sbolstandard.core2.SBOLFactory;
+import org.sbolstandard.core2.util.SequenceOntology;
 
 import com.clarkparsia.sbol.editor.dialog.UserCredentialsDialog;
 import com.clarkparsia.sbol.editor.sparql.SPARQLEndpoint;
@@ -39,11 +39,11 @@ import com.google.common.collect.Lists;
 public class SPARQLUtilities {
 
 
-	public static List<DnaComponent> findMatchingParts(final SPARQLEndpoint endpoint) {
+	public static List<ComponentDefinition> findMatchingParts(final SPARQLEndpoint endpoint) {
 		return findMatchingParts(endpoint, new Part(null, "All", "All parts")); 
 	}
 
-	public static List<DnaComponent> findMatchingParts(final SPARQLEndpoint endpoint, final Part part) {
+	public static List<ComponentDefinition> findMatchingParts(final SPARQLEndpoint endpoint, final Part part) {
 		if (endpoint == null) {
 			return Collections.emptyList();
 		}
@@ -67,7 +67,7 @@ public class SPARQLUtilities {
 
 //		System.out.format("Query for part %s (%s):%n%s%n", part.getDisplayId(), part.getName(), query);
 
-		final List<DnaComponent> parts = Lists.newArrayList();
+		final List<ComponentDefinition> parts = Lists.newArrayList();
 		try {
 			endpoint.executeSelectQuery(query, new TupleQueryResultHandlerBase() {
 				@Override
@@ -79,7 +79,7 @@ public class SPARQLUtilities {
 
 					URI partTypeURI = findAllParts ? URI.create(getBindingAsString(binding, "type")) : part.getType();
 
-					DnaComponent comp = SBOLFactory.createDnaComponent();
+					ComponentDefinition comp = SBOLFactory.createComponentDefinition();
 					comp.setURI(URI.create(partURI));
 					comp.setName(name);
 					comp.setDisplayId(displayId);

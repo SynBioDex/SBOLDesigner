@@ -38,9 +38,9 @@ import javax.swing.JToolBar;
 import javax.swing.UIManager;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
-import org.sbolstandard.core.DnaComponent;
-import org.sbolstandard.core.SBOLDocument;
-import org.sbolstandard.core.SBOLFactory;
+import org.sbolstandard.core2.ComponentDefinition;
+import org.sbolstandard.core2.SBOLDocument;
+import org.sbolstandard.core2.SBOLFactory;
 
 import com.adamtaft.eb.EventHandler;
 import com.clarkparsia.sbol.SBOLUtils;
@@ -148,7 +148,7 @@ public class SBOLDesigner extends JFrame {
 					DocumentIO newIO = result.getDocumentIO();
 					if (result.isInsert()) {
 						try {
-							DnaComponent newComponent = SBOLUtils.getRootComponent(newIO.read());
+							ComponentDefinition newComponent = SBOLUtils.getRootComponent(newIO.read());
 							design.addComponent(newComponent);
 						}
 						catch (Throwable ex) {
@@ -267,7 +267,7 @@ public class SBOLDesigner extends JFrame {
 				if (docIO instanceof ReadOnlyDocumentIO) {
 					try {
 	                    SBOLDocument doc = docIO.read();
-	                    DnaComponent comp = SBOLUtils.getRootComponent(doc);
+	                    ComponentDefinition comp = SBOLUtils.getRootComponent(doc);
 	                    design.addComponent(comp);
                     }
                     catch (Exception e) {

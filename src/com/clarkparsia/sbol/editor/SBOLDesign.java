@@ -67,12 +67,12 @@ import javax.swing.JTextArea;
 import javax.swing.KeyStroke;
 import javax.swing.SwingConstants;
 
-import org.sbolstandard.core.DnaComponent;
-import org.sbolstandard.core.DnaSequence;
-import org.sbolstandard.core.SBOLDocument;
-import org.sbolstandard.core.SBOLFactory;
-import org.sbolstandard.core.SequenceAnnotation;
-import org.sbolstandard.core.StrandType;
+import org.sbolstandard.core2.ComponentDefinition;
+import org.sbolstandard.core2.DnaSequence;
+import org.sbolstandard.core2.SBOLDocument;
+import org.sbolstandard.core2.SBOLFactory;
+import org.sbolstandard.core2.SequenceAnnotation;
+import org.sbolstandard.core2.StrandType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -146,7 +146,7 @@ public class SBOLDesign {
 	public final SBOLEditorAction DELETE = new SBOLEditorAction("Delete component", "Delete the selected component", "delete.gif") {		
 		@Override
 		protected void perform() {
-			DnaComponent comp = getSelectedComponent();
+			ComponentDefinition comp = getSelectedComponent();
 			deleteComponent(comp);			
 		}
 	};
@@ -154,7 +154,7 @@ public class SBOLDesign {
 	public final SBOLEditorAction FLIP = new SBOLEditorAction("Flip strand", "Flip the strand for the selected component", "flipStrand.png") {		
 		@Override
 		protected void perform() {
-			DnaComponent comp = getSelectedComponent();
+			ComponentDefinition comp = getSelectedComponent();
 			flipStrand(comp);
 		}
 	};
@@ -209,11 +209,11 @@ public class SBOLDesign {
 	private final JPopupMenu selectionPopupMenu = createPopupMenu(FIND, EDIT, FLIP, DELETE, FOCUS_IN);
 	private final JPopupMenu noSelectionPopupMenu = createPopupMenu(EDIT_ROOT, FOCUS_OUT);
 		
-	private DnaComponent currentComponent;
+	private ComponentDefinition currentComponent;
 	
 	private boolean hasSequence;
 	
-	private final Deque<DnaComponent> parentComponents = new ArrayDeque<DnaComponent>();
+	private final Deque<ComponentDefinition> parentComponents = new ArrayDeque<ComponentDefinition>();
 	
 	public SBOLDesign(EventBus eventBus) {
 		this.eventBus = eventBus;
@@ -289,14 +289,14 @@ public class SBOLDesign {
 	}
 	
 	public boolean canFocusIn() {
-		DnaComponent comp = getSelectedComponent();
+		ComponentDefinition comp = getSelectedComponent();
 		return comp != null;
 	}
 	
 	public void focusIn() {		
 		Preconditions.checkState(canFocusIn(), "No selection to focus in");
 				
-		DnaComponent comp = getSelectedComponent();
+		ComponentDefinition comp = getSelectedComponent();
 
 		BufferedImage snapshot = getSnapshot();
 		
@@ -318,14 +318,14 @@ public class SBOLDesign {
 		focusOut(getParentComponent());
 	}	
 	
-	public void focusOut(DnaComponent comp) {
+	public void focusOut(ComponentDefinition comp) {
 		if (currentComponent == comp) {
 			return;			
 		}
 		
 		updateRootComponent();
 		
-		DnaComponent parentComponent = parentComponents.pop();
+		ComponentDefinition parentComponent = parentComponents.pop();
 		while (parentComponent != comp) {
 			parentComponent = parentComponents.pop();
 		}
@@ -341,17 +341,17 @@ public class SBOLDesign {
 			return;
 		}
 		
-		Iterator<DnaComponent> components = SBOLUtils.getRootComponents(doc);
-		DnaComponent newComponent = null;
+		Iterator<ComponentDefinition> components = SBOLUtils.getRootComponents(doc);
+		ComponentDefinition newComponent = null;
 		if (components.hasNext()) {				
 			newComponent = components.next();
 			if (components.hasNext()) {
-				JOptionPane.showMessageDialog(panel, "Cannot load documents with multiple root DnaComponents.", "Load error", JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(panel, "Cannot load documents with multiple root ComponentDefinitions.", "Load error", JOptionPane.ERROR_MESSAGE);
 				return;
 			}
 		}
 		else {
-			newComponent = SublimeSBOLFactory.createDnaComponent();
+			newComponent = SublimeSBOLFactory.createComponentDefinition();
 			newComponent.setURI(SBOLUtils.createURI());
 			newComponent.setDisplayId("Unnamed");
 		}
@@ -362,7 +362,7 @@ public class SBOLDesign {
 		eventBus.publish(new DesignLoadedEvent(this));
 	}
 
-	private void load(DnaComponent newRoot) {
+	private void load(ComponentDefinition newRoot) {
 		loading = true;
 			
 		elementBox.removeAll();
@@ -508,7 +508,7 @@ public class SBOLDesign {
 		}));
 	}
 	
-	private void populateComponents(DnaComponent comp) {
+	private void populateComponents(ComponentDefinition comp) {
 		if (comp.getAnnotations().isEmpty()) {
 			if (currentComponent != comp) {
 				addComponent(comp);
@@ -533,7 +533,7 @@ public class SBOLDesign {
 				lastEnd = ann.getBioEnd();
 			}
 			
-			DnaComponent subComp = ann.getSubComponent();
+			ComponentDefinition subComp = ann.getSubComponent();
 			if (subComp != null) {
 				addComponent(ann, subComp, Parts.forComponent(subComp));
 			}
@@ -616,17 +616,17 @@ public class SBOLDesign {
 		return panel;
 	}
 	
-	public Part getPart(DnaComponent comp) {
+	public Part getPart(ComponentDefinition comp) {
 		DesignElement e = getElement(comp);
 		return e == null ? null : e.part;
 	}
 	
-	private DesignElement getElement(DnaComponent comp) {
+	private DesignElement getElement(ComponentDefinition comp) {
 		int index = getElementIndex(comp);
 		return index < 0 ? null : elements.get(index);
 	}
 	
-	private int getElementIndex(DnaComponent comp) {
+	private int getElementIndex(ComponentDefinition comp) {
 		for (int i = 0, n = elements.size(); i < n; i++) {
 			DesignElement e = elements.get(i);
 			if (e.getComponent() == comp) {
@@ -636,23 +636,23 @@ public class SBOLDesign {
 		return -1;
 	}
 
-	public DnaComponent getRootComponent() {
+	public ComponentDefinition getRootComponent() {
 		return parentComponents.isEmpty() ? currentComponent : parentComponents.getFirst();
 	}
 
-	public DnaComponent getCurrentComponent() {
+	public ComponentDefinition getCurrentComponent() {
 		return currentComponent;
 	}
 
-	public DnaComponent getParentComponent() {
+	public ComponentDefinition getParentComponent() {
 		return parentComponents.peek();
 	}
 
-	public DnaComponent getSelectedComponent() {
+	public ComponentDefinition getSelectedComponent() {
 		return selectedElement == null ? null : selectedElement.getComponent();
 	}
 	
-	public boolean setSelectedComponent(DnaComponent comp) {
+	public boolean setSelectedComponent(ComponentDefinition comp) {
 		DesignElement e = (comp == null) ? null : getElement(comp);
 		setSelectedElement(e);
 		return (e != null);
@@ -672,16 +672,16 @@ public class SBOLDesign {
 		fireSelectionChangedEvent();
 	}
 
-	public void addComponent(DnaComponent comp) {
+	public void addComponent(ComponentDefinition comp) {
 		addComponent(null, comp, Parts.forComponent(comp));
 	}
 	
-	public DnaComponent addComponent(Part part, boolean edit) {
+	public ComponentDefinition addComponent(Part part, boolean edit) {
 		if (!confirmEditable()) {
 			return null;
 		}
 		
-		DnaComponent comp = part.createComponent();
+		ComponentDefinition comp = part.createComponent();
 		
 		if (edit && !PartEditDialog.editPart(panel.getParent(), comp, edit)) {
 			return null;
@@ -692,7 +692,7 @@ public class SBOLDesign {
 		return comp;
 	}
 
-	private void addComponent(SequenceAnnotation seqAnn, DnaComponent comp, Part part) {
+	private void addComponent(SequenceAnnotation seqAnn, ComponentDefinition comp, Part part) {
 		boolean backbone = (part == Parts.ORI);
 		DesignElement e = new DesignElement(seqAnn, comp, part);
 		JLabel button = createComponentButton(e);
@@ -813,7 +813,7 @@ public class SBOLDesign {
 	}	
 	
 	private String getTooltipText(DesignElement e) {
-		final DnaComponent comp = e.getComponent();
+		final ComponentDefinition comp = e.getComponent();
 		StringBuilder sb = new StringBuilder();
 		sb.append("<html>");
 		sb.append("<b>Display ID:</b> ").append(comp.getDisplayId()).append("<br>");
@@ -850,7 +850,7 @@ public class SBOLDesign {
 		}
 	}
 	
-	public void flipStrand(DnaComponent comp) {
+	public void flipStrand(ComponentDefinition comp) {
 		if (!confirmEditable()) {
 			return;
 		}
@@ -865,7 +865,7 @@ public class SBOLDesign {
 		fireDesignChangedEvent();
 	}
 	
-	public void deleteComponent(DnaComponent component) {
+	public void deleteComponent(ComponentDefinition component) {
 		if (!confirmEditable()) {
 			return;
 		}
@@ -893,7 +893,7 @@ public class SBOLDesign {
 		}
 	}
 	
-	private void replaceComponent(DnaComponent component, DnaComponent newComponent) {
+	private void replaceComponent(ComponentDefinition component, ComponentDefinition newComponent) {
 		int index = getElementIndex(component);
 		if (index >= 0) {
 			DesignElement e = elements.get(index);
@@ -1009,7 +1009,7 @@ public class SBOLDesign {
 			return;
 		}
 
-		DnaComponent comp = getCurrentComponent();
+		ComponentDefinition comp = getCurrentComponent();
 		
 		boolean edited = PartEditDialog.editPart(panel.getParent(), comp, false);
 
@@ -1023,7 +1023,7 @@ public class SBOLDesign {
 			return;
 		}
 
-		DnaComponent comp = getSelectedComponent();
+		ComponentDefinition comp = getSelectedComponent();
 		
 		boolean edited = PartEditDialog.editPart(panel.getParent(), comp, false);
 
@@ -1042,7 +1042,7 @@ public class SBOLDesign {
 	
 	public void findPartForSelectedComponent() {
 		Part part = selectedElement.getPart();
-		DnaComponent newComponent = new SelectPartDialog(panel.getParent(), part).getInput();
+		ComponentDefinition newComponent = new SelectPartDialog(panel.getParent(), part).getInput();
 	
 		if (newComponent != null) {
 			if (!confirmEditable()) {
@@ -1080,7 +1080,7 @@ public class SBOLDesign {
 	public SBOLDocument createDocument() {
 		updateRootComponent();
 		
-		DnaComponent comp = parentComponents.isEmpty() ? currentComponent : parentComponents.getFirst();
+		ComponentDefinition comp = parentComponents.isEmpty() ? currentComponent : parentComponents.getFirst();
 		SBOLDocument doc = SBOLFactory.createDocument();
 		doc.addContent(comp);
 		
@@ -1094,7 +1094,7 @@ public class SBOLDesign {
 		int location = 1;
 		SequenceAnnotation prev = null;
 		for (DesignElement e : elements) {
-			DnaComponent comp = e.getComponent();
+			ComponentDefinition comp = e.getComponent();
 	        SequenceAnnotation ann = e.getAnnotation();
 	        
 	        if (location >= 0 && comp.getDnaSequence() != null && comp.getDnaSequence().getNucleotides() != null) {
@@ -1137,12 +1137,12 @@ public class SBOLDesign {
 		private final SequenceAnnotation seqAnn;
 		private Part part;
 		
-		public DesignElement(SequenceAnnotation sa, DnaComponent comp, Part part) {
+		public DesignElement(SequenceAnnotation sa, ComponentDefinition comp, Part part) {
 			this.seqAnn = sa != null ? sa : createAnnotation(comp);
 			this.part = part;
 		}
 		
-		private static SequenceAnnotation createAnnotation(DnaComponent component) {
+		private static SequenceAnnotation createAnnotation(ComponentDefinition component) {
 			SequenceAnnotation seqAnn = SublimeSBOLFactory.createSequenceAnnotation();
 			seqAnn.setURI(SBOLUtils.createURI());
 			seqAnn.setSubComponent(component);
@@ -1154,11 +1154,11 @@ public class SBOLDesign {
 			return seqAnn;
 		}
 
-		void setComponent(DnaComponent component) {
+		void setComponent(ComponentDefinition component) {
 			seqAnn.setSubComponent(component);
         }
 
-		DnaComponent getComponent() {
+		ComponentDefinition getComponent() {
 	        return seqAnn.getSubComponent();
         }
 

@@ -19,7 +19,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
-import org.sbolstandard.core.SBOLVersion;
+import org.sbolstandard.core2.SBOLVersion;
 
 public class SBOLDesignerMetadata {
 	private SBOLDesignerMetadata() { };

@@ -17,8 +17,8 @@ package com.clarkparsia.sbol.editor.io;
 
 import java.io.IOException;
 
-import org.sbolstandard.core.SBOLDocument;
-import org.sbolstandard.core.SBOLValidationException;
+import org.sbolstandard.core2.SBOLDocument;
+import org.sbolstandard.core2.SBOLValidationException;
 
 /**
  * 

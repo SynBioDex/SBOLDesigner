@@ -31,8 +31,8 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.table.TableRowSorter;
 
-import org.sbolstandard.core.DnaComponent;
-import org.sbolstandard.core.SBOLDocument;
+import org.sbolstandard.core2.ComponentDefinition;
+import org.sbolstandard.core2.SBOLDocument;
 
 import com.clarkparsia.sbol.SBOLUtils;
 import com.clarkparsia.sbol.SublimeSBOLFactory;
@@ -46,7 +46,7 @@ import com.google.common.collect.Lists;
  * 
  * @author Evren Sirin
  */
-public class SelectPartDialog extends InputDialog<DnaComponent> {
+public class SelectPartDialog extends InputDialog<ComponentDefinition> {
 	private static final String TITLE = "Select a part from registry";
 	
 	private static final Part ALL_PARTS = new Part("All parts", "All");
@@ -117,8 +117,8 @@ public class SelectPartDialog extends InputDialog<DnaComponent> {
 	
 	@Override
 	protected JPanel initMainPanel() {		
-		List<DnaComponent> components = SPARQLUtilities.findMatchingParts(endpoint, isTypeSelection() ? part : ALL_PARTS);
-		DnaComponentTableModel tableModel = new DnaComponentTableModel(components);
+		List<ComponentDefinition> components = SPARQLUtilities.findMatchingParts(endpoint, isTypeSelection() ? part : ALL_PARTS);
+		ComponentDefinitionTableModel tableModel = new ComponentDefinitionTableModel(components);
 		
 		JPanel panel = createTablePanel(tableModel, "Matching parts (" + tableModel.getRowCount() + ")");
 
@@ -129,9 +129,9 @@ public class SelectPartDialog extends InputDialog<DnaComponent> {
 	}
 
 	@Override
-    protected DnaComponent getSelection() {
+    protected ComponentDefinition getSelection() {
 		int row = table.convertRowIndexToModel(table.getSelectedRow());
-		DnaComponent comp = ((DnaComponentTableModel) table.getModel()).getElement(row);
+		ComponentDefinition comp = ((ComponentDefinitionTableModel) table.getModel()).getElement(row);
 		if (importSubparts.isSelected()) {
 			try {
 				SBOLDocument doc = SublimeSBOLFactory.createReader(endpoint, false).read(comp.getURI().toString());
@@ -151,20 +151,20 @@ public class SelectPartDialog extends InputDialog<DnaComponent> {
 	
 	public void partTypeChanged() {
 		Part part = isTypeSelection() ? (Part) typeSelection.getSelectedItem() : ALL_PARTS;
-		List<DnaComponent> components = SPARQLUtilities.findMatchingParts(endpoint, part);
-		((DnaComponentTableModel) table.getModel()).setElements(components);
+		List<ComponentDefinition> components = SPARQLUtilities.findMatchingParts(endpoint, part);
+		((ComponentDefinitionTableModel) table.getModel()).setElements(components);
 		tableLabel.setText("Matching parts (" + components.size() + ")");
 	}
 
 	private void updateFilter(String filterText) {		
 		@SuppressWarnings( { "rawtypes", "unchecked" })
-		TableRowSorter<DnaComponentTableModel> sorter = (TableRowSorter) table.getRowSorter();
+		TableRowSorter<ComponentDefinitionTableModel> sorter = (TableRowSorter) table.getRowSorter();
 		if (filterText.length() == 0) {
 			sorter.setRowFilter(null);
 		}
 		else {
 			try {
-				RowFilter<DnaComponentTableModel, Object> rf = RowFilter.regexFilter(filterText, 0, 1);
+				RowFilter<ComponentDefinitionTableModel, Object> rf = RowFilter.regexFilter(filterText, 0, 1);
 				sorter.setRowFilter(rf);
 			}
 			catch (java.util.regex.PatternSyntaxException e) {

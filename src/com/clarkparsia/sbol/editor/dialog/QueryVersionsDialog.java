@@ -35,7 +35,7 @@ import org.openrdf.query.BindingSet;
 import org.openrdf.query.QueryEvaluationException;
 import org.openrdf.query.TupleQueryResultHandler;
 import org.openrdf.query.TupleQueryResultHandlerException;
-import org.sbolstandard.core.DnaComponent;
+import org.sbolstandard.core2.ComponentDefinition;
 
 import com.clarkparsia.swing.InvisibleSplitPane;
 
@@ -43,7 +43,7 @@ import com.clarkparsia.swing.InvisibleSplitPane;
  * 
  * @author Evren Sirin
  */
-public class QueryVersionsDialog extends InputDialog<DnaComponent> {
+public class QueryVersionsDialog extends InputDialog<ComponentDefinition> {
 	private static final String TITLE = "Query versions";
 	
 	private static class ExampleQuery {
@@ -189,9 +189,9 @@ public class QueryVersionsDialog extends InputDialog<DnaComponent> {
 	}
 
 	@Override
-    protected DnaComponent getSelection() {
+    protected ComponentDefinition getSelection() {
 		int row = table.convertRowIndexToModel(table.getSelectedRow());
-		DnaComponent comp = ((DnaComponentTableModel) table.getModel()).getElement(row);
+		ComponentDefinition comp = ((ComponentDefinitionTableModel) table.getModel()).getElement(row);
 		return comp;
 	}
 }

@@ -22,9 +22,9 @@ import javax.swing.JOptionPane;
 
 import org.openrdf.rio.RDFFormat;
 import org.openrdf.rio.helpers.StatementCollector;
-import org.sbolstandard.core.DnaComponent;
-import org.sbolstandard.core.SBOLDocument;
-import org.sbolstandard.core.SBOLValidationException;
+import org.sbolstandard.core2.ComponentDefinition;
+import org.sbolstandard.core2.SBOLDocument;
+import org.sbolstandard.core2.SBOLValidationException;
 
 import com.clarkparsia.sbol.SBOLRDFReader;
 import com.clarkparsia.sbol.SBOLRDFWriter;
@@ -126,7 +126,7 @@ public class RVTDocumentIO implements DocumentIO {
     public void write(SBOLDocument doc) throws SBOLValidationException, IOException {
 		setCredentials();
 		
-		DnaComponent comp = (DnaComponent) doc.getContents().iterator().next();
+		ComponentDefinition comp = (ComponentDefinition) doc.getContents().iterator().next();
 		comp.setURI(java.net.URI.create(branch.getRepository().getURI().stringValue()));
 		
 		String msg = JOptionPane.showInputDialog("Enter commit message");

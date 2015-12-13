@@ -15,20 +15,20 @@
 
 package com.clarkparsia.sbol.editor.event;
 
-import org.sbolstandard.core.DnaComponent;
+import org.sbolstandard.core2.ComponentDefinition;
 
 /**
  * 
  * @author Evren Sirin
  */
 public class SelectionChangedEvent {
-	private final DnaComponent component;
+	private final ComponentDefinition component;
 
-	public SelectionChangedEvent(DnaComponent component) {
+	public SelectionChangedEvent(ComponentDefinition component) {
 		this.component = component;
 	}
 
-	public DnaComponent getSelected() {
+	public ComponentDefinition getSelected() {
 		return component;
 	}
 }

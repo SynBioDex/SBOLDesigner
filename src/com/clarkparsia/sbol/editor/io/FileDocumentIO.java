@@ -21,10 +21,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 
 import org.openrdf.rio.RDFFormat;
-import org.sbolstandard.core.SBOLDocument;
-import org.sbolstandard.core.SBOLReader;
-import org.sbolstandard.core.SBOLValidationException;
-import org.sbolstandard.core.SBOLWriter;
+import org.sbolstandard.core2.SBOLDocument;
+import org.sbolstandard.core2.SBOLReader;
+import org.sbolstandard.core2.SBOLValidationException;
+import org.sbolstandard.core2.SBOLWriter;
 
 import com.clarkparsia.sbol.SublimeSBOLFactory;
 

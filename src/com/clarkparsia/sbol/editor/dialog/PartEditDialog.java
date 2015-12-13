@@ -42,8 +42,8 @@ import javax.swing.KeyStroke;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
-import org.sbolstandard.core.DnaComponent;
-import org.sbolstandard.core.DnaSequence;
+import org.sbolstandard.core2.ComponentDefinition;
+import org.sbolstandard.core2.DnaSequence;
 
 import com.clarkparsia.sbol.CharSequences;
 import com.clarkparsia.sbol.SBOLUtils;
@@ -60,7 +60,7 @@ import com.google.common.collect.Iterables;
 public class PartEditDialog extends JDialog implements ActionListener, DocumentListener {
 	private static final String TITLE = "Component: ";
 	
-	private DnaComponent comp;
+	private ComponentDefinition comp;
 	
 	private final JComboBox typeSelection = new JComboBox(Iterables.toArray(Parts.sorted(), Part.class));
 	private final JButton saveButton;
@@ -70,7 +70,7 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 	private final JTextField description = new JTextField();
 	private final JTextArea sequence = new JTextArea(10, 80);
 
-	public static boolean editPart(Component parent, DnaComponent part, boolean enableSave) {
+	public static boolean editPart(Component parent, ComponentDefinition part, boolean enableSave) {
 		try {				
 			PartEditDialog dialog = new PartEditDialog(parent, part);
 			dialog.saveButton.setEnabled(enableSave);
@@ -84,7 +84,7 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 		}
 	}
 	
-	private static String title(DnaComponent comp) {
+	private static String title(ComponentDefinition comp) {
 		String title = comp.getDisplayId();
 		if (title == null) {
 			title = comp.getName();
@@ -97,7 +97,7 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 		return (title == null) ? "" : CharSequences.shorten(title, 20).toString();
 	}
 
-	private PartEditDialog(Component parent, DnaComponent comp) {
+	private PartEditDialog(Component parent, ComponentDefinition comp) {
 		super(JOptionPane.getFrameForComponent(parent), TITLE + title(comp), true);
 		
 		this.comp = comp;        
@@ -219,12 +219,12 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 		saveButton.setEnabled(true);
 	}
 	
-	public static boolean confirmEditing(Component parent, DnaComponent comp) {
+	public static boolean confirmEditing(Component parent, ComponentDefinition comp) {
 		int result = JOptionPane.showConfirmDialog(parent, 
 				"The component '" + comp.getDisplayId() + "' has been added from\n" +
 				"a parts registry and cannot be edited.\n\n" +
 				"Do you want to create an editable copy of\n" +
-				"this DnaComponent and save your changes?", "Edit registry part", 
+				"this ComponentDefinition and save your changes?", "Edit registry part", 
 				JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
 		
 		if (result == JOptionPane.NO_OPTION) {

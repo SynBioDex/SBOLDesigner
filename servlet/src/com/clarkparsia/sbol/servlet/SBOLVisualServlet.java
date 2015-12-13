@@ -26,7 +26,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.swing.JPanel;
 
-import org.sbolstandard.core.SBOLDocument;
+import org.sbolstandard.core2.SBOLDocument;
 
 import com.clarkparsia.sbol.SublimeSBOLFactory;
 import com.clarkparsia.sbol.editor.SBOLDesign;

@@ -20,9 +20,9 @@ import java.awt.image.BufferedImage;
 import java.net.URI;
 import java.util.List;
 
-import org.sbolstandard.core.DnaComponent;
-import org.sbolstandard.core.SBOLFactory;
-import org.sbolstandard.core.StrandType;
+import org.sbolstandard.core2.ComponentDefinition;
+import org.sbolstandard.core2.SBOLFactory;
+import org.sbolstandard.core2.StrandType;
 
 import com.clarkparsia.sbol.SBOLUtils;
 import com.google.common.collect.ImmutableList;
@@ -114,8 +114,8 @@ public class Part {
 		return smallImage;
 	}
 	
-	public DnaComponent createComponent() {
-		DnaComponent comp = SBOLFactory.createDnaComponent();
+	public ComponentDefinition createComponent() {
+		ComponentDefinition comp = SBOLFactory.createComponentDefinition();
 		comp.setURI(SBOLUtils.createURI());
 		comp.setDisplayId(getDisplayId());
 		comp.addType(getType());
