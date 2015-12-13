@@ -27,6 +27,8 @@ import javax.servlet.http.HttpServletResponse;
 import javax.swing.JPanel;
 
 import org.sbolstandard.core2.SBOLDocument;
+import org.sbolstandard.core2.SBOLReader;
+import org.sbolstandard.core2.SBOLWriter;
 
 import com.clarkparsia.sbol.SublimeSBOLFactory;
 import com.clarkparsia.sbol.editor.SBOLDesign;
@@ -42,7 +44,8 @@ public class SBOLVisualServlet extends HttpServlet {
 	@Override
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		try {
-			SBOLDocument doc = SublimeSBOLFactory.read(request.getInputStream());
+			//SBOLDocument doc = SublimeSBOLFactory.read(request.getInputStream());
+			SBOLDocument doc = SBOLReader.read(request.getInputStream());
 	        writeImage(doc, response);
         }
         catch (Exception e) {
