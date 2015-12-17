@@ -24,6 +24,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.net.URI;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -41,9 +43,10 @@ import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.text.html.HTMLDocument.Iterator;
 
 import org.sbolstandard.core2.ComponentDefinition;
-import org.sbolstandard.core2.DnaSequence;
+import org.sbolstandard.core2.Sequence;
 
 import com.clarkparsia.sbol.CharSequences;
 import com.clarkparsia.sbol.SBOLUtils;
@@ -138,9 +141,19 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
  		
 		sequence.setLineWrap(true);
 		sequence.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
-		if (comp.getDnaSequence() != null && comp.getDnaSequence().getNucleotides() != null) {
-			sequence.setText(comp.getDnaSequence().getNucleotides());
+//		if (comp.getDnaSequence() != null && comp.getDnaSequence().getNucleotides() != null) {
+//			sequence.setText(comp.getDnaSequence().getNucleotides());
+//		}
+		// Check if set has sequences and that the sequences's nucleotides aren't null.
+		Set<Sequence> sequences = comp.getSequences();
+		java.util.Iterator<Sequence> iter = sequences.iterator();
+		while (iter.hasNext()) {
+			Sequence seq = iter.next();
+			if (seq.getElements() != null) {
+				sequence.setText(seq.getElements());
+			}
 		}
+		//
 
 		// Lay out the buttons from left to right.
 		JPanel buttonPane = new JPanel();
@@ -179,7 +192,7 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 				}
 			}			
 			
-			comp.setDisplayId(displayId.getText());
+			comp.setDisplayId(displayId.getText()); //TODO Why is this not visible in Identified? 
 			comp.setName(name.getText());
 			comp.setDescription(description.getText());
 			comp.getTypes().clear();
@@ -191,7 +204,15 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 			
 			String seq = sequence.getText();
 			if (seq == null || seq.isEmpty()) {
-				comp.setDnaSequence(null);
+				//comp.setDnaSequence(null);
+				//set the Sequence to null
+				Set<Sequence> sequences = comp.getSequences();
+				java.util.Iterator<Sequence> iter = sequences.iterator();
+				while (iter.hasNext()) {
+					iter.next();
+					iter.remove();
+				}
+				//
 			}
 			else if (comp.getDnaSequence() == null || !Objects.equal(comp.getDnaSequence().getNucleotides(), seq)) {
 				DnaSequence dnaSeq = SBOLUtils.createDnaSequence(seq);

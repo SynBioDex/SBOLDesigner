@@ -24,12 +24,11 @@ import java.util.UUID;
 
 import javax.swing.JPanel;
 
-import org.sbolstandard.core.DnaComponent;
-import org.sbolstandard.core.DnaSequence;
-import org.sbolstandard.core.SBOLDocument;
-import org.sbolstandard.core.SBOLFactory;
-import org.sbolstandard.core.SBOLObject;
-import org.sbolstandard.core.SequenceAnnotation;
+import org.sbolstandard.core2.ComponentDefinition;
+import org.sbolstandard.core2.Sequence;
+import org.sbolstandard.core2.SBOLDocument;
+import org.sbolstandard.core2.SBOLObject;
+import org.sbolstandard.core2.SequenceAnnotation;
 
 import com.clarkparsia.sbol.editor.SBOLDesign;
 import com.clarkparsia.sbol.editor.SBOLEditor;
@@ -50,44 +49,45 @@ public class SBOLUtils {
     	return uri == null || uri.length() == 0 ? createURI() : URI.create(uri);
     }
 	
-	public static String getNucleotides(DnaComponent comp) {
-		DnaSequence seq = comp.getDnaSequence();
-		return (seq == null) ? null : seq.getNucleotides();
+	public static String getNucleotides(ComponentDefinition comp) {
+//		Sequence seq = comp.getSequence();
+		Sequence seq = comp.getSequences().iterator().next();
+		return (seq == null) ? null : seq.getElements();
 	}
 	
-	public static SBOLDocument createdDocument(DnaComponent comp) {
+	public static SBOLDocument createdDocument(ComponentDefinition comp) {
 		SBOLDocument doc = SBOLFactory.createDocument();
 		doc.addContent(comp);
 		return doc;		
 	}
 	
-	public static DnaComponent getRootComponent(SBOLDocument doc) {
-		return Iterators.getOnlyElement(Iterators.filter(doc.getContents().iterator(), DnaComponent.class), null);		
+	public static ComponentDefinition getRootComponent(SBOLDocument doc) {
+		return Iterators.getOnlyElement(Iterators.filter(doc.getContents().iterator(), ComponentDefinition.class), null);		
 	}
 	
-	public static Iterator<DnaComponent> getRootComponents(SBOLDocument doc) {
-		return Iterators.filter(doc.getContents().iterator(), DnaComponent.class);		
+	public static Iterator<ComponentDefinition> getRootComponents(SBOLDocument doc) {
+		return Iterators.filter(doc.getContents().iterator(), ComponentDefinition.class);		
 	}
 	
-	public static DnaSequence createDnaSequence(String nucleotides) {
-		DnaSequence seq = SublimeSBOLFactory.createDnaSequence();
+	public static Sequence createSequence(String nucleotides) {
+		Sequence seq = SublimeSBOLFactory.createSequence();
 		seq.setURI(SBOLUtils.createURI());
 		seq.setNucleotides(nucleotides);
 		return seq;
 	}
 	
-	public static boolean isRegistryComponent(DnaComponent comp) {
+	public static boolean isRegistryComponent(ComponentDefinition comp) {
 		URI uri = comp.getURI();
 		return uri != null && uri.toString().startsWith("http://partsregistry");
 	}
 	
-	public static Map<Integer, DnaSequence> findUncoveredSequences(DnaComponent comp, List<SequenceAnnotation> annotations) {
+	public static Map<Integer, Sequence> findUncoveredSequences(ComponentDefinition comp, List<SequenceAnnotation> annotations) {
 		String sequence = SBOLUtils.getNucleotides(comp);
 		if (sequence == null) {
 			return ImmutableMap.of();
 		}
 		
-		Map<Integer, DnaSequence> uncoveredSequences = Maps.newLinkedHashMap();
+		Map<Integer, Sequence> uncoveredSequences = Maps.newLinkedHashMap();
 		int size = annotations.size();
 		int location = 1;				
 		for (int i = 0; i < size; i++) {
@@ -100,12 +100,12 @@ public class SBOLUtils {
 			}
 			
 			if (start > location) {
-				DnaSequence seq = SBOLUtils.createDnaSequence(sequence.substring(location - 1, start - 1));
+				Sequence seq = SBOLUtils.createSequence(sequence.substring(location - 1, start - 1));
 				uncoveredSequences.put(-i - 1, seq);
 			}
 			
 			if (SBOLUtils.getNucleotides(ann.getSubComponent()) == null) {
-				DnaSequence seq = SBOLUtils.createDnaSequence(sequence.substring(start - 1, end));
+				Sequence seq = SBOLUtils.createSequence(sequence.substring(start - 1, end));
 				uncoveredSequences.put(i, seq);				
 			}
 			
@@ -113,16 +113,16 @@ public class SBOLUtils {
 		}
 		
 		if (location < sequence.length()) {
-			DnaSequence seq = SBOLUtils.createDnaSequence(sequence.substring(location - 1, sequence.length()));
+			Sequence seq = SBOLUtils.createSequence(sequence.substring(location - 1, sequence.length()));
 			uncoveredSequences.put(-size - 1, seq);			
 		}
 		
 		return uncoveredSequences;
 	}
 	
-	public static void rename(DnaComponent comp) {		
+	public static void rename(ComponentDefinition comp) {		
 		renameObj(comp);		
-		renameObj(comp.getDnaSequence());
+		renameObj(comp.getSequence());
 		for (SequenceAnnotation ann : comp.getAnnotations()) {
 			renameObj(ann);
         }
@@ -134,10 +134,10 @@ public class SBOLUtils {
 		}
 	}
 	
-	public static BufferedImage getImage(DnaComponent comp) {
+	public static BufferedImage getImage(ComponentDefinition comp) {
 		SBOLEditor editor = new SBOLEditor(false);
 		SBOLDesign design = editor.getDesign();
-		SBOLDocument doc = SBOLFactory.createDocument();
+		SBOLDocument doc = new SBOLDocument();
 		doc.addContent(comp);
 		design.load(doc);
 

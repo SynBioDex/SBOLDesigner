@@ -68,11 +68,10 @@ import javax.swing.KeyStroke;
 import javax.swing.SwingConstants;
 
 import org.sbolstandard.core2.ComponentDefinition;
-import org.sbolstandard.core2.DnaSequence;
+import org.sbolstandard.core2.Sequence;
 import org.sbolstandard.core2.SBOLDocument;
-import org.sbolstandard.core2.SBOLFactory;
 import org.sbolstandard.core2.SequenceAnnotation;
-import org.sbolstandard.core2.StrandType;
+import org.sbolstandard.core2.OrientationType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -375,7 +374,7 @@ public class SBOLDesign {
 		currentComponent = newRoot;
 		populateComponents(currentComponent);
 		
-		hasSequence = (currentComponent.getDnaSequence() != null) && elements.isEmpty();
+		hasSequence = (currentComponent.getSequences() != null) && elements.isEmpty();
 		
 		detectReadOnly();
 		
@@ -392,7 +391,7 @@ public class SBOLDesign {
 			readOnly.add(ReadOnly.REGISTRY_COMPONENT);
 		}
 		
-		Map<Integer, DnaSequence> uncoveredSequences = findUncoveredSequences();
+		Map<Integer, Sequence> uncoveredSequences = findUncoveredSequences();
 		if (uncoveredSequences == null) {
 			readOnly.add(ReadOnly.MISSING_START_END);
 		}
@@ -473,16 +472,17 @@ public class SBOLDesign {
 	}
 	
 	private void addScarsForUncoveredSequences() {
-		Map<Integer, DnaSequence> uncoveredSequences = findUncoveredSequences();
+		Map<Integer, Sequence> uncoveredSequences = findUncoveredSequences();
 		int insertCount = 0;
         int lastIndex = elements.size();
-		for (Entry<Integer, DnaSequence> entry : uncoveredSequences.entrySet()) {
+		for (Entry<Integer, Sequence> entry : uncoveredSequences.entrySet()) {
 			int index = entry.getKey();
-	        DnaSequence seq = entry.getValue();	        
+	        Sequence seq = entry.getValue();	        
 			if (index >= 0) {
 				int updateIndex = index + insertCount;
 		        DesignElement e = elements.get(updateIndex);
-		        e.getComponent().setDnaSequence(seq);
+		        e.getComponent().clearSequences();
+		        e.getComponent().addSequence(seq);
 			}			
 			else {
 		        int insertIndex = -index - 1 + insertCount++;
@@ -490,7 +490,8 @@ public class SBOLDesign {
 		        addComponent(Parts.SCAR, false);
 		        
 		        DesignElement e = elements.get(lastIndex);
-		        e.getComponent().setDnaSequence(seq);
+		        e.getComponent().clearSequences();
+		        e.getComponent().addSequence(seq);
 		        
 		        moveComponent(lastIndex++, insertIndex);
 			}
@@ -499,7 +500,7 @@ public class SBOLDesign {
 		createDocument();
 	}
 	
-	private Map<Integer, DnaSequence> findUncoveredSequences() {
+	private Map<Integer, Sequence> findUncoveredSequences() {
 		return SBOLUtils.findUncoveredSequences(currentComponent, Lists.transform(elements, new Function<DesignElement, SequenceAnnotation>() {
 			@Override
             public SequenceAnnotation apply(DesignElement e) {
@@ -553,7 +554,7 @@ public class SBOLDesign {
 		if (!visited.add(ann)) {
 			LOGGER.warn("Circular precedes relation: " + Iterators.toString(Iterators.transform(visited.iterator(), new Function<SequenceAnnotation,String>() {
 				public String apply(SequenceAnnotation ann) {
-					return ann.getURI().toString() ;
+					return ann.getIdentity().toString() ;
 				}
 			})));
 			return;
@@ -822,8 +823,13 @@ public class SBOLDesign {
 		if (e.getStrand() != null) {
 			sb.append("<b>Strand:</b> ").append(e.getStrand()).append("<br>");
 		}
-		if (comp.getDnaSequence() != null && comp.getDnaSequence().getNucleotides() != null) {
-			String sequence = comp.getDnaSequence().getNucleotides();
+		//
+		Iterator<Sequence> iter = comp.getSequences().iterator();
+		Sequence seq = iter.next();
+		if (comp.getSequences() != null && seq.getElements() != null) {
+//			String sequence = comp.getSequence().getNucleotides();
+			String sequence = seq.getElements();
+			//
 			sb.append("<b>Sequence Length:</b> ").append(sequence.length()).append("<br>");
 			sb.append("<b>Sequence:</b> ").append(CharSequences.shorten(sequence, 25));
 			sb.append("<br>");
@@ -1081,7 +1087,7 @@ public class SBOLDesign {
 		updateRootComponent();
 		
 		ComponentDefinition comp = parentComponents.isEmpty() ? currentComponent : parentComponents.getFirst();
-		SBOLDocument doc = SBOLFactory.createDocument();
+		SBOLDocument doc = new SBOLDocument(); 
 		doc.addContent(comp);
 		
 		return doc;
@@ -1097,8 +1103,11 @@ public class SBOLDesign {
 			ComponentDefinition comp = e.getComponent();
 	        SequenceAnnotation ann = e.getAnnotation();
 	        
-	        if (location >= 0 && comp.getDnaSequence() != null && comp.getDnaSequence().getNucleotides() != null) {
-	        	String nucleotides = comp.getDnaSequence().getNucleotides();
+	        //
+	        Iterator<Sequence> iter = comp.getSequences().iterator();
+	        Sequence seq = iter.next();
+	        if (location >= 0 && comp.getSequences() != null && seq.getElements() != null) {
+	        	String nucleotides = seq.getElements();
 	        	rootSequence.append(nucleotides);
 	        	ann.setBioStart(location);
 	        	location += nucleotides.length();
@@ -1120,14 +1129,14 @@ public class SBOLDesign {
         }
 		
 		if (location > 0 && !elements.isEmpty()) {
-			DnaSequence seq = SBOLFactory.createDnaSequence();
+			Sequence seq = SBOLFactory.createSequence();
 			seq.setURI(SBOLUtils.createURI());
 			seq.setNucleotides(rootSequence.toString());
 			
-			currentComponent.setDnaSequence(seq);
+			currentComponent.addSequence(seq);
 		}
 		else if (!hasSequence) {
-			currentComponent.setDnaSequence(null);
+			currentComponent.setSequence(null);
 		}
 		
 		LOGGER.debug("Updated root:\n{}", new SBOLTextWriter().write(currentComponent));

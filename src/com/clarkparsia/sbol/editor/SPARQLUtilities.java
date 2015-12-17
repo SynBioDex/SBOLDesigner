@@ -27,8 +27,7 @@ import org.openrdf.query.BindingSet;
 import org.openrdf.query.TupleQueryResultHandlerBase;
 import org.openrdf.query.TupleQueryResultHandlerException;
 import org.sbolstandard.core2.ComponentDefinition;
-import org.sbolstandard.core2.DnaSequence;
-import org.sbolstandard.core2.SBOLFactory;
+import org.sbolstandard.core2.Sequence;
 import org.sbolstandard.core2.SequenceOntology;
 
 import com.clarkparsia.sbol.editor.dialog.UserCredentialsDialog;
@@ -58,7 +57,7 @@ public class SPARQLUtilities {
 		                + "  OPTIONAL { ?part :displayId ?displayId }\n" 
 						+ "  OPTIONAL { ?part :name ?name }\n"
 		                + "  OPTIONAL { ?part :description ?desc }\n" 
-						+ "  ?part :dnaSequence ?seq .\n"
+						+ "  ?part :Sequence ?seq .\n"
 		                + "  ?seq :nucleotides ?nucleotides .\n" 
 						+ "}\n"
 		                + "ORDER BY ?displayId\n" 
@@ -88,10 +87,10 @@ public class SPARQLUtilities {
 
 					String seqURI = getBindingAsString(binding, "seq");
 					String nucleotides = getBindingAsString(binding, "nucleotides");
-					DnaSequence seq = SBOLFactory.createDnaSequence();
+					Sequence seq = SBOLFactory.createSequence();
 					seq.setURI(URI.create(seqURI));
 					seq.setNucleotides(nucleotides);
-					comp.setDnaSequence(seq);
+					comp.setSequence(seq);
 
 					parts.add(comp);
 				}
