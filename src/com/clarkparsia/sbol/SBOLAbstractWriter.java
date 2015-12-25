@@ -29,17 +29,17 @@ import org.openrdf.model.ValueFactory;
 import org.openrdf.model.impl.ValueFactoryImpl;
 import org.openrdf.model.vocabulary.RDF;
 import org.openrdf.rio.RDFHandlerException;
-import org.sbolstandard.core.Collection;
-import org.sbolstandard.core.DnaComponent;
-import org.sbolstandard.core.DnaSequence;
-import org.sbolstandard.core.SBOLDocument;
-import org.sbolstandard.core.SBOLObject;
-import org.sbolstandard.core.SBOLVisitable;
-import org.sbolstandard.core.SBOLVisitor;
-import org.sbolstandard.core.SBOLWriter;
-import org.sbolstandard.core.SequenceAnnotation;
-import org.sbolstandard.core.impl.SBOLValidatorImpl;
-import org.sbolstandard.core.util.SBOLBaseVisitor;
+import org.sbolstandard.core2.Collection;
+import org.sbolstandard.core2.ComponentDefinition;
+import org.sbolstandard.core2.Sequence;
+import org.sbolstandard.core2.SBOLDocument;
+import org.sbolstandard.core2.SBOLObject;
+import org.sbolstandard.core2.SBOLVisitable;
+import org.sbolstandard.core2.SBOLVisitor;
+import org.sbolstandard.core2.SBOLWriter;
+import org.sbolstandard.core2.SequenceAnnotation;
+import org.sbolstandard.core2.impl.SBOLValidatorImpl;
+import org.sbolstandard.core2.util.SBOLBaseVisitor;
 
 import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl;
 
@@ -120,15 +120,15 @@ public abstract class SBOLAbstractWriter implements SBOLWriter {
 		}
 
 		@Override
-		public void visit(DnaComponent component) {
+		public void visit(ComponentDefinition component) {
 			try {
-	            startSubj(component, SBOLVocabulary.DnaComponent);
+	            startSubj(component, SBOLVocabulary.ComponentDefinition);
 	            writeProp(SBOLVocabulary.displayId, component.getDisplayId());
 	            writeProp(SBOLVocabulary.name, component.getName());
 	            writeProp(SBOLVocabulary.description, component.getDescription());
-	            if (component.getDnaSequence() != null) {
-	            	startProp(SBOLVocabulary.dnaSequence);
-	            	visit(component.getDnaSequence());
+	            if (component.getSequence() != null) {
+	            	startProp(SBOLVocabulary.Sequence);
+	            	visit(component.getSequence());
 	            	endProp();
 	            }
 	            java.util.Collection<SequenceAnnotation> annotations = component.getAnnotations();
@@ -148,10 +148,10 @@ public abstract class SBOLAbstractWriter implements SBOLWriter {
 		}
 
 		@Override
-		public void visit(DnaSequence sequence) {
+		public void visit(Sequence sequence) {
 			try {
 				if (sequence != null) {
-		            startSubj(sequence, SBOLVocabulary.DnaSequence);
+		            startSubj(sequence, SBOLVocabulary.Sequence);
 		            writeProp(SBOLVocabulary.nucleotides, sequence.getNucleotides());
 		            endSubj();
 				}
@@ -169,7 +169,7 @@ public abstract class SBOLAbstractWriter implements SBOLWriter {
 	            writeProp(SBOLVocabulary.bioStart, annotation.getBioStart());
 	            writeProp(SBOLVocabulary.bioEnd, annotation.getBioEnd());
 	            writeProp(SBOLVocabulary.strand, annotation.getStrand());
-	            DnaComponent subComponent = annotation.getSubComponent();
+	            ComponentDefinition subComponent = annotation.getSubComponent();
 	            if (subComponent != null) {
 	            	startProp(SBOLVocabulary.subComponent);
 	            	visit(subComponent);

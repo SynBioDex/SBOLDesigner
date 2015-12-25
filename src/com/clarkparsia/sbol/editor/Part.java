@@ -18,7 +18,9 @@ package com.clarkparsia.sbol.editor;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.net.URI;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.sbolstandard.core2.ComponentDefinition;
 import org.sbolstandard.core2.OrientationType;
@@ -114,10 +116,16 @@ public class Part {
 	}
 	
 	public ComponentDefinition createComponent() {
-		ComponentDefinition comp = SBOLFactory.createComponentDefinition();
-		comp.setURI(SBOLUtils.createURI());
-		comp.setDisplayId(getDisplayId());
-		comp.addType(getType());
+		// change List of types to Set of types
+		Set<URI> setTypes = new HashSet<URI>();
+		for (URI element: types) {
+			setTypes.add(element);
+		}
+		// create ComponentDefinition using the following parameters
+		ComponentDefinition comp = new ComponentDefinition(SBOLUtils.createURI().toString(), getDisplayId(), "no version", setTypes); 
+//		comp.setURI(SBOLUtils.createURI());
+//		comp.setDisplayId(getDisplayId());
+//		comp.addType(getType());
 		return comp;
 	}
 	

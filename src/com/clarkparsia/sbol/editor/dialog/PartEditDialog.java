@@ -192,10 +192,12 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 				}
 			}			
 			
-			comp.setDisplayId(displayId.getText()); //TODO Why is this not visible in Identified? 
+			// TODO This is like createCopy to set a new displayId, but I'm not sure if it preserves all the data from the original ComponenetDefintion like Sequences and such.
+			comp = new ComponentDefinition(comp.getIdentity().toString(), displayId.getText(), "no version", new HashSet<URI>());
+			//comp.setDisplayId(displayId.getText());
 			comp.setName(name.getText());
 			comp.setDescription(description.getText());
-			comp.getTypes().clear();
+			//comp.getTypes().clear();
 			
 			Part part = (Part) typeSelection.getSelectedItem();
 			if (part != null) {

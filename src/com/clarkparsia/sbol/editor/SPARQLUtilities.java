@@ -18,7 +18,9 @@ package com.clarkparsia.sbol.editor;
 import java.net.PasswordAuthentication;
 import java.net.URI;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.swing.JOptionPane;
 
@@ -77,20 +79,18 @@ public class SPARQLUtilities {
 					String description = getBindingAsString(binding, "desc");
 
 					URI partTypeURI = findAllParts ? URI.create(getBindingAsString(binding, "type")) : part.getType();
+					Set<URI> types = new HashSet<URI>();
+					types.add(partTypeURI);
 
-					ComponentDefinition comp = SBOLFactory.createComponentDefinition();
-					comp.setURI(URI.create(partURI));
+					ComponentDefinition comp = new ComponentDefinition(URI.create(partURI).toString(), displayId, "no version", types);
 					comp.setName(name);
-					comp.setDisplayId(displayId);
 					comp.setDescription(description);
 					comp.addType(partTypeURI);
 
 					String seqURI = getBindingAsString(binding, "seq");
 					String nucleotides = getBindingAsString(binding, "nucleotides");
-					Sequence seq = SBOLFactory.createSequence();
-					seq.setURI(URI.create(seqURI));
-					seq.setNucleotides(nucleotides);
-					comp.setSequence(seq);
+					Sequence seq = new Sequence(URI.create(seqURI).toString(), "no displayId", "no version", nucleotides, Sequence.IUPAC_DNA); 	
+					comp.addSequence(seq);
 
 					parts.add(comp);
 				}

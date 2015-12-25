@@ -17,7 +17,7 @@ package com.clarkparsia.sbol;
 
 import java.io.ByteArrayOutputStream;
 
-import org.sbolstandard.core.impl.SBOLObjectImpl;
+import org.sbolstandard.core2.impl.SBOLObjectImpl;
 
 /**
  * 

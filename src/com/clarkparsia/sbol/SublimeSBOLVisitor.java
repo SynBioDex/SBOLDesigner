@@ -15,7 +15,7 @@
 
 package com.clarkparsia.sbol;
 
-import org.sbolstandard.core.SBOLVisitor;
+import org.sbolstandard.core2.SBOLVisitor;
 
 /**
  * Extended SBOL visitor interface to support visiting Sublime specific SBOL extensions. 

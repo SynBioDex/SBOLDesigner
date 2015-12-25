@@ -350,9 +350,9 @@ public class SBOLDesign {
 			}
 		}
 		else {
-			newComponent = SublimeSBOLFactory.createComponentDefinition();
-			newComponent.setURI(SBOLUtils.createURI());
-			newComponent.setDisplayId("Unnamed");
+			newComponent = new ComponentDefinition(SBOLUtils.createURI().toString(), "Unnamed", "no version", null);
+//			newComponent.setURI(SBOLUtils.createURI());
+//			newComponent.setDisplayId("Unnamed");
 		}
 		
 		parentComponents.clear();

@@ -20,21 +20,21 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import org.openrdf.rio.RDFFormat;
-import org.sbolstandard.core.Collection;
-import org.sbolstandard.core.DnaComponent;
-import org.sbolstandard.core.DnaSequence;
-import org.sbolstandard.core.SBOLDocument;
-import org.sbolstandard.core.SBOLReader;
-import org.sbolstandard.core.SBOLValidationException;
-import org.sbolstandard.core.SBOLValidator;
-import org.sbolstandard.core.SBOLWriter;
-import org.sbolstandard.core.SequenceAnnotation;
-import org.sbolstandard.core.impl.CollectionImpl;
-import org.sbolstandard.core.impl.DnaComponentImpl;
-import org.sbolstandard.core.impl.DnaSequenceImpl;
-import org.sbolstandard.core.impl.SBOLDocumentImpl;
-import org.sbolstandard.core.impl.SBOLValidatorImpl;
-import org.sbolstandard.core.impl.SequenceAnnotationImpl;
+import org.sbolstandard.core2.Collection;
+import org.sbolstandard.core2.ComponentDefinition;
+import org.sbolstandard.core2.Sequence;
+import org.sbolstandard.core2.SBOLDocument;
+import org.sbolstandard.core2.SBOLReader;
+import org.sbolstandard.core2.SBOLValidationException;
+import org.sbolstandard.core2.SBOLValidator;
+import org.sbolstandard.core2.SBOLWriter;
+import org.sbolstandard.core2.SequenceAnnotation;
+import org.sbolstandard.core2.impl.CollectionImpl;
+import org.sbolstandard.core2.impl.ComponentDefinitionImpl;
+import org.sbolstandard.core2.impl.SequenceImpl;
+import org.sbolstandard.core2.impl.SBOLDocumentImpl;
+import org.sbolstandard.core2.impl.SBOLValidatorImpl;
+import org.sbolstandard.core2.impl.SequenceAnnotationImpl;
 
 import com.clarkparsia.sbol.editor.sparql.SPARQLEndpoint;
 
@@ -158,17 +158,17 @@ public class SublimeSBOLFactory {
 	}
 
 	/**
-	 * Creates a new empty {@link DnaComponent} instance. 
+	 * Creates a new empty {@link ComponentDefinition} instance. 
 	 */
-	public static DnaComponent createDnaComponent() {
-		return new DnaComponentImpl();
+	public static ComponentDefinition createComponentDefinition() {
+		return new ComponentDefinitionImpl();
 	}
 
 	/**
-	 * Creates a new empty {@link DnaSequence} instance. 
+	 * Creates a new empty {@link Sequence} instance. 
 	 */
-	public static DnaSequence createDnaSequence() {
-		return new DnaSequenceImpl();
+	public static Sequence createSequence() {
+		return new SequenceImpl();
 	}
 
 	/**
