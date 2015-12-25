@@ -134,7 +134,7 @@ public class SelectPartDialog extends InputDialog<ComponentDefinition> {
 		ComponentDefinition comp = ((ComponentDefinitionTableModel) table.getModel()).getElement(row);
 		if (importSubparts.isSelected()) {
 			try {
-				SBOLDocument doc = SublimeSBOLFactory.createReader(endpoint, false).read(comp.getURI().toString());
+				SBOLDocument doc = SublimeSBOLFactory.createReader(endpoint, false).read(comp.getIdentity().toString());
 		        comp = SBOLUtils.getRootComponent(doc);
 	        }
 	        catch (Exception e) {

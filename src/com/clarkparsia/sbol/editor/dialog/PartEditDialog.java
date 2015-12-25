@@ -93,7 +93,7 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 			title = comp.getName();
 		}
 		if (title == null) {
-			URI uri = comp.getURI();
+			URI uri = comp.getIdentity();
 			title = (uri == null) ? null : uri.toString();
 		}
 		
@@ -203,20 +203,15 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 			}
 			
 			String seq = sequence.getText();
+			java.util.Iterator<Sequence> iter = comp.getSequences().iterator();
+			Sequence sequence = iter.next();
 			if (seq == null || seq.isEmpty()) {
 				//comp.setDnaSequence(null);
-				//set the Sequence to null
-				Set<Sequence> sequences = comp.getSequences();
-				java.util.Iterator<Sequence> iter = sequences.iterator();
-				while (iter.hasNext()) {
-					iter.next();
-					iter.remove();
-				}
-				//
+				iter.remove();
 			}
-			else if (comp.getDnaSequence() == null || !Objects.equal(comp.getDnaSequence().getNucleotides(), seq)) {
-				DnaSequence dnaSeq = SBOLUtils.createDnaSequence(seq);
-				comp.setDnaSequence(dnaSeq);
+			else if (comp.getSequences().isEmpty() || !Objects.equal(sequence.getElements(), seq)) {
+				Sequence dnaSeq = SBOLUtils.createSequence(seq);
+				comp.addSequence(dnaSeq);
 			}
 		}
 		else {
