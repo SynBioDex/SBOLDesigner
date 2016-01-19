@@ -103,8 +103,8 @@ public class Part {
 	/**
 	 * Returns the image for the part that can be used in the SBOL design.
 	 */
-	public Image getImage(StrandType strand) {
-		return strand == StrandType.NEGATIVE ? negativeImage : positiveImage;
+	public Image getImage(OrientationType orientation) {
+		return orientation == OrientationType.REVERSECOMPLEMENT ? negativeImage : positiveImage;
 	}	
 
 	/**

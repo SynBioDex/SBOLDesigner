@@ -1088,7 +1088,8 @@ public class SBOLDesign {
 		
 		ComponentDefinition comp = parentComponents.isEmpty() ? currentComponent : parentComponents.getFirst();
 		SBOLDocument doc = new SBOLDocument(); 
-		doc.addContent(comp);
+		//doc.addContent(comp);
+		doc.createCopy(comp);
 		
 		return doc;
 	}
@@ -1139,7 +1140,7 @@ public class SBOLDesign {
 			currentComponent.setSequence(null);
 		}
 		
-		LOGGER.debug("Updated root:\n{}", new SBOLTextWriter().write(currentComponent));
+		LOGGER.debug("Updated root:\n{}", currentComponent.toString());
 	}
 	
 	private static class DesignElement {

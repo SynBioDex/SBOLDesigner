@@ -126,8 +126,10 @@ public class RVTDocumentIO implements DocumentIO {
     public void write(SBOLDocument doc) throws SBOLValidationException, IOException {
 		setCredentials();
 		
-		ComponentDefinition comp = (ComponentDefinition) doc.getContents().iterator().next();
-		comp.setURI(java.net.URI.create(branch.getRepository().getURI().stringValue()));
+		//ComponentDefinition comp = (ComponentDefinition) doc.getContents().iterator().next();
+		ComponentDefinition comp = (ComponentDefinition) doc.getComponentDefinitions().iterator().next();
+		//comp.setURI(java.net.URI.create(branch.getRepository().getURI().stringValue()));
+		doc.createCopy(comp, java.net.URI.create(branch.getRepository().getURI().stringValue()).toString(), comp.getDisplayId(), comp.getVersion());
 		
 		String msg = JOptionPane.showInputDialog("Enter commit message");
 	    try {

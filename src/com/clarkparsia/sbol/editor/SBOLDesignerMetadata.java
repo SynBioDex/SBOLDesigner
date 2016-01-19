@@ -19,7 +19,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
-import org.sbolstandard.core2.SBOLVersion;
+//import org.sbolstandard.core2.SBOLVersion;
 
 public class SBOLDesignerMetadata {
 	private SBOLDesignerMetadata() { };
@@ -37,25 +37,26 @@ public class SBOLDesignerMetadata {
 	private static String readVersion() {
 		Properties versionProperties = new Properties();
 		
-		InputStream vstream = SBOLVersion.class.getResourceAsStream("/plugin.properties");
-		if (vstream != null) {
-			try {
-				versionProperties.load(vstream);
-			}
-			catch (IOException e) {
-				System.err.println("Could not load version properties:");
-				e.printStackTrace();
-			}
-			finally {
-				try {
-					vstream.close();
-				}
-				catch (IOException e) {
-					System.err.println("Could not close version properties:");
-					e.printStackTrace();
-				}
-			}
-		}
+//		InputStream vstream = SBOLVersion.class.getResourceAsStream("/plugin.properties");
+//		if (vstream != null) {
+//			try {
+//				versionProperties.load(vstream);
+//			}
+//			catch (IOException e) {
+//				System.err.println("Could not load version properties:");
+//				e.printStackTrace();
+//			}
+//			finally {
+//				try {
+//					vstream.close();
+//				}
+//				catch (IOException e) {
+//					System.err.println("Could not close version properties:");
+//					e.printStackTrace();
+//				}
+//			}
+//		}
+//		TODO?
 		
 		return versionProperties.getProperty("plugin-version", "0.0");
 	}
