@@ -67,11 +67,17 @@ import javax.swing.JTextArea;
 import javax.swing.KeyStroke;
 import javax.swing.SwingConstants;
 
+import org.sbolstandard.core2.Annotation;
 import org.sbolstandard.core2.ComponentDefinition;
+import org.sbolstandard.core2.Cut;
+import org.sbolstandard.core2.GenericLocation;
+import org.sbolstandard.core2.Location;
 import org.sbolstandard.core2.Sequence;
 import org.sbolstandard.core2.SBOLDocument;
 import org.sbolstandard.core2.SequenceAnnotation;
 import org.sbolstandard.core2.OrientationType;
+import org.sbolstandard.core2.Range;
+import org.sbolstandard.core2.RestrictionType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -106,125 +112,134 @@ import com.google.common.primitives.Ints;
  * 
  * @author Evren Sirin
  */
-public class SBOLDesign {	
+public class SBOLDesign {
 	private static Logger LOGGER = LoggerFactory.getLogger(SBOLDesign.class.getName());
-	
-    private static final Font LABEL_FONT = new Font(Font.SANS_SERIF, Font.PLAIN, 12);
-    
+
+	private static final Font LABEL_FONT = new Font(Font.SANS_SERIF, Font.PLAIN, 12);
+
 	private static final int IMG_GAP = 10;
 	private static final int IMG_HEIGHT = Part.IMG_HEIGHT;
 	private static final int IMG_WIDTH = Part.IMG_WIDTH + IMG_GAP;
 	private static final int IMG_PAD = 20;
-	
-	private static final boolean HEADLESS = GraphicsEnvironment.isHeadless();
-	
-	private enum ReadOnly { REGISTRY_COMPONENT, UNCOVERED_SEQUENCE, MISSING_START_END }
-	
 
-	public final SBOLEditorAction EDIT_ROOT = new SBOLEditorAction("Edit root component", "Edit root component information", "edit_root.gif") {		
+	private static final boolean HEADLESS = GraphicsEnvironment.isHeadless();
+
+	private enum ReadOnly {
+		REGISTRY_COMPONENT, UNCOVERED_SEQUENCE, MISSING_START_END
+	}
+
+	public final SBOLEditorAction EDIT_ROOT = new SBOLEditorAction("Edit root component",
+			"Edit root component information", "edit_root.gif") {
 		@Override
 		protected void perform() {
 			editRootComponent();
 		}
 	};
-	
-	public final SBOLEditorAction FIND = new SBOLEditorAction("Find components", "Find components in the part registry", "find.gif") {		
+
+	public final SBOLEditorAction FIND = new SBOLEditorAction("Find components", "Find components in the part registry",
+			"find.gif") {
 		@Override
 		protected void perform() {
 			findPartForSelectedComponent();
 		}
 	};
-	
-	public final SBOLEditorAction EDIT = new SBOLEditorAction("Edit component", "Edit selected component information", "edit.gif") {		
+
+	public final SBOLEditorAction EDIT = new SBOLEditorAction("Edit component", "Edit selected component information",
+			"edit.gif") {
 		@Override
 		protected void perform() {
 			editSelectedComponent();
-				
+
 		}
 	};
-	public final SBOLEditorAction DELETE = new SBOLEditorAction("Delete component", "Delete the selected component", "delete.gif") {		
+	public final SBOLEditorAction DELETE = new SBOLEditorAction("Delete component", "Delete the selected component",
+			"delete.gif") {
 		@Override
 		protected void perform() {
 			ComponentDefinition comp = getSelectedComponent();
-			deleteComponent(comp);			
+			deleteComponent(comp);
 		}
 	};
-	
-	public final SBOLEditorAction FLIP = new SBOLEditorAction("Flip strand", "Flip the strand for the selected component", "flipStrand.png") {		
+
+	public final SBOLEditorAction FLIP = new SBOLEditorAction("Flip Orientation",
+			"Flip the Orientation for the selected component", "flipOrientation.png") {
 		@Override
 		protected void perform() {
 			ComponentDefinition comp = getSelectedComponent();
-			flipStrand(comp);
+			flipOrientation(comp);
 		}
 	};
-	
-	public final SBOLEditorAction HIDE_SCARS = new SBOLEditorAction("Hide scars", "Hide scars in the design", "hideScars.png") {		
+
+	public final SBOLEditorAction HIDE_SCARS = new SBOLEditorAction("Hide scars", "Hide scars in the design",
+			"hideScars.png") {
 		@Override
 		protected void perform() {
 			boolean isVisible = isPartVisible(Parts.SCAR);
 			setPartVisible(Parts.SCAR, !isVisible);
 		}
 	}.toggle();
-	
-	public final SBOLEditorAction ADD_SCARS = new SBOLEditorAction("Add scars", "Add a scar between every two non-scar component in the design", "addScars.png") {		
+
+	public final SBOLEditorAction ADD_SCARS = new SBOLEditorAction("Add scars",
+			"Add a scar between every two non-scar component in the design", "addScars.png") {
 		@Override
 		protected void perform() {
 			addScars();
 		}
 	};
-	
-	public final SBOLEditorAction FOCUS_IN = new SBOLEditorAction("Focus in", "Focus in the component to view and edit its subcomponents",
-	                "go_down.png") {		
+
+	public final SBOLEditorAction FOCUS_IN = new SBOLEditorAction("Focus in",
+			"Focus in the component to view and edit its subcomponents", "go_down.png") {
 		@Override
 		protected void perform() {
 			focusIn();
 		}
 	};
-	
-	public final SBOLEditorAction FOCUS_OUT = new SBOLEditorAction("Focus out", "Focus out to the parent component", "go_up.png") {		
+
+	public final SBOLEditorAction FOCUS_OUT = new SBOLEditorAction("Focus out", "Focus out to the parent component",
+			"go_up.png") {
 		@Override
 		protected void perform() {
 			focusOut();
 		}
 	};
-	
+
 	private final EventBus eventBus;
-	
+
 	private final List<DesignElement> elements = Lists.newArrayList();
 	private final Map<DesignElement, JLabel> buttons = Maps.newHashMap();
 	private final Set<Part> hiddenParts = Sets.newHashSet();
-	
+
 	private final Set<ReadOnly> readOnly = EnumSet.noneOf(ReadOnly.class);
-	
+
 	private boolean loading = false;
-	
+
 	private boolean isCircular = false;
 	private DesignElement selectedElement = null;
-	
+
 	private final Box elementBox;
-	private final Box backboneBox;	
+	private final Box backboneBox;
 	private final JPanel panel;
-	
+
 	private final JPopupMenu selectionPopupMenu = createPopupMenu(FIND, EDIT, FLIP, DELETE, FOCUS_IN);
 	private final JPopupMenu noSelectionPopupMenu = createPopupMenu(EDIT_ROOT, FOCUS_OUT);
-		
+
 	private ComponentDefinition currentComponent;
-	
+
 	private boolean hasSequence;
-	
+
 	private final Deque<ComponentDefinition> parentComponents = new ArrayDeque<ComponentDefinition>();
-	
+
 	public SBOLDesign(EventBus eventBus) {
 		this.eventBus = eventBus;
-		
+
 		elementBox = Box.createHorizontalBox();
 		elementBox.setBorder(BorderFactory.createEmptyBorder());
 		elementBox.setOpaque(false);
-		
+
 		backboneBox = Box.createHorizontalBox();
 		backboneBox.setBorder(BorderFactory.createEmptyBorder());
 		backboneBox.setOpaque(false);
-		
+
 		JPanel contentPanel = new JPanel();
 		contentPanel.setAlignmentX(0.5f);
 		contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
@@ -233,7 +248,7 @@ public class SBOLDesign {
 		contentPanel.setAlignmentY(0);
 		contentPanel.add(elementBox);
 		contentPanel.add(backboneBox);
-		
+
 		panel = new DesignPanel();
 		panel.setOpaque(false);
 		panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
@@ -252,18 +267,18 @@ public class SBOLDesign {
 		}
 		panel.add(rightStrut);
 		panel.add(Box.createHorizontalGlue());
-		
+
 		panel.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mousePressed(MouseEvent event) {
-			    setSelectedElement(null);
-	            if (event.isPopupTrigger()) {
-	            	noSelectionPopupMenu.show(panel, event.getX(), event.getY());
-	            }
+				setSelectedElement(null);
+				if (event.isPopupTrigger()) {
+					noSelectionPopupMenu.show(panel, event.getX(), event.getY());
+				}
 			}
 		});
-				
-		ActionListener deleteAction = new ActionListener() {			
+
+		ActionListener deleteAction = new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent paramActionEvent) {
 				if (selectedElement != null) {
@@ -276,130 +291,129 @@ public class SBOLDesign {
 		panel.registerKeyboardAction(deleteAction, deleteKey, JComponent.WHEN_IN_FOCUSED_WINDOW);
 		panel.registerKeyboardAction(deleteAction, backspaceKey, JComponent.WHEN_IN_FOCUSED_WINDOW);
 	}
-	
-	private static JPopupMenu createPopupMenu(SBOLEditorAction... actions) {		
+
+	private static JPopupMenu createPopupMenu(SBOLEditorAction... actions) {
 		final JPopupMenu popup = new JPopupMenu();
 
 		for (SBOLEditorAction action : actions) {
-			popup.add(action.createMenuItem());    
-        }
+			popup.add(action.createMenuItem());
+		}
 
 		return popup;
 	}
-	
+
 	public boolean canFocusIn() {
 		ComponentDefinition comp = getSelectedComponent();
 		return comp != null;
 	}
-	
-	public void focusIn() {		
+
+	public void focusIn() {
 		Preconditions.checkState(canFocusIn(), "No selection to focus in");
-				
+
 		ComponentDefinition comp = getSelectedComponent();
 
 		BufferedImage snapshot = getSnapshot();
-		
+
 		updateRootComponent();
 		parentComponents.push(currentComponent);
-		
+
 		load(comp);
-		
+
 		eventBus.publish(new FocusInEvent(this, comp, snapshot));
 	}
-	
+
 	public boolean canFocusOut() {
 		return !parentComponents.isEmpty();
 	}
-	
+
 	public void focusOut() {
 		Preconditions.checkState(canFocusOut(), "No parent design to focus out");
-		
+
 		focusOut(getParentComponent());
-	}	
-	
+	}
+
 	public void focusOut(ComponentDefinition comp) {
 		if (currentComponent == comp) {
-			return;			
+			return;
 		}
-		
+
 		updateRootComponent();
-		
+
 		ComponentDefinition parentComponent = parentComponents.pop();
 		while (parentComponent != comp) {
 			parentComponent = parentComponents.pop();
 		}
-		
+
 		load(parentComponent);
-		
+
 		eventBus.publish(new FocusOutEvent(this, parentComponent));
 	}
-	
+
 	public void load(SBOLDocument doc) {
 		if (doc == null) {
 			JOptionPane.showMessageDialog(panel, "No document to load.", "Load error", JOptionPane.ERROR_MESSAGE);
 			return;
 		}
-		
+
 		Iterator<ComponentDefinition> components = SBOLUtils.getRootComponents(doc);
 		ComponentDefinition newComponent = null;
-		if (components.hasNext()) {				
+		if (components.hasNext()) {
 			newComponent = components.next();
 			if (components.hasNext()) {
-				JOptionPane.showMessageDialog(panel, "Cannot load documents with multiple root ComponentDefinitions.", "Load error", JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(panel, "Cannot load documents with multiple root ComponentDefinitions.",
+						"Load error", JOptionPane.ERROR_MESSAGE);
 				return;
 			}
-		}
-		else {
+		} else {
 			newComponent = new ComponentDefinition(SBOLUtils.createURI().toString(), "Unnamed", "no version", null);
-//			newComponent.setURI(SBOLUtils.createURI());
-//			newComponent.setDisplayId("Unnamed");
+			// newComponent.setURI(SBOLUtils.createURI());
+			// newComponent.setDisplayId("Unnamed");
 		}
-		
+
 		parentComponents.clear();
 		load(newComponent);
-		
+
 		eventBus.publish(new DesignLoadedEvent(this));
 	}
 
 	private void load(ComponentDefinition newRoot) {
 		loading = true;
-			
+
 		elementBox.removeAll();
 		backboneBox.removeAll();
 		elements.clear();
 		buttons.clear();
 		isCircular = false;
 		readOnly.clear();
-		
+
 		currentComponent = newRoot;
 		populateComponents(currentComponent);
-		
+
 		hasSequence = (currentComponent.getSequences() != null) && elements.isEmpty();
-		
+
 		detectReadOnly();
-		
+
 		selectedElement = null;
-		
+
 		loading = false;
-		
+
 		refreshUI();
 		fireSelectionChangedEvent();
 	}
-	
+
 	private void detectReadOnly() {
 		if (SBOLUtils.isRegistryComponent(currentComponent)) {
 			readOnly.add(ReadOnly.REGISTRY_COMPONENT);
 		}
-		
+
 		Map<Integer, Sequence> uncoveredSequences = findUncoveredSequences();
 		if (uncoveredSequences == null) {
 			readOnly.add(ReadOnly.MISSING_START_END);
-		}
-		else if(!uncoveredSequences.isEmpty()) {
+		} else if (!uncoveredSequences.isEmpty()) {
 			readOnly.add(ReadOnly.UNCOVERED_SEQUENCE);
 		}
 	}
-	
+
 	private boolean confirmEditable() {
 		if (readOnly.contains(ReadOnly.REGISTRY_COMPONENT)) {
 			if (!PartEditDialog.confirmEditing(panel, currentComponent)) {
@@ -407,108 +421,102 @@ public class SBOLDesign {
 			}
 			readOnly.remove(ReadOnly.REGISTRY_COMPONENT);
 		}
-		
+
 		if (readOnly.contains(ReadOnly.MISSING_START_END)) {
-			int result = JOptionPane.showConfirmDialog(panel, 
-					"The component '" + currentComponent.getDisplayId() + "' has a DNA sequence but the\n" +
-					"subcomponents don't have start or end\n" +
-					"coordinates. If you edit the design you will\n" +
-					"lose the DNA sequence.\n\n" +
-					"Do you want to continue with editing?", "Uncovered sequence",
-					JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
-			
+			int result = JOptionPane.showConfirmDialog(panel,
+					"The component '" + currentComponent.getDisplayId() + "' has a DNA sequence but the\n"
+							+ "subcomponents don't have start or end\n"
+							+ "coordinates. If you edit the design you will\n" + "lose the DNA sequence.\n\n"
+							+ "Do you want to continue with editing?",
+					"Uncovered sequence", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+
 			if (result == JOptionPane.NO_OPTION) {
 				return false;
 			}
 			readOnly.remove(ReadOnly.REGISTRY_COMPONENT);
-		}
-		else if (readOnly.contains(ReadOnly.UNCOVERED_SEQUENCE)) {
-			String msg = 
-				"The sub components do not cover the DNA sequence\n" +
-				"of the component '" + currentComponent.getDisplayId() + "' completely.\n"+
-				"You need to add SCAR components to cover the missing\n" +
-				"parts or you will lose the uncovered DNA sequence.\n\n" +
-				"How do you want to continue?";
+		} else if (readOnly.contains(ReadOnly.UNCOVERED_SEQUENCE)) {
+			String msg = "The sub components do not cover the DNA sequence\n" + "of the component '"
+					+ currentComponent.getDisplayId() + "' completely.\n"
+					+ "You need to add SCAR components to cover the missing\n"
+					+ "parts or you will lose the uncovered DNA sequence.\n\n" + "How do you want to continue?";
 
-			JRadioButton[] buttons = {
-				new JRadioButton("Add SCAR Parts to handle uncovered sequences"),
-				new JRadioButton("Continue with editing and lose the root DNA sequence"), 
-				new JRadioButton("Cancel the operation and do not edit the component") 
-			};
-			
+			JRadioButton[] buttons = { new JRadioButton("Add SCAR Parts to handle uncovered sequences"),
+					new JRadioButton("Continue with editing and lose the root DNA sequence"),
+					new JRadioButton("Cancel the operation and do not edit the component") };
+
 			JTextArea textArea = new JTextArea(msg);
 			textArea.setEditable(false);
 			textArea.setLineWrap(true);
 			textArea.setOpaque(false);
 			textArea.setBorder(BorderFactory.createEmptyBorder());
 			textArea.setAlignmentX(Component.LEFT_ALIGNMENT);
-			
+
 			Box box = Box.createVerticalBox();
 			box.add(textArea);
-			
+
 			ButtonGroup group = new ButtonGroup();
 			for (JRadioButton button : buttons) {
 				button.setSelected(true);
 				button.setAlignmentX(Component.LEFT_ALIGNMENT);
 				group.add(button);
 				box.add(button);
-            }
-			
-			int result = JOptionPane.showConfirmDialog(panel, box, "Uncovered sequence", 
-							JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
+			}
+
+			int result = JOptionPane.showConfirmDialog(panel, box, "Uncovered sequence", JOptionPane.OK_CANCEL_OPTION,
+					JOptionPane.QUESTION_MESSAGE);
 
 			if (result == JOptionPane.CANCEL_OPTION || buttons[2].isSelected()) {
 				return false;
 			}
-		
+
 			readOnly.remove(ReadOnly.UNCOVERED_SEQUENCE);
-								
-			if (buttons[0].isSelected()) {				
+
+			if (buttons[0].isSelected()) {
 				addScarsForUncoveredSequences();
 			}
 		}
-		
+
 		return true;
 	}
-	
+
 	private void addScarsForUncoveredSequences() {
 		Map<Integer, Sequence> uncoveredSequences = findUncoveredSequences();
 		int insertCount = 0;
-        int lastIndex = elements.size();
+		int lastIndex = elements.size();
 		for (Entry<Integer, Sequence> entry : uncoveredSequences.entrySet()) {
 			int index = entry.getKey();
-	        Sequence seq = entry.getValue();	        
+			Sequence seq = entry.getValue();
 			if (index >= 0) {
 				int updateIndex = index + insertCount;
-		        DesignElement e = elements.get(updateIndex);
-		        e.getComponent().clearSequences();
-		        e.getComponent().addSequence(seq);
-			}			
-			else {
-		        int insertIndex = -index - 1 + insertCount++;
+				DesignElement e = elements.get(updateIndex);
+				e.getComponent().clearSequences();
+				e.getComponent().addSequence(seq);
+			} else {
+				int insertIndex = -index - 1 + insertCount++;
 
-		        addComponent(Parts.SCAR, false);
-		        
-		        DesignElement e = elements.get(lastIndex);
-		        e.getComponent().clearSequences();
-		        e.getComponent().addSequence(seq);
-		        
-		        moveComponent(lastIndex++, insertIndex);
+				addComponent(Parts.SCAR, false);
+
+				DesignElement e = elements.get(lastIndex);
+				e.getComponent().clearSequences();
+				e.getComponent().addSequence(seq);
+
+				moveComponent(lastIndex++, insertIndex);
 			}
-        }
-		
+		}
+
 		createDocument();
 	}
-	
+
 	private Map<Integer, Sequence> findUncoveredSequences() {
-		return SBOLUtils.findUncoveredSequences(currentComponent, Lists.transform(elements, new Function<DesignElement, SequenceAnnotation>() {
-			@Override
-            public SequenceAnnotation apply(DesignElement e) {
-	            return e.getAnnotation();
-            }
-		}));
+		return SBOLUtils.findUncoveredSequences(currentComponent,
+				Lists.transform(elements, new Function<DesignElement, SequenceAnnotation>() {
+					@Override
+					public SequenceAnnotation apply(DesignElement e) {
+						return e.getAnnotation();
+					}
+				}));
 	}
-	
+
 	private void populateComponents(ComponentDefinition comp) {
 		if (comp.getAnnotations().isEmpty()) {
 			if (currentComponent != comp) {
@@ -517,31 +525,35 @@ public class SBOLDesign {
 			return;
 		}
 
-		Iterable<SequenceAnnotation> sortedAnnotations = sortedAnnotations(comp.getAnnotations());
-//		System.out.println(Iterators.toString(Iterators.transform(sortedAnnotations.iterator(), new Function<SequenceAnnotation,String>() {
-//			public String apply(SequenceAnnotation ann) {
-//				return "\n" + ann.getURI().toString() + " " + ann.getSubComponent().getURI() + " " + ann.getBioStart() + " " + ann.getBioEnd();
-//			}
-//		})));
+		// TODO need to do all of sorted Annotations using components instead of precedes.
+		Iterable<SequenceAnnotation> sortedAnnotations = sortedAnnotations(comp, comp.getComponents());
+		// System.out.println(Iterators.toString(Iterators.transform(sortedAnnotations.iterator(),
+		// new Function<SequenceAnnotation,String>() {
+		// public String apply(SequenceAnnotation ann) {
+		// return "\n" + ann.getURI().toString() + " " +
+		// ann.getSubComponent().getURI() + " " + ann.getBioStart() + " " +
+		// ann.getBioEnd();
+		// }
+		// })));
 		int lastStart = -1;
 		int lastEnd = -1;
 		for (SequenceAnnotation ann : sortedAnnotations) {
-			if (ann.getBioStart() != null && ann.getBioEnd() != null) {
-				if (ann.getBioStart() >= lastStart && ann.getBioEnd() <= lastEnd) {
-					continue;
-				}
-				lastStart = ann.getBioStart();
-				lastEnd = ann.getBioEnd();
+			Range range = (Range) ann.getLocations().iterator().next();
+			if (range.getStart() >= lastStart && range.getEnd() <= lastEnd) {
+				continue;
 			}
-			
-			ComponentDefinition subComp = ann.getSubComponent();
+			lastStart = range.getStart();
+			lastEnd = range.getEnd();
+
+			ComponentDefinition subComp = ann.getComponentDefinition();
 			if (subComp != null) {
 				addComponent(ann, subComp, Parts.forComponent(subComp));
 			}
 		}
 	}
-	
-	private Multimap<SequenceAnnotation, SequenceAnnotation> computePrecedesTransitive(Iterable<SequenceAnnotation> annotations) {
+
+	private Multimap<SequenceAnnotation, SequenceAnnotation> computePrecedesTransitive(
+			Iterable<SequenceAnnotation> annotations) {
 		Multimap<SequenceAnnotation, SequenceAnnotation> precedes = HashMultimap.create();
 		Set<SequenceAnnotation> visited = Sets.newLinkedHashSet();
 		for (SequenceAnnotation ann : annotations) {
@@ -549,84 +561,86 @@ public class SBOLDesign {
 		}
 		return precedes;
 	}
-	
-	private void computePrecedesTransitive(SequenceAnnotation ann, Multimap<SequenceAnnotation, SequenceAnnotation> precedes, Set<SequenceAnnotation> visited) {
+
+	private void computePrecedesTransitive(SequenceAnnotation ann,
+			Multimap<SequenceAnnotation, SequenceAnnotation> precedes, Set<SequenceAnnotation> visited) {
 		if (!visited.add(ann)) {
-			LOGGER.warn("Circular precedes relation: " + Iterators.toString(Iterators.transform(visited.iterator(), new Function<SequenceAnnotation,String>() {
-				public String apply(SequenceAnnotation ann) {
-					return ann.getIdentity().toString() ;
-				}
-			})));
+			LOGGER.warn("Circular precedes relation: " + Iterators
+					.toString(Iterators.transform(visited.iterator(), new Function<SequenceAnnotation, String>() {
+						public String apply(SequenceAnnotation ann) {
+							return ann.getIdentity().toString();
+						}
+					})));
 			return;
 		}
-		
-		if (!precedes.containsKey(ann)) {		
+
+		if (!precedes.containsKey(ann)) {
 			for (SequenceAnnotation nextAnn : ann.getPrecedes()) {
-		        computePrecedesTransitive(nextAnn, precedes, visited);
-		        precedes.put(ann, nextAnn);
-		        precedes.putAll(ann, precedes.get(nextAnn));
-	        }
+				computePrecedesTransitive(nextAnn, precedes, visited);
+				precedes.put(ann, nextAnn);
+				precedes.putAll(ann, precedes.get(nextAnn));
+			}
 		}
-		
+
 		visited.remove(ann);
 	}
-	
-	private Iterable<SequenceAnnotation> sortedAnnotations(List<SequenceAnnotation> annotations) {
-		final Multimap<SequenceAnnotation, SequenceAnnotation> precedesTransitive = computePrecedesTransitive(annotations);
-		return new PartialOrder<SequenceAnnotation>(annotations, new PartialOrderComparator<SequenceAnnotation>() {
+
+	private Iterable<SequenceAnnotation> sortedAnnotations(Set<SequenceAnnotation> annotations) {
+		final Multimap<SequenceAnnotation, SequenceAnnotation> precedesTransitive = computePrecedesTransitive(
+				annotations);
+		return new PartialOrder<SequenceAnnotation>(new PartialOrderComparator<SequenceAnnotation>() {
 			@Override
-            public PartialOrderRelation compare(SequenceAnnotation a, SequenceAnnotation b) {
-	            if (precedesTransitive.containsEntry(a, b)) {
-	            	return PartialOrderRelation.LESS;
-	            }
-	            
-	            if (precedesTransitive.containsEntry(b, a)) {
-	            	return PartialOrderRelation.GREATER;
-	            }
-	            
-	            if (a.getBioStart() != null && a.getBioEnd() != null && b.getBioStart()!= null && b.getBioEnd() != null) {
-	            	int cmpStart = Ints.compare(a.getBioStart(), b.getBioStart());
-	            	int cmpEnd = Ints.compare(a.getBioEnd(), b.getBioEnd());
-	            	if (cmpStart < 0) {
-	            		return PartialOrderRelation.LESS;
-		            }
-	            	else if (cmpStart > 0) {
-		            	return PartialOrderRelation.GREATER;
-		            }
-	            	else if (cmpEnd < 0) {
-	            		return PartialOrderRelation.GREATER;
-		            }
-	            	else if (cmpEnd > 0) {
-		            	return PartialOrderRelation.LESS;
-		            }
-	            	else {
-	            		return PartialOrderRelation.EQUAL;
-	            	}
-	            }
-	            
-	            return PartialOrderRelation.INCOMPARABLE;	            
-            }
+			public PartialOrderRelation compare(SequenceAnnotation a, SequenceAnnotation b) {
+				if (precedesTransitive.containsEntry(a, b)) {
+					return PartialOrderRelation.LESS;
+				}
+
+				if (precedesTransitive.containsEntry(b, a)) {
+					return PartialOrderRelation.GREATER;
+				}
+
+				try {
+					Range rangeA = (Range) a.getLocations().iterator().next();
+					Range rangeB = (Range) b.getLocations().iterator().next();
+					int cmpStart = Ints.compare(rangeA.getStart(), rangeB.getStart());
+					int cmpEnd = Ints.compare(rangeA.getEnd(), rangeB.getEnd());
+					if (cmpStart < 0) {
+						return PartialOrderRelation.LESS;
+					} else if (cmpStart > 0) {
+						return PartialOrderRelation.GREATER;
+					} else if (cmpEnd < 0) {
+						return PartialOrderRelation.GREATER;
+					} else if (cmpEnd > 0) {
+						return PartialOrderRelation.LESS;
+					} else {
+						return PartialOrderRelation.EQUAL;
+					}
+				} catch (Exception e) {
+					return PartialOrderRelation.INCOMPARABLE;
+				}
+
+			}
 		});
 	}
-	
+
 	public boolean isCircular() {
 		return isCircular;
 	}
-	
+
 	public JPanel getPanel() {
 		return panel;
 	}
-	
+
 	public Part getPart(ComponentDefinition comp) {
 		DesignElement e = getElement(comp);
 		return e == null ? null : e.part;
 	}
-	
+
 	private DesignElement getElement(ComponentDefinition comp) {
 		int index = getElementIndex(comp);
 		return index < 0 ? null : elements.get(index);
 	}
-	
+
 	private int getElementIndex(ComponentDefinition comp) {
 		for (int i = 0, n = elements.size(); i < n; i++) {
 			DesignElement e = elements.get(i);
@@ -652,44 +666,44 @@ public class SBOLDesign {
 	public ComponentDefinition getSelectedComponent() {
 		return selectedElement == null ? null : selectedElement.getComponent();
 	}
-	
+
 	public boolean setSelectedComponent(ComponentDefinition comp) {
 		DesignElement e = (comp == null) ? null : getElement(comp);
 		setSelectedElement(e);
 		return (e != null);
 	}
-	
+
 	private void setSelectedElement(DesignElement element) {
 		if (selectedElement != null) {
 			buttons.get(selectedElement).setEnabled(true);
 		}
-		
+
 		selectedElement = element;
-		
+
 		if (selectedElement != null) {
 			buttons.get(selectedElement).setEnabled(false);
 		}
-		
+
 		fireSelectionChangedEvent();
 	}
 
 	public void addComponent(ComponentDefinition comp) {
 		addComponent(null, comp, Parts.forComponent(comp));
 	}
-	
+
 	public ComponentDefinition addComponent(Part part, boolean edit) {
 		if (!confirmEditable()) {
 			return null;
 		}
-		
+
 		ComponentDefinition comp = part.createComponent();
-		
+
 		if (edit && !PartEditDialog.editPart(panel.getParent(), comp, edit)) {
 			return null;
-		}		
-		
+		}
+
 		addComponent(null, comp, part);
-		
+
 		return comp;
 	}
 
@@ -697,53 +711,52 @@ public class SBOLDesign {
 		boolean backbone = (part == Parts.ORI);
 		DesignElement e = new DesignElement(seqAnn, comp, part);
 		JLabel button = createComponentButton(e);
-		
+
 		if (backbone) {
 			if (isCircular) {
 				throw new IllegalArgumentException("Cannot add multiple origin of replication parts");
 			}
-			elements.add(0, e);			
+			elements.add(0, e);
 			backboneBox.add(button);
 			isCircular = true;
-		}
-		else {	
+		} else {
 			elements.add(e);
 			elementBox.add(button);
 		}
 		buttons.put(e, button);
-		
+
 		if (!isPartVisible(part)) {
 			setPartVisible(part, true);
 		}
-				
-		if (!loading) {			
+
+		if (!loading) {
 			fireDesignChangedEvent();
 		}
-    }
-	
-    public void moveComponent(int source, int target) {
+	}
+
+	public void moveComponent(int source, int target) {
 		if (!confirmEditable()) {
 			return;
 		}
-		
+
 		DesignElement element = elements.remove(source);
-        elements.add(element);
-						
-        JLabel button = buttons.get(element);
-        elementBox.remove(button);
-        elementBox.add(button, target);
-        
-        fireDesignChangedEvent();
-    }
-    
-    private void setupIcons(final JLabel button, final DesignElement e) {
-		Image image = e.getPart().getImage(e.getStrand());
+		elements.add(element);
+
+		JLabel button = buttons.get(element);
+		elementBox.remove(button);
+		elementBox.add(button, target);
+
+		fireDesignChangedEvent();
+	}
+
+	private void setupIcons(final JLabel button, final DesignElement e) {
+		Image image = e.getPart().getImage(e.getOrientation());
 		Image selectedImage = Images.createBorderedImage(image, Color.LIGHT_GRAY);
 		button.setIcon(new ImageIcon(image));
 		button.setDisabledIcon(new ImageIcon(selectedImage));
-    }
-     
-	private JLabel createComponentButton(final DesignElement e) {	
+	}
+
+	private JLabel createComponentButton(final DesignElement e) {
 		final JLabel button = new JLabel();
 		setupIcons(button, e);
 		button.setVerticalAlignment(JLabel.TOP);
@@ -755,49 +768,50 @@ public class SBOLDesign {
 		button.setToolTipText(getTooltipText(e));
 		button.setMaximumSize(new Dimension(IMG_WIDTH, IMG_HEIGHT + 20));
 		button.setPreferredSize(new Dimension(IMG_WIDTH, IMG_HEIGHT + 20));
-		button.setBorder(BorderFactory.createEmptyBorder());				
+		button.setBorder(BorderFactory.createEmptyBorder());
 		button.setFont(LABEL_FONT);
 		button.addMouseListener(new MouseAdapter() {
 			@Override
-            public void mousePressed(MouseEvent event) {
-	            setSelectedElement(e);
-	            if (event.isPopupTrigger()) {
-	            	selectionPopupMenu.show(button, event.getX(), event.getY());
-	            }
-            }
+			public void mousePressed(MouseEvent event) {
+				setSelectedElement(e);
+				if (event.isPopupTrigger()) {
+					selectionPopupMenu.show(button, event.getX(), event.getY());
+				}
+			}
 
 			@Override
-            public void mouseClicked(MouseEvent event) {
-	            if (event.getClickCount() == 2) {
-	            	focusIn();
-	            }
-            }
+			public void mouseClicked(MouseEvent event) {
+				if (event.getClickCount() == 2) {
+					focusIn();
+				}
+			}
 		});
-//		button.setComponentPopupMenu(popupMenu);
-		
+		// button.setComponentPopupMenu(popupMenu);
+
 		boolean isDraggable = (e.getPart() != Parts.ORI);
 		if (isDraggable) {
 			setupDragActions(button, e);
 		}
-		
+
 		return button;
 	}
-	
+
 	private void setupDragActions(final JLabel button, final DesignElement e) {
 		if (HEADLESS) {
 			return;
 		}
 		final DragSource dragSource = DragSource.getDefaultDragSource();
 		dragSource.createDefaultDragGestureRecognizer(button, DnDConstants.ACTION_COPY_OR_MOVE,
-            new DragGestureListener() {
-                @Override
-                public void dragGestureRecognized(DragGestureEvent event) {
-	                Transferable transferable = new JLabelTransferable(button);
-	                dragSource.startDrag(event, DragSource.DefaultMoveDrop, transferable, new DragSourceAdapter() { });
-                }
-            });
-		
-		new DropTarget(button, new DropTargetAdapter() {			
+				new DragGestureListener() {
+					@Override
+					public void dragGestureRecognized(DragGestureEvent event) {
+						Transferable transferable = new JLabelTransferable(button);
+						dragSource.startDrag(event, DragSource.DefaultMoveDrop, transferable, new DragSourceAdapter() {
+						});
+					}
+				});
+
+		new DropTarget(button, new DropTargetAdapter() {
 			@Override
 			public void drop(DropTargetDropEvent event) {
 				int index = elements.indexOf(e);
@@ -811,8 +825,8 @@ public class SBOLDesign {
 				event.dropComplete(true);
 			}
 		});
-	}	
-	
+	}
+
 	private String getTooltipText(DesignElement e) {
 		final ComponentDefinition comp = e.getComponent();
 		StringBuilder sb = new StringBuilder();
@@ -820,14 +834,14 @@ public class SBOLDesign {
 		sb.append("<b>Display ID:</b> ").append(comp.getDisplayId()).append("<br>");
 		sb.append("<b>Name:</b> ").append(Strings.nullToEmpty(comp.getName())).append("<br>");
 		sb.append("<b>Description:</b> ").append(Strings.nullToEmpty(comp.getDescription())).append("<br>");
-		if (e.getStrand() != null) {
-			sb.append("<b>Strand:</b> ").append(e.getStrand()).append("<br>");
+		if (e.getOrientation() != null) {
+			sb.append("<b>Orientation:</b> ").append(e.getOrientation()).append("<br>");
 		}
 		//
 		Iterator<Sequence> iter = comp.getSequences().iterator();
 		Sequence seq = iter.next();
 		if (comp.getSequences() != null && seq.getElements() != null) {
-//			String sequence = comp.getSequence().getNucleotides();
+			// String sequence = comp.getSequence().getNucleotides();
 			String sequence = seq.getElements();
 			//
 			sb.append("<b>Sequence Length:</b> ").append(sequence.length()).append("<br>");
@@ -837,40 +851,39 @@ public class SBOLDesign {
 		sb.append("</html>");
 		return sb.toString();
 	}
-	
+
 	private void moveSelectedElement(int index) {
 		if (selectedElement != null) {
 			int selectedIndex = elements.indexOf(selectedElement);
 			if (selectedIndex >= 0 && selectedIndex != index) {
 				elements.remove(selectedIndex);
 				elements.add(index, selectedElement);
-				
+
 				int indexAdjustment = isCircular ? -1 : 0;
 				JLabel button = buttons.get(selectedElement);
 				elementBox.remove(selectedIndex + indexAdjustment);
 				elementBox.add(button, index + indexAdjustment);
-				
-				
+
 				fireDesignChangedEvent();
 			}
 		}
 	}
-	
-	public void flipStrand(ComponentDefinition comp) {
+
+	public void flipOrientation(ComponentDefinition comp) {
 		if (!confirmEditable()) {
 			return;
 		}
-		
+
 		DesignElement e = getElement(comp);
-		e.flipStrand();
-		
+		e.flipOrientation();
+
 		JLabel button = buttons.get(e);
 		setupIcons(button, e);
 		button.setToolTipText(getTooltipText(e));
-		
+
 		fireDesignChangedEvent();
 	}
-	
+
 	public void deleteComponent(ComponentDefinition component) {
 		if (!confirmEditable()) {
 			return;
@@ -879,26 +892,24 @@ public class SBOLDesign {
 		int index = getElementIndex(component);
 		if (index >= 0) {
 			DesignElement e = elements.get(index);
-			
+
 			if (e == selectedElement) {
 				setSelectedElement(null);
 			}
-			
+
 			JLabel button = buttons.remove(e);
 			elements.remove(index);
 			if (isCircular && index == 0) {
 				backboneBox.remove(button);
 				isCircular = false;
-			}
-			else {
+			} else {
 				elementBox.remove(button);
 			}
-			
-			
+
 			fireDesignChangedEvent();
 		}
 	}
-	
+
 	private void replaceComponent(ComponentDefinition component, ComponentDefinition newComponent) {
 		int index = getElementIndex(component);
 		if (index >= 0) {
@@ -909,34 +920,33 @@ public class SBOLDesign {
 				Part newPart = Parts.forComponent(newComponent);
 				if (newPart == null) {
 					newComponent.addType(e.getPart().getType());
-				}
-				else {
+				} else {
 					e.setPart(newPart);
 					setupIcons(button, e);
 				}
 			}
 			button.setText(newComponent.getDisplayId());
 			button.setToolTipText(getTooltipText(e));
-			
+
 			fireDesignChangedEvent();
 		}
 	}
-	
+
 	private void refreshUI() {
 		panel.revalidate();
 		panel.repaint();
 	}
-	
+
 	private void fireDesignChangedEvent() {
 		refreshUI();
 		eventBus.publish(new DesignChangedEvent(this));
 	}
-	
+
 	private void fireSelectionChangedEvent() {
 		updateEnabledActions();
 		eventBus.publish(new SelectionChangedEvent(getSelectedComponent()));
 	}
-	
+
 	private void updateEnabledActions() {
 		boolean isEnabled = (selectedElement != null);
 		FIND.setEnabled(isEnabled);
@@ -946,38 +956,36 @@ public class SBOLDesign {
 		FOCUS_IN.setEnabled(canFocusIn());
 		FOCUS_OUT.setEnabled(canFocusOut());
 	}
-	
+
 	public boolean isPartVisible(Part part) {
 		return !hiddenParts.contains(part);
 	}
-	
+
 	public void setPartVisible(Part part, boolean isVisible) {
-		boolean visibilityChanged = isVisible 
-			? hiddenParts.remove(part)
-			: hiddenParts.add(part);
-		
+		boolean visibilityChanged = isVisible ? hiddenParts.remove(part) : hiddenParts.add(part);
+
 		if (visibilityChanged) {
 			for (DesignElement e : elements) {
 				if (e.getPart().equals(part)) {
 					JLabel button = buttons.get(e);
 					button.setVisible(isVisible);
 				}
-			}		
-			
+			}
+
 			if (part.equals(Parts.SCAR)) {
 				HIDE_SCARS.putValue(Action.SELECTED_KEY, !isVisible);
 			}
-			
+
 			refreshUI();
-			
+
 			eventBus.publish(new PartVisibilityChangedEvent(part, isVisible));
-			
+
 			if (selectedElement != null && part.equals(selectedElement.getPart())) {
 				setSelectedElement(null);
 			}
 		}
 	}
-	
+
 	public void addScars() {
 		if (!confirmEditable()) {
 			return;
@@ -989,11 +997,11 @@ public class SBOLDesign {
 		DesignElement curr = (size == 0) ? null : elements.get(start);
 		for (int i = start; i < end; i++) {
 			DesignElement next = elements.get(i + 1);
-			
+
 			if (curr.getPart() != Parts.SCAR && next.getPart() != Parts.SCAR) {
 				DesignElement scar = new DesignElement(null, Parts.SCAR.createComponent(), Parts.SCAR);
 				JLabel button = createComponentButton(scar);
-				
+
 				elements.add(i + 1, scar);
 				elementBox.add(button, i + 1 - start);
 				buttons.put(scar, button);
@@ -1002,54 +1010,54 @@ public class SBOLDesign {
 			}
 			curr = next;
 		}
-		
+
 		if (size != elements.size()) {
 			fireDesignChangedEvent();
 		}
-		
+
 		setPartVisible(Parts.SCAR, true);
 	}
-	
+
 	public void editRootComponent() {
 		if (!confirmEditable()) {
 			return;
 		}
 
 		ComponentDefinition comp = getCurrentComponent();
-		
+
 		boolean edited = PartEditDialog.editPart(panel.getParent(), comp, false);
 
 		if (edited) {
 			fireDesignChangedEvent();
 		}
 	}
-	
+
 	public void editSelectedComponent() {
 		if (!confirmEditable()) {
 			return;
 		}
 
 		ComponentDefinition comp = getSelectedComponent();
-		
+
 		boolean edited = PartEditDialog.editPart(panel.getParent(), comp, false);
 
 		if (edited) {
 			try {
-				// if the component type or the displyId has been edited we need to update the 
+				// if the component type or the displyId has been edited we need
+				// to update the
 				// component view so we'll replace it with itself
 				replaceComponent(comp, comp);
-			}
-			catch (Exception e) {
+			} catch (Exception e) {
 				e.printStackTrace();
 				JOptionPane.showMessageDialog(panel, "There was an error applying the edits");
 			}
 		}
 	}
-	
+
 	public void findPartForSelectedComponent() {
 		Part part = selectedElement.getPart();
 		ComponentDefinition newComponent = new SelectPartDialog(panel.getParent(), part).getInput();
-	
+
 		if (newComponent != null) {
 			if (!confirmEditable()) {
 				return;
@@ -1057,185 +1065,210 @@ public class SBOLDesign {
 
 			try {
 				replaceComponent(selectedElement.getComponent(), newComponent);
-			}
-			catch (Exception e) {
+			} catch (Exception e) {
 				e.printStackTrace();
 				JOptionPane.showMessageDialog(panel, "There was an error adding the selected part to the design");
 			}
 		}
 	}
-	
+
 	public BufferedImage getSnapshot() {
 		BufferedImage image = Images.createImage(panel);
-		
-        int totalWidth = panel.getWidth();
-        int designWidth = elementBox.getWidth();
-        int designHeight = elementBox.getHeight();
-        
-        int x = (totalWidth - designWidth) / 2;
-        if (isCircular) {
-        	x -= IMG_PAD;
-        	designWidth += (2 * IMG_PAD); 
-        	designHeight += backboneBox.getHeight();
-        }
-        
-        
-        return image.getSubimage(Math.max(0, x - IMG_PAD), 0, Math.min(designWidth + 2 * IMG_PAD, totalWidth), designHeight);
+
+		int totalWidth = panel.getWidth();
+		int designWidth = elementBox.getWidth();
+		int designHeight = elementBox.getHeight();
+
+		int x = (totalWidth - designWidth) / 2;
+		if (isCircular) {
+			x -= IMG_PAD;
+			designWidth += (2 * IMG_PAD);
+			designHeight += backboneBox.getHeight();
+		}
+
+		return image.getSubimage(Math.max(0, x - IMG_PAD), 0, Math.min(designWidth + 2 * IMG_PAD, totalWidth),
+				designHeight);
 	}
-	
+
 	public SBOLDocument createDocument() {
 		updateRootComponent();
-		
+
 		ComponentDefinition comp = parentComponents.isEmpty() ? currentComponent : parentComponents.getFirst();
-		SBOLDocument doc = new SBOLDocument(); 
-		//doc.addContent(comp);
+		SBOLDocument doc = new SBOLDocument();
+		// doc.addContent(comp);
 		doc.createCopy(comp);
-		
+
 		return doc;
 	}
-	
+
 	private void updateRootComponent() {
 		currentComponent.getAnnotations().clear();
-		
+
 		StringBuilder rootSequence = new StringBuilder();
 		int location = 1;
 		SequenceAnnotation prev = null;
 		for (DesignElement e : elements) {
 			ComponentDefinition comp = e.getComponent();
-	        SequenceAnnotation ann = e.getAnnotation();
-	        
-	        //
-	        Iterator<Sequence> iter = comp.getSequences().iterator();
-	        Sequence seq = iter.next();
-	        if (location >= 0 && comp.getSequences() != null && seq.getElements() != null) {
-	        	String nucleotides = seq.getElements();
-	        	rootSequence.append(nucleotides);
-	        	ann.setBioStart(location);
-	        	location += nucleotides.length();
-	        	ann.setBioEnd(location - 1);
-	        }
-	        else {
-	        	location = -1;
-	        	ann.setBioStart(null);
-	        	ann.setBioEnd(null);
-	        }
-	        
-	        if (prev != null) {
-	        	prev.getPrecedes().clear();
-	        	prev.addPrecede(ann);
-	        }
-	        
-	        currentComponent.addAnnotation(ann);
-	        prev = ann;	        
-        }
-		
+			SequenceAnnotation ann = e.getAnnotation();
+
+			//
+			Iterator<Sequence> iter = comp.getSequences().iterator();
+			Sequence seq = iter.next();
+			if (location >= 0 && comp.getSequences() != null && seq.getElements() != null) {
+				String nucleotides = seq.getElements();
+				rootSequence.append(nucleotides);
+				// ann.setBioStart(location);
+				int rangeStart = location;
+				location += nucleotides.length();
+				// ann.setBioEnd(location - 1);
+				int rangeEnd = location;
+				// is ann.getDisplayId() the right displayId to pass to this
+				// create range method?
+				ann.addRange(ann.getDisplayId(), rangeStart, rangeEnd);
+			} else {
+				location = -1;
+				// ann.setBioStart(null);
+				// ann.setBioEnd(null);
+				// is ann.getDisplayId() the right displayId to pass to this
+				// create range method?
+				ann.removeLocation(ann.getLocation(ann.getDisplayId()));
+			}
+
+			if (prev != null) {
+				// prev.getPrecedes().clear();
+				// prev.addPrecede(ann);
+				// TODO check for all .getDisplayIds and change to .getComponent.getDisplayId
+				comp.createSequenceConstraint("temp", RestrictionType.PRECEDES, prev.getComponent().getDisplayId(),
+						ann.getComponent().getDisplayId());
+			}
+
+			// currentComponent.addSequenceAnnotation(ann);
+
+			// TODO Only ever looks at the first location, there may be more
+			// than one
+
+			// One way or another, the ann should be assigned to
+			// currentComponent.
+
+			prev = ann;
+		}
+
 		if (location > 0 && !elements.isEmpty()) {
-			Sequence seq = SBOLFactory.createSequence();
-			seq.setURI(SBOLUtils.createURI());
-			seq.setNucleotides(rootSequence.toString());
-			
+			// Sequence seq = SBOLFactory.createSequence();
+			// seq.setURI(SBOLUtils.createURI());
+			// seq.setNucleotides(rootSequence.toString());
+			Sequence seq = new Sequence("urn:", currentComponent.getDisplayId(), "no version", rootSequence.toString(),
+					Sequence.IUPAC_DNA);
+
 			currentComponent.addSequence(seq);
+		} else if (!hasSequence) {
+			// currentComponent.setSequence(null);
+			currentComponent.clearSequences();
 		}
-		else if (!hasSequence) {
-			currentComponent.setSequence(null);
-		}
-		
+
 		LOGGER.debug("Updated root:\n{}", currentComponent.toString());
 	}
-	
+
 	private static class DesignElement {
 		private final SequenceAnnotation seqAnn;
 		private Part part;
-		
+
 		public DesignElement(SequenceAnnotation sa, ComponentDefinition comp, Part part) {
 			this.seqAnn = sa != null ? sa : createAnnotation(comp);
 			this.part = part;
 		}
-		
+
 		private static SequenceAnnotation createAnnotation(ComponentDefinition component) {
-			SequenceAnnotation seqAnn = SublimeSBOLFactory.createSequenceAnnotation();
-			seqAnn.setURI(SBOLUtils.createURI());
-			seqAnn.setSubComponent(component);
-			seqAnn.setStrand(StrandType.POSITIVE);
-			return seqAnn;
+			// SequenceAnnotation seqAnn =
+			// SublimeSBOLFactory.createSequenceAnnotation();
+			// seqAnn.setURI(SBOLUtils.createURI());
+			// seqAnn.setSubComponent(component);
+			// seqAnn.setOrientation(OrientationType.INLINE);
+			// created a sequenceAnnotation that belongs to component, but it
+			return component.createSequenceAnnotation(component.getDisplayId(), "GenericLocation", OrientationType.INLINE);
+			
 		}
-		
+
 		SequenceAnnotation getAnnotation() {
 			return seqAnn;
 		}
 
 		void setComponent(ComponentDefinition component) {
-			seqAnn.setSubComponent(component);
-        }
+			// seqAnn.setSubComponent(component);
+			seqAnn.setComponent(component.getIdentity());
+		}
 
 		ComponentDefinition getComponent() {
-	        return seqAnn.getSubComponent();
-        }
+			return seqAnn.getComponentDefinition();
+		}
 
 		void setPart(Part part) {
-	        this.part = part;
-        }
+			this.part = part;
+		}
 
 		Part getPart() {
-	        return part;
-        }
-		
-		public StrandType getStrand() {
-	        return seqAnn.getStrand();
-        }
-
-		void flipStrand() {
-			StrandType strand = seqAnn.getStrand();
-			seqAnn.setStrand(strand == StrandType.NEGATIVE ? StrandType.POSITIVE : StrandType.NEGATIVE);
+			return part;
 		}
-		
+
+		public OrientationType getOrientation() {
+			return seqAnn.getLocations().iterator().next().getOrientation();
+		}
+
+		void flipOrientation() {
+			OrientationType Orientation = seqAnn.getLocations().iterator().next().getOrientation();
+			seqAnn.getLocations().iterator().next().setOrientation(Orientation == OrientationType.REVERSECOMPLEMENT
+					? OrientationType.INLINE : OrientationType.REVERSECOMPLEMENT);
+		}
+
 		public String toString() {
-			return getComponent().getDisplayId() + (seqAnn.getStrand() == StrandType.NEGATIVE ? "-" : "");
+			return getComponent().getDisplayId()
+					+ (seqAnn.getLocations().iterator().next().getOrientation() == OrientationType.REVERSECOMPLEMENT
+							? "-" : "");
 		}
 	}
-	
+
 	private class DesignPanel extends JPanel {
-        private static final long serialVersionUID = 1L;
+		private static final long serialVersionUID = 1L;
 
 		@Override
-        protected void paintComponent(Graphics g) {
+		protected void paintComponent(Graphics g) {
 			Graphics2D g2d = (Graphics2D) g;
-			
-            // clear the background
-            g2d.setColor(Color.white);
-            g2d.fillRect(0,0,getWidth(),getHeight());
-            
-            // draw the line
-            g2d.setColor(Color.black);
-            g2d.setPaint(Color.black);
-            g2d.setStroke(new BasicStroke(4.0f));
-            
-            if (!elements.isEmpty()) {
-	            int totalWidth = getWidth();
-	            int designWidth = Math.max(elementBox.getWidth(), backboneBox.getWidth());
-	            
-	            int x = (totalWidth - designWidth) / 2;
-	            int y = IMG_HEIGHT / 2 ;
-	            
-	            if (!isCircular) {
-	            	g.drawLine(x, y, totalWidth - x, y);
-	            }
-	            else {
-	            	g.drawRoundRect(x - IMG_PAD, y, designWidth + 2 * IMG_PAD, backboneBox.getHeight(), IMG_PAD, IMG_PAD);
-	            }
-            }
-	            
-            // draw the rest
-            super.paintComponent(g);
-        }		
+
+			// clear the background
+			g2d.setColor(Color.white);
+			g2d.fillRect(0, 0, getWidth(), getHeight());
+
+			// draw the line
+			g2d.setColor(Color.black);
+			g2d.setPaint(Color.black);
+			g2d.setStroke(new BasicStroke(4.0f));
+
+			if (!elements.isEmpty()) {
+				int totalWidth = getWidth();
+				int designWidth = Math.max(elementBox.getWidth(), backboneBox.getWidth());
+
+				int x = (totalWidth - designWidth) / 2;
+				int y = IMG_HEIGHT / 2;
+
+				if (!isCircular) {
+					g.drawLine(x, y, totalWidth - x, y);
+				} else {
+					g.drawRoundRect(x - IMG_PAD, y, designWidth + 2 * IMG_PAD, backboneBox.getHeight(), IMG_PAD,
+							IMG_PAD);
+				}
+			}
+
+			// draw the rest
+			super.paintComponent(g);
+		}
 	}
-	
+
 	private static class JLabelTransferable implements Transferable {
 		// A flavor that transfers a copy of the JLabel
 		public static final DataFlavor FLAVOR = new DataFlavor(JButton.class, "JLabel");
 
 		private static final DataFlavor[] FLAVORS = new DataFlavor[] { FLAVOR };
-		
+
 		private JLabel label; // The label being transferred
 
 		public JLabelTransferable(JLabel label) {
@@ -1254,7 +1287,7 @@ public class SBOLDesign {
 			if (!isDataFlavorSupported(fl)) {
 				return null;
 			}
-				
+
 			return label;
 		}
 	}

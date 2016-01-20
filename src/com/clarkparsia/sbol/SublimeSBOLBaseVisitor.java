@@ -48,6 +48,6 @@ public class SublimeSBOLBaseVisitor extends SBOLBaseVisitor implements SublimeSB
 
 	@Override
     public void visit(SublimeSequencingData data) {
-	    // TODO Auto-generated method stub	    
+	    // Auto-generated method stub	    
     }
 }
