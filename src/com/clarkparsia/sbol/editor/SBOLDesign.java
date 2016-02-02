@@ -42,6 +42,8 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Deque;
 import java.util.EnumSet;
 import java.util.Iterator;
@@ -75,6 +77,7 @@ import org.sbolstandard.core2.Location;
 import org.sbolstandard.core2.Sequence;
 import org.sbolstandard.core2.SBOLDocument;
 import org.sbolstandard.core2.SequenceAnnotation;
+import org.sbolstandard.core2.SequenceConstraint;
 import org.sbolstandard.core2.OrientationType;
 import org.sbolstandard.core2.Range;
 import org.sbolstandard.core2.RestrictionType;
@@ -516,7 +519,9 @@ public class SBOLDesign {
 					}
 				}));
 	}
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+	// Adds components in the order they appear in the sequence
 	private void populateComponents(ComponentDefinition comp) {
 		if (comp.getAnnotations().isEmpty()) {
 			if (currentComponent != comp) {
@@ -524,104 +529,259 @@ public class SBOLDesign {
 			}
 			return;
 		}
-
-		// TODO need to do all of sorted Annotations using components instead of precedes.
-		Iterable<SequenceAnnotation> sortedAnnotations = sortedAnnotations(comp, comp.getComponents());
-		// System.out.println(Iterators.toString(Iterators.transform(sortedAnnotations.iterator(),
-		// new Function<SequenceAnnotation,String>() {
-		// public String apply(SequenceAnnotation ann) {
-		// return "\n" + ann.getURI().toString() + " " +
-		// ann.getSubComponent().getURI() + " " + ann.getBioStart() + " " +
-		// ann.getBioEnd();
-		// }
-		// })));
-		int lastStart = -1;
-		int lastEnd = -1;
-		for (SequenceAnnotation ann : sortedAnnotations) {
-			Range range = (Range) ann.getLocations().iterator().next();
-			if (range.getStart() >= lastStart && range.getEnd() <= lastEnd) {
-				continue;
-			}
-			lastStart = range.getStart();
-			lastEnd = range.getEnd();
-
-			ComponentDefinition subComp = ann.getComponentDefinition();
-			if (subComp != null) {
-				addComponent(ann, subComp, Parts.forComponent(subComp));
-			}
+		Iterable<org.sbolstandard.core2.Component> sortedComponents = sortedComponents(comp);
+		for (org.sbolstandard.core2.Component component : sortedComponents) {
+			// TODO can I do this?
+			ComponentDefinition refered = component.getDefinition();
+			addComponent(refered.getSequenceAnnotations().iterator().next(), refered, Parts.forComponent(refered));
 		}
+
 	}
 
-	private Multimap<SequenceAnnotation, SequenceAnnotation> computePrecedesTransitive(
-			Iterable<SequenceAnnotation> annotations) {
-		Multimap<SequenceAnnotation, SequenceAnnotation> precedes = HashMultimap.create();
-		Set<SequenceAnnotation> visited = Sets.newLinkedHashSet();
-		for (SequenceAnnotation ann : annotations) {
-			computePrecedesTransitive(ann, precedes, visited);
+	// Returns a set of components in the order they are supposed to be added
+	private ArrayList<org.sbolstandard.core2.Component> sortedComponents(ComponentDefinition comp) {
+		Multimap<org.sbolstandard.core2.Component, org.sbolstandard.core2.Component> precedes = transitiveClosure(comp);
+		Map<org.sbolstandard.core2.Component, Collection<org.sbolstandard.core2.Component>> precedesMap = precedes
+				.asMap();
+		ArrayList<org.sbolstandard.core2.Component> sortedComponents = new ArrayList<org.sbolstandard.core2.Component>();
+		// iterate through precedes taking out components and storing them into
+		// sortedComponents until precedes is empty.
+		while (!precedesMap.isEmpty()) {
+			for (org.sbolstandard.core2.Component key : precedesMap.keySet()) {
+				if (precedesMap.get(key).isEmpty()) {
+					// add the key (Component) to sortedComponents and removes
+					// it from the map.
+					sortedComponents.add(key);
+					precedesMap.remove(key);
+				}
+			}
 		}
+		// the components in sortedCOmponents is in reverse order. Flip them
+		// around.
+		ArrayList<org.sbolstandard.core2.Component> temp = new ArrayList<org.sbolstandard.core2.Component>();
+		for (int i = temp.size() - 1; i >= 0; i--) {
+			temp.add(sortedComponents.get(i));
+		}
+		sortedComponents = temp;
+
+		return sortedComponents;
+	}
+
+	// Creates a transitive closure based on the ComponentDefinition's
+	// SequenceConstraints and SequenceAnnotations.
+	private Multimap<org.sbolstandard.core2.Component, org.sbolstandard.core2.Component> transitiveClosure(
+			ComponentDefinition comp) {
+		// precedes stores each component of this ComponentDefinition as keys
+		// and the components it precedes as values.
+		Multimap<org.sbolstandard.core2.Component, org.sbolstandard.core2.Component> precedes = HashMultimap.create();
+
+		Set<org.sbolstandard.core2.Component> components = comp.getComponents();
+		// put all of the components into precedes as keys
+		for (org.sbolstandard.core2.Component component : components) {
+			fillInPrecedes(comp, precedes, component);
+		}
+
+		// put all of the values in as keys as well
+		for (org.sbolstandard.core2.Component value : precedes.values()) {
+			fillInPrecedes(comp, precedes, value);
+		}
+		// may have to do above step a couple of times if there are new
+		// values/precedes still changes?
+
 		return precedes;
 	}
 
-	private void computePrecedesTransitive(SequenceAnnotation ann,
-			Multimap<SequenceAnnotation, SequenceAnnotation> precedes, Set<SequenceAnnotation> visited) {
-		if (!visited.add(ann)) {
-			LOGGER.warn("Circular precedes relation: " + Iterators
-					.toString(Iterators.transform(visited.iterator(), new Function<SequenceAnnotation, String>() {
-						public String apply(SequenceAnnotation ann) {
-							return ann.getIdentity().toString();
-						}
-					})));
+	// put all of the components this component precedes as values in precedes
+	// if the component is already in precedes as a key, don't do anything
+	private void fillInPrecedes(ComponentDefinition comp,
+			Multimap<org.sbolstandard.core2.Component, org.sbolstandard.core2.Component> precedes,
+			org.sbolstandard.core2.Component component) {
+		if (precedes.containsKey(component)) {
 			return;
-		}
-
-		if (!precedes.containsKey(ann)) {
-			for (SequenceAnnotation nextAnn : ann.getPrecedes()) {
-				computePrecedesTransitive(nextAnn, precedes, visited);
-				precedes.put(ann, nextAnn);
-				precedes.putAll(ann, precedes.get(nextAnn));
+		} else {
+			// deal with the constraints
+			Set<SequenceConstraint> constraints = comp.getSequenceConstraints();
+			for (SequenceConstraint constraint : constraints) {
+				if (constraint.getRestriction() == RestrictionType.PRECEDES
+						&& constraint.getSubject().equals(constraint)) {
+					precedes.put(component, constraint.getObject());
+				}
+			}
+			// deal with the annotations
+			Set<SequenceAnnotation> annotations = comp.getSequenceAnnotations();
+			for (SequenceAnnotation annotation : annotations) {
+				if (annotation.getComponent().equals(component)) {
+					addAllPrecedes(precedes, component, annotation, annotations);
+				}
 			}
 		}
-
-		visited.remove(ann);
 	}
 
-	private Iterable<SequenceAnnotation> sortedAnnotations(Set<SequenceAnnotation> annotations) {
-		final Multimap<SequenceAnnotation, SequenceAnnotation> precedesTransitive = computePrecedesTransitive(
-				annotations);
-		return new PartialOrder<SequenceAnnotation>(new PartialOrderComparator<SequenceAnnotation>() {
-			@Override
-			public PartialOrderRelation compare(SequenceAnnotation a, SequenceAnnotation b) {
-				if (precedesTransitive.containsEntry(a, b)) {
-					return PartialOrderRelation.LESS;
+	// put into precedes all of the components whose annotations follow
+	// component's annotation
+	private void addAllPrecedes(Multimap<org.sbolstandard.core2.Component, org.sbolstandard.core2.Component> precedes,
+			org.sbolstandard.core2.Component component, SequenceAnnotation annotation,
+			Set<SequenceAnnotation> annotations) {
+		// Only looks at the first location in the set
+		Location componentLocation = annotation.getLocations().iterator().next();
+		// Treats componentLocation as either a range or cut. If the location is
+		// a GenericLocation, it doesn't precede anything
+		// (Integer.MAX_VALUE)
+		int componentStart = Integer.MAX_VALUE;
+		if (componentLocation instanceof Range) {
+			componentStart = ((Range) componentLocation).getStart();
+		}
+		if (componentLocation instanceof Cut) {
+			componentStart = ((Cut) componentLocation).getAt();
+		}
+		// iterate through all the annotations,
+		for (SequenceAnnotation ann : annotations) {
+			// Only looks at the first location
+			Location loc = ann.getLocations().iterator().next();
+			if (loc instanceof Range) {
+				if (((Range) loc).getStart() > componentStart) {
+					precedes.put(component, ann.getComponent());
 				}
-
-				if (precedesTransitive.containsEntry(b, a)) {
-					return PartialOrderRelation.GREATER;
-				}
-
-				try {
-					Range rangeA = (Range) a.getLocations().iterator().next();
-					Range rangeB = (Range) b.getLocations().iterator().next();
-					int cmpStart = Ints.compare(rangeA.getStart(), rangeB.getStart());
-					int cmpEnd = Ints.compare(rangeA.getEnd(), rangeB.getEnd());
-					if (cmpStart < 0) {
-						return PartialOrderRelation.LESS;
-					} else if (cmpStart > 0) {
-						return PartialOrderRelation.GREATER;
-					} else if (cmpEnd < 0) {
-						return PartialOrderRelation.GREATER;
-					} else if (cmpEnd > 0) {
-						return PartialOrderRelation.LESS;
-					} else {
-						return PartialOrderRelation.EQUAL;
-					}
-				} catch (Exception e) {
-					return PartialOrderRelation.INCOMPARABLE;
-				}
-
 			}
-		});
+			if (loc instanceof Cut) {
+				if (((Cut) loc).getAt() > componentStart) {
+					precedes.put(component, ann.getComponent());
+				}
+			}
+		}
 	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	// private void populateComponents(ComponentDefinition comp) {
+	// if (comp.getAnnotations().isEmpty()) {
+	// if (currentComponent != comp) {
+	// addComponent(comp);
+	// }
+	// return;
+	// }
+	//
+	// Iterable<SequenceAnnotation> sortedAnnotations =
+	// sortedAnnotations(comp.getAnnotations());
+	// //
+	// System.out.println(Iterators.toString(Iterators.transform(sortedAnnotations.iterator(),
+	// // new Function<SequenceAnnotation,String>() {
+	// // public String apply(SequenceAnnotation ann) {
+	// // return "\n" + ann.getURI().toString() + " " +
+	// // ann.getSubComponent().getURI() + " " + ann.getBioStart() + " " +
+	// // ann.getBioEnd();
+	// // }
+	// // })));
+	// int lastStart = -1;
+	// int lastEnd = -1;
+	// for (SequenceAnnotation ann : sortedAnnotations) {
+	// // even though we are using SequenceConstraints, we still use the
+	// // annotation to get the range?
+	// Range range = (Range) ann.getLocations().iterator().next();
+	// if (range.getStart() >= lastStart && range.getEnd() <= lastEnd) {
+	// continue;
+	// }
+	// // this is the case where we have a sequence within another
+	// // sequence?
+	// lastStart = range.getStart();
+	// lastEnd = range.getEnd();
+	//
+	// ComponentDefinition subComp = ann.getComponentDefinition();
+	// if (subComp != null) {
+	// // There isn't an add component for sequenceConstraints.
+	// addComponent(ann, subComp, Parts.forComponent(subComp));
+	// }
+	// }
+	// }
+	//
+	// private Multimap<SequenceAnnotation, SequenceAnnotation>
+	// computePrecedesTransitive(
+	// Iterable<SequenceAnnotation> annotations) {
+	// // google what HashMultimap is
+	// Multimap<SequenceAnnotation, SequenceAnnotation> precedes =
+	// HashMultimap.create();
+	// // google what .newLinkedHashSet is
+	// Set<SequenceAnnotation> visited = Sets.newLinkedHashSet();
+	// for (SequenceAnnotation ann : annotations) {
+	// computePrecedesTransitive(ann, precedes, visited);
+	// }
+	// return precedes;
+	// }
+	//
+	// // What is the point of transitive?
+	// // Example, if A is larger than B, and B is larger than C, then A is
+	// larger
+	// // than C.
+	// private void computePrecedesTransitive(SequenceAnnotation ann,
+	// Multimap<SequenceAnnotation, SequenceAnnotation> precedes,
+	// Set<SequenceAnnotation> visited) {
+	// if (!visited.add(ann)) {
+	// LOGGER.warn("Circular precedes relation: " + Iterators
+	// .toString(Iterators.transform(visited.iterator(), new
+	// Function<SequenceAnnotation, String>() {
+	// public String apply(SequenceAnnotation ann) {
+	// return ann.getIdentity().toString();
+	// }
+	// })));
+	// return;
+	// }
+	//
+	// if (!precedes.containsKey(ann)) {
+	// for (SequenceAnnotation nextAnn : ann.getPrecedes()) {
+	// computePrecedesTransitive(nextAnn, precedes, visited);
+	// precedes.put(ann, nextAnn);
+	// precedes.putAll(ann, precedes.get(nextAnn));
+	// }
+	// }
+	//
+	// visited.remove(ann);
+	// }
+	//
+	// private Iterable<SequenceAnnotation>
+	// sortedAnnotations(Set<SequenceAnnotation> annotations) {
+	// final Multimap<SequenceAnnotation, SequenceAnnotation> precedesTransitive
+	// = computePrecedesTransitive(
+	// annotations); // what is a multimap, reminder to google
+	// return new PartialOrder<SequenceAnnotation>(new
+	// PartialOrderComparator<SequenceAnnotation>() {
+	// // Comparator used to compare SequenceAnnotations
+	// @Override
+	// public PartialOrderRelation compare(SequenceAnnotation a,
+	// SequenceAnnotation b) {
+	// if (precedesTransitive.containsEntry(a, b)) {
+	// return PartialOrderRelation.LESS;
+	// }
+	//
+	// if (precedesTransitive.containsEntry(b, a)) {
+	// return PartialOrderRelation.GREATER;
+	// }
+	//
+	// try {
+	// Range rangeA = (Range) a.getLocations().iterator().next();
+	// Range rangeB = (Range) b.getLocations().iterator().next();
+	// // Ints.compare returns the smallest or biggest? Reminder to
+	// // google
+	// int cmpStart = Ints.compare(rangeA.getStart(), rangeB.getStart());
+	// int cmpEnd = Ints.compare(rangeA.getEnd(), rangeB.getEnd());
+	// if (cmpStart < 0) {
+	// return PartialOrderRelation.LESS;
+	// } else if (cmpStart > 0) {
+	// return PartialOrderRelation.GREATER;
+	// } else if (cmpEnd < 0) {
+	// return PartialOrderRelation.GREATER;
+	// } else if (cmpEnd > 0) {
+	// return PartialOrderRelation.LESS;
+	// } else {
+	// return PartialOrderRelation.EQUAL;
+	// }
+	// } catch (Exception e) {
+	// return PartialOrderRelation.INCOMPARABLE;
+	// }
+	//
+	// }
+	// });
+	// }
+	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	public boolean isCircular() {
 		return isCircular;
@@ -1137,19 +1297,13 @@ public class SBOLDesign {
 			if (prev != null) {
 				// prev.getPrecedes().clear();
 				// prev.addPrecede(ann);
-				// TODO check for all .getDisplayIds and change to .getComponent.getDisplayId
+				// TODO check for all .getDisplayIds and change to
+				// .getComponent.getDisplayId
 				comp.createSequenceConstraint("temp", RestrictionType.PRECEDES, prev.getComponent().getDisplayId(),
 						ann.getComponent().getDisplayId());
 			}
-
-			// currentComponent.addSequenceAnnotation(ann);
-
 			// TODO Only ever looks at the first location, there may be more
 			// than one
-
-			// One way or another, the ann should be assigned to
-			// currentComponent.
-
 			prev = ann;
 		}
 
@@ -1185,8 +1339,9 @@ public class SBOLDesign {
 			// seqAnn.setSubComponent(component);
 			// seqAnn.setOrientation(OrientationType.INLINE);
 			// created a sequenceAnnotation that belongs to component, but it
-			return component.createSequenceAnnotation(component.getDisplayId(), "GenericLocation", OrientationType.INLINE);
-			
+			return component.createSequenceAnnotation(component.getDisplayId(), "GenericLocation",
+					OrientationType.INLINE);
+
 		}
 
 		SequenceAnnotation getAnnotation() {
