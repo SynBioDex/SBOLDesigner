@@ -15,8 +15,10 @@
 
 package com.clarkparsia.sbol.editor.io;
 
+import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 
 import javax.swing.JOptionPane;
 
@@ -25,6 +27,7 @@ import org.openrdf.rio.helpers.StatementCollector;
 import org.sbolstandard.core2.ComponentDefinition;
 import org.sbolstandard.core2.SBOLDocument;
 import org.sbolstandard.core2.SBOLValidationException;
+import org.sbolstandard.core2.SBOLWriter;
 
 import com.clarkparsia.sbol.SBOLRDFReader;
 import com.clarkparsia.sbol.SBOLRDFWriter;
@@ -133,9 +136,10 @@ public class RVTDocumentIO implements DocumentIO {
 		
 		String msg = JOptionPane.showInputDialog("Enter commit message");
 	    try {
-			ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-			writer.write(doc, bytes);
-			branch.commit(RDFInput.forBytes(bytes.toByteArray()), info(msg));
+			OutputStream bytes = new ByteArrayOutputStream();
+			SBOLWriter.write(doc, bytes);
+			// TODO Typecasting without information
+			branch.commit(RDFInput.forBytes(((ByteArrayOutputStream)bytes).toByteArray()), info(msg));
         }	   
 		catch (Exception e) {
 			throw new IOException(e);

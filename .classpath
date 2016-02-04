@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="src" path="src"/>
+	<classpathentry excluding="com/clarkparsia/sbol/SBOLObjectFinder.java|com/clarkparsia/sbol/SBOLPredicates.java|com/clarkparsia/sbol/SBOLTextWriter.java|com/clarkparsia/sbol/SublimeSBOLBaseVisitor.java|com/clarkparsia/sbol/SublimeSBOLObjectImpl.java|com/clarkparsia/sbol/SublimeSBOLVisitor.java|com/clarkparsia/sbol/SublimeSequenceAnalysis.java|com/clarkparsia/sbol/SublimeSequenceVariant.java|com/clarkparsia/sbol/SublimeSequencingData.java|com/clarkparsia/sbol/SBOLAbstractWriter.java|com/clarkparsia/sbol/SBOLRDFWriter.java|com/clarkparsia/sbol/SBOLRDFReader.java" kind="src" path="src"/>
 	<classpathentry kind="src" path="versioning/src"/>
 	<classpathentry kind="src" path="versioning/cli"/>
 	<classpathentry kind="src" path="servlet/src"/>

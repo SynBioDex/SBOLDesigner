@@ -69,10 +69,8 @@ import javax.swing.JTextArea;
 import javax.swing.KeyStroke;
 import javax.swing.SwingConstants;
 
-import org.sbolstandard.core2.Annotation;
 import org.sbolstandard.core2.ComponentDefinition;
 import org.sbolstandard.core2.Cut;
-import org.sbolstandard.core2.GenericLocation;
 import org.sbolstandard.core2.Location;
 import org.sbolstandard.core2.Sequence;
 import org.sbolstandard.core2.SBOLDocument;
@@ -86,9 +84,7 @@ import org.slf4j.LoggerFactory;
 
 import com.adamtaft.eb.EventBus;
 import com.clarkparsia.sbol.CharSequences;
-import com.clarkparsia.sbol.SBOLTextWriter;
 import com.clarkparsia.sbol.SBOLUtils;
-import com.clarkparsia.sbol.SublimeSBOLFactory;
 import com.clarkparsia.sbol.editor.dialog.PartEditDialog;
 import com.clarkparsia.sbol.editor.dialog.SelectPartDialog;
 import com.clarkparsia.sbol.editor.event.DesignChangedEvent;
@@ -97,19 +93,14 @@ import com.clarkparsia.sbol.editor.event.FocusInEvent;
 import com.clarkparsia.sbol.editor.event.FocusOutEvent;
 import com.clarkparsia.sbol.editor.event.PartVisibilityChangedEvent;
 import com.clarkparsia.sbol.editor.event.SelectionChangedEvent;
-import com.clarkparsia.sbol.order.PartialOrder;
-import com.clarkparsia.sbol.order.PartialOrderComparator;
-import com.clarkparsia.sbol.order.PartialOrderRelation;
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
-import com.google.common.primitives.Ints;
 
 /**
  * 

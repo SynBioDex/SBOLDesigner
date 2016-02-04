@@ -29,8 +29,6 @@ import org.sbolstandard.core2.SBOLReader;
 import org.sbolstandard.core2.SBOLValidationException;
 import org.sbolstandard.core2.SBOLWriter;
 
-import com.clarkparsia.sbol.SublimeSBOLFactory;
-
 import uk.ac.ncl.intbio.core.io.CoreIoException;
 
 /**
