@@ -41,11 +41,13 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
+import java.net.URI;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Deque;
 import java.util.EnumSet;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -359,7 +361,9 @@ public class SBOLDesign {
 				return;
 			}
 		} else {
-			newComponent = new ComponentDefinition(SBOLUtils.createURI().toString(), "Unnamed", "no version", null);
+			HashSet<URI> types = new HashSet<URI>();
+			types.add(ComponentDefinition.DNA);
+			newComponent = new ComponentDefinition(SBOLUtils.createURI().toString(), "Unnamed", "", types);
 			// newComponent.setURI(SBOLUtils.createURI());
 			// newComponent.setDisplayId("Unnamed");
 		}

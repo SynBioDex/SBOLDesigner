@@ -26,7 +26,6 @@ import org.sbolstandard.core2.SBOLValidationException;
 
 import com.clarkparsia.sbol.SBOLSPARQLReader;
 import com.clarkparsia.sbol.SBOLSPARQLWriter;
-import com.clarkparsia.sbol.SublimeSBOLFactory;
 import com.clarkparsia.sbol.editor.Registry;
 import com.clarkparsia.sbol.editor.sparql.SPARQLEndpoint;
 
@@ -49,8 +48,10 @@ public class SPARQLDocumentIO implements DocumentIO {
 		this.endpoint = registry.createEndpoint();
 		this.componentURI = componentURI;
 		
-		reader = SublimeSBOLFactory.createReader(endpoint, validate);
-		writer = SublimeSBOLFactory.createWriter(endpoint, validate);
+		//reader = SublimeSBOLFactory.createReader(endpoint, validate);
+		reader = new SBOLSPARQLReader(endpoint, validate);
+		//writer = SublimeSBOLFactory.createWriter(endpoint, validate);
+		writer = new SBOLSPARQLWriter(endpoint, validate);
     }
 	
 	@Override

@@ -29,8 +29,6 @@ import org.sbolstandard.core2.SBOLDocument;
 import org.sbolstandard.core2.SBOLValidationException;
 import org.sbolstandard.core2.SBOLWriter;
 
-import com.clarkparsia.sbol.SBOLRDFReader;
-import com.clarkparsia.sbol.SBOLRDFWriter;
 import com.clarkparsia.sbol.SBOLSPARQLReader;
 import com.clarkparsia.sbol.editor.Registry;
 import com.clarkparsia.sbol.editor.SBOLEditorPreferences;

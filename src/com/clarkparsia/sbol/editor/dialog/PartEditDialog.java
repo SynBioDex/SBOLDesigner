@@ -62,9 +62,9 @@ import com.google.common.collect.Iterables;
  */
 public class PartEditDialog extends JDialog implements ActionListener, DocumentListener {
 	private static final String TITLE = "Component: ";
-	
+
 	private ComponentDefinition comp;
-	
+
 	private final JComboBox typeSelection = new JComboBox(Iterables.toArray(Parts.sorted(), Part.class));
 	private final JButton saveButton;
 	private final JButton cancelButton;
@@ -74,19 +74,18 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 	private final JTextArea sequence = new JTextArea(10, 80);
 
 	public static boolean editPart(Component parent, ComponentDefinition part, boolean enableSave) {
-		try {				
+		try {
 			PartEditDialog dialog = new PartEditDialog(parent, part);
 			dialog.saveButton.setEnabled(enableSave);
 			dialog.setVisible(true);
 			return dialog.comp != null;
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 			JOptionPane.showMessageDialog(parent, "Error editing component");
 			return false;
 		}
 	}
-	
+
 	private static String title(ComponentDefinition comp) {
 		String title = comp.getDisplayId();
 		if (title == null) {
@@ -96,36 +95,37 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 			URI uri = comp.getIdentity();
 			title = (uri == null) ? null : uri.toString();
 		}
-		
+
 		return (title == null) ? "" : CharSequences.shorten(title, 20).toString();
 	}
 
 	private PartEditDialog(Component parent, ComponentDefinition comp) {
 		super(JOptionPane.getFrameForComponent(parent), TITLE + title(comp), true);
-		
-		this.comp = comp;        
-		
+
+		this.comp = comp;
+
 		cancelButton = new JButton("Cancel");
-		cancelButton.registerKeyboardAction(this, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_IN_FOCUSED_WINDOW);
+		cancelButton.registerKeyboardAction(this, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0),
+				JComponent.WHEN_IN_FOCUSED_WINDOW);
 		cancelButton.addActionListener(this);
-		
+
 		saveButton = new JButton("Save");
 		saveButton.addActionListener(this);
 		saveButton.setEnabled(false);
 		getRootPane().setDefaultButton(saveButton);
-		
+
 		typeSelection.setSelectedItem(Parts.forComponent(comp));
 		typeSelection.setRenderer(new PartCellRenderer());
 		typeSelection.addActionListener(this);
-		
+
 		FormBuilder builder = new FormBuilder();
-		builder.add("Part type", typeSelection);		
+		builder.add("Part type", typeSelection);
 		builder.add("Display ID", displayId, comp.getDisplayId());
-		builder.add("Name", name, comp.getName());	
+		builder.add("Name", name, comp.getName());
 		builder.add("Description", description, comp.getDescription());
-		
+
 		JPanel controlsPane = builder.build();
-        
+
 		JScrollPane tableScroller = new JScrollPane(sequence);
 		tableScroller.setPreferredSize(new Dimension(450, 200));
 		tableScroller.setAlignmentX(LEFT_ALIGNMENT);
@@ -138,13 +138,15 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 		tablePane.add(Box.createRigidArea(new Dimension(0, 5)));
 		tablePane.add(tableScroller);
 		tablePane.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
- 		
+
 		sequence.setLineWrap(true);
 		sequence.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
-//		if (comp.getDnaSequence() != null && comp.getDnaSequence().getNucleotides() != null) {
-//			sequence.setText(comp.getDnaSequence().getNucleotides());
-//		}
-		// Check if set has sequences and that the sequences's nucleotides aren't null.
+		// if (comp.getDnaSequence() != null &&
+		// comp.getDnaSequence().getNucleotides() != null) {
+		// sequence.setText(comp.getDnaSequence().getNucleotides());
+		// }
+		// Check if set has sequences and that the sequences's nucleotides
+		// aren't null.
 		Set<Sequence> sequences = comp.getSequences();
 		java.util.Iterator<Sequence> iter = sequences.iterator();
 		while (iter.hasNext()) {
@@ -168,7 +170,7 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 		contentPane.add(controlsPane, BorderLayout.PAGE_START);
 		contentPane.add(tablePane, BorderLayout.CENTER);
 		contentPane.add(buttonPane, BorderLayout.PAGE_END);
-				
+
 		displayId.getDocument().addDocumentListener(this);
 		name.getDocument().addDocumentListener(this);
 		description.getDocument().addDocumentListener(this);
@@ -184,44 +186,47 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 			saveButton.setEnabled(true);
 			return;
 		}
-		
+
 		if (e.getSource().equals(saveButton)) {
 			if (SBOLUtils.isRegistryComponent(comp)) {
 				if (!confirmEditing(getParent(), comp)) {
 					return;
 				}
-			}			
-			
-			// TODO This is like createCopy to set a new displayId, but I'm not sure if it preserves all the data from the original ComponenetDefintion like Sequences and such.
-			comp = new ComponentDefinition(comp.getIdentity().toString(), displayId.getText(), "no version", new HashSet<URI>());
-			//comp.setDisplayId(displayId.getText());
+			}
+
+			// TODO This is like createCopy to set a new displayId, but I'm not
+			// sure if it preserves all the data from the original
+			// ComponenetDefintion like Sequences and such.
+			comp = new ComponentDefinition(comp.getIdentity().toString(), displayId.getText(), "no version",
+					new HashSet<URI>());
+			// comp.setDisplayId(displayId.getText());
 			comp.setName(name.getText());
 			comp.setDescription(description.getText());
-			//comp.getTypes().clear();
-			
+			// comp.getTypes().clear();
+
 			Part part = (Part) typeSelection.getSelectedItem();
 			if (part != null) {
 				comp.addType(part.getType());
 			}
-			
+
 			String seq = sequence.getText();
 			java.util.Iterator<Sequence> iter = comp.getSequences().iterator();
 			Sequence sequence = iter.next();
 			if (seq == null || seq.isEmpty()) {
-				//comp.setDnaSequence(null);
+				// comp.setDnaSequence(null);
 				iter.remove();
-			}
-			else if (comp.getSequences().isEmpty() || !Objects.equal(sequence.getElements(), seq)) {
-				Sequence dnaSeq = SBOLUtils.createSequence(seq);
+			} else if (comp.getSequences().isEmpty() || !Objects.equal(sequence.getElements(), seq)) {
+				// Sequence dnaSeq = SBOLUtils.createSequence(seq);
+				Sequence dnaSeq = new Sequence(comp.getIdentity().toString(), comp.getDisplayId(), "no version", seq,
+						Sequence.IUPAC_DNA);
 				comp.addSequence(dnaSeq);
 			}
-		}
-		else {
+		} else {
 			comp = null;
 		}
 		setVisible(false);
-	}	
-	
+	}
+
 	@Override
 	public void removeUpdate(DocumentEvent paramDocumentEvent) {
 		saveButton.setEnabled(true);
@@ -236,21 +241,20 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 	public void changedUpdate(DocumentEvent paramDocumentEvent) {
 		saveButton.setEnabled(true);
 	}
-	
+
 	public static boolean confirmEditing(Component parent, ComponentDefinition comp) {
-		int result = JOptionPane.showConfirmDialog(parent, 
-				"The component '" + comp.getDisplayId() + "' has been added from\n" +
-				"a parts registry and cannot be edited.\n\n" +
-				"Do you want to create an editable copy of\n" +
-				"this ComponentDefinition and save your changes?", "Edit registry part", 
-				JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
-		
+		int result = JOptionPane.showConfirmDialog(parent,
+				"The component '" + comp.getDisplayId() + "' has been added from\n"
+						+ "a parts registry and cannot be edited.\n\n" + "Do you want to create an editable copy of\n"
+						+ "this ComponentDefinition and save your changes?",
+				"Edit registry part", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+
 		if (result == JOptionPane.NO_OPTION) {
 			return false;
 		}
-		
+
 		SBOLUtils.rename(comp);
-		
+
 		return true;
 	}
 }
