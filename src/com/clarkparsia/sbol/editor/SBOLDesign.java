@@ -361,9 +361,7 @@ public class SBOLDesign {
 				return;
 			}
 		} else {
-			HashSet<URI> types = new HashSet<URI>();
-			types.add(ComponentDefinition.DNA);
-			newComponent = new ComponentDefinition(SBOLUtils.createURI().toString(), "Unnamed", "", types);
+			newComponent = doc.createComponentDefinition("Unnamed", ComponentDefinition.DNA);
 			// newComponent.setURI(SBOLUtils.createURI());
 			// newComponent.setDisplayId("Unnamed");
 		}

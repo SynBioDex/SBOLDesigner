@@ -25,6 +25,8 @@ import java.util.UUID;
 import javax.swing.JPanel;
 
 import org.sbolstandard.core2.ComponentDefinition;
+import org.sbolstandard.core2.Location;
+import org.sbolstandard.core2.Range;
 import org.sbolstandard.core2.Sequence;
 import org.sbolstandard.core2.SBOLDocument;
 import org.sbolstandard.core2.SequenceAnnotation;
@@ -97,12 +99,10 @@ public class SBOLUtils {
 		return Iterators.filter(doc.getComponentDefinitions().iterator(), ComponentDefinition.class);
 	}
 
-	// public static Sequence createSequence(String nucleotides) {
-	// Sequence seq = SublimeSBOLFactory.createSequence();
-	// seq.setURI(SBOLUtils.createURI());
-	// seq.setNucleotides(nucleotides);
-	// return seq;
-	// }
+	public static Sequence createSequence(String nucleotides) {
+		Sequence seq = new Sequence(SBOLUtils.createURI().toString(), "", "", nucleotides, Sequence.IUPAC_DNA);
+		return seq;
+	}
 
 	public static boolean isRegistryComponent(ComponentDefinition comp) {
 		URI uri = comp.getIdentity();
@@ -122,8 +122,18 @@ public class SBOLUtils {
 		for (int i = 0; i < size; i++) {
 			SequenceAnnotation ann = annotations.get(i);
 
-			Integer start = ann.getBioStart();
-			Integer end = ann.getBioEnd();
+			// Integer start = ann.getBioStart();
+			// Integer end = ann.getBioEnd();
+			Integer start = null;
+			Integer end = null;
+			Location loc = ann.getLocations().iterator().next();
+			// TODO Only taking into account locations of type Range.
+			if (loc instanceof Range) {
+				Range range = (Range) loc;
+				start = range.getStart();
+				end = range.getEnd();
+			}
+
 			if (start == null || end == null) {
 				return null;
 			}
@@ -133,7 +143,7 @@ public class SBOLUtils {
 				uncoveredSequences.put(-i - 1, seq);
 			}
 
-			if (SBOLUtils.getNucleotides(ann.getSubComponent()) == null) {
+			if (SBOLUtils.getNucleotides(ann.getComponentDefinition()) == null) {
 				Sequence seq = SBOLUtils.createSequence(sequence.substring(start - 1, end));
 				uncoveredSequences.put(i, seq);
 			}
