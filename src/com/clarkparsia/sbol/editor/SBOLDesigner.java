@@ -43,6 +43,7 @@ import org.sbolstandard.core2.SBOLDocument;
 //import org.sbolstandard.core2.SBOLFactory;
 
 import com.adamtaft.eb.EventHandler;
+import com.clarkparsia.sbol.SBOLCentralDocument;
 import com.clarkparsia.sbol.SBOLUtils;
 import com.clarkparsia.sbol.editor.dialog.AboutDialog;
 import com.clarkparsia.sbol.editor.dialog.CheckoutDialog;
@@ -386,6 +387,7 @@ public class SBOLDesigner extends JFrame {
 		// TODO SBOLDocument creation
 		SBOLDocument doc = new SBOLDocument();
 		doc.setDefaultURIprefix("http://fetchfrompreferences");
+		SBOLCentralDocument.centralDoc = doc;
 		editor.getDesign().load(doc);
 		setCurrentFile(null);
 	}

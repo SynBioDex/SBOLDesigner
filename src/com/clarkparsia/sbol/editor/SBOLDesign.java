@@ -86,6 +86,7 @@ import org.slf4j.LoggerFactory;
 
 import com.adamtaft.eb.EventBus;
 import com.clarkparsia.sbol.CharSequences;
+import com.clarkparsia.sbol.SBOLCentralDocument;
 import com.clarkparsia.sbol.SBOLUtils;
 import com.clarkparsia.sbol.editor.dialog.PartEditDialog;
 import com.clarkparsia.sbol.editor.dialog.SelectPartDialog;
@@ -1249,6 +1250,7 @@ public class SBOLDesign {
 		ComponentDefinition comp = parentComponents.isEmpty() ? currentComponent : parentComponents.getFirst();
 		// TODO SBOLDocument creation
 		SBOLDocument doc = new SBOLDocument();
+		SBOLCentralDocument.centralDoc = doc;
 		// doc.addContent(comp);
 		doc.createCopy(comp);
 
