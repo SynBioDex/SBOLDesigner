@@ -71,7 +71,7 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 	private final JTextField displayId = new JTextField();
 	private final JTextField name = new JTextField();
 	private final JTextField description = new JTextField();
-	private final JTextArea sequence = new JTextArea(10, 80);
+	private final JTextArea sequenceField = new JTextArea(10, 80);
 
 	public static boolean editPart(Component parent, ComponentDefinition part, boolean enableSave) {
 		try {
@@ -126,21 +126,21 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 
 		JPanel controlsPane = builder.build();
 
-		JScrollPane tableScroller = new JScrollPane(sequence);
+		JScrollPane tableScroller = new JScrollPane(sequenceField);
 		tableScroller.setPreferredSize(new Dimension(450, 200));
 		tableScroller.setAlignmentX(LEFT_ALIGNMENT);
 
 		JPanel tablePane = new JPanel();
 		tablePane.setLayout(new BoxLayout(tablePane, BoxLayout.PAGE_AXIS));
 		JLabel label = new JLabel("DNASequence");
-		label.setLabelFor(sequence);
+		label.setLabelFor(sequenceField);
 		tablePane.add(label);
 		tablePane.add(Box.createRigidArea(new Dimension(0, 5)));
 		tablePane.add(tableScroller);
 		tablePane.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-		sequence.setLineWrap(true);
-		sequence.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
+		sequenceField.setLineWrap(true);
+		sequenceField.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
 		// if (comp.getDnaSequence() != null &&
 		// comp.getDnaSequence().getNucleotides() != null) {
 		// sequence.setText(comp.getDnaSequence().getNucleotides());
@@ -148,11 +148,13 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 		// Check if set has sequences and that the sequences's nucleotides
 		// aren't null.
 		Set<Sequence> sequences = comp.getSequences();
-		java.util.Iterator<Sequence> iter = sequences.iterator();
-		while (iter.hasNext()) {
-			Sequence seq = iter.next();
-			if (seq.getElements() != null) {
-				sequence.setText(seq.getElements());
+		if (sequences != null && !sequences.isEmpty()) {
+			java.util.Iterator<Sequence> iter = sequences.iterator();
+			while (iter.hasNext()) {
+				Sequence seq = iter.next();
+				if (seq.getElements() != null) {
+					sequenceField.setText(seq.getElements());
+				}
 			}
 		}
 		//
@@ -174,7 +176,7 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 		displayId.getDocument().addDocumentListener(this);
 		name.getDocument().addDocumentListener(this);
 		description.getDocument().addDocumentListener(this);
-		sequence.getDocument().addDocumentListener(this);
+		sequenceField.getDocument().addDocumentListener(this);
 
 		pack();
 		setLocationRelativeTo(parent);
@@ -197,8 +199,9 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 			// TODO This is like createCopy to set a new displayId, but I'm not
 			// sure if it preserves all the data from the original
 			// ComponenetDefintion like Sequences and such.
-			comp = new ComponentDefinition(comp.getIdentity().toString(), displayId.getText(), "no version",
-					new HashSet<URI>());
+			Set<URI> types = new HashSet<URI>();
+			types.add(ComponentDefinition.DNA);
+			comp = new ComponentDefinition(comp.getIdentity().toString(), displayId.getText(), "", types);
 			// comp.setDisplayId(displayId.getText());
 			comp.setName(name.getText());
 			comp.setDescription(description.getText());
@@ -209,15 +212,15 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 				comp.addType(part.getType());
 			}
 
-			String seq = sequence.getText();
+			String seq = sequenceField.getText();
 			java.util.Iterator<Sequence> iter = comp.getSequences().iterator();
 			Sequence sequence = iter.next();
 			if (seq == null || seq.isEmpty()) {
 				// comp.setDnaSequence(null);
-				iter.remove();
+				comp.removeSequence(sequence.getIdentity());
 			} else if (comp.getSequences().isEmpty() || !Objects.equal(sequence.getElements(), seq)) {
 				// Sequence dnaSeq = SBOLUtils.createSequence(seq);
-				Sequence dnaSeq = new Sequence(comp.getIdentity().toString(), comp.getDisplayId(), "no version", seq,
+				Sequence dnaSeq = new Sequence(comp.getIdentity().toString(), comp.getDisplayId(), "", seq,
 						Sequence.IUPAC_DNA);
 				comp.addSequence(dnaSeq);
 			}

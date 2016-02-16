@@ -64,7 +64,10 @@ public class SBOLUtils {
 	 * Returns a random, unique URI.
 	 */
 	public static URI createURI() {
-		return URI.create("urn:" + UUID.randomUUID());
+		// TODO
+		return URI.create("http://" + UUID.randomUUID());
+		// return URI.create("http://findinpreferences");
+
 	}
 
 	public static URI createURI(String uri) {
@@ -74,8 +77,12 @@ public class SBOLUtils {
 	public static String getNucleotides(ComponentDefinition comp) {
 		// Sequence seq = comp.getSequence();
 		// TODO potentially losing information because only looking at the first
-		// sequence
-		Sequence seq = comp.getSequences().iterator().next();
+		// sequence; loop through sequences and find the one with DNA encoding.
+		// Otherwise return null.
+		Sequence seq = null;
+		if (comp.getSequences().size() > 0) {
+			seq = comp.getSequences().iterator().next();
+		}
 		return (seq == null) ? null : seq.getElements();
 	}
 

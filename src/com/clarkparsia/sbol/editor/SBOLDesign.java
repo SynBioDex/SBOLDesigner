@@ -1304,7 +1304,7 @@ public class SBOLDesign {
 			// Sequence seq = SBOLFactory.createSequence();
 			// seq.setURI(SBOLUtils.createURI());
 			// seq.setNucleotides(rootSequence.toString());
-			Sequence seq = new Sequence("urn:", currentComponent.getDisplayId(), "no version", rootSequence.toString(),
+			Sequence seq = new Sequence("urn:", currentComponent.getDisplayId(), "", rootSequence.toString(),
 					Sequence.IUPAC_DNA);
 
 			currentComponent.addSequence(seq);
@@ -1347,6 +1347,7 @@ public class SBOLDesign {
 		}
 
 		ComponentDefinition getComponent() {
+			// TODO should be CD, not component
 			return seqAnn.getComponentDefinition();
 		}
 

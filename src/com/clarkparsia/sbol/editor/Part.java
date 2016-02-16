@@ -122,7 +122,7 @@ public class Part {
 			setTypes.add(element);
 		}
 		// create ComponentDefinition using the following parameters
-		ComponentDefinition comp = new ComponentDefinition(SBOLUtils.createURI().toString(), getDisplayId(), "no version", setTypes); 
+		ComponentDefinition comp = new ComponentDefinition(SBOLUtils.createURI().toString(), getDisplayId(), "", setTypes); 
 //		comp.setURI(SBOLUtils.createURI());
 //		comp.setDisplayId(getDisplayId());
 //		comp.addType(getType());

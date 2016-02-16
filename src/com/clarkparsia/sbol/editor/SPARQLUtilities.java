@@ -82,14 +82,14 @@ public class SPARQLUtilities {
 					Set<URI> types = new HashSet<URI>();
 					types.add(partTypeURI);
 
-					ComponentDefinition comp = new ComponentDefinition(URI.create(partURI).toString(), displayId, "no version", types);
+					ComponentDefinition comp = new ComponentDefinition(URI.create(partURI).toString(), displayId, "", types);
 					comp.setName(name);
 					comp.setDescription(description);
 					comp.addType(partTypeURI);
 
 					String seqURI = getBindingAsString(binding, "seq");
 					String nucleotides = getBindingAsString(binding, "nucleotides");
-					Sequence seq = new Sequence(URI.create(seqURI).toString(), "no displayId", "no version", nucleotides, Sequence.IUPAC_DNA); 	
+					Sequence seq = new Sequence(URI.create(seqURI).toString(), "no displayId", "", nucleotides, Sequence.IUPAC_DNA); 	
 					comp.addSequence(seq);
 
 					parts.add(comp);
