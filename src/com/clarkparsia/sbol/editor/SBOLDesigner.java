@@ -152,7 +152,7 @@ public class SBOLDesigner extends JFrame {
 				if (result.isInsert()) {
 					try {
 						ComponentDefinition newComponent = SBOLUtils.getRootComponent(newIO.read());
-						design.addComponent(newComponent);
+						design.addComponentDefinition(newComponent);
 					} catch (Throwable ex) {
 						ex.printStackTrace();
 						JOptionPane.showMessageDialog(SBOLDesigner.this, "Error checking out: " + ex.getMessage());
@@ -270,7 +270,7 @@ public class SBOLDesigner extends JFrame {
 					try {
 						SBOLDocument doc = docIO.read();
 						ComponentDefinition comp = SBOLUtils.getRootComponent(doc);
-						design.addComponent(comp);
+						design.addComponentDefinition(comp);
 					} catch (Exception e) {
 						JOptionPane.showMessageDialog(null, "ERROR: " + e.getMessage());
 						e.printStackTrace();
@@ -383,6 +383,7 @@ public class SBOLDesigner extends JFrame {
 
 	private void newDesign() {
 		// editor.getDesign().load(SBOLFactory.createDocument());
+		// TODO SBOLDocument creation
 		SBOLDocument doc = new SBOLDocument();
 		doc.setDefaultURIprefix("http://fetchfrompreferences");
 		editor.getDesign().load(doc);

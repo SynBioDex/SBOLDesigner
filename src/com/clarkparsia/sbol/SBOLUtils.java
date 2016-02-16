@@ -64,7 +64,7 @@ public class SBOLUtils {
 	 * Returns a random, unique URI.
 	 */
 	public static URI createURI() {
-		// TODO
+		// TODO invalid URIs
 		return URI.create("http://" + UUID.randomUUID());
 		// return URI.create("http://findinpreferences");
 

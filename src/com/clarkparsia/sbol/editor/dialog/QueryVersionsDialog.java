@@ -163,7 +163,6 @@ public class QueryVersionsDialog extends InputDialog<ComponentDefinition> {
 	                });
                 }
                 catch (QueryEvaluationException e) {
-	                // TODO Auto-generated catch block
 	                e.printStackTrace();
                 }
 			}

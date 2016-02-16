@@ -485,16 +485,16 @@ public class SBOLDesign {
 			if (index >= 0) {
 				int updateIndex = index + insertCount;
 				DesignElement e = elements.get(updateIndex);
-				e.getComponent().clearSequences();
-				e.getComponent().addSequence(seq);
+				e.getComponentDefinition().clearSequences();
+				e.getComponentDefinition().addSequence(seq);
 			} else {
 				int insertIndex = -index - 1 + insertCount++;
 
-				addComponent(Parts.SCAR, false);
+				addComponentDefinition(Parts.SCAR, false);
 
 				DesignElement e = elements.get(lastIndex);
-				e.getComponent().clearSequences();
-				e.getComponent().addSequence(seq);
+				e.getComponentDefinition().clearSequences();
+				e.getComponentDefinition().addSequence(seq);
 
 				moveComponent(lastIndex++, insertIndex);
 			}
@@ -518,7 +518,7 @@ public class SBOLDesign {
 	private void populateComponents(ComponentDefinition comp) {
 		if (comp.getAnnotations().isEmpty()) {
 			if (currentComponent != comp) {
-				addComponent(comp);
+				addComponentDefinition(comp);
 			}
 			return;
 		}
@@ -526,7 +526,7 @@ public class SBOLDesign {
 		for (org.sbolstandard.core2.Component component : sortedComponents) {
 			// TODO can I do this?
 			ComponentDefinition refered = component.getDefinition();
-			addComponent(refered.getSequenceAnnotations().iterator().next(), refered, Parts.forComponent(refered));
+			addComponentDefinition(refered.getSequenceAnnotations().iterator().next(), refered, Parts.forComponent(refered));
 		}
 
 	}
@@ -797,7 +797,7 @@ public class SBOLDesign {
 	private int getElementIndex(ComponentDefinition comp) {
 		for (int i = 0, n = elements.size(); i < n; i++) {
 			DesignElement e = elements.get(i);
-			if (e.getComponent() == comp) {
+			if (e.getComponentDefinition() == comp) {
 				return i;
 			}
 		}
@@ -817,7 +817,7 @@ public class SBOLDesign {
 	}
 
 	public ComponentDefinition getSelectedComponent() {
-		return selectedElement == null ? null : selectedElement.getComponent();
+		return selectedElement == null ? null : selectedElement.getComponentDefinition();
 	}
 
 	public boolean setSelectedComponent(ComponentDefinition comp) {
@@ -840,11 +840,11 @@ public class SBOLDesign {
 		fireSelectionChangedEvent();
 	}
 
-	public void addComponent(ComponentDefinition comp) {
-		addComponent(null, comp, Parts.forComponent(comp));
+	public void addComponentDefinition(ComponentDefinition comp) {
+		addComponentDefinition(null, comp, Parts.forComponent(comp));
 	}
 
-	public ComponentDefinition addComponent(Part part, boolean edit) {
+	public ComponentDefinition addComponentDefinition(Part part, boolean edit) {
 		if (!confirmEditable()) {
 			return null;
 		}
@@ -855,12 +855,12 @@ public class SBOLDesign {
 			return null;
 		}
 
-		addComponent(null, comp, part);
+		addComponentDefinition(null, comp, part);
 
 		return comp;
 	}
 
-	private void addComponent(SequenceAnnotation seqAnn, ComponentDefinition comp, Part part) {
+	private void addComponentDefinition(SequenceAnnotation seqAnn, ComponentDefinition comp, Part part) {
 		boolean backbone = (part == Parts.ORI);
 		DesignElement e = new DesignElement(seqAnn, comp, part);
 		JLabel button = createComponentButton(e);
@@ -915,7 +915,7 @@ public class SBOLDesign {
 		button.setVerticalAlignment(JLabel.TOP);
 		button.setVerticalTextPosition(JLabel.TOP);
 		button.setIconTextGap(2);
-		button.setText(e.getComponent().getDisplayId());
+		button.setText(e.getComponentDefinition().getDisplayId());
 		button.setVerticalTextPosition(SwingConstants.BOTTOM);
 		button.setHorizontalTextPosition(SwingConstants.CENTER);
 		button.setToolTipText(getTooltipText(e));
@@ -981,7 +981,7 @@ public class SBOLDesign {
 	}
 
 	private String getTooltipText(DesignElement e) {
-		final ComponentDefinition comp = e.getComponent();
+		final ComponentDefinition comp = e.getComponentDefinition();
 		StringBuilder sb = new StringBuilder();
 		sb.append("<html>");
 		sb.append("<b>Display ID:</b> ").append(comp.getDisplayId()).append("<br>");
@@ -1068,7 +1068,7 @@ public class SBOLDesign {
 		if (index >= 0) {
 			DesignElement e = elements.get(index);
 			JLabel button = buttons.get(e);
-			e.setComponent(newComponent);
+			e.setComponentDefinition(newComponent);
 			if (!newComponent.getTypes().contains(e.getPart().getType())) {
 				Part newPart = Parts.forComponent(newComponent);
 				if (newPart == null) {
@@ -1217,7 +1217,7 @@ public class SBOLDesign {
 			}
 
 			try {
-				replaceComponent(selectedElement.getComponent(), newComponent);
+				replaceComponent(selectedElement.getComponentDefinition(), newComponent);
 			} catch (Exception e) {
 				e.printStackTrace();
 				JOptionPane.showMessageDialog(panel, "There was an error adding the selected part to the design");
@@ -1247,6 +1247,7 @@ public class SBOLDesign {
 		updateRootComponent();
 
 		ComponentDefinition comp = parentComponents.isEmpty() ? currentComponent : parentComponents.getFirst();
+		// TODO SBOLDocument creation
 		SBOLDocument doc = new SBOLDocument();
 		// doc.addContent(comp);
 		doc.createCopy(comp);
@@ -1261,7 +1262,7 @@ public class SBOLDesign {
 		int location = 1;
 		SequenceAnnotation prev = null;
 		for (DesignElement e : elements) {
-			ComponentDefinition comp = e.getComponent();
+			ComponentDefinition comp = e.getComponentDefinition();
 			SequenceAnnotation ann = e.getAnnotation();
 
 			//
@@ -1341,13 +1342,12 @@ public class SBOLDesign {
 			return seqAnn;
 		}
 
-		void setComponent(ComponentDefinition component) {
+		void setComponentDefinition(ComponentDefinition component) {
 			// seqAnn.setSubComponent(component);
 			seqAnn.setComponent(component.getIdentity());
 		}
 
-		ComponentDefinition getComponent() {
-			// TODO should be CD, not component
+		ComponentDefinition getComponentDefinition() {
 			return seqAnn.getComponentDefinition();
 		}
 
@@ -1370,7 +1370,7 @@ public class SBOLDesign {
 		}
 
 		public String toString() {
-			return getComponent().getDisplayId()
+			return getComponentDefinition().getDisplayId()
 					+ (seqAnn.getLocations().iterator().next().getOrientation() == OrientationType.REVERSECOMPLEMENT
 							? "-" : "");
 		}

@@ -59,10 +59,10 @@ import com.google.common.base.Preconditions;
  */
 public class SBOLSPARQLReader {
 	private static final ValueFactory FACTORY = ValueFactoryImpl.getInstance();
-	
+
 	private final SPARQLEndpoint endpoint;
 	private final SBOLValidatorImpl validator;
-	
+
 	public SBOLSPARQLReader(SPARQLEndpoint endpoint) {
 		this(endpoint, true);
 	}
@@ -76,52 +76,48 @@ public class SBOLSPARQLReader {
 		Handler handler = new Handler(endpoint, FACTORY.createURI(uri));
 		try {
 			SBOLDocument doc = handler.readDocument();
-			
+
 			if (validator != null) {
 				validator.validateWithoutSchema(doc);
 			}
 			return doc;
-		}
-		catch (QueryEvaluationException e) {
+		} catch (QueryEvaluationException e) {
 			throw e;
-		}
-		catch (RuntimeException e) {
+		} catch (RuntimeException e) {
 			throw e;
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			throw new QueryEvaluationException(e);
 		}
 	}
-	
+
 	private static java.net.URI asJavaURI(Value val) {
 		if (val instanceof URI) {
 			try {
 				return new java.net.URI(val.stringValue());
-			}
-			catch (Exception e) {
+			} catch (Exception e) {
 				throw new SBOLValidationException("Invalid uri: " + val);
 			}
 		}
-		
+
 		throw new SBOLValidationException("Expecting URI but got: " + val);
 	}
-	
+
 	private static URI asURI(Value val) {
 		if (val instanceof URI) {
 			return (URI) val;
 		}
-		
+
 		throw new SBOLValidationException("Expecting URI but got: " + val);
 	}
-	
+
 	private static Literal asLiteral(Value val) {
 		if (val instanceof Literal) {
 			return (Literal) val;
 		}
-		
+
 		throw new SBOLValidationException("Expecting literal but got: " + val);
-	}		
-	
+	}
+
 	private static StrandType asStrandType(Value val) {
 		String strand = asLiteral(val).stringValue();
 		if (strand.equals("+")) {
@@ -131,66 +127,66 @@ public class SBOLSPARQLReader {
 			return StrandType.NEGATIVE;
 		}
 		throw new SBOLValidationException("Invalid strand value: " + strand);
-	}		
-	
+	}
+
 	/**
 	 * @author Evren Sirin
 	 */
 	protected static class Handler extends RDFHandlerBase implements SublimeSBOLVisitor {
 		private static URI DUMMY = ValueFactoryImpl.getInstance().createURI("urn:dummy");
-		
+
 		private static SBOLMappers MAPPERS = new SBOLMappers(
-			new SBOLMapper<DnaComponent>(SBOLVocabulary.DnaComponent, DnaComponentImpl.class),
-			new SBOLMapper<DnaSequence>(SBOLVocabulary.DnaSequence, DnaSequenceImpl.class),
-			new SBOLMapper<SequenceAnnotation>(SBOLVocabulary.SequenceAnnotation, SequenceAnnotationImpl.class),
-			new SBOLMapper<Collection>(SBOLVocabulary.Collection, CollectionImpl.class),
-			new SBOLMapper<SublimeSequenceAnalysis>(SublimeVocabulary.SequenceAnalysis, SublimeSequenceAnalysis.class),
-			new SBOLMapper<SublimeSequencingData>(SublimeVocabulary.SequencingData, SublimeSequencingData.class),
-			new SBOLMapper<SublimeSequenceVariant>(SublimeVocabulary.SequenceVariant, SublimeSequenceVariant.class)
-		);
+				new SBOLMapper<DnaComponent>(SBOLVocabulary.DnaComponent, DnaComponentImpl.class),
+				new SBOLMapper<DnaSequence>(SBOLVocabulary.DnaSequence, DnaSequenceImpl.class),
+				new SBOLMapper<SequenceAnnotation>(SBOLVocabulary.SequenceAnnotation, SequenceAnnotationImpl.class),
+				new SBOLMapper<Collection>(SBOLVocabulary.Collection, CollectionImpl.class),
+				new SBOLMapper<SublimeSequenceAnalysis>(SublimeVocabulary.SequenceAnalysis,
+						SublimeSequenceAnalysis.class),
+				new SBOLMapper<SublimeSequencingData>(SublimeVocabulary.SequencingData, SublimeSequencingData.class),
+				new SBOLMapper<SublimeSequenceVariant>(SublimeVocabulary.SequenceVariant,
+						SublimeSequenceVariant.class));
 
 		private final SPARQLEndpoint endpoint;
-		
+
 		private final SBOLDocument doc = SublimeSBOLFactory.createDocument();
 		private final Map<Value, SBOLObject> sbolObjects = new HashMap<Value, SBOLObject>();
 		private final Queue<Resource> queue = new ArrayDeque<Resource>();
 		private final Resource rootResource;
-		
+
 		private Resource subj = DUMMY;
 		private URI prop;
 		private Value obj;
 
 		private SBOLObject sbol;
-		
+
 		public Handler(SPARQLEndpoint endpoint, Resource rootResource) {
-	        this.endpoint = endpoint;
-	        this.rootResource = rootResource;
-        }
+			this.endpoint = endpoint;
+			this.rootResource = rootResource;
+		}
 
 		public SBOLDocument readDocument() throws QueryEvaluationException {
 			queue.add(rootResource);
-			
+
 			while (!queue.isEmpty()) {
 				Resource res = queue.remove();
 				retrieveStatements(res);
 			}
-			
+
 			return doc;
 		}
-		
+
 		private void retrieveStatements(final Resource subj) throws QueryEvaluationException {
 			endpoint.executeSelectQuery("SELECT * {<" + subj + "> ?p ?o}", new TupleQueryResultHandlerBase() {
 				@Override
-	            public void handleSolution(BindingSet bindingSet) throws TupleQueryResultHandlerException {
-		            URI pred = (URI) bindingSet.getBinding("p").getValue();
-		            Value obj = bindingSet.getBinding("o").getValue();
-		            try {
-		                handleStatement(FACTORY.createStatement(subj, pred, obj));
-	                }
-	                catch (RDFHandlerException e) {
-		                throw new TupleQueryResultHandlerException(e);
-	                }
-	            }			
+				public void handleSolution(BindingSet bindingSet) throws TupleQueryResultHandlerException {
+					URI pred = (URI) bindingSet.getBinding("p").getValue();
+					Value obj = bindingSet.getBinding("o").getValue();
+					try {
+						handleStatement(FACTORY.createStatement(subj, pred, obj));
+					} catch (RDFHandlerException e) {
+						throw new TupleQueryResultHandlerException(e);
+					}
+				}
 			});
 		}
 
@@ -206,13 +202,13 @@ public class SBOLSPARQLReader {
 			}
 
 			T sbolObject = mapper.create(uri);
-			
+
 			sbolObjects.put(uri, sbolObject);
-			
+
 			if (uri instanceof Resource && !rootResource.equals(uri)) {
 				queue.add((Resource) uri);
 			}
-			
+
 			return sbolObject;
 		}
 
@@ -220,10 +216,10 @@ public class SBOLSPARQLReader {
 		public void handleStatement(Statement stmt) throws RDFHandlerException {
 			prop = stmt.getPredicate();
 			obj = stmt.getObject();
-			
+
 			if (!subj.equals(stmt.getSubject())) {
 				subj = stmt.getSubject();
-	
+
 				sbol = sbolObjects.get(subj);
 				if (sbol == null) {
 					if (!prop.equals(RDF.TYPE)) {
@@ -235,25 +231,22 @@ public class SBOLSPARQLReader {
 						doc.addContent((SBOLRootObject) sbol);
 					}
 					return;
-				}
-				else if (prop.equals(RDF.TYPE)) {
+				} else if (prop.equals(RDF.TYPE)) {
 					SBOLMapper<?> mapper = MAPPERS.get(obj);
 					if (mapper != null) {
-						 if (mapper.isValidObject(sbol)) {
-							 return;
-						 }
-						 else {
-							 throw new SBOLValidationException("Multiple objects with same URI: " + subj);
-						 }
+						if (mapper.isValidObject(sbol)) {
+							return;
+						} else {
+							throw new SBOLValidationException("Multiple objects with same URI: " + subj);
+						}
 					}
 				}
-			}
-			else if (prop.equals(RDF.TYPE)) {
+			} else if (prop.equals(RDF.TYPE)) {
 				SBOLMapper<?> mapper = MAPPERS.get(obj);
 				if (mapper != null) {
-					 if (mapper.getType().equals(obj)) {
-						 return;
-					 }
+					if (mapper.getType().equals(obj)) {
+						return;
+					}
 				}
 			}
 
@@ -264,18 +257,14 @@ public class SBOLSPARQLReader {
 		public void visit(Collection coll) {
 			if (prop.equals(SBOLVocabulary.name)) {
 				coll.setName(obj.stringValue());
-			}
-			else if (prop.equals(SBOLVocabulary.description)) {
+			} else if (prop.equals(SBOLVocabulary.description)) {
 				coll.setDescription(obj.stringValue());
-			}
-			else if (prop.equals(SBOLVocabulary.displayId)) {
+			} else if (prop.equals(SBOLVocabulary.displayId)) {
 				coll.setDisplayId(obj.stringValue());
-			}
-			else if (prop.equals(SBOLVocabulary.component)) {
+			} else if (prop.equals(SBOLVocabulary.component)) {
 				DnaComponent comp = createSBOL(obj, SBOLVocabulary.DnaComponent);
-				coll.addComponent(comp);
-			}
-			else {
+				coll.addComponentDefinition(comp);
+			} else {
 				// ignore
 			}
 		}
@@ -284,25 +273,19 @@ public class SBOLSPARQLReader {
 		public void visit(DnaComponent comp) {
 			if (prop.equals(SBOLVocabulary.name)) {
 				comp.setName(obj.stringValue());
-			}
-			else if (prop.equals(SBOLVocabulary.description)) {
+			} else if (prop.equals(SBOLVocabulary.description)) {
 				comp.setDescription(obj.stringValue());
-			}
-			else if (prop.equals(SBOLVocabulary.displayId)) {
+			} else if (prop.equals(SBOLVocabulary.displayId)) {
 				comp.setDisplayId(obj.stringValue());
-			}
-			else if (prop.equals(SBOLVocabulary.dnaSequence)) {
+			} else if (prop.equals(SBOLVocabulary.dnaSequence)) {
 				DnaSequence seq = createSBOL(obj, SBOLVocabulary.DnaSequence);
 				comp.setDnaSequence(seq);
-			}
-			else if (prop.equals(SBOLVocabulary.annotation)) {
+			} else if (prop.equals(SBOLVocabulary.annotation)) {
 				SequenceAnnotation ann = createSBOL(obj, SBOLVocabulary.SequenceAnnotation);
 				comp.addAnnotation(ann);
-			}
-			else if (prop.equals(RDF.TYPE)) {
+			} else if (prop.equals(RDF.TYPE)) {
 				comp.addType(asJavaURI(obj));
-			}
-			else {
+			} else {
 				// ignore
 			}
 		}
@@ -311,8 +294,7 @@ public class SBOLSPARQLReader {
 		public void visit(DnaSequence seq) {
 			if (prop.equals(SBOLVocabulary.nucleotides)) {
 				seq.setNucleotides(obj.stringValue());
-			}
-			else {
+			} else {
 				// ignore
 			}
 		}
@@ -321,144 +303,123 @@ public class SBOLSPARQLReader {
 		public void visit(SequenceAnnotation ann) {
 			if (prop.equals(SBOLVocabulary.bioStart)) {
 				ann.setBioStart(asLiteral(obj).intValue());
-			}
-			else if (prop.equals(SBOLVocabulary.bioEnd)) {
+			} else if (prop.equals(SBOLVocabulary.bioEnd)) {
 				ann.setBioEnd(asLiteral(obj).intValue());
-			}
-			else if (prop.equals(SBOLVocabulary.strand)) {
+			} else if (prop.equals(SBOLVocabulary.strand)) {
 				ann.setStrand(asStrandType(obj));
-			}
-			else if (prop.equals(SBOLVocabulary.precedes)) {
+			} else if (prop.equals(SBOLVocabulary.precedes)) {
 				SequenceAnnotation prec = createSBOL(obj, SBOLVocabulary.SequenceAnnotation);
 				ann.addPrecede(prec);
-			}
-			else if (prop.equals(SBOLVocabulary.subComponent)) {
+			} else if (prop.equals(SBOLVocabulary.subComponent)) {
 				DnaComponent comp = createSBOL(obj, SBOLVocabulary.DnaComponent);
 				ann.setSubComponent(comp);
-			}
-			else {
+			} else {
 				// ignore
 			}
 		}
 
 		@Override
-        public void visit(SublimeSequenceAnalysis ann) {
+		public void visit(SublimeSequenceAnalysis ann) {
 			if (prop.equals(SublimeVocabulary.date)) {
 				ann.setDate(asLiteral(obj).calendarValue().toGregorianCalendar().getTime());
-			}
-			else if (prop.equals(SublimeVocabulary.conclusion)) {
+			} else if (prop.equals(SublimeVocabulary.conclusion)) {
 				ann.setConclusion(asLiteral(obj).stringValue());
-			}
-			else if (prop.equals(SublimeVocabulary.dataAnalyzed)) {
+			} else if (prop.equals(SublimeVocabulary.dataAnalyzed)) {
 				SublimeSequencingData data = createSBOL(obj, SublimeVocabulary.SequencingData);
 				ann.addSequencingData(data);
-			}
-			else if (prop.equals(SublimeVocabulary.variantFound)) {
+			} else if (prop.equals(SublimeVocabulary.variantFound)) {
 				SublimeSequenceVariant variant = createSBOL(obj, SublimeVocabulary.SequenceVariant);
 				ann.addVariant(variant);
-			}
-			else {
+			} else {
 				// ignore
 			}
-        }
+		}
 
 		@Override
-        public void visit(SublimeSequencingData data) {
+		public void visit(SublimeSequencingData data) {
 			if (prop.equals(SBOLVocabulary.displayId)) {
 				data.setDisplayId(asLiteral(obj).stringValue());
-			}
-			else if (prop.equals(SublimeVocabulary.date)) {
+			} else if (prop.equals(SublimeVocabulary.date)) {
 				data.setDate(asLiteral(obj).calendarValue().toGregorianCalendar().getTime());
-			}
-			else if (prop.equals(SublimeVocabulary.dataFile)) {
+			} else if (prop.equals(SublimeVocabulary.dataFile)) {
 				data.setDataFile(asLiteral(obj).stringValue());
-			}
-			else if (prop.equals(SublimeVocabulary.orderNumber)) {
+			} else if (prop.equals(SublimeVocabulary.orderNumber)) {
 				data.setOrderNumber(asLiteral(obj).stringValue());
-			}
-			else {
+			} else {
 				// ignore
 			}
-        }
+		}
 
 		@Override
-        public void visit(SublimeSequenceVariant ann) {
+		public void visit(SublimeSequenceVariant ann) {
 			if (prop.equals(SBOLVocabulary.name)) {
 				ann.setName(obj.stringValue());
-			}
-			else if (prop.equals(SBOLVocabulary.bioStart)) {
+			} else if (prop.equals(SBOLVocabulary.bioStart)) {
 				ann.setBioStart(asLiteral(obj).intValue());
-			}
-			else if (prop.equals(SBOLVocabulary.bioEnd)) {
+			} else if (prop.equals(SBOLVocabulary.bioEnd)) {
 				ann.setBioEnd(asLiteral(obj).intValue());
-			}
-			else if (prop.equals(SublimeVocabulary.ambiguous)) {
+			} else if (prop.equals(SublimeVocabulary.ambiguous)) {
 				ann.setAmbiguous(asLiteral(obj).booleanValue());
-			}
-			else if (prop.equals(SublimeVocabulary.observedIn)) {
+			} else if (prop.equals(SublimeVocabulary.observedIn)) {
 				DnaComponent comp = createSBOL(obj, SBOLVocabulary.DnaComponent);
-				ann.setComponent(comp);
-			}
-			else if (prop.equals(RDF.TYPE)) {
+				ann.setComponentDefinition(comp);
+			} else if (prop.equals(RDF.TYPE)) {
 				ann.setType(asJavaURI(obj));
-			}
-			else {
+			} else {
 				// ignore
 			}
-        }
+		}
 
 		@Override
 		public void visit(SBOLDocument doc) {
 			throw new SBOLValidationException("Only one SBOL document can exist");
 		}
 	}
-	
+
 	protected static class SBOLMappers {
 		private final Map<URI, SBOLMapper<?>> mappers = new HashMap<URI, SBOLMapper<?>>();
-	
+
 		private SBOLMappers(SBOLMapper<?>... mappers) {
 			for (SBOLMapper<?> mapper : mappers) {
 				this.mappers.put(mapper.type, mapper);
-            }
+			}
 		}
-	
+
 		@SuppressWarnings("unchecked")
-        private <T extends SBOLObject> SBOLMapper<T> get(Value type) {
+		private <T extends SBOLObject> SBOLMapper<T> get(Value type) {
 			return (SBOLMapper<T>) mappers.get(type);
-		}	
+		}
 	}
-	
+
 	protected static class SBOLMapper<T extends SBOLObject> {
 		private final URI type;
 		private final Class<? extends T> cls;
-		
+
 		public SBOLMapper(URI type, Class<? extends T> cls) {
-	        this.type = type;
-	        this.cls = cls;
-        }
+			this.type = type;
+			this.cls = cls;
+		}
 
 		private T create(Value uri) {
 			try {
-	            T sbol = cls.newInstance();
-	            sbol.setURI(asJavaURI(uri));
-	            return sbol;
-            }
-			catch (RuntimeException e) {
-	            throw e;
-            }
-            catch (Exception e) {
-	            throw new SBOLValidationException(e);
-            }
-		}		
-		
+				T sbol = cls.newInstance();
+				sbol.setURI(asJavaURI(uri));
+				return sbol;
+			} catch (RuntimeException e) {
+				throw e;
+			} catch (Exception e) {
+				throw new SBOLValidationException(e);
+			}
+		}
+
 		private boolean isValidObject(SBOLObject obj) {
 			return cls.isInstance(obj);
 		}
-		
+
 		private T cast(SBOLObject obj) {
 			return cls.cast(obj);
-		}			
-		
+		}
+
 		private URI getType() {
 			return type;
 		}
