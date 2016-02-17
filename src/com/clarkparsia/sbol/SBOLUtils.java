@@ -92,18 +92,18 @@ public class SBOLUtils {
 	// return doc;
 	// }
 
-	public static ComponentDefinition getRootComponent(SBOLDocument doc) {
+	public static ComponentDefinition getRootComponentDefinition(SBOLDocument doc) {
 		// return
 		// Iterators.getOnlyElement(Iterators.filter(doc.getContents().iterator(),
 		// ComponentDefinition.class), null);
 		return Iterators.getOnlyElement(
-				Iterators.filter(doc.getComponentDefinitions().iterator(), ComponentDefinition.class), null);
+				Iterators.filter(doc.getRootComponentDefinitions().iterator(), ComponentDefinition.class), null);
 	}
 
-	public static Iterator<ComponentDefinition> getRootComponents(SBOLDocument doc) {
+	public static Iterator<ComponentDefinition> getRootComponentDefinitions(SBOLDocument doc) {
 		// return Iterators.filter(doc.getContents().iterator(),
 		// ComponentDefinition.class);
-		return Iterators.filter(doc.getComponentDefinitions().iterator(), ComponentDefinition.class);
+		return Iterators.filter(doc.getRootComponentDefinitions().iterator(), ComponentDefinition.class);
 	}
 
 	public static Sequence createSequence(String nucleotides) {

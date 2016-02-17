@@ -137,7 +137,7 @@ public class SelectPartDialog extends InputDialog<ComponentDefinition> {
 				// SBOLDocument doc = SublimeSBOLFactory.createReader(endpoint,
 				// false).read(comp.getIdentity().toString());
 				SBOLDocument doc = new SBOLSPARQLReader(endpoint, false).read(comp.getIdentity().toString());
-				comp = SBOLUtils.getRootComponent(doc);
+				comp = SBOLUtils.getRootComponentDefinition(doc);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}

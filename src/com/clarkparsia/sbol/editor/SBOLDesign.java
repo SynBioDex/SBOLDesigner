@@ -76,6 +76,7 @@ import org.sbolstandard.core2.Cut;
 import org.sbolstandard.core2.Location;
 import org.sbolstandard.core2.Sequence;
 import org.sbolstandard.core2.SBOLDocument;
+import org.sbolstandard.core2.SBOLValidationException;
 import org.sbolstandard.core2.SequenceAnnotation;
 import org.sbolstandard.core2.SequenceConstraint;
 import org.sbolstandard.core2.OrientationType;
@@ -352,7 +353,7 @@ public class SBOLDesign {
 			return;
 		}
 
-		Iterator<ComponentDefinition> components = SBOLUtils.getRootComponents(doc);
+		Iterator<ComponentDefinition> components = SBOLUtils.getRootComponentDefinitions(doc);
 		ComponentDefinition newComponent = null;
 		if (components.hasNext()) {
 			newComponent = components.next();
@@ -516,136 +517,149 @@ public class SBOLDesign {
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	// Adds components in the order they appear in the sequence
-	private void populateComponents(ComponentDefinition comp) {
+	private void populateComponents(ComponentDefinition comp) throws SBOLValidationException {
 		if (comp.getAnnotations().isEmpty()) {
 			if (currentComponent != comp) {
 				addComponentDefinition(comp);
 			}
 			return;
 		}
-		Iterable<org.sbolstandard.core2.Component> sortedComponents = sortedComponents(comp);
+		Iterable<org.sbolstandard.core2.Component> sortedComponents = comp.getSortedComponents();
 		for (org.sbolstandard.core2.Component component : sortedComponents) {
 			// TODO can I do this?
 			ComponentDefinition refered = component.getDefinition();
-			addComponentDefinition(refered.getSequenceAnnotations().iterator().next(), refered, Parts.forComponent(refered));
-		}
-
-	}
-
-	// Returns a set of components in the order they are supposed to be added
-	private ArrayList<org.sbolstandard.core2.Component> sortedComponents(ComponentDefinition comp) {
-		Multimap<org.sbolstandard.core2.Component, org.sbolstandard.core2.Component> precedes = transitiveClosure(comp);
-		Map<org.sbolstandard.core2.Component, Collection<org.sbolstandard.core2.Component>> precedesMap = precedes
-				.asMap();
-		ArrayList<org.sbolstandard.core2.Component> sortedComponents = new ArrayList<org.sbolstandard.core2.Component>();
-		// iterate through precedes taking out components and storing them into
-		// sortedComponents until precedes is empty.
-		while (!precedesMap.isEmpty()) {
-			for (org.sbolstandard.core2.Component key : precedesMap.keySet()) {
-				if (precedesMap.get(key).isEmpty()) {
-					// add the key (Component) to sortedComponents and removes
-					// it from the map.
-					sortedComponents.add(key);
-					precedesMap.remove(key);
-				}
-			}
-		}
-		// the components in sortedCOmponents is in reverse order. Flip them
-		// around.
-		ArrayList<org.sbolstandard.core2.Component> temp = new ArrayList<org.sbolstandard.core2.Component>();
-		for (int i = temp.size() - 1; i >= 0; i--) {
-			temp.add(sortedComponents.get(i));
-		}
-		sortedComponents = temp;
-
-		return sortedComponents;
-	}
-
-	// Creates a transitive closure based on the ComponentDefinition's
-	// SequenceConstraints and SequenceAnnotations.
-	private Multimap<org.sbolstandard.core2.Component, org.sbolstandard.core2.Component> transitiveClosure(
-			ComponentDefinition comp) {
-		// precedes stores each component of this ComponentDefinition as keys
-		// and the components it precedes as values.
-		Multimap<org.sbolstandard.core2.Component, org.sbolstandard.core2.Component> precedes = HashMultimap.create();
-
-		Set<org.sbolstandard.core2.Component> components = comp.getComponents();
-		// put all of the components into precedes as keys
-		for (org.sbolstandard.core2.Component component : components) {
-			fillInPrecedes(comp, precedes, component);
-		}
-
-		// put all of the values in as keys as well
-		for (org.sbolstandard.core2.Component value : precedes.values()) {
-			fillInPrecedes(comp, precedes, value);
-		}
-		// may have to do above step a couple of times if there are new
-		// values/precedes still changes?
-
-		return precedes;
-	}
-
-	// put all of the components this component precedes as values in precedes
-	// if the component is already in precedes as a key, don't do anything
-	private void fillInPrecedes(ComponentDefinition comp,
-			Multimap<org.sbolstandard.core2.Component, org.sbolstandard.core2.Component> precedes,
-			org.sbolstandard.core2.Component component) {
-		if (precedes.containsKey(component)) {
-			return;
-		} else {
-			// deal with the constraints
-			Set<SequenceConstraint> constraints = comp.getSequenceConstraints();
-			for (SequenceConstraint constraint : constraints) {
-				if (constraint.getRestriction() == RestrictionType.PRECEDES
-						&& constraint.getSubject().equals(constraint)) {
-					precedes.put(component, constraint.getObject());
-				}
-			}
-			// deal with the annotations
-			Set<SequenceAnnotation> annotations = comp.getSequenceAnnotations();
-			for (SequenceAnnotation annotation : annotations) {
-				if (annotation.getComponent().equals(component)) {
-					addAllPrecedes(precedes, component, annotation, annotations);
-				}
-			}
+			addComponentDefinition(refered.getSequenceAnnotations().iterator().next(), refered,
+					Parts.forComponent(refered));
 		}
 	}
 
-	// put into precedes all of the components whose annotations follow
-	// component's annotation
-	private void addAllPrecedes(Multimap<org.sbolstandard.core2.Component, org.sbolstandard.core2.Component> precedes,
-			org.sbolstandard.core2.Component component, SequenceAnnotation annotation,
-			Set<SequenceAnnotation> annotations) {
-		// Only looks at the first location in the set
-		Location componentLocation = annotation.getLocations().iterator().next();
-		// Treats componentLocation as either a range or cut. If the location is
-		// a GenericLocation, it doesn't precede anything
-		// (Integer.MAX_VALUE)
-		int componentStart = Integer.MAX_VALUE;
-		if (componentLocation instanceof Range) {
-			componentStart = ((Range) componentLocation).getStart();
-		}
-		if (componentLocation instanceof Cut) {
-			componentStart = ((Cut) componentLocation).getAt();
-		}
-		// iterate through all the annotations,
-		for (SequenceAnnotation ann : annotations) {
-			// Only looks at the first location
-			Location loc = ann.getLocations().iterator().next();
-			if (loc instanceof Range) {
-				if (((Range) loc).getStart() > componentStart) {
-					precedes.put(component, ann.getComponent());
-				}
-			}
-			if (loc instanceof Cut) {
-				if (((Cut) loc).getAt() > componentStart) {
-					precedes.put(component, ann.getComponent());
-				}
-			}
-		}
-	}
+	// My implementation of sorting componenets
+	// // Returns a set of components in the order they are supposed to be added
+	// private ArrayList<org.sbolstandard.core2.Component>
+	// sortedComponents(ComponentDefinition comp) {
+	// Multimap<org.sbolstandard.core2.Component,
+	// org.sbolstandard.core2.Component> precedes = transitiveClosure(comp);
+	// Map<org.sbolstandard.core2.Component,
+	// Collection<org.sbolstandard.core2.Component>> precedesMap = precedes
+	// .asMap();
+	// ArrayList<org.sbolstandard.core2.Component> sortedComponents = new
+	// ArrayList<org.sbolstandard.core2.Component>();
+	// // iterate through precedes taking out components and storing them into
+	// // sortedComponents until precedes is empty.
+	// while (!precedesMap.isEmpty()) {
+	// for (org.sbolstandard.core2.Component key : precedesMap.keySet()) {
+	// if (precedesMap.get(key).isEmpty()) {
+	// // add the key (Component) to sortedComponents and removes
+	// // it from the map.
+	// sortedComponents.add(key);
+	// precedesMap.remove(key);
+	// }
+	// }
+	// }
+	// // the components in sortedCOmponents is in reverse order. Flip them
+	// // around.
+	// ArrayList<org.sbolstandard.core2.Component> temp = new
+	// ArrayList<org.sbolstandard.core2.Component>();
+	// for (int i = temp.size() - 1; i >= 0; i--) {
+	// temp.add(sortedComponents.get(i));
+	// }
+	// sortedComponents = temp;
+	//
+	// return sortedComponents;
+	// }
+	//
+	// // Creates a transitive closure based on the ComponentDefinition's
+	// // SequenceConstraints and SequenceAnnotations.
+	// private Multimap<org.sbolstandard.core2.Component,
+	// org.sbolstandard.core2.Component> transitiveClosure(
+	// ComponentDefinition comp) {
+	// // precedes stores each component of this ComponentDefinition as keys
+	// // and the components it precedes as values.
+	// Multimap<org.sbolstandard.core2.Component,
+	// org.sbolstandard.core2.Component> precedes = HashMultimap.create();
+	//
+	// Set<org.sbolstandard.core2.Component> components = comp.getComponents();
+	// // put all of the components into precedes as keys
+	// for (org.sbolstandard.core2.Component component : components) {
+	// fillInPrecedes(comp, precedes, component);
+	// }
+	//
+	// // put all of the values in as keys as well
+	// for (org.sbolstandard.core2.Component value : precedes.values()) {
+	// fillInPrecedes(comp, precedes, value);
+	// }
+	// // may have to do above step a couple of times if there are new
+	// // values/precedes still changes?
+	//
+	// return precedes;
+	// }
+	//
+	// // put all of the components this component precedes as values in
+	// precedes
+	// // if the component is already in precedes as a key, don't do anything
+	// private void fillInPrecedes(ComponentDefinition comp,
+	// Multimap<org.sbolstandard.core2.Component,
+	// org.sbolstandard.core2.Component> precedes,
+	// org.sbolstandard.core2.Component component) {
+	// if (precedes.containsKey(component)) {
+	// return;
+	// } else {
+	// // deal with the constraints
+	// Set<SequenceConstraint> constraints = comp.getSequenceConstraints();
+	// for (SequenceConstraint constraint : constraints) {
+	// if (constraint.getRestriction() == RestrictionType.PRECEDES
+	// && constraint.getSubject().equals(constraint)) {
+	// precedes.put(component, constraint.getObject());
+	// }
+	// }
+	// // deal with the annotations
+	// Set<SequenceAnnotation> annotations = comp.getSequenceAnnotations();
+	// for (SequenceAnnotation annotation : annotations) {
+	// if (annotation.getComponent().equals(component)) {
+	// addAllPrecedes(precedes, component, annotation, annotations);
+	// }
+	// }
+	// }
+	// }
+	//
+	// // put into precedes all of the components whose annotations follow
+	// // component's annotation
+	// private void addAllPrecedes(Multimap<org.sbolstandard.core2.Component,
+	// org.sbolstandard.core2.Component> precedes,
+	// org.sbolstandard.core2.Component component, SequenceAnnotation
+	// annotation,
+	// Set<SequenceAnnotation> annotations) {
+	// // Only looks at the first location in the set
+	// Location componentLocation = annotation.getLocations().iterator().next();
+	// // Treats componentLocation as either a range or cut. If the location is
+	// // a GenericLocation, it doesn't precede anything
+	// // (Integer.MAX_VALUE)
+	// int componentStart = Integer.MAX_VALUE;
+	// if (componentLocation instanceof Range) {
+	// componentStart = ((Range) componentLocation).getStart();
+	// }
+	// if (componentLocation instanceof Cut) {
+	// componentStart = ((Cut) componentLocation).getAt();
+	// }
+	// // iterate through all the annotations,
+	// for (SequenceAnnotation ann : annotations) {
+	// // Only looks at the first location
+	// Location loc = ann.getLocations().iterator().next();
+	// if (loc instanceof Range) {
+	// if (((Range) loc).getStart() > componentStart) {
+	// precedes.put(component, ann.getComponent());
+	// }
+	// }
+	// if (loc instanceof Cut) {
+	// if (((Cut) loc).getAt() > componentStart) {
+	// precedes.put(component, ann.getComponent());
+	// }
+	// }
+	// }
+	// }
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	// the original implementation of sorting components
 
 	// private void populateComponents(ComponentDefinition comp) {
 	// if (comp.getAnnotations().isEmpty()) {

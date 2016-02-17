@@ -152,7 +152,7 @@ public class SBOLDesigner extends JFrame {
 				DocumentIO newIO = result.getDocumentIO();
 				if (result.isInsert()) {
 					try {
-						ComponentDefinition newComponent = SBOLUtils.getRootComponent(newIO.read());
+						ComponentDefinition newComponent = SBOLUtils.getRootComponentDefinition(newIO.read());
 						design.addComponentDefinition(newComponent);
 					} catch (Throwable ex) {
 						ex.printStackTrace();
@@ -270,7 +270,7 @@ public class SBOLDesigner extends JFrame {
 				if (docIO instanceof ReadOnlyDocumentIO) {
 					try {
 						SBOLDocument doc = docIO.read();
-						ComponentDefinition comp = SBOLUtils.getRootComponent(doc);
+						ComponentDefinition comp = SBOLUtils.getRootComponentDefinition(doc);
 						design.addComponentDefinition(comp);
 					} catch (Exception e) {
 						JOptionPane.showMessageDialog(null, "ERROR: " + e.getMessage());

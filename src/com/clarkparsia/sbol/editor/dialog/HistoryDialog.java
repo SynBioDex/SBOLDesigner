@@ -91,7 +91,7 @@ public class HistoryDialog {
 					if (action == Action.CLONE) {
 						try {
 	                        SBOLDocument doc = RVTDocumentIO.createForRevision(rev).read();
-	                        ComponentDefinition comp = SBOLUtils.getRootComponent(doc);
+	                        ComponentDefinition comp = SBOLUtils.getRootComponentDefinition(doc);
 	                        SBOLUtils.rename(comp);
 	                        result.set(new ReadOnlyDocumentIO(doc));
                         }
