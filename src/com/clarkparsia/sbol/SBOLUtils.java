@@ -29,6 +29,8 @@ import org.sbolstandard.core2.Location;
 import org.sbolstandard.core2.Range;
 import org.sbolstandard.core2.Sequence;
 import org.sbolstandard.core2.SBOLDocument;
+import org.sbolstandard.core2.SBOLFactory;
+import org.sbolstandard.core2.SBOLValidationException;
 import org.sbolstandard.core2.SequenceAnnotation;
 
 import com.clarkparsia.sbol.editor.SBOLDesign;
@@ -107,7 +109,13 @@ public class SBOLUtils {
 	}
 
 	public static Sequence createSequence(String nucleotides) {
-		Sequence seq = new Sequence(SBOLUtils.createURI().toString(), "", "", nucleotides, Sequence.IUPAC_DNA);
+		// TODO Check what the next unique DisplayId is.  Should not be returning null.
+		Sequence seq = null;
+		try {
+			seq = SBOLFactory.createSequence("Sequence1", nucleotides, Sequence.IUPAC_DNA);
+		} catch (SBOLValidationException e) {
+			e.printStackTrace();
+		}
 		return seq;
 	}
 

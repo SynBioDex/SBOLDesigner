@@ -46,6 +46,8 @@ import javax.swing.event.DocumentListener;
 import javax.swing.text.html.HTMLDocument.Iterator;
 
 import org.sbolstandard.core2.ComponentDefinition;
+import org.sbolstandard.core2.SBOLFactory;
+import org.sbolstandard.core2.SBOLValidationException;
 import org.sbolstandard.core2.Sequence;
 
 import com.clarkparsia.sbol.CharSequences;
@@ -189,43 +191,43 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 			return;
 		}
 
-		if (e.getSource().equals(saveButton)) {
-			if (SBOLUtils.isRegistryComponent(comp)) {
-				if (!confirmEditing(getParent(), comp)) {
-					return;
+		try {
+			if (e.getSource().equals(saveButton)) {
+				if (SBOLUtils.isRegistryComponent(comp)) {
+					if (!confirmEditing(getParent(), comp)) {
+						return;
+					}
 				}
-			}
 
-			// TODO This is like createCopy to set a new displayId, but I'm not
-			// sure if it preserves all the data from the original
-			// ComponenetDefintion like Sequences and such.
-			Set<URI> types = new HashSet<URI>();
-			types.add(ComponentDefinition.DNA);
-			comp = new ComponentDefinition(comp.getIdentity().toString(), displayId.getText(), "", types);
-			// comp.setDisplayId(displayId.getText());
-			comp.setName(name.getText());
-			comp.setDescription(description.getText());
-			// comp.getTypes().clear();
+				comp = SBOLFactory.createComponentDefinition(displayId.getText(), ComponentDefinition.DNA);
+				// comp.setDisplayId(displayId.getText());
+				comp.setName(name.getText());
+				comp.setDescription(description.getText());
+				// comp.getTypes().clear();
 
-			Part part = (Part) typeSelection.getSelectedItem();
-			if (part != null) {
-				comp.addType(part.getType());
-			}
+				Part part = (Part) typeSelection.getSelectedItem();
+				if (part != null) {
+					comp.addType(part.getType());
+				}
 
-			String seq = sequenceField.getText();
-			java.util.Iterator<Sequence> iter = comp.getSequences().iterator();
-			Sequence sequence = iter.next();
-			if (seq == null || seq.isEmpty()) {
-				// comp.setDnaSequence(null);
-				comp.removeSequence(sequence.getIdentity());
-			} else if (comp.getSequences().isEmpty() || !Objects.equal(sequence.getElements(), seq)) {
-				// Sequence dnaSeq = SBOLUtils.createSequence(seq);
-				Sequence dnaSeq = new Sequence(comp.getIdentity().toString(), comp.getDisplayId(), "", seq,
-						Sequence.IUPAC_DNA);
-				comp.addSequence(dnaSeq);
+				String seq = sequenceField.getText();
+				java.util.Iterator<Sequence> iter = comp.getSequences().iterator();
+				Sequence sequence = iter.next();
+				if (seq == null || seq.isEmpty()) {
+					// comp.setDnaSequence(null);
+					comp.removeSequence(sequence.getIdentity());
+				} else if (comp.getSequences().isEmpty() || !Objects.equal(sequence.getElements(), seq)) {
+					// Sequence dnaSeq = SBOLUtils.createSequence(seq);
+					Sequence dnaSeq = SBOLFactory.createSequence(comp.getDisplayId(), seq, Sequence.IUPAC_DNA);
+					comp.addSequence(dnaSeq);
+				}
+			} else {
+				comp = null;
 			}
-		} else {
-			comp = null;
+		} catch (SBOLValidationException exception) {
+			// TODO If any of the fields are not valid SBOL, need to report an
+			// error message to the user.
+			exception.printStackTrace();
 		}
 		setVisible(false);
 	}

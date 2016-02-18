@@ -40,10 +40,10 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 
 import org.sbolstandard.core2.ComponentDefinition;
 import org.sbolstandard.core2.SBOLDocument;
-//import org.sbolstandard.core2.SBOLFactory;
+import org.sbolstandard.core2.SBOLFactory;
+import org.sbolstandard.core2.SBOLValidationException;
 
 import com.adamtaft.eb.EventHandler;
-import com.clarkparsia.sbol.SBOLCentralDocument;
 import com.clarkparsia.sbol.SBOLUtils;
 import com.clarkparsia.sbol.editor.dialog.AboutDialog;
 import com.clarkparsia.sbol.editor.dialog.CheckoutDialog;
@@ -301,7 +301,7 @@ public class SBOLDesigner extends JFrame {
 
 	private DocumentIO documentIO;
 
-	public SBOLDesigner() {
+	public SBOLDesigner() throws SBOLValidationException {
 		fc = new JFileChooser(new File("."));
 		fc.setMultiSelectionEnabled(false);
 		fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
@@ -386,8 +386,13 @@ public class SBOLDesigner extends JFrame {
 		// editor.getDesign().load(SBOLFactory.createDocument());
 		// TODO SBOLDocument creation
 		SBOLDocument doc = new SBOLDocument();
-		doc.setDefaultURIprefix("http://fetchfrompreferences");
-		SBOLCentralDocument.centralDoc = doc;
+		try {
+			doc.setDefaultURIprefix("http://fetchfrompreferences");
+		} catch (SBOLValidationException e) {
+			// TODO generate error: URIprefix from preferences is invalid
+			e.printStackTrace();
+		}
+		SBOLFactory.setSBOLDocument(doc);
 		editor.getDesign().load(doc);
 		setCurrentFile(null);
 	}
@@ -501,7 +506,7 @@ public class SBOLDesigner extends JFrame {
 		updateEnabledButtons(true);
 	}
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws SBOLValidationException {
 		setup();
 
 		final SBOLDesigner frame = new SBOLDesigner();

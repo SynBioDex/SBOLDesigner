@@ -76,6 +76,7 @@ import org.sbolstandard.core2.Cut;
 import org.sbolstandard.core2.Location;
 import org.sbolstandard.core2.Sequence;
 import org.sbolstandard.core2.SBOLDocument;
+import org.sbolstandard.core2.SBOLFactory;
 import org.sbolstandard.core2.SBOLValidationException;
 import org.sbolstandard.core2.SequenceAnnotation;
 import org.sbolstandard.core2.SequenceConstraint;
@@ -87,7 +88,6 @@ import org.slf4j.LoggerFactory;
 
 import com.adamtaft.eb.EventBus;
 import com.clarkparsia.sbol.CharSequences;
-import com.clarkparsia.sbol.SBOLCentralDocument;
 import com.clarkparsia.sbol.SBOLUtils;
 import com.clarkparsia.sbol.editor.dialog.PartEditDialog;
 import com.clarkparsia.sbol.editor.dialog.SelectPartDialog;
@@ -352,6 +352,15 @@ public class SBOLDesign {
 			JOptionPane.showMessageDialog(panel, "No document to load.", "Load error", JOptionPane.ERROR_MESSAGE);
 			return;
 		}
+		// Importing the document
+		// TODO Create preferences file
+		try {
+			doc.setDefaultURIprefix("http://fetchfrompreferences");
+		} catch (SBOLValidationException e1) {
+			// Should never reach here if the URI prefix is valid
+			e1.printStackTrace();
+		}
+		SBOLFactory.setSBOLDocument(doc);
 
 		Iterator<ComponentDefinition> components = SBOLUtils.getRootComponentDefinitions(doc);
 		ComponentDefinition newComponent = null;
@@ -363,7 +372,13 @@ public class SBOLDesign {
 				return;
 			}
 		} else {
-			newComponent = doc.createComponentDefinition("Unnamed", ComponentDefinition.DNA);
+			try {
+				newComponent = SBOLFactory.createComponentDefinition("RootComponent", ComponentDefinition.DNA);
+			} catch (SBOLValidationException e) {
+				// Should always be able to create the RootComponent when doc is
+				// empty.
+				e.printStackTrace();
+			}
 			// newComponent.setURI(SBOLUtils.createURI());
 			// newComponent.setDisplayId("Unnamed");
 		}
@@ -385,7 +400,12 @@ public class SBOLDesign {
 		readOnly.clear();
 
 		currentComponent = newRoot;
-		populateComponents(currentComponent);
+		try {
+			populateComponents(currentComponent);
+		} catch (SBOLValidationException e) {
+			// TODO Generate error stating the newRoot is invalid.
+			e.printStackTrace();
+		}
 
 		hasSequence = (currentComponent.getSequences() != null) && elements.isEmpty();
 
@@ -484,21 +504,26 @@ public class SBOLDesign {
 		for (Entry<Integer, Sequence> entry : uncoveredSequences.entrySet()) {
 			int index = entry.getKey();
 			Sequence seq = entry.getValue();
-			if (index >= 0) {
-				int updateIndex = index + insertCount;
-				DesignElement e = elements.get(updateIndex);
-				e.getComponentDefinition().clearSequences();
-				e.getComponentDefinition().addSequence(seq);
-			} else {
-				int insertIndex = -index - 1 + insertCount++;
+			try {
+				if (index >= 0) {
+					int updateIndex = index + insertCount;
+					DesignElement e = elements.get(updateIndex);
+					e.getComponentDefinition().clearSequences();
+					e.getComponentDefinition().addSequence(seq);
+				} else {
+					int insertIndex = -index - 1 + insertCount++;
 
-				addComponentDefinition(Parts.SCAR, false);
+					addComponentDefinition(Parts.SCAR, false);
 
-				DesignElement e = elements.get(lastIndex);
-				e.getComponentDefinition().clearSequences();
-				e.getComponentDefinition().addSequence(seq);
+					DesignElement e = elements.get(lastIndex);
+					e.getComponentDefinition().clearSequences();
+					e.getComponentDefinition().addSequence(seq);
 
-				moveComponent(lastIndex++, insertIndex);
+					moveComponent(lastIndex++, insertIndex);
+				}
+			} catch (SBOLValidationException e) {
+				// TODO throw error: some sequences are potentially invalid
+				e.printStackTrace();
 			}
 		}
 
@@ -1083,11 +1108,21 @@ public class SBOLDesign {
 		if (index >= 0) {
 			DesignElement e = elements.get(index);
 			JLabel button = buttons.get(e);
-			e.setComponentDefinition(newComponent);
+			try {
+				e.setComponentDefinition(newComponent);
+			} catch (SBOLValidationException e1) {
+				// TODO newComponent was invalid
+				e1.printStackTrace();
+			}
 			if (!newComponent.getTypes().contains(e.getPart().getType())) {
 				Part newPart = Parts.forComponent(newComponent);
 				if (newPart == null) {
-					newComponent.addType(e.getPart().getType());
+					try {
+						newComponent.addType(e.getPart().getType());
+					} catch (SBOLValidationException e1) {
+						// TODO newComponent was invalid
+						e1.printStackTrace();
+					}
 				} else {
 					e.setPart(newPart);
 					setupIcons(button, e);
@@ -1264,73 +1299,84 @@ public class SBOLDesign {
 		ComponentDefinition comp = parentComponents.isEmpty() ? currentComponent : parentComponents.getFirst();
 		// TODO SBOLDocument creation
 		SBOLDocument doc = new SBOLDocument();
-		SBOLCentralDocument.centralDoc = doc;
 		// doc.addContent(comp);
-		doc.createCopy(comp);
+		try {
+			doc.createCopy(comp);
+			doc.setDefaultURIprefix("http://fetchfrompreferences");
+		} catch (SBOLValidationException e) {
+			// TODO generate error: either parentComponents.getFirst() returns
+			// invalid CD or prefix is invalid
+			e.printStackTrace();
+		}
+		SBOLFactory.setSBOLDocument(doc);
 
 		return doc;
 	}
 
 	private void updateRootComponent() {
-		currentComponent.getAnnotations().clear();
+		try {
+			currentComponent.getAnnotations().clear();
 
-		StringBuilder rootSequence = new StringBuilder();
-		int location = 1;
-		SequenceAnnotation prev = null;
-		for (DesignElement e : elements) {
-			ComponentDefinition comp = e.getComponentDefinition();
-			SequenceAnnotation ann = e.getAnnotation();
+			StringBuilder rootSequence = new StringBuilder();
+			int location = 1;
+			SequenceAnnotation prev = null;
+			for (DesignElement e : elements) {
+				ComponentDefinition comp = e.getComponentDefinition();
+				SequenceAnnotation ann = e.getAnnotation();
 
-			//
-			Iterator<Sequence> iter = comp.getSequences().iterator();
-			Sequence seq = iter.next();
-			if (location >= 0 && comp.getSequences() != null && seq.getElements() != null) {
-				String nucleotides = seq.getElements();
-				rootSequence.append(nucleotides);
-				// ann.setBioStart(location);
-				int rangeStart = location;
-				location += nucleotides.length();
-				// ann.setBioEnd(location - 1);
-				int rangeEnd = location;
-				// is ann.getDisplayId() the right displayId to pass to this
-				// create range method?
-				ann.addRange(ann.getDisplayId(), rangeStart, rangeEnd);
-			} else {
-				location = -1;
-				// ann.setBioStart(null);
-				// ann.setBioEnd(null);
-				// is ann.getDisplayId() the right displayId to pass to this
-				// create range method?
-				ann.removeLocation(ann.getLocation(ann.getDisplayId()));
+				Iterator<Sequence> iter = comp.getSequences().iterator();
+				Sequence seq = iter.next();
+				if (location >= 0 && comp.getSequences() != null && seq.getElements() != null) {
+					String nucleotides = seq.getElements();
+					rootSequence.append(nucleotides);
+					// ann.setBioStart(location);
+					int rangeStart = location;
+					location += nucleotides.length();
+					// ann.setBioEnd(location - 1);
+					int rangeEnd = location;
+					// is ann.getDisplayId() the right displayId to pass to this
+					// create range method?
+					ann.addRange(ann.getDisplayId(), rangeStart, rangeEnd);
+				} else {
+					location = -1;
+					// ann.setBioStart(null);
+					// ann.setBioEnd(null);
+					// is ann.getDisplayId() the right displayId to pass to this
+					// create range method?
+					ann.removeLocation(ann.getLocation(ann.getDisplayId()));
+				}
+
+				if (prev != null) {
+					// prev.getPrecedes().clear();
+					// prev.addPrecede(ann);
+					// TODO check for all .getDisplayIds and change to
+					// .getComponent.getDisplayId
+					comp.createSequenceConstraint("temp", RestrictionType.PRECEDES, prev.getComponent().getDisplayId(),
+							ann.getComponent().getDisplayId());
+				}
+				// TODO Only ever looks at the first location, there may be more
+				// than one
+				prev = ann;
 			}
 
-			if (prev != null) {
-				// prev.getPrecedes().clear();
-				// prev.addPrecede(ann);
-				// TODO check for all .getDisplayIds and change to
-				// .getComponent.getDisplayId
-				comp.createSequenceConstraint("temp", RestrictionType.PRECEDES, prev.getComponent().getDisplayId(),
-						ann.getComponent().getDisplayId());
+			if (location > 0 && !elements.isEmpty()) {
+				// Sequence seq = SBOLFactory.createSequence();
+				// seq.setURI(SBOLUtils.createURI());
+				// seq.setNucleotides(rootSequence.toString());
+				Sequence seq = SBOLFactory.createSequence("Root Sequence", rootSequence.toString(), Sequence.IUPAC_DNA);
+
+				currentComponent.addSequence(seq);
+			} else if (!hasSequence) {
+				// currentComponent.setSequence(null);
+				currentComponent.clearSequences();
 			}
-			// TODO Only ever looks at the first location, there may be more
-			// than one
-			prev = ann;
+
+			LOGGER.debug("Updated root:\n{}", currentComponent.toString());
+		} catch (SBOLValidationException e) {
+			// TODO Temporary try/catch. Remove and find what needs to be
+			// surrounded by try/catch.
+			e.printStackTrace();
 		}
-
-		if (location > 0 && !elements.isEmpty()) {
-			// Sequence seq = SBOLFactory.createSequence();
-			// seq.setURI(SBOLUtils.createURI());
-			// seq.setNucleotides(rootSequence.toString());
-			Sequence seq = new Sequence("urn:", currentComponent.getDisplayId(), "", rootSequence.toString(),
-					Sequence.IUPAC_DNA);
-
-			currentComponent.addSequence(seq);
-		} else if (!hasSequence) {
-			// currentComponent.setSequence(null);
-			currentComponent.clearSequences();
-		}
-
-		LOGGER.debug("Updated root:\n{}", currentComponent.toString());
 	}
 
 	private static class DesignElement {
@@ -1349,16 +1395,22 @@ public class SBOLDesign {
 			// seqAnn.setSubComponent(component);
 			// seqAnn.setOrientation(OrientationType.INLINE);
 			// created a sequenceAnnotation that belongs to component, but it
-			return component.createSequenceAnnotation(component.getDisplayId(), "GenericLocation",
-					OrientationType.INLINE);
-
+			SequenceAnnotation ann = null;
+			try {
+				ann = component.createSequenceAnnotation(component.getDisplayId(), "GenericLocation",
+						OrientationType.INLINE);
+			} catch (SBOLValidationException e) {
+				// TODO Somehow this Sequence Annotation was invalid?
+				e.printStackTrace();
+			}
+			return ann;
 		}
 
 		SequenceAnnotation getAnnotation() {
 			return seqAnn;
 		}
 
-		void setComponentDefinition(ComponentDefinition component) {
+		void setComponentDefinition(ComponentDefinition component) throws SBOLValidationException {
 			// seqAnn.setSubComponent(component);
 			seqAnn.setComponent(component.getIdentity());
 		}
@@ -1381,8 +1433,13 @@ public class SBOLDesign {
 
 		void flipOrientation() {
 			OrientationType Orientation = seqAnn.getLocations().iterator().next().getOrientation();
-			seqAnn.getLocations().iterator().next().setOrientation(Orientation == OrientationType.REVERSECOMPLEMENT
-					? OrientationType.INLINE : OrientationType.REVERSECOMPLEMENT);
+			try {
+				seqAnn.getLocations().iterator().next().setOrientation(Orientation == OrientationType.REVERSECOMPLEMENT
+						? OrientationType.INLINE : OrientationType.REVERSECOMPLEMENT);
+			} catch (SBOLValidationException e) {
+				// TODO Generate error: seqAnn does have a location?
+				e.printStackTrace();
+			}
 		}
 
 		public String toString() {
