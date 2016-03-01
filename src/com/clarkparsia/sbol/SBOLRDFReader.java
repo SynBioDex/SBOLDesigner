@@ -33,21 +33,21 @@ import org.openrdf.rio.RDFHandlerException;
 import org.openrdf.rio.RDFParser;
 import org.openrdf.rio.RDFParserRegistry;
 import org.openrdf.rio.helpers.RDFHandlerBase;
-import org.sbolstandard.core.Collection;
-import org.sbolstandard.core.DnaComponent;
-import org.sbolstandard.core.DnaSequence;
-import org.sbolstandard.core.SBOLDocument;
-import org.sbolstandard.core.SBOLObject;
-import org.sbolstandard.core.SBOLReader;
-import org.sbolstandard.core.SBOLRootObject;
-import org.sbolstandard.core.SBOLValidationException;
-import org.sbolstandard.core.SequenceAnnotation;
-import org.sbolstandard.core.StrandType;
-import org.sbolstandard.core.impl.CollectionImpl;
-import org.sbolstandard.core.impl.DnaComponentImpl;
-import org.sbolstandard.core.impl.DnaSequenceImpl;
-import org.sbolstandard.core.impl.SBOLValidatorImpl;
-import org.sbolstandard.core.impl.SequenceAnnotationImpl;
+import org.sbolstandard.core2.Collection;
+import org.sbolstandard.core2.ComponentDefinition;
+import org.sbolstandard.core2.Sequence;
+import org.sbolstandard.core2.SBOLDocument;
+import org.sbolstandard.core2.SBOLObject;
+import org.sbolstandard.core2.SBOLReader;
+import org.sbolstandard.core2.SBOLRootObject;
+import org.sbolstandard.core2.SBOLValidationException;
+import org.sbolstandard.core2.SequenceAnnotation;
+import org.sbolstandard.core2.OrientationType;
+import org.sbolstandard.core2.impl.CollectionImpl;
+import org.sbolstandard.core2.impl.ComponentDefinitionImpl;
+import org.sbolstandard.core2.impl.SequenceImpl;
+import org.sbolstandard.core2.impl.SBOLValidatorImpl;
+import org.sbolstandard.core2.impl.SequenceAnnotationImpl;
 
 import com.clarkparsia.sbol.editor.sparql.RDFSource;
 
@@ -138,13 +138,13 @@ public class SBOLRDFReader implements SBOLReader {
 		throw new SBOLValidationException("Expecting literal but got: " + val);
 	}		
 	
-	private static StrandType asStrandType(Value val) {
+	private static OrientationType asOrientationType(Value val) {
 		String strand = asLiteral(val).stringValue();
 		if (strand.equals("+")) {
-			return StrandType.POSITIVE;
+			return OrientationType.POSITIVE;
 		}
 		if (strand.equals("-")) {
-			return StrandType.NEGATIVE;
+			return OrientationType.NEGATIVE;
 		}
 		throw new SBOLValidationException("Invalid strand value: " + strand);
 	}		
@@ -156,8 +156,8 @@ public class SBOLRDFReader implements SBOLReader {
 		private static URI DUMMY = ValueFactoryImpl.getInstance().createURI("urn:dummy");
 		
 		private static SBOLMappers MAPPERS = new SBOLMappers(
-			new SBOLMapper<DnaComponent>(SBOLVocabulary.DnaComponent, DnaComponentImpl.class),
-			new SBOLMapper<DnaSequence>(SBOLVocabulary.DnaSequence, DnaSequenceImpl.class),
+			new SBOLMapper<ComponentDefinition>(SBOLVocabulary.ComponentDefinition, ComponentDefinitionImpl.class),
+			new SBOLMapper<Sequence>(SBOLVocabulary.Sequence, SequenceImpl.class),
 			new SBOLMapper<SequenceAnnotation>(SBOLVocabulary.SequenceAnnotation, SequenceAnnotationImpl.class),
 			new SBOLMapper<Collection>(SBOLVocabulary.Collection, CollectionImpl.class),
 			new SBOLMapper<SublimeSequenceAnalysis>(SublimeVocabulary.SequenceAnalysis, SublimeSequenceAnalysis.class),
@@ -246,7 +246,7 @@ public class SBOLRDFReader implements SBOLReader {
 				coll.setDisplayId(obj.stringValue());
 			}
 			else if (prop.equals(SBOLVocabulary.component)) {
-				DnaComponent comp = createSBOL(obj, SBOLVocabulary.DnaComponent);
+				ComponentDefinition comp = createSBOL(obj, SBOLVocabulary.ComponentDefinition);
 				coll.addComponent(comp);
 			}
 			else {
@@ -255,7 +255,7 @@ public class SBOLRDFReader implements SBOLReader {
 		}
 
 		@Override
-		public void visit(DnaComponent comp) {
+		public void visit(ComponentDefinition comp) {
 			if (prop.equals(SBOLVocabulary.name)) {
 				comp.setName(obj.stringValue());
 			}
@@ -265,9 +265,9 @@ public class SBOLRDFReader implements SBOLReader {
 			else if (prop.equals(SBOLVocabulary.displayId)) {
 				comp.setDisplayId(obj.stringValue());
 			}
-			else if (prop.equals(SBOLVocabulary.dnaSequence)) {
-				DnaSequence seq = createSBOL(obj, SBOLVocabulary.DnaSequence);
-				comp.setDnaSequence(seq);
+			else if (prop.equals(SBOLVocabulary.Sequence)) {
+				Sequence seq = createSBOL(obj, SBOLVocabulary.Sequence);
+				comp.setSequence(seq);
 			}
 			else if (prop.equals(SBOLVocabulary.annotation)) {
 				SequenceAnnotation ann = createSBOL(obj, SBOLVocabulary.SequenceAnnotation);
@@ -282,7 +282,7 @@ public class SBOLRDFReader implements SBOLReader {
 		}
 
 		@Override
-		public void visit(DnaSequence seq) {
+		public void visit(Sequence seq) {
 			if (prop.equals(SBOLVocabulary.nucleotides)) {
 				seq.setNucleotides(obj.stringValue());
 			}
@@ -300,14 +300,14 @@ public class SBOLRDFReader implements SBOLReader {
 				ann.setBioEnd(asLiteral(obj).intValue());
 			}
 			else if (prop.equals(SBOLVocabulary.strand)) {
-				ann.setStrand(asStrandType(obj));
+				ann.setStrand(asOrientationType(obj));
 			}
 			else if (prop.equals(SBOLVocabulary.precedes)) {
 				SequenceAnnotation prec = createSBOL(obj, SBOLVocabulary.SequenceAnnotation);
 				ann.addPrecede(prec);
 			}
 			else if (prop.equals(SBOLVocabulary.subComponent)) {
-				DnaComponent comp = createSBOL(obj, SBOLVocabulary.DnaComponent);
+				ComponentDefinition comp = createSBOL(obj, SBOLVocabulary.ComponentDefinition);
 				ann.setSubComponent(comp);
 			}
 			else {
@@ -370,7 +370,7 @@ public class SBOLRDFReader implements SBOLReader {
 				ann.setAmbiguous(asLiteral(obj).booleanValue());
 			}
 			else if (prop.equals(SublimeVocabulary.observedIn)) {
-				DnaComponent comp = createSBOL(obj, SBOLVocabulary.DnaComponent);
+				ComponentDefinition comp = createSBOL(obj, SBOLVocabulary.ComponentDefinition);
 				ann.setComponent(comp);
 			}
 			else if (prop.equals(RDF.TYPE)) {

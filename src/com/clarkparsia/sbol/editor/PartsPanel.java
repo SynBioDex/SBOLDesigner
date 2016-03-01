@@ -66,7 +66,7 @@ public class PartsPanel extends JPanel {
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent event) {
-				design.addComponent(part, part == Parts.GENERIC);
+				design.addComponentDefinition(part, part == Parts.GENERIC);
 			}
 		});		
 		return button;

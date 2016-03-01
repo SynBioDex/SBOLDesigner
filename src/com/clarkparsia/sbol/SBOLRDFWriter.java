@@ -28,8 +28,8 @@ import org.openrdf.rio.RDFWriter;
 import org.openrdf.rio.RDFWriterFactory;
 import org.openrdf.rio.RDFWriterRegistry;
 import org.openrdf.rio.rdfxml.util.RDFXMLPrettyWriterFactory;
-import org.sbolstandard.core.SBOLDocument;
-import org.sbolstandard.core.SBOLVisitor;
+import org.sbolstandard.core2.SBOLDocument;
+import org.sbolstandard.core2.SBOLVisitor;
 
 /**
  * A concrete SBOL writer implementation that serializes the SBOL objects in an RDF format. RDf/XML serializations 

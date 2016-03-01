@@ -15,19 +15,20 @@
 
 package com.clarkparsia.sbol.editor.io;
 
+import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 
 import javax.swing.JOptionPane;
 
 import org.openrdf.rio.RDFFormat;
 import org.openrdf.rio.helpers.StatementCollector;
-import org.sbolstandard.core.DnaComponent;
-import org.sbolstandard.core.SBOLDocument;
-import org.sbolstandard.core.SBOLValidationException;
+import org.sbolstandard.core2.ComponentDefinition;
+import org.sbolstandard.core2.SBOLDocument;
+import org.sbolstandard.core2.SBOLValidationException;
+import org.sbolstandard.core2.SBOLWriter;
 
-import com.clarkparsia.sbol.SBOLRDFReader;
-import com.clarkparsia.sbol.SBOLRDFWriter;
 import com.clarkparsia.sbol.SBOLSPARQLReader;
 import com.clarkparsia.sbol.editor.Registry;
 import com.clarkparsia.sbol.editor.SBOLEditorPreferences;
@@ -126,14 +127,17 @@ public class RVTDocumentIO implements DocumentIO {
     public void write(SBOLDocument doc) throws SBOLValidationException, IOException {
 		setCredentials();
 		
-		DnaComponent comp = (DnaComponent) doc.getContents().iterator().next();
-		comp.setURI(java.net.URI.create(branch.getRepository().getURI().stringValue()));
+		//ComponentDefinition comp = (ComponentDefinition) doc.getContents().iterator().next();
+		ComponentDefinition comp = (ComponentDefinition) doc.getComponentDefinitions().iterator().next();
+		//comp.setURI(java.net.URI.create(branch.getRepository().getURI().stringValue()));
+		doc.createCopy(comp, java.net.URI.create(branch.getRepository().getURI().stringValue()).toString(), comp.getDisplayId(), comp.getVersion());
 		
 		String msg = JOptionPane.showInputDialog("Enter commit message");
 	    try {
-			ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-			writer.write(doc, bytes);
-			branch.commit(RDFInput.forBytes(bytes.toByteArray()), info(msg));
+			OutputStream bytes = new ByteArrayOutputStream();
+			SBOLWriter.write(doc, bytes);
+			// TODO Typecasting without information
+			branch.commit(RDFInput.forBytes(((ByteArrayOutputStream)bytes).toByteArray()), info(msg));
         }	   
 		catch (Exception e) {
 			throw new IOException(e);

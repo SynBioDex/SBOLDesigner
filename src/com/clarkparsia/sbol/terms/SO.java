@@ -15,7 +15,7 @@
 
 package com.clarkparsia.sbol.terms;
 
-import org.sbolstandard.core.util.SequenceOntology;
+import org.sbolstandard.core2.SequenceOntology;
 
 import com.clarkparsia.sbol.editor.Parts;
 

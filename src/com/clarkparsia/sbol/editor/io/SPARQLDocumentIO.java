@@ -17,15 +17,19 @@ package com.clarkparsia.sbol.editor.io;
 
 import java.io.IOException;
 
+import javax.xml.stream.FactoryConfigurationError;
+import javax.xml.stream.XMLStreamException;
+
 import org.openrdf.query.QueryEvaluationException;
-import org.sbolstandard.core.SBOLDocument;
-import org.sbolstandard.core.SBOLValidationException;
+import org.sbolstandard.core2.SBOLDocument;
+import org.sbolstandard.core2.SBOLValidationException;
 
 import com.clarkparsia.sbol.SBOLSPARQLReader;
 import com.clarkparsia.sbol.SBOLSPARQLWriter;
-import com.clarkparsia.sbol.SublimeSBOLFactory;
 import com.clarkparsia.sbol.editor.Registry;
 import com.clarkparsia.sbol.editor.sparql.SPARQLEndpoint;
+
+import uk.ac.ncl.intbio.core.io.CoreIoException;
 
 /**
  * 
@@ -37,14 +41,17 @@ public class SPARQLDocumentIO implements DocumentIO {
 	private final String componentURI;
 	private final SBOLSPARQLReader reader;
 	private final SBOLSPARQLWriter writer;
+	private DocumentIO documentIO;
 	
 	public SPARQLDocumentIO(Registry registry, String componentURI, boolean validate) {
 		this.registry = registry;
 		this.endpoint = registry.createEndpoint();
 		this.componentURI = componentURI;
 		
-		reader = SublimeSBOLFactory.createReader(endpoint, validate);
-		writer = SublimeSBOLFactory.createWriter(endpoint, validate);
+		//reader = SublimeSBOLFactory.createReader(endpoint, validate);
+		reader = new SBOLSPARQLReader(endpoint, validate);
+		//writer = SublimeSBOLFactory.createWriter(endpoint, validate);
+		writer = new SBOLSPARQLWriter(endpoint, validate);
     }
 	
 	@Override
@@ -58,13 +65,9 @@ public class SPARQLDocumentIO implements DocumentIO {
     }
 
 	@Override
-    public void write(SBOLDocument doc) throws SBOLValidationException, IOException {
-	    try {
-	        writer.write(doc);
-        }
-        catch (QueryEvaluationException e) {
-        	throw new IOException(e);
-        }	    
+    public void write(SBOLDocument doc) throws SBOLValidationException, IOException, XMLStreamException, FactoryConfigurationError, CoreIoException {
+	    //writer.write(doc);
+		documentIO.write(doc);	    
     }
 
 	@Override

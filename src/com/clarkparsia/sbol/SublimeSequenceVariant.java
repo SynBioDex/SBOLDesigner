@@ -17,8 +17,8 @@ package com.clarkparsia.sbol;
 
 import java.net.URI;
 
-import org.sbolstandard.core.DnaComponent;
-import org.sbolstandard.core.SBOLVisitor;
+import org.sbolstandard.core2.ComponentDefinition;
+import org.sbolstandard.core2.SBOLVisitor;
 
 /**
  * Class to represent sequence variant information in the SBOL Object model.
@@ -26,7 +26,7 @@ import org.sbolstandard.core.SBOLVisitor;
  * @author Evren Sirin
  */
 public class SublimeSequenceVariant extends SublimeSBOLObjectImpl {
-	private DnaComponent component;
+	private ComponentDefinition component;
 	private String name;
 	private Integer bioStart;
 	private Integer bioEnd;
@@ -51,11 +51,11 @@ public class SublimeSequenceVariant extends SublimeSBOLObjectImpl {
     	this.name = name;
     }
 
-	public DnaComponent getComponent() {
+	public ComponentDefinition getComponent() {
     	return component;
     }
 
-	public void setComponent(DnaComponent component) {
+	public void setComponent(ComponentDefinition component) {
     	this.component = component;
     }
 

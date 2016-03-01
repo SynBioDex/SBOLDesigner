@@ -20,13 +20,16 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-import org.openrdf.rio.RDFFormat;
-import org.sbolstandard.core.SBOLDocument;
-import org.sbolstandard.core.SBOLReader;
-import org.sbolstandard.core.SBOLValidationException;
-import org.sbolstandard.core.SBOLWriter;
+import javax.xml.stream.FactoryConfigurationError;
+import javax.xml.stream.XMLStreamException;
 
-import com.clarkparsia.sbol.SublimeSBOLFactory;
+import org.openrdf.rio.RDFFormat;
+import org.sbolstandard.core2.SBOLDocument;
+import org.sbolstandard.core2.SBOLReader;
+import org.sbolstandard.core2.SBOLValidationException;
+import org.sbolstandard.core2.SBOLWriter;
+
+import uk.ac.ncl.intbio.core.io.CoreIoException;
 
 /**
  * 
@@ -38,26 +41,28 @@ public class FileDocumentIO implements DocumentIO {
 	}
 	
 	private final File file;
-	private final SBOLReader reader;
-	private final SBOLWriter writer;
+	//private final SBOLReader reader;
+	//private final SBOLWriter writer;
 	
 	public FileDocumentIO(File file, boolean validate) {
 		this.file = file;
 		
 		String fileName = file.getName();
 		RDFFormat format = fileName.endsWith(".xml") ? RDFFormat.RDFXML : RDFFormat.forFileName(fileName, RDFFormat.RDFXML);
-		reader = SublimeSBOLFactory.createReader(format, validate);
-		writer = SublimeSBOLFactory.createWriter(format, validate);
+		//reader = SublimeSBOLFactory.createReader(format, validate);
+		//writer = SublimeSBOLFactory.createWriter(format, validate);
 	}
 	
 	@Override
-	public SBOLDocument read() throws SBOLValidationException, IOException {	
-		return reader.read(new FileInputStream(file));
+	public SBOLDocument read() throws SBOLValidationException, IOException, CoreIoException, XMLStreamException, FactoryConfigurationError {	
+		//return reader.read(new FileInputStream(file));
+		return SBOLReader.read(new FileInputStream(file));
     }
 
 	@Override
-    public void write(SBOLDocument doc) throws SBOLValidationException, IOException {
-	    writer.write(doc, new FileOutputStream(file));	    
+    public void write(SBOLDocument doc) throws SBOLValidationException, IOException, XMLStreamException, FactoryConfigurationError, CoreIoException {
+	    //writer.write(doc, new FileOutputStream(file));	    
+	    SBOLWriter.write(doc, new FileOutputStream(file));	    
     }
 
 	@Override

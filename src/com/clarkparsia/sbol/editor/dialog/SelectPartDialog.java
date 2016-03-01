@@ -31,11 +31,11 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.table.TableRowSorter;
 
-import org.sbolstandard.core.DnaComponent;
-import org.sbolstandard.core.SBOLDocument;
+import org.sbolstandard.core2.ComponentDefinition;
+import org.sbolstandard.core2.SBOLDocument;
 
+import com.clarkparsia.sbol.SBOLSPARQLReader;
 import com.clarkparsia.sbol.SBOLUtils;
-import com.clarkparsia.sbol.SublimeSBOLFactory;
 import com.clarkparsia.sbol.editor.Part;
 import com.clarkparsia.sbol.editor.Parts;
 import com.clarkparsia.sbol.editor.SPARQLUtilities;
@@ -46,26 +46,26 @@ import com.google.common.collect.Lists;
  * 
  * @author Evren Sirin
  */
-public class SelectPartDialog extends InputDialog<DnaComponent> {
+public class SelectPartDialog extends InputDialog<ComponentDefinition> {
 	private static final String TITLE = "Select a part from registry";
-	
+
 	private static final Part ALL_PARTS = new Part("All parts", "All");
 
 	private Part part;
-	
+
 	private JComboBox typeSelection;
 
 	private JTable table;
 	private JLabel tableLabel;
-	
+
 	private JCheckBox importSubparts;
 
 	public SelectPartDialog(final Component parent, final Part part) {
-		super(parent, TITLE, RegistryType.PART);	
+		super(parent, TITLE, RegistryType.PART);
 
 		this.part = part;
 	}
-	
+
 	@Override
 	public void initFormPanel(FormBuilder builder) {
 		if (part != null) {
@@ -75,19 +75,18 @@ public class SelectPartDialog extends InputDialog<DnaComponent> {
 			typeSelection = new JComboBox(parts.toArray());
 			typeSelection.setRenderer(new PartCellRenderer());
 			typeSelection.setSelectedItem(part);
-			typeSelection.addActionListener(new ActionListener() {				
+			typeSelection.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent event) {
 					partTypeChanged();
 				}
 			});
 			builder.add("Part type", typeSelection);
-		}
-		else {
+		} else {
 			typeSelection = null;
 		}
-		
-        importSubparts = new JCheckBox("Import with subcomponents"); 
+
+		importSubparts = new JCheckBox("Import with subcomponents");
 		builder.add("", importSubparts);
 
 		final JTextField filterSelection = new JTextField();
@@ -107,71 +106,71 @@ public class SelectPartDialog extends InputDialog<DnaComponent> {
 				updateFilter(filterSelection.getText());
 			}
 		});
-		
+
 		builder.add("Filter parts", filterSelection);
 	}
-	
+
 	private boolean isTypeSelection() {
 		return typeSelection != null;
 	}
-	
+
 	@Override
-	protected JPanel initMainPanel() {		
-		List<DnaComponent> components = SPARQLUtilities.findMatchingParts(endpoint, isTypeSelection() ? part : ALL_PARTS);
-		DnaComponentTableModel tableModel = new DnaComponentTableModel(components);
-		
+	protected JPanel initMainPanel() {
+		List<ComponentDefinition> components = SPARQLUtilities.findMatchingParts(endpoint,
+				isTypeSelection() ? part : ALL_PARTS);
+		ComponentDefinitionTableModel tableModel = new ComponentDefinitionTableModel(components);
+
 		JPanel panel = createTablePanel(tableModel, "Matching parts (" + tableModel.getRowCount() + ")");
 
 		table = (JTable) panel.getClientProperty("table");
 		tableLabel = (JLabel) panel.getClientProperty("label");
-		
+
 		return panel;
 	}
 
 	@Override
-    protected DnaComponent getSelection() {
+	protected ComponentDefinition getSelection() {
 		int row = table.convertRowIndexToModel(table.getSelectedRow());
-		DnaComponent comp = ((DnaComponentTableModel) table.getModel()).getElement(row);
+		ComponentDefinition comp = ((ComponentDefinitionTableModel) table.getModel()).getElement(row);
 		if (importSubparts.isSelected()) {
 			try {
-				SBOLDocument doc = SublimeSBOLFactory.createReader(endpoint, false).read(comp.getURI().toString());
-		        comp = SBOLUtils.getRootComponent(doc);
-	        }
-	        catch (Exception e) {
-		        e.printStackTrace();
-	        }
+				// SBOLDocument doc = SublimeSBOLFactory.createReader(endpoint,
+				// false).read(comp.getIdentity().toString());
+				SBOLDocument doc = new SBOLSPARQLReader(endpoint, false).read(comp.getIdentity().toString());
+				comp = SBOLUtils.getRootComponentDefinition(doc);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
 		return comp;
 	}
-    
+
 	@Override
 	protected void registryChanged() {
 		partTypeChanged();
 	}
-	
+
 	public void partTypeChanged() {
 		Part part = isTypeSelection() ? (Part) typeSelection.getSelectedItem() : ALL_PARTS;
-		List<DnaComponent> components = SPARQLUtilities.findMatchingParts(endpoint, part);
-		((DnaComponentTableModel) table.getModel()).setElements(components);
+		List<ComponentDefinition> components = SPARQLUtilities.findMatchingParts(endpoint, part);
+		((ComponentDefinitionTableModel) table.getModel()).setElements(components);
 		tableLabel.setText("Matching parts (" + components.size() + ")");
 	}
 
-	private void updateFilter(String filterText) {		
-		@SuppressWarnings( { "rawtypes", "unchecked" })
-		TableRowSorter<DnaComponentTableModel> sorter = (TableRowSorter) table.getRowSorter();
+	private void updateFilter(String filterText) {
+		@SuppressWarnings({ "rawtypes", "unchecked" })
+		TableRowSorter<ComponentDefinitionTableModel> sorter = (TableRowSorter) table.getRowSorter();
 		if (filterText.length() == 0) {
 			sorter.setRowFilter(null);
-		}
-		else {
+		} else {
 			try {
-				RowFilter<DnaComponentTableModel, Object> rf = RowFilter.regexFilter(filterText, 0, 1);
+				RowFilter<ComponentDefinitionTableModel, Object> rf = RowFilter.regexFilter(filterText, 0, 1);
 				sorter.setRowFilter(rf);
-			}
-			catch (java.util.regex.PatternSyntaxException e) {
+			} catch (java.util.regex.PatternSyntaxException e) {
 				sorter.setRowFilter(null);
 			}
 		}
-		
+
 		tableLabel.setText("Matching parts (" + sorter.getViewRowCount() + ")");
 	}
 }
