@@ -61,7 +61,7 @@ public class Part {
 
 	private final String name;
 	private final String displayId;
-	private final List<URI> types;
+	private final List<URI> roles;
 	private final Image positiveImage;
 	private final Image negativeImage;
 	private final Image smallImage;
@@ -70,14 +70,14 @@ public class Part {
 		this(name, displayId, null, null, new URI[0]);
 	}
 
-	public Part(URI type, String name, String displayId) {
-		this(name, displayId, null, null, type);
+	public Part(URI role, String name, String displayId) {
+		this(name, displayId, null, null, role);
 	}
 
-	public Part(String name, String displayId, String imageFileName, ImageType imageType, URI... types) {
+	public Part(String name, String displayId, String imageFileName, ImageType imageType, URI... roles) {
 		this.name = name;
 		this.displayId = displayId;
-		this.types = ImmutableList.copyOf(types);
+		this.roles = ImmutableList.copyOf(roles);
 		if (imageFileName == null) {
 			positiveImage = negativeImage = smallImage = null;
 		} else {
@@ -97,12 +97,12 @@ public class Part {
 		return displayId;
 	}
 
-	public URI getType() {
-		return types.isEmpty() ? null : types.get(0);
+	public URI getRole() {
+		return roles.isEmpty() ? null : roles.get(0);
 	}
 
-	public List<URI> getTypes() {
-		return types;
+	public List<URI> getRoles() {
+		return roles;
 	}
 
 	/**
@@ -120,25 +120,26 @@ public class Part {
 		return smallImage;
 	}
 
-	public ComponentDefinition createComponent() {
-		// change List of types to Set of types
-		Set<URI> setTypes = new HashSet<URI>();
-		for (URI element : types) {
-			setTypes.add(element);
+	public ComponentDefinition createComponentDefinition() {
+		// change list of roles to set of roles
+		Set<URI> setRoles = new HashSet<URI>();
+		for (URI element : roles) {
+			setRoles.add(element);
 		}
 		// create ComponentDefinition using the following parameters
-		ComponentDefinition comp = null;
 		try {
-			comp = SBOLFactory.createComponentDefinition(getDisplayId(), setTypes);
+			ComponentDefinition comp = SBOLFactory.createComponentDefinition(getDisplayId(), ComponentDefinition.DNA);
+			comp.setRoles(setRoles);
+			return comp;
 		} catch (SBOLValidationException e) {
-			// TODO Generate error: This part contains either invalid types or
+			// TODO Generate error: This part contains either invalid roles or
 			// displayId.
 			e.printStackTrace();
+			return null;
 		}
 		// comp.setURI(SBOLUtils.createURI());
 		// comp.setDisplayId(getDisplayId());
 		// comp.addType(getType());
-		return comp;
 	}
 
 	public String toString() {

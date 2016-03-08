@@ -71,6 +71,7 @@ import javax.swing.JTextArea;
 import javax.swing.KeyStroke;
 import javax.swing.SwingConstants;
 
+import org.sbolstandard.core2.AccessType;
 import org.sbolstandard.core2.ComponentDefinition;
 import org.sbolstandard.core2.Cut;
 import org.sbolstandard.core2.Location;
@@ -357,7 +358,7 @@ public class SBOLDesign {
 		try {
 			doc.setDefaultURIprefix("http://fetchfrompreferences");
 		} catch (SBOLValidationException e1) {
-			// Should never reach here if the URI prefix is valid
+			JOptionPane.showMessageDialog(panel, "Preferences contains an invalid default URI prefix");
 			e1.printStackTrace();
 		}
 		SBOLFactory.setSBOLDocument(doc);
@@ -375,8 +376,7 @@ public class SBOLDesign {
 			try {
 				newComponent = SBOLFactory.createComponentDefinition("RootComponent", ComponentDefinition.DNA);
 			} catch (SBOLValidationException e) {
-				// Should always be able to create the RootComponent when doc is
-				// empty.
+				JOptionPane.showMessageDialog(panel, "Error creating the root component");
 				e.printStackTrace();
 			}
 			// newComponent.setURI(SBOLUtils.createURI());
@@ -403,7 +403,7 @@ public class SBOLDesign {
 		try {
 			populateComponents(currentComponent);
 		} catch (SBOLValidationException e) {
-			// TODO Generate error stating the newRoot is invalid.
+			JOptionPane.showMessageDialog(panel, "Error loading the new root component definition");
 			e.printStackTrace();
 		}
 
@@ -522,7 +522,7 @@ public class SBOLDesign {
 					moveComponent(lastIndex++, insertIndex);
 				}
 			} catch (SBOLValidationException e) {
-				// TODO throw error: some sequences are potentially invalid
+				JOptionPane.showMessageDialog(panel, "Error in addScarsForUncoveredSequences");
 				e.printStackTrace();
 			}
 		}
@@ -535,7 +535,7 @@ public class SBOLDesign {
 				Lists.transform(elements, new Function<DesignElement, SequenceAnnotation>() {
 					@Override
 					public SequenceAnnotation apply(DesignElement e) {
-						return e.getAnnotation();
+						return e.getComponent();
 					}
 				}));
 	}
@@ -889,7 +889,7 @@ public class SBOLDesign {
 			return null;
 		}
 
-		ComponentDefinition comp = part.createComponent();
+		ComponentDefinition comp = part.createComponentDefinition();
 
 		if (edit && !PartEditDialog.editPart(panel.getParent(), comp, edit)) {
 			return null;
@@ -900,9 +900,10 @@ public class SBOLDesign {
 		return comp;
 	}
 
+	// How parts get added to the list of elements displayed on the canvas
 	private void addComponentDefinition(SequenceAnnotation seqAnn, ComponentDefinition comp, Part part) {
 		boolean backbone = (part == Parts.ORI);
-		DesignElement e = new DesignElement(seqAnn, comp, part);
+		DesignElement e = new DesignElement(currentComponent, comp, part);
 		JLabel button = createComponentButton(e);
 
 		if (backbone) {
@@ -955,6 +956,7 @@ public class SBOLDesign {
 		button.setVerticalAlignment(JLabel.TOP);
 		button.setVerticalTextPosition(JLabel.TOP);
 		button.setIconTextGap(2);
+		// TODO get CD or get component from the design element?
 		button.setText(e.getComponentDefinition().getDisplayId());
 		button.setVerticalTextPosition(SwingConstants.BOTTOM);
 		button.setHorizontalTextPosition(SwingConstants.CENTER);
@@ -1103,6 +1105,7 @@ public class SBOLDesign {
 		}
 	}
 
+	// TODO should not be able to replace a Component like this
 	private void replaceComponent(ComponentDefinition component, ComponentDefinition newComponent) {
 		int index = getElementIndex(component);
 		if (index >= 0) {
@@ -1111,16 +1114,16 @@ public class SBOLDesign {
 			try {
 				e.setComponentDefinition(newComponent);
 			} catch (SBOLValidationException e1) {
-				// TODO newComponent was invalid
+				JOptionPane.showMessageDialog(panel, "There was an error replacing the component");
 				e1.printStackTrace();
 			}
-			if (!newComponent.getTypes().contains(e.getPart().getType())) {
+			if (!newComponent.getTypes().contains(e.getPart().getRole())) {
 				Part newPart = Parts.forComponent(newComponent);
 				if (newPart == null) {
 					try {
-						newComponent.addType(e.getPart().getType());
+						newComponent.addType(e.getPart().getRole());
 					} catch (SBOLValidationException e1) {
-						// TODO newComponent was invalid
+						JOptionPane.showMessageDialog(panel, "There was an error replacing the component");
 						e1.printStackTrace();
 					}
 				} else {
@@ -1202,7 +1205,8 @@ public class SBOLDesign {
 			DesignElement next = elements.get(i + 1);
 
 			if (curr.getPart() != Parts.SCAR && next.getPart() != Parts.SCAR) {
-				DesignElement scar = new DesignElement(null, Parts.SCAR.createComponent(), Parts.SCAR);
+				DesignElement scar = new DesignElement(currentComponent, Parts.SCAR.createComponentDefinition(),
+						Parts.SCAR);
 				JLabel button = createComponentButton(scar);
 
 				elements.add(i + 1, scar);
@@ -1306,6 +1310,8 @@ public class SBOLDesign {
 		} catch (SBOLValidationException e) {
 			// TODO generate error: either parentComponents.getFirst() returns
 			// invalid CD or prefix is invalid
+			JOptionPane.showMessageDialog(panel,
+					"Error in importing defualt URI prefix from preferences or adding component definition to document");
 			e.printStackTrace();
 		}
 		SBOLFactory.setSBOLDocument(doc);
@@ -1322,7 +1328,7 @@ public class SBOLDesign {
 			SequenceAnnotation prev = null;
 			for (DesignElement e : elements) {
 				ComponentDefinition comp = e.getComponentDefinition();
-				SequenceAnnotation ann = e.getAnnotation();
+				SequenceAnnotation ann = e.getComponent();
 
 				Iterator<Sequence> iter = comp.getSequences().iterator();
 				Sequence seq = iter.next();
@@ -1373,50 +1379,52 @@ public class SBOLDesign {
 
 			LOGGER.debug("Updated root:\n{}", currentComponent.toString());
 		} catch (SBOLValidationException e) {
-			// TODO Temporary try/catch. Remove and find what needs to be
-			// surrounded by try/catch.
+			JOptionPane.showMessageDialog(panel, "Error in updating root component");
 			e.printStackTrace();
 		}
 	}
 
 	private static class DesignElement {
-		private final SequenceAnnotation seqAnn;
+		private final org.sbolstandard.core2.Component component;
+		private final SequenceAnnotation seqAnn = null;
 		private Part part;
 
-		public DesignElement(SequenceAnnotation sa, ComponentDefinition comp, Part part) {
-			this.seqAnn = sa != null ? sa : createAnnotation(comp);
+		public DesignElement(ComponentDefinition currentComponent, ComponentDefinition comp, Part part) {
+			this.component = createComponent(currentComponent, comp);
 			this.part = part;
 		}
 
-		private static SequenceAnnotation createAnnotation(ComponentDefinition component) {
+		private static org.sbolstandard.core2.Component createComponent(ComponentDefinition currentComponent,
+				ComponentDefinition childComp) {
 			// SequenceAnnotation seqAnn =
 			// SublimeSBOLFactory.createSequenceAnnotation();
 			// seqAnn.setURI(SBOLUtils.createURI());
 			// seqAnn.setSubComponent(component);
 			// seqAnn.setOrientation(OrientationType.INLINE);
-			// created a sequenceAnnotation that belongs to component, but it
-			SequenceAnnotation ann = null;
 			try {
-				ann = component.createSequenceAnnotation(component.getDisplayId(), "GenericLocation",
-						OrientationType.INLINE);
+				org.sbolstandard.core2.Component component = currentComponent.createComponent(childComp.getDisplayId(),
+						AccessType.PUBLIC, childComp.getDisplayId());
+				// TODO create a unique displayID, could use helper method
+				currentComponent.createSequenceAnnotation("annotation1TODO", "genericLocation", OrientationType.INLINE);
+				return component;
 			} catch (SBOLValidationException e) {
-				// TODO Somehow this Sequence Annotation was invalid?
+				// TODO Needs some error generated
 				e.printStackTrace();
+				return null;
 			}
-			return ann;
 		}
 
-		SequenceAnnotation getAnnotation() {
-			return seqAnn;
+		org.sbolstandard.core2.Component getComponent() {
+			return component;
 		}
 
+		// TODO This doesn't make sense in 2.0
 		void setComponentDefinition(ComponentDefinition component) throws SBOLValidationException {
 			// seqAnn.setSubComponent(component);
-			seqAnn.setComponent(component.getIdentity());
 		}
 
 		ComponentDefinition getComponentDefinition() {
-			return seqAnn.getComponentDefinition();
+			return component.getDefinition();
 		}
 
 		void setPart(Part part) {

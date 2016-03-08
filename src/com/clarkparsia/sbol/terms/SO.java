@@ -27,6 +27,6 @@ public class SO extends Ontology {
 	}
 	
 	private SO() { 
-		super(SO.class.getResourceAsStream("so.owl"), SequenceOntology.NAMESPACE.toString() + "SO_", Parts.GENERIC.getType().toString());
+		super(SO.class.getResourceAsStream("so.owl"), SequenceOntology.NAMESPACE.toString() + "SO_", Parts.GENERIC.getRole().toString());
 	}
 }

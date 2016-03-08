@@ -27,6 +27,6 @@ public class SOFA extends Ontology {
 	}
 	
 	private SOFA() { 
-		super(SOFA.class.getResourceAsStream("sofa.owl"), SequenceOntology.NAMESPACE.toString() + "SO_", Parts.GENERIC.getType().toString());
+		super(SOFA.class.getResourceAsStream("sofa.owl"), SequenceOntology.NAMESPACE.toString() + "SO_", Parts.GENERIC.getRole().toString());
 	}
 }

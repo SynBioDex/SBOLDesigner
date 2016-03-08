@@ -207,7 +207,7 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 
 				Part part = (Part) typeSelection.getSelectedItem();
 				if (part != null) {
-					comp.addType(part.getType());
+					comp.addType(part.getRole());
 				}
 
 				String seq = sequenceField.getText();

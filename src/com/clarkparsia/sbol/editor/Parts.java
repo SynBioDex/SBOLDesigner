@@ -92,7 +92,7 @@ public class Parts {
 	
 	public static final Part RSE = createPart("RNA Stability Element", "RSE", "rna-stability-element.png", ImageType.SHORT_OVER_BASELINE, SequenceOntology.type("SO_0001957"));
 	public static final Part PSE = createPart("Protein Stability Element", "PSE", "protein-stability-element.png", ImageType.SHORT_OVER_BASELINE, SequenceOntology.type("SO_0001955"));
-	public static final Part RS = createPart("Ribonuclease Site", "RS", "ribonuclease-site.png", ImageType.SHORT_OVER_BASELINE, GENERIC.getType());
+	public static final Part RS = createPart("Ribonuclease Site", "RS", "ribonuclease-site.png", ImageType.SHORT_OVER_BASELINE, GENERIC.getRole());
 	public static final Part PS = createPart("Protease Site", "PS", "protease-site.png", ImageType.SHORT_OVER_BASELINE, SequenceOntology.type("SO_0001956"));
 	
 	public static final Part BRS = createPart("Blunt Restriction Site", "BRS", "blunt-restriction-site.png", ImageType.CENTERED_ON_BASELINE, SequenceOntology.type("SO_0001691"));	

@@ -50,8 +50,8 @@ public class SPARQLUtilities {
 			return Collections.emptyList();
 		}
 
-		final boolean findAllParts = (part.getType() == null);
-		String partType = !findAllParts ? "<" + part.getType() + ">"
+		final boolean findAllParts = (part.getRole() == null);
+		String partType = !findAllParts ? "<" + part.getRole() + ">"
 				: "?type . FILTER (regex(str(?type), \"" + SequenceOntology.NAMESPACE + ".*\"))";
 
 		String query = "PREFIX :<http://sbols.org/v1#>\n" + "SELECT * WHERE {\n" + "  ?part a " + partType + "\n"
@@ -74,7 +74,7 @@ public class SPARQLUtilities {
 					String displayId = getBindingAsString(binding, "displayId");
 					String description = getBindingAsString(binding, "desc");
 
-					URI partTypeURI = findAllParts ? URI.create(getBindingAsString(binding, "type")) : part.getType();
+					URI partTypeURI = findAllParts ? URI.create(getBindingAsString(binding, "type")) : part.getRole();
 					Set<URI> types = new HashSet<URI>();
 					types.add(partTypeURI);
 

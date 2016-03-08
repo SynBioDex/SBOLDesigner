@@ -79,7 +79,7 @@ public enum SOMappingTab implements PreferencesTab {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				Part part = (Part) typeSelection.getSelectedItem();
-				((URITableModel) table.getModel()).setElements(part.getTypes());
+				((URITableModel) table.getModel()).setElements(part.getRoles());
 			}
 		});
 		typeSelection.setSelectedItem(Parts.GENERIC);
