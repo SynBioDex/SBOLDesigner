@@ -93,8 +93,7 @@ public class SPARQLUtilities {
 
 						parts.add(comp);
 					} catch (SBOLValidationException e) {
-						// TODO Have to create error message if any of this
-						// fails.
+						// TODO Generate error
 						e.printStackTrace();
 					}
 

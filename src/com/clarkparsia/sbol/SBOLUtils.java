@@ -66,7 +66,7 @@ public class SBOLUtils {
 	 * Returns a random, unique URI.
 	 */
 	public static URI createURI() {
-		// TODO invalid URIs
+		// TODO import the correct URI from preferences
 		return URI.create("http://" + UUID.randomUUID());
 		// return URI.create("http://findinpreferences");
 
@@ -109,7 +109,8 @@ public class SBOLUtils {
 	}
 
 	public static Sequence createSequence(String nucleotides) {
-		// TODO Check what the next unique DisplayId is.  Should not be returning null.
+		// TODO Check what the next unique DisplayId is. Should not be returning
+		// null.
 		Sequence seq = null;
 		try {
 			seq = SBOLFactory.createSequence("Sequence1", nucleotides, Sequence.IUPAC_DNA);

@@ -384,12 +384,11 @@ public class SBOLDesigner extends JFrame {
 
 	private void newDesign() {
 		// editor.getDesign().load(SBOLFactory.createDocument());
-		// TODO SBOLDocument creation
 		SBOLDocument doc = new SBOLDocument();
 		try {
 			doc.setDefaultURIprefix("http://fetchfrompreferences");
 		} catch (SBOLValidationException e) {
-			// TODO generate error: URIprefix from preferences is invalid
+			JOptionPane.showMessageDialog(design.getPanel(), "URI prefix from preferences is invalid");
 			e.printStackTrace();
 		}
 		SBOLFactory.setSBOLDocument(doc);

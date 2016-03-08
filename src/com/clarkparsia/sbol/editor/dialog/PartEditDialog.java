@@ -211,13 +211,13 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 				}
 
 				String seq = sequenceField.getText();
-				java.util.Iterator<Sequence> iter = comp.getSequences().iterator();
-				Sequence sequence = iter.next();
 				if (seq == null || seq.isEmpty()) {
 					// comp.setDnaSequence(null);
-					comp.removeSequence(sequence.getIdentity());
-				} else if (comp.getSequences().isEmpty() || !Objects.equal(sequence.getElements(), seq)) {
+					comp.clearSequences();
+				} else if (comp.getSequences().isEmpty()
+						|| !Objects.equal(comp.getSequences().iterator().next().getElements(), seq)) {
 					// Sequence dnaSeq = SBOLUtils.createSequence(seq);
+					// TODO Should sequence displayId be the same as the CDs?
 					Sequence dnaSeq = SBOLFactory.createSequence(comp.getDisplayId(), seq, Sequence.IUPAC_DNA);
 					comp.addSequence(dnaSeq);
 				}
@@ -225,7 +225,8 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 				comp = null;
 			}
 		} catch (SBOLValidationException exception) {
-			// TODO If any of the fields are not valid SBOL, need to report an
+			// TODO Generate error: if any of the fields are not valid SBOL,
+			// need to report an
 			// error message to the user.
 			exception.printStackTrace();
 		}

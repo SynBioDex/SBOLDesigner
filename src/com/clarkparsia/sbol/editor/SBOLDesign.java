@@ -1032,13 +1032,9 @@ public class SBOLDesign {
 		if (e.getOrientation() != null) {
 			sb.append("<b>Orientation:</b> ").append(e.getOrientation()).append("<br>");
 		}
-		//
-		Iterator<Sequence> iter = comp.getSequences().iterator();
-		Sequence seq = iter.next();
-		if (comp.getSequences() != null && seq.getElements() != null) {
+		if (!comp.getSequences().isEmpty() && comp.getSequences().iterator().next().getElements() != null) {
 			// String sequence = comp.getSequence().getNucleotides();
-			String sequence = seq.getElements();
-			//
+			String sequence = comp.getSequences().iterator().next().getElements();
 			sb.append("<b>Sequence Length:</b> ").append(sequence.length()).append("<br>");
 			sb.append("<b>Sequence:</b> ").append(CharSequences.shorten(sequence, 25));
 			sb.append("<br>");
@@ -1301,15 +1297,12 @@ public class SBOLDesign {
 		updateRootComponent();
 
 		ComponentDefinition comp = parentComponents.isEmpty() ? currentComponent : parentComponents.getFirst();
-		// TODO SBOLDocument creation
 		SBOLDocument doc = new SBOLDocument();
 		// doc.addContent(comp);
 		try {
 			doc.createCopy(comp);
 			doc.setDefaultURIprefix("http://fetchfrompreferences");
 		} catch (SBOLValidationException e) {
-			// TODO generate error: either parentComponents.getFirst() returns
-			// invalid CD or prefix is invalid
 			JOptionPane.showMessageDialog(panel,
 					"Error in importing defualt URI prefix from preferences or adding component definition to document");
 			e.printStackTrace();
@@ -1340,23 +1333,21 @@ public class SBOLDesign {
 					location += nucleotides.length();
 					// ann.setBioEnd(location - 1);
 					int rangeEnd = location;
-					// is ann.getDisplayId() the right displayId to pass to this
-					// create range method?
+					// TODO is ann.getDisplayId() the right displayId to pass to
+					// this create range method?
 					ann.addRange(ann.getDisplayId(), rangeStart, rangeEnd);
 				} else {
 					location = -1;
 					// ann.setBioStart(null);
 					// ann.setBioEnd(null);
-					// is ann.getDisplayId() the right displayId to pass to this
-					// create range method?
+					// TODO is ann.getDisplayId() the right displayId to pass to
+					// this create range method?
 					ann.removeLocation(ann.getLocation(ann.getDisplayId()));
 				}
 
 				if (prev != null) {
 					// prev.getPrecedes().clear();
 					// prev.addPrecede(ann);
-					// TODO check for all .getDisplayIds and change to
-					// .getComponent.getDisplayId
 					comp.createSequenceConstraint("temp", RestrictionType.PRECEDES, prev.getComponent().getDisplayId(),
 							ann.getComponent().getDisplayId());
 				}
@@ -1386,11 +1377,12 @@ public class SBOLDesign {
 
 	private static class DesignElement {
 		private final org.sbolstandard.core2.Component component;
-		private final SequenceAnnotation seqAnn = null;
+		private final SequenceAnnotation seqAnn;
 		private Part part;
 
 		public DesignElement(ComponentDefinition currentComponent, ComponentDefinition comp, Part part) {
 			this.component = createComponent(currentComponent, comp);
+			this.seqAnn = createSeqAnn(currentComponent);
 			this.part = part;
 		}
 
@@ -1402,13 +1394,22 @@ public class SBOLDesign {
 			// seqAnn.setSubComponent(component);
 			// seqAnn.setOrientation(OrientationType.INLINE);
 			try {
-				org.sbolstandard.core2.Component component = currentComponent.createComponent(childComp.getDisplayId(),
-						AccessType.PUBLIC, childComp.getDisplayId());
-				// TODO create a unique displayID, could use helper method
-				currentComponent.createSequenceAnnotation("annotation1TODO", "genericLocation", OrientationType.INLINE);
-				return component;
+				return currentComponent.createComponent(childComp.getDisplayId(), AccessType.PUBLIC,
+						childComp.getDisplayId());
 			} catch (SBOLValidationException e) {
-				// TODO Needs some error generated
+				// TODO Generate error
+				e.printStackTrace();
+				return null;
+			}
+		}
+
+		private static SequenceAnnotation createSeqAnn(ComponentDefinition currentComponent) {
+			try {
+				// TODO create a unique displayID, could use helper method
+				return currentComponent.createSequenceAnnotation("annotation1TODO", "genericLocation",
+						OrientationType.INLINE);
+			} catch (SBOLValidationException e) {
+				// TODO Generate error
 				e.printStackTrace();
 				return null;
 			}
