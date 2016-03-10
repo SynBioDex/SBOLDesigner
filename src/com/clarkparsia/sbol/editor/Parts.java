@@ -38,56 +38,56 @@ public class Parts {
 	public static final Part GENERIC = createPart("Generic", "Gen", "generic.png", ImageType.SHORT_OVER_BASELINE, SequenceOntology.type("SO_0000110"));
 	
 	public static final Part PROMOTER = createPart("Promoter", "Pro", "promoter.png", ImageType.TALL_OVER_BASELINE, 
-					"SO_0000167", 
-					"SO_0000315",
-					"SO_0001055");
+					"SO:0000167", 
+					"SO:0000315",
+					"SO:0001055");
 	public static final Part RBS = createPart("Ribosome Binding Site", "RBS", "translational-start-site.png", ImageType.SHORT_OVER_BASELINE, 
-					"SO_0000139",
-					"SO_0000140",
-					"SO_0000581",
-					"SO_00001647");
+					"SO:0000139",
+					"SO:0000140",
+					"SO:0000581",
+					"SO:0001647");
 	public static final Part CDS = createPart("Coding Sequence", "CDS", "cds.png", ImageType.CENTERED_ON_BASELINE, 
-					"SO_0000316",
-					"SO_0000004",
-					"SO_0000104",
-					"SO_0000120",
-					"SO_0000147",
-					"SO_0000195",
-					"SO_0000196",
-					"SO_0000197",
-					"SO_0000200",
-					"SO_0000236",
-					"SO_0000316",
-					"SO_0000332",
-					"SO_0000717",
-					"SO_0000839",
-					"SO_0000851",
-					"SO_0000852",
-					"SO_0001215"
+					"SO:0000316",
+					"SO:0000004",
+					"SO:0000104",
+					"SO:0000120",
+					"SO:0000147",
+					"SO:0000195",
+					"SO:0000196",
+					"SO:0000197",
+					"SO:0000200",
+					"SO:0000236",
+					"SO:0000316",
+					"SO:0000332",
+					"SO:0000717",
+					"SO:0000839",
+					"SO:0000851",
+					"SO:0000852",
+					"SO:0001215"
 					);
 	public static final Part TERMINATOR = createPart("Terminator", "Ter", "terminator.png", ImageType.SHORT_OVER_BASELINE, 
-					"SO_0000141",
-					"SO_0000616");
+					"SO:0000141",
+					"SO:0000616");
 	
 	public static final Part ORI  = createPart("Origin of Replication", "Ori", "origin-of-replication.png", ImageType.CENTERED_ON_BASELINE, 
-					"SO_0000296",
-					"SO_0000436",
-					"SO_0000724",
-					"SO_0000340",
-					"SO_0001235");
+					"SO:0000296",
+					"SO:0000436",
+					"SO:0000724",
+					"SO:0000340",
+					"SO:0001235");
 	
 	public static final Part PBS  = createPart("Primer Binding Site", "PBS", "primer-binding-site.png", ImageType.SHORT_OVER_BASELINE, SequenceOntology.PRIMER_BINDING_SITE);
 	public static final Part CUT = createPart("Sticky End Restriction Enzyme Cleavage Site", "CUT", "restriction-enzyme-recognition-site.png", ImageType.CENTERED_ON_BASELINE, SequenceOntology.type("SO_0001692"));
 	public static final Part SCAR = createPart("Assembly Scar", "Scar", "assembly-junction.png", ImageType.CENTERED_ON_BASELINE, SequenceOntology.type("SO_0000699"), URI.create("http://partsregistry.org/type/scar"));
 	public static final Part OP = createPart("Operator", "Op", "operator.png", ImageType.CENTERED_ON_BASELINE, 
-					"SO_0000057",
-					"SO_0000165",
-					"SO_0000235",
-					"SO_0000409",
-					"SO_0000410",
-					"SO_0000625",
-					"SO_0000727",
-					"SO_0001654");
+					"SO:0000057",
+					"SO:0000165",
+					"SO:0000235",
+					"SO:0000409",
+					"SO:0000410",
+					"SO:0000625",
+					"SO:0000727",
+					"SO:0001654");
 	public static final Part INS = createPart("Insulator", "Ins", "insulator.png", ImageType.CENTERED_ON_BASELINE, SequenceOntology.INSULATOR);
 	
 	public static final Part RSE = createPart("RNA Stability Element", "RSE", "rna-stability-element.png", ImageType.SHORT_OVER_BASELINE, SequenceOntology.type("SO_0001957"));
@@ -134,22 +134,22 @@ public class Parts {
 		return SORTED_PARTS;
 	}
 
-	public static Part forType(URI type) {
+	public static Part forRole(URI type) {
 		return PARTS.get(type);
 	}
 	
 	public static Part forComponent(ComponentDefinition comp) {
 		Part result = null;
-		Collection<URI> types = comp.getTypes();
-		if (!types.isEmpty()) {
-			for (URI type : types) {
-				Part part = Parts.forType(type);
+		Collection<URI> roles = comp.getRoles();
+		if (!roles.isEmpty()) {
+			for (URI role : roles) {
+				Part part = Parts.forRole(role);
 				if (part != null) {
 					result = part;
 					break;
 				}
 				else if (result == null) {
-					result = generic(type);
+					result = generic(role);
 				}
 			}
 		}

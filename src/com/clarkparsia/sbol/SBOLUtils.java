@@ -63,13 +63,21 @@ import com.google.common.collect.Maps;
 
 public class SBOLUtils {
 	/**
+	 * Returns a int which when appended
+	 */
+	public static int getUniqueNumber(ComponentDefinition comp) {
+		for (int i = 1; true; i++) {
+			// TODO if can get using some displayId, then try the next number
+		}
+	}
+
+	/**
 	 * Returns a random, unique URI.
 	 */
 	public static URI createURI() {
 		// TODO import the correct URI from preferences
 		return URI.create("http://" + UUID.randomUUID());
 		// return URI.create("http://findinpreferences");
-
 	}
 
 	public static URI createURI(String uri) {

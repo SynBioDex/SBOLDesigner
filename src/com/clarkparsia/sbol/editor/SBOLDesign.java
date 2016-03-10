@@ -535,7 +535,7 @@ public class SBOLDesign {
 				Lists.transform(elements, new Function<DesignElement, SequenceAnnotation>() {
 					@Override
 					public SequenceAnnotation apply(DesignElement e) {
-						return e.getComponent();
+						return e.getSeqAnn();
 					}
 				}));
 	}
@@ -956,7 +956,6 @@ public class SBOLDesign {
 		button.setVerticalAlignment(JLabel.TOP);
 		button.setVerticalTextPosition(JLabel.TOP);
 		button.setIconTextGap(2);
-		// TODO get CD or get component from the design element?
 		button.setText(e.getComponentDefinition().getDisplayId());
 		button.setVerticalTextPosition(SwingConstants.BOTTOM);
 		button.setHorizontalTextPosition(SwingConstants.CENTER);
@@ -1249,6 +1248,7 @@ public class SBOLDesign {
 				// if the component type or the displyId has been edited we need
 				// to update the
 				// component view so we'll replace it with itself
+				// TODO the second argument needs to be the new CD from the part edit dialog (impossible)
 				replaceComponent(comp, comp);
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -1321,7 +1321,7 @@ public class SBOLDesign {
 			SequenceAnnotation prev = null;
 			for (DesignElement e : elements) {
 				ComponentDefinition comp = e.getComponentDefinition();
-				SequenceAnnotation ann = e.getComponent();
+				SequenceAnnotation ann = e.getSeqAnn();
 
 				Iterator<Sequence> iter = comp.getSequences().iterator();
 				Sequence seq = iter.next();
@@ -1415,13 +1415,13 @@ public class SBOLDesign {
 			}
 		}
 
-		org.sbolstandard.core2.Component getComponent() {
-			return component;
+		SequenceAnnotation getSeqAnn() {
+			return seqAnn;
 		}
 
-		// TODO This doesn't make sense in 2.0
-		void setComponentDefinition(ComponentDefinition component) throws SBOLValidationException {
+		void setComponentDefinition(ComponentDefinition CD) throws SBOLValidationException {
 			// seqAnn.setSubComponent(component);
+			this.component.setDefinition(CD.getIdentity());
 		}
 
 		ComponentDefinition getComponentDefinition() {

@@ -23,6 +23,7 @@ import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.io.IOException;
 import java.net.URI;
 import java.util.HashSet;
 import java.util.Set;
@@ -44,6 +45,8 @@ import javax.swing.KeyStroke;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.html.HTMLDocument.Iterator;
+import javax.xml.stream.FactoryConfigurationError;
+import javax.xml.stream.XMLStreamException;
 
 import org.sbolstandard.core2.ComponentDefinition;
 import org.sbolstandard.core2.SBOLFactory;
@@ -57,6 +60,8 @@ import com.clarkparsia.sbol.editor.Parts;
 import com.clarkparsia.swing.FormBuilder;
 import com.google.common.base.Objects;
 import com.google.common.collect.Iterables;
+
+import uk.ac.ncl.intbio.core.io.CoreIoException;
 
 /**
  * 
@@ -199,7 +204,20 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 					}
 				}
 
-				comp = SBOLFactory.createComponentDefinition(displayId.getText(), ComponentDefinition.DNA);
+				// TODO
+				try {
+					System.out.println("Before");
+					SBOLFactory.write(System.out);
+				} catch (XMLStreamException | FactoryConfigurationError | CoreIoException | IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+
+				// when reassign displayId unless comp is null
+				comp = SBOLFactory.getComponentDefinition(displayId.getText(), "");
+				if (comp == null) {
+					comp = SBOLFactory.createComponentDefinition(displayId.getText(), ComponentDefinition.DNA);
+				}
 				// comp.setDisplayId(displayId.getText());
 				comp.setName(name.getText());
 				comp.setDescription(description.getText());
@@ -207,7 +225,7 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 
 				Part part = (Part) typeSelection.getSelectedItem();
 				if (part != null) {
-					comp.addType(part.getRole());
+					comp.addRole(part.getRole());
 				}
 
 				String seq = sequenceField.getText();
@@ -218,9 +236,20 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 						|| !Objects.equal(comp.getSequences().iterator().next().getElements(), seq)) {
 					// Sequence dnaSeq = SBOLUtils.createSequence(seq);
 					// TODO Should sequence displayId be the same as the CDs?
-					Sequence dnaSeq = SBOLFactory.createSequence(comp.getDisplayId(), seq, Sequence.IUPAC_DNA);
+					// Use sbolutils to find a unique addition
+					Sequence dnaSeq = SBOLFactory.createSequence(comp.getDisplayId() + "_seq", seq, Sequence.IUPAC_DNA);
 					comp.addSequence(dnaSeq);
 				}
+
+				// TODO
+				try {
+					System.out.println("After");
+					SBOLFactory.write(System.out);
+				} catch (XMLStreamException | FactoryConfigurationError | CoreIoException | IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				// TODO
 			} else {
 				comp = null;
 			}
