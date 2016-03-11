@@ -23,10 +23,10 @@ import java.util.List;
 import org.openrdf.model.Resource;
 import org.openrdf.model.URI;
 import org.openrdf.model.Value;
-import org.sbolstandard.core2.SBOLDocument;
-import org.sbolstandard.core2.SBOLObject;
-import org.sbolstandard.core2.SBOLValidationException;
-import org.sbolstandard.core2.SBOLVisitor;
+import org.sbolstandard.core.SBOLDocument;
+import org.sbolstandard.core.SBOLObject;
+import org.sbolstandard.core.SBOLValidationException;
+import org.sbolstandard.core.SBOLVisitor;
 
 /**
  * Utility class to write the contents of an SBOL document in a text-based, human-readable format. This format is used

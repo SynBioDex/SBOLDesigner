@@ -17,19 +17,19 @@ package com.clarkparsia.sbol.editor.dialog;
 
 import java.util.List;
 
-import org.sbolstandard.core2.ComponentDefinition;
+import org.sbolstandard.core.DnaComponent;
 
 import com.clarkparsia.swing.AbstractListTableModel;
 
-class ComponentDefinitionTableModel extends AbstractListTableModel<ComponentDefinition> {
+class DnaComponentTableModel extends AbstractListTableModel<DnaComponent> {
 	private static final String[] COLUMNS = { "Display Id", "Name", "Description" };
 	private static final double[] WIDTHS = { 0.2, 0.2, 0.6 };
 
-	public ComponentDefinitionTableModel(List<ComponentDefinition> components) {
+	public DnaComponentTableModel(List<DnaComponent> components) {
 		super(components, COLUMNS, WIDTHS);
 	}
 	
-	public Object getField(ComponentDefinition component, int col) {
+	public Object getField(DnaComponent component, int col) {
 		switch (col) {
 			case 0:
 				return component.getDisplayId();

@@ -26,7 +26,7 @@ import javax.swing.BoxLayout;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 
-import org.sbolstandard.core2.ComponentDefinition;
+import org.sbolstandard.core.DnaComponent;
 
 import com.adamtaft.eb.EventHandler;
 import com.clarkparsia.sbol.editor.event.DesignLoadedEvent;
@@ -54,7 +54,7 @@ public class ThumbnailsPanel extends JPanel {
 		editor.getEventBus().subscribe(this);
 	}
 
-	private JComponent createButton(final ComponentDefinition comp, final Image image) {
+	private JComponent createButton(final DnaComponent comp, final Image image) {
 		final int width = image.getWidth(null);
 		final int height = image.getHeight(null);
 		// JComponent button = Buttons.createButton("", new ImageIcon(Images.scaleImage(img, 0.6))) {
@@ -75,7 +75,7 @@ public class ThumbnailsPanel extends JPanel {
 		button.setOpaque(false);
 		button.putClientProperty("comp", comp);
 		 
-		final ComponentDefinition parentComponent = editor.getDesign().getParentComponent();
+		final DnaComponent parentComponent = editor.getDesign().getParentComponent();
 		button.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
@@ -86,7 +86,7 @@ public class ThumbnailsPanel extends JPanel {
 		return button;
 	}
 	
-	private void addButton(final ComponentDefinition comp, final Image image) {
+	private void addButton(final DnaComponent comp, final Image image) {
 		add(createButton(comp, image), count++);
 	}
 
@@ -105,7 +105,7 @@ public class ThumbnailsPanel extends JPanel {
 
 	@EventHandler
 	public void focusedOut(FocusOutEvent event) {
-		ComponentDefinition comp = event.getComponent();
+		DnaComponent comp = event.getComponent();
 		while (count > 0) {
 			JComponent button = (JComponent) getComponent(count - 1);
 			if (comp != button.getClientProperty("comp")) {

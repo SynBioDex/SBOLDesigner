@@ -17,12 +17,12 @@ package com.clarkparsia.sbol;
 
 import java.util.List;
 
-import org.sbolstandard.core2.Collection;
-import org.sbolstandard.core2.ComponentDefinition;
-import org.sbolstandard.core2.Sequence;
-import org.sbolstandard.core2.SBOLObject;
-import org.sbolstandard.core2.SBOLVisitable;
-import org.sbolstandard.core2.SequenceAnnotation;
+import org.sbolstandard.core.Collection;
+import org.sbolstandard.core.DnaComponent;
+import org.sbolstandard.core.DnaSequence;
+import org.sbolstandard.core.SBOLObject;
+import org.sbolstandard.core.SBOLVisitable;
+import org.sbolstandard.core.SequenceAnnotation;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
@@ -70,13 +70,13 @@ public class SBOLObjectFinder<T extends SBOLObject> extends SublimeSBOLBaseVisit
     }
 
 	@Override
-    public void visit(ComponentDefinition comp) {
+    public void visit(DnaComponent comp) {
 	    process(comp);
 	    super.visit(comp);
     }
 
 	@Override
-    public void visit(Sequence seq) {
+    public void visit(DnaSequence seq) {
 	    process(seq);
 	    super.visit(seq);
     }

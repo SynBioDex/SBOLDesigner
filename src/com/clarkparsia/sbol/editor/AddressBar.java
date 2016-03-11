@@ -34,7 +34,7 @@ import javax.swing.JToolTip;
 import javax.swing.plaf.basic.BasicToolTipUI;
 import javax.swing.plaf.metal.MetalToolTipUI;
 
-import org.sbolstandard.core2.ComponentDefinition;
+import org.sbolstandard.core.DnaComponent;
 
 import com.adamtaft.eb.EventHandler;
 import com.clarkparsia.sbol.editor.event.DesignChangedEvent;
@@ -78,7 +78,7 @@ public class AddressBar extends JToolBar {
 		editor.getEventBus().subscribe(this);
 	}
 
-	private JButton createButton(final ComponentDefinition comp) {
+	private JButton createButton(final DnaComponent comp) {
 		JButton button = new JButton(comp.getDisplayId(), ICON) {
 			public JToolTip createToolTip() {
 				Image image = (Image) getClientProperty("thumbnail");
@@ -102,7 +102,7 @@ public class AddressBar extends JToolBar {
 		return count + 1;
 	}
 	
-	private void addButton(final ComponentDefinition comp) {
+	private void addButton(final DnaComponent comp) {
 		add(createButton(comp), idx(count++));
 	}
 	
@@ -129,7 +129,7 @@ public class AddressBar extends JToolBar {
 	
 	@EventHandler
 	public void focusedOut(FocusOutEvent event) {
-		ComponentDefinition comp = event.getComponent();
+		DnaComponent comp = event.getComponent();
 		while (count > 1) {
 			JButton button = (JButton) getComponent(idx(count - 1));
 			if (comp != button.getClientProperty("comp")) {

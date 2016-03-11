@@ -17,8 +17,8 @@ package com.clarkparsia.sbol;
 
 import java.net.URI;
 
-import org.sbolstandard.core2.ComponentDefinition;
-import org.sbolstandard.core2.SBOLObject;
+import org.sbolstandard.core.DnaComponent;
+import org.sbolstandard.core.SBOLObject;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Predicate;
@@ -37,10 +37,10 @@ public class SBOLPredicates {
 		};
 	}
 	
-	public static Predicate<ComponentDefinition> displayId(final String displayId) {
-		return new Predicate<ComponentDefinition>() {
+	public static Predicate<DnaComponent> displayId(final String displayId) {
+		return new Predicate<DnaComponent>() {
 			@Override
-            public boolean apply(ComponentDefinition comp) {
+            public boolean apply(DnaComponent comp) {
 	            return Objects.equal(comp.getDisplayId(), displayId);
             }
 		};

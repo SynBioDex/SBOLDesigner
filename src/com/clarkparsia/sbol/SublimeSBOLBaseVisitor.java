@@ -15,8 +15,8 @@
 
 package com.clarkparsia.sbol;
 
-import org.sbolstandard.core2.ComponentDefinition;
-import org.sbolstandard.core2.util.SBOLBaseVisitor;
+import org.sbolstandard.core.DnaComponent;
+import org.sbolstandard.core.util.SBOLBaseVisitor;
 
 /**
  * Base implements of extended Sub;ime visitor interface.
@@ -32,7 +32,7 @@ public class SublimeSBOLBaseVisitor extends SBOLBaseVisitor implements SublimeSB
 
 	@Override
     public void visit(SublimeSequenceAnalysis analysis) {
-		ComponentDefinition component = analysis.getComponent();
+		DnaComponent component = analysis.getComponent();
 		if (component != null) {
 			component.accept(this);
 		}
@@ -48,6 +48,6 @@ public class SublimeSBOLBaseVisitor extends SBOLBaseVisitor implements SublimeSB
 
 	@Override
     public void visit(SublimeSequencingData data) {
-	    // Auto-generated method stub	    
+	    // TODO Auto-generated method stub	    
     }
 }

@@ -18,9 +18,7 @@ package com.clarkparsia.sbol.editor;
 import java.net.PasswordAuthentication;
 import java.net.URI;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import javax.swing.JOptionPane;
 
@@ -28,11 +26,10 @@ import org.openrdf.query.Binding;
 import org.openrdf.query.BindingSet;
 import org.openrdf.query.TupleQueryResultHandlerBase;
 import org.openrdf.query.TupleQueryResultHandlerException;
-import org.sbolstandard.core2.ComponentDefinition;
-import org.sbolstandard.core2.SBOLFactory;
-import org.sbolstandard.core2.SBOLValidationException;
-import org.sbolstandard.core2.Sequence;
-import org.sbolstandard.core2.SequenceOntology;
+import org.sbolstandard.core.DnaComponent;
+import org.sbolstandard.core.DnaSequence;
+import org.sbolstandard.core.SBOLFactory;
+import org.sbolstandard.core.util.SequenceOntology;
 
 import com.clarkparsia.sbol.editor.dialog.UserCredentialsDialog;
 import com.clarkparsia.sbol.editor.sparql.SPARQLEndpoint;
@@ -41,30 +38,36 @@ import com.google.common.collect.Lists;
 
 public class SPARQLUtilities {
 
-	public static List<ComponentDefinition> findMatchingParts(final SPARQLEndpoint endpoint) {
-		return findMatchingParts(endpoint, new Part(null, "All", "All parts"));
+
+	public static List<DnaComponent> findMatchingParts(final SPARQLEndpoint endpoint) {
+		return findMatchingParts(endpoint, new Part(null, "All", "All parts")); 
 	}
 
-	public static List<ComponentDefinition> findMatchingParts(final SPARQLEndpoint endpoint, final Part part) {
+	public static List<DnaComponent> findMatchingParts(final SPARQLEndpoint endpoint, final Part part) {
 		if (endpoint == null) {
 			return Collections.emptyList();
 		}
-
+		
 		final boolean findAllParts = (part.getType() == null);
-		String partType = !findAllParts ? "<" + part.getType() + ">"
-				: "?type . FILTER (regex(str(?type), \"" + SequenceOntology.NAMESPACE + ".*\"))";
+		String partType = !findAllParts ? "<" + part.getType() + ">" : "?type . FILTER (regex(str(?type), \""
+		                + SequenceOntology.NAMESPACE + ".*\"))";
 
-		String query = "PREFIX :<http://sbols.org/v1#>\n" + "SELECT * WHERE {\n" + "  ?part a " + partType + "\n"
-				+ "  OPTIONAL { ?part :displayId ?displayId }\n" + "  OPTIONAL { ?part :name ?name }\n"
-				+ "  OPTIONAL { ?part :description ?desc }\n" + "  ?part :Sequence ?seq .\n"
-				+ "  ?seq :nucleotides ?nucleotides .\n" + "}\n" + "ORDER BY ?displayId\n"
-				// + "LIMIT 50"
-				;
+		String query = "PREFIX :<http://sbols.org/v1#>\n" 
+						+ "SELECT * WHERE {\n" 
+						+ "  ?part a " + partType + "\n"
+		                + "  OPTIONAL { ?part :displayId ?displayId }\n" 
+						+ "  OPTIONAL { ?part :name ?name }\n"
+		                + "  OPTIONAL { ?part :description ?desc }\n" 
+						+ "  ?part :dnaSequence ?seq .\n"
+		                + "  ?seq :nucleotides ?nucleotides .\n" 
+						+ "}\n"
+		                + "ORDER BY ?displayId\n" 
+//						+ "LIMIT 50"
+		                ;
 
-		// System.out.format("Query for part %s (%s):%n%s%n",
-		// part.getDisplayId(), part.getName(), query);
+//		System.out.format("Query for part %s (%s):%n%s%n", part.getDisplayId(), part.getName(), query);
 
-		final List<ComponentDefinition> parts = Lists.newArrayList();
+		final List<DnaComponent> parts = Lists.newArrayList();
 		try {
 			endpoint.executeSelectQuery(query, new TupleQueryResultHandlerBase() {
 				@Override
@@ -75,34 +78,28 @@ public class SPARQLUtilities {
 					String description = getBindingAsString(binding, "desc");
 
 					URI partTypeURI = findAllParts ? URI.create(getBindingAsString(binding, "type")) : part.getType();
-					Set<URI> types = new HashSet<URI>();
-					types.add(partTypeURI);
 
-					ComponentDefinition comp;
-					try {
-						comp = SBOLFactory.createComponentDefinition(displayId, types);
-						comp.setName(name);
-						comp.setDescription(description);
-						comp.addType(partTypeURI);
+					DnaComponent comp = SBOLFactory.createDnaComponent();
+					comp.setURI(URI.create(partURI));
+					comp.setName(name);
+					comp.setDisplayId(displayId);
+					comp.setDescription(description);
+					comp.addType(partTypeURI);
 
-						String seqURI = getBindingAsString(binding, "seq");
-						String nucleotides = getBindingAsString(binding, "nucleotides");
-						Sequence seq = new Sequence(URI.create(seqURI).toString(), "no displayId", "", nucleotides,
-								Sequence.IUPAC_DNA);
-						comp.addSequence(seq);
+					String seqURI = getBindingAsString(binding, "seq");
+					String nucleotides = getBindingAsString(binding, "nucleotides");
+					DnaSequence seq = SBOLFactory.createDnaSequence();
+					seq.setURI(URI.create(seqURI));
+					seq.setNucleotides(nucleotides);
+					comp.setDnaSequence(seq);
 
-						parts.add(comp);
-					} catch (SBOLValidationException e) {
-						// TODO Have to create error message if any of this
-						// fails.
-						e.printStackTrace();
-					}
-
+					parts.add(comp);
 				}
 			});
 
 			return parts;
-		} catch (Exception e) {
+		}
+		catch (Exception e) {
 			e.printStackTrace();
 			JOptionPane.showMessageDialog(JOptionPane.getRootFrame(), "There was an error retrieving parts");
 			return Collections.emptyList();
@@ -113,7 +110,7 @@ public class SPARQLUtilities {
 		Binding binding = bindings.getBinding(name);
 		return binding == null ? null : binding.getValue().stringValue();
 	}
-
+	
 	public static boolean setCredentials(SPARQLEndpoint endpoint) {
 		if (endpoint instanceof StardogEndpoint) {
 			StardogEndpoint stardog = (StardogEndpoint) endpoint;
@@ -125,7 +122,7 @@ public class SPARQLUtilities {
 				stardog.setCredentials(credentials.getUserName(), new String(credentials.getPassword()));
 			}
 		}
-
+		
 		return true;
 	}
 }
