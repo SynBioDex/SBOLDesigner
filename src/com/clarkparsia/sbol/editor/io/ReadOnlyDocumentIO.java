@@ -15,7 +15,7 @@
 
 package com.clarkparsia.sbol.editor.io;
 
-import org.sbolstandard.core2.SBOLDocument;
+import org.sbolstandard.core.SBOLDocument;
 
 /**
  * 

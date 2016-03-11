@@ -17,7 +17,7 @@ package com.clarkparsia.sbol;
 
 import java.util.Date;
 
-import org.sbolstandard.core2.SBOLVisitor;
+import org.sbolstandard.core.SBOLVisitor;
 
 /**
  * @author Evren Sirin

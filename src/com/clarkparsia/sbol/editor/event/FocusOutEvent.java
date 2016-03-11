@@ -15,7 +15,7 @@
 
 package com.clarkparsia.sbol.editor.event;
 
-import org.sbolstandard.core2.ComponentDefinition;
+import org.sbolstandard.core.DnaComponent;
 
 import com.clarkparsia.sbol.editor.SBOLDesign;
 
@@ -25,9 +25,9 @@ import com.clarkparsia.sbol.editor.SBOLDesign;
  */
 public class FocusOutEvent {
 	private final SBOLDesign design;
-	private final ComponentDefinition component;
+	private final DnaComponent component;
 
-	public FocusOutEvent(SBOLDesign design, ComponentDefinition component) {
+	public FocusOutEvent(SBOLDesign design, DnaComponent component) {
 		this.design = design;
 		this.component = component;
 	}
@@ -36,7 +36,7 @@ public class FocusOutEvent {
 		return design;
 	}
 	
-	public ComponentDefinition getComponent() {
+	public DnaComponent getComponent() {
 		return component;
 	}
 }

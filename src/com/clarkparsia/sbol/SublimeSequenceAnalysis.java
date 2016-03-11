@@ -18,9 +18,9 @@ package com.clarkparsia.sbol;
 import java.util.Date;
 import java.util.List;
 
-import org.sbolstandard.core2.ComponentDefinition;
-import org.sbolstandard.core2.SBOLRootObject;
-import org.sbolstandard.core2.SBOLVisitor;
+import org.sbolstandard.core.DnaComponent;
+import org.sbolstandard.core.SBOLRootObject;
+import org.sbolstandard.core.SBOLVisitor;
 
 import com.google.common.collect.Lists;
 
@@ -28,7 +28,7 @@ import com.google.common.collect.Lists;
  * @author Evren Sirin
  */
 public class SublimeSequenceAnalysis extends SublimeSBOLObjectImpl implements SBOLRootObject {
-	private ComponentDefinition component;
+	private DnaComponent component;
 	private String conclusion;
 	private Date date;
 	private List<SublimeSequenceVariant> variants = Lists.newArrayList();
@@ -44,11 +44,11 @@ public class SublimeSequenceAnalysis extends SublimeSBOLObjectImpl implements SB
 	    }
     }
 
-	public ComponentDefinition getComponent() {
+	public DnaComponent getComponent() {
     	return component;
     }
 
-	public void setComponent(ComponentDefinition component) {
+	public void setComponent(DnaComponent component) {
     	this.component = component;
     }
 

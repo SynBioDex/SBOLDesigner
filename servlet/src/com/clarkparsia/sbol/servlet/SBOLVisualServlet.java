@@ -26,11 +26,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.swing.JPanel;
 
-import org.sbolstandard.core2.SBOLDocument;
-import org.sbolstandard.core2.SBOLReader;
-import org.sbolstandard.core2.SBOLWriter;
+import org.sbolstandard.core.SBOLDocument;
 
-import com.clarkparsia.sbol.SBOLSPARQLReader;
+import com.clarkparsia.sbol.SublimeSBOLFactory;
 import com.clarkparsia.sbol.editor.SBOLDesign;
 import com.clarkparsia.sbol.editor.SBOLEditor;
 import com.clarkparsia.sbol.editor.sparql.StardogEndpoint;
@@ -38,46 +36,41 @@ import com.google.common.base.Preconditions;
 
 public class SBOLVisualServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-
+	
 	private static final String DEFAULT_ENDPOINT = "http://localhost:5822/SBPkb";
 
 	@Override
-	protected void doPost(HttpServletRequest request, HttpServletResponse response)
-			throws ServletException, IOException {
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		try {
-			// SBOLDocument doc =
-			// SublimeSBOLFactory.read(request.getInputStream());
-			SBOLDocument doc = SBOLReader.read(request.getInputStream());
-			writeImage(doc, response);
-		} catch (Exception e) {
-			throw new IOException(e);
-		}
+			SBOLDocument doc = SublimeSBOLFactory.read(request.getInputStream());
+	        writeImage(doc, response);
+        }
+        catch (Exception e) {
+	        throw new IOException(e);
+        }
 	}
 
 	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		String componentURI = request.getParameter("component");
 		Preconditions.checkNotNull(componentURI, "Mssing parameter component");
-
+				
 		String endpointURL = request.getParameter("endpoint");
 		if (endpointURL == null) {
 			endpointURL = DEFAULT_ENDPOINT;
 		}
-
+		
 		System.out.println("endpointURL " + endpointURL);
 		System.out.println("componentURI " + componentURI);
 		try {
-			// May be broken. Stardog???
-			// SBOLDocument doc = SublimeSBOLFactory.createReader(new
-			// StardogEndpoint(endpointURL), false).read(componentURI);
-			SBOLDocument doc = new SBOLSPARQLReader(new StardogEndpoint(endpointURL), false).read(componentURI);
-			doc.setDefaultURIprefix("http://fetchfrompreferences");
-			writeImage(doc, response);
-		} catch (Exception e) {
-			throw new IOException(e);
-		}
+	        SBOLDocument doc = SublimeSBOLFactory.createReader(new StardogEndpoint(endpointURL), false).read(componentURI);
+	        writeImage(doc, response);
+        }
+        catch (Exception e) {
+	        throw new IOException(e);
+        }
 	}
-
+	
 	private void writeImage(SBOLDocument doc, HttpServletResponse response) throws IOException {
 		response.setContentType("image/png");
 

@@ -17,7 +17,7 @@ package com.clarkparsia.sbol.editor.event;
 
 import java.awt.image.BufferedImage;
 
-import org.sbolstandard.core2.ComponentDefinition;
+import org.sbolstandard.core.DnaComponent;
 
 import com.clarkparsia.sbol.editor.SBOLDesign;
 
@@ -27,10 +27,10 @@ import com.clarkparsia.sbol.editor.SBOLDesign;
  */
 public class FocusInEvent {
 	private final SBOLDesign design;
-	private final ComponentDefinition component;
+	private final DnaComponent component;
 	private final BufferedImage snapshot;
 
-	public FocusInEvent(SBOLDesign design, ComponentDefinition component, BufferedImage snapshot) {
+	public FocusInEvent(SBOLDesign design, DnaComponent component, BufferedImage snapshot) {
 		this.design = design;
 		this.component = component;
 		this.snapshot = snapshot;
@@ -40,7 +40,7 @@ public class FocusInEvent {
 		return design;
 	}
 	
-	public ComponentDefinition getComponent() {
+	public DnaComponent getComponent() {
 		return component;
 	}
 

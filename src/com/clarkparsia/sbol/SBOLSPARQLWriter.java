@@ -18,8 +18,8 @@ package com.clarkparsia.sbol;
 import java.io.ByteArrayOutputStream;
 
 import org.openrdf.query.QueryEvaluationException;
-import org.sbolstandard.core2.SBOLValidationException;
-import org.sbolstandard.core2.SBOLVisitable;
+import org.sbolstandard.core.SBOLValidationException;
+import org.sbolstandard.core.SBOLVisitable;
 
 import com.clarkparsia.sbol.editor.sparql.RDFInput;
 import com.clarkparsia.sbol.editor.sparql.SPARQLEndpoint;

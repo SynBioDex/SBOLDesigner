@@ -20,8 +20,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import org.sbolstandard.core2.ComponentDefinition;
-import org.sbolstandard.core2.SequenceOntology;
+import org.sbolstandard.core.DnaComponent;
+import org.sbolstandard.core.util.SequenceOntology;
 
 import com.clarkparsia.sbol.editor.Part.ImageType;
 import com.google.common.collect.Lists;
@@ -138,7 +138,7 @@ public class Parts {
 		return PARTS.get(type);
 	}
 	
-	public static Part forComponent(ComponentDefinition comp) {
+	public static Part forComponent(DnaComponent comp) {
 		Part result = null;
 		Collection<URI> types = comp.getTypes();
 		if (!types.isEmpty()) {

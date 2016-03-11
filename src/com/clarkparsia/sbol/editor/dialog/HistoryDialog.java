@@ -34,8 +34,8 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.KeyStroke;
 
-import org.sbolstandard.core2.ComponentDefinition;
-import org.sbolstandard.core2.SBOLDocument;
+import org.sbolstandard.core.DnaComponent;
+import org.sbolstandard.core.SBOLDocument;
 
 import com.clarkparsia.sbol.SBOLUtils;
 import com.clarkparsia.sbol.editor.io.DocumentIO;
@@ -91,7 +91,7 @@ public class HistoryDialog {
 					if (action == Action.CLONE) {
 						try {
 	                        SBOLDocument doc = RVTDocumentIO.createForRevision(rev).read();
-	                        ComponentDefinition comp = SBOLUtils.getRootComponentDefinition(doc);
+	                        DnaComponent comp = SBOLUtils.getRootComponent(doc);
 	                        SBOLUtils.rename(comp);
 	                        result.set(new ReadOnlyDocumentIO(doc));
                         }
