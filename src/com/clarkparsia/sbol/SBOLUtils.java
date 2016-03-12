@@ -63,11 +63,37 @@ import com.google.common.collect.Maps;
 
 public class SBOLUtils {
 	/**
-	 * Returns a int which when appended
+	 * Returns an int which guarantees a unique URI.
 	 */
-	public static int getUniqueNumber(ComponentDefinition comp) {
-		for (int i = 1; true; i++) {
-			// TODO if can get using some displayId, then try the next number
+	public static int getUniqueNumber(ComponentDefinition comp, String displayId, String dataType) {
+		// if can get using some displayId, then try the next number
+		switch (dataType) {
+		case "CD":
+			for (int i = 1; true; i++) {
+				if (SBOLFactory.getComponentDefinition(displayId + i, "") == null) {
+					return i;
+				}
+			}
+		case "SequenceAnnotation":
+			for (int i = 1; true; i++) {
+				if (comp.getSequenceAnnotation(displayId + i) == null) {
+					return i;
+				}
+			}
+		case "Component":
+			for (int i = 1; true; i++) {
+				if (comp.getComponent(displayId + i) == null) {
+					return i;
+				}
+			}
+		case "Sequence":
+			for (int i = 1; true; i++) {
+				if (SBOLFactory.getSequence(displayId + i, "") == null) {
+					return i;
+				}
+			}
+		default:
+			throw new IllegalArgumentException();
 		}
 	}
 

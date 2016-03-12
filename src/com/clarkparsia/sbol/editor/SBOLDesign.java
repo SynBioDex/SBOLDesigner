@@ -1248,7 +1248,8 @@ public class SBOLDesign {
 				// if the component type or the displyId has been edited we need
 				// to update the
 				// component view so we'll replace it with itself
-				// TODO the second argument needs to be the new CD from the part edit dialog (impossible)
+				// TODO the second argument needs to be the new CD from the part
+				// edit dialog (impossible)
 				replaceComponent(comp, comp);
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -1394,8 +1395,10 @@ public class SBOLDesign {
 			// seqAnn.setSubComponent(component);
 			// seqAnn.setOrientation(OrientationType.INLINE);
 			try {
-				return currentComponent.createComponent(childComp.getDisplayId(), AccessType.PUBLIC,
-						childComp.getDisplayId());
+				int unique = SBOLUtils.getUniqueNumber(currentComponent, childComp.getDisplayId() + "Component",
+						"Component");
+				return currentComponent.createComponent(childComp.getDisplayId() + "Component" + unique,
+						AccessType.PUBLIC, childComp.getDisplayId());
 			} catch (SBOLValidationException e) {
 				// TODO Generate error
 				e.printStackTrace();
@@ -1405,8 +1408,10 @@ public class SBOLDesign {
 
 		private static SequenceAnnotation createSeqAnn(ComponentDefinition currentComponent) {
 			try {
-				// TODO create a unique displayID, could use helper method
-				return currentComponent.createSequenceAnnotation("annotation1TODO", "genericLocation",
+				int unique = SBOLUtils.getUniqueNumber(currentComponent,
+						currentComponent.getDisplayId() + "SequenceAnnotation", "SequenceAnnotation");
+				return currentComponent.createSequenceAnnotation(
+						currentComponent.getDisplayId() + "SequenceAnnotation" + unique, "genericLocation",
 						OrientationType.INLINE);
 			} catch (SBOLValidationException e) {
 				// TODO Generate error

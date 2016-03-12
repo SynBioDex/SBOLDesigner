@@ -204,7 +204,7 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 					}
 				}
 
-				// TODO
+				// TODO debugging
 				try {
 					System.out.println("Before");
 					SBOLFactory.write(System.out);
@@ -212,11 +212,17 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
+				// TODO debugging
 
-				// when reassign displayId unless comp is null
+				// will reassign displayId unless comp is null
+				// TODO the displayId variable doesn't include the unique
+				// number, so the line below will never return an actual CD, so
+				// renaming is now broken.
 				comp = SBOLFactory.getComponentDefinition(displayId.getText(), "");
 				if (comp == null) {
-					comp = SBOLFactory.createComponentDefinition(displayId.getText(), ComponentDefinition.DNA);
+					int unique = SBOLUtils.getUniqueNumber(null, displayId.getText() + "CD", "CD");
+					comp = SBOLFactory.createComponentDefinition(displayId.getText() + "CD" + unique,
+							ComponentDefinition.DNA);
 				}
 				// comp.setDisplayId(displayId.getText());
 				comp.setName(name.getText());
@@ -235,13 +241,13 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 				} else if (comp.getSequences().isEmpty()
 						|| !Objects.equal(comp.getSequences().iterator().next().getElements(), seq)) {
 					// Sequence dnaSeq = SBOLUtils.createSequence(seq);
-					// TODO Should sequence displayId be the same as the CDs?
-					// Use sbolutils to find a unique addition
-					Sequence dnaSeq = SBOLFactory.createSequence(comp.getDisplayId() + "_seq", seq, Sequence.IUPAC_DNA);
+					int unique = SBOLUtils.getUniqueNumber(null, comp.getDisplayId() + "Sequence", "Sequence");
+					Sequence dnaSeq = SBOLFactory.createSequence(comp.getDisplayId() + "Sequence" + unique, seq,
+							Sequence.IUPAC_DNA);
 					comp.addSequence(dnaSeq);
 				}
 
-				// TODO
+				// TODO debugging
 				try {
 					System.out.println("After");
 					SBOLFactory.write(System.out);
@@ -249,7 +255,8 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
-				// TODO
+				// TODO debugging
+
 			} else {
 				comp = null;
 			}
