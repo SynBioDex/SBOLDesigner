@@ -222,6 +222,9 @@ public class SBOLDesign {
 	private final JPopupMenu selectionPopupMenu = createPopupMenu(FIND, EDIT, FLIP, DELETE, FOCUS_IN);
 	private final JPopupMenu noSelectionPopupMenu = createPopupMenu(EDIT_ROOT, FOCUS_OUT);
 
+	/**
+	 * The current CD displayed in the canvas.
+	 */
 	private ComponentDefinition currentComponent;
 
 	private boolean hasSequence;

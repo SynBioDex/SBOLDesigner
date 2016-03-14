@@ -204,25 +204,11 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 					}
 				}
 
-				// TODO debugging
-				try {
-					System.out.println("Before");
-					SBOLFactory.write(System.out);
-				} catch (XMLStreamException | FactoryConfigurationError | CoreIoException | IOException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
-				// TODO debugging
-
 				// will reassign displayId unless comp is null
-				// TODO the displayId variable doesn't include the unique
-				// number, so the line below will never return an actual CD, so
-				// renaming is now broken.
 				comp = SBOLFactory.getComponentDefinition(displayId.getText(), "");
 				if (comp == null) {
-					int unique = SBOLUtils.getUniqueNumber(null, displayId.getText() + "CD", "CD");
-					comp = SBOLFactory.createComponentDefinition(displayId.getText() + "CD" + unique,
-							ComponentDefinition.DNA);
+					int unique = SBOLUtils.getUniqueNumber(null, displayId.getText(), "CD");
+					comp = SBOLFactory.createComponentDefinition(displayId.getText() + unique, ComponentDefinition.DNA);
 				}
 				// comp.setDisplayId(displayId.getText());
 				comp.setName(name.getText());
@@ -246,17 +232,6 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 							Sequence.IUPAC_DNA);
 					comp.addSequence(dnaSeq);
 				}
-
-				// TODO debugging
-				try {
-					System.out.println("After");
-					SBOLFactory.write(System.out);
-				} catch (XMLStreamException | FactoryConfigurationError | CoreIoException | IOException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
-				// TODO debugging
-
 			} else {
 				comp = null;
 			}

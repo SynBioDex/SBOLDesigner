@@ -134,8 +134,8 @@ public class Parts {
 		return SORTED_PARTS;
 	}
 
-	public static Part forRole(URI type) {
-		return PARTS.get(type);
+	public static Part forRole(URI role) {
+		return PARTS.get(role);
 	}
 	
 	public static Part forComponent(ComponentDefinition comp) {
