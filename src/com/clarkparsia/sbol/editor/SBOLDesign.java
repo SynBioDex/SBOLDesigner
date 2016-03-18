@@ -893,8 +893,7 @@ public class SBOLDesign {
 		}
 
 		ComponentDefinition comp = part.createComponentDefinition();
-
-		if (edit && !PartEditDialog.editPart(panel.getParent(), comp, edit)) {
+		if (edit && PartEditDialog.editPart(panel.getParent(), comp, edit) == null) {
 			return null;
 		}
 
@@ -1087,6 +1086,7 @@ public class SBOLDesign {
 			DesignElement e = elements.get(index);
 
 			if (e == selectedElement) {
+				// TODO Delete this CD and all its Sequences from SBOLFactory
 				setSelectedElement(null);
 			}
 
@@ -1103,7 +1103,6 @@ public class SBOLDesign {
 		}
 	}
 
-	// TODO should not be able to replace a Component like this
 	private void replaceComponent(ComponentDefinition component, ComponentDefinition newComponent) {
 		int index = getElementIndex(component);
 		if (index >= 0) {
@@ -1230,7 +1229,7 @@ public class SBOLDesign {
 
 		ComponentDefinition comp = getCurrentComponent();
 
-		boolean edited = PartEditDialog.editPart(panel.getParent(), comp, false);
+		boolean edited = PartEditDialog.editPart(panel.getParent(), comp, false) != null;
 
 		if (edited) {
 			fireDesignChangedEvent();
@@ -1243,17 +1242,13 @@ public class SBOLDesign {
 		}
 
 		ComponentDefinition comp = getSelectedComponent();
-
-		boolean edited = PartEditDialog.editPart(panel.getParent(), comp, false);
-
+		ComponentDefinition newComp = PartEditDialog.editPart(panel.getParent(), comp, false);
+		boolean edited = newComp != null;
 		if (edited) {
 			try {
-				// if the component type or the displyId has been edited we need
-				// to update the
-				// component view so we'll replace it with itself
-				// TODO the second argument needs to be the new CD from the part
-				// edit dialog (impossible)
-				replaceComponent(comp, comp);
+				// if the CD type or the displyId has been edited we need to
+				// update the component view so we'll replace it with the new CD
+				replaceComponent(comp, newComp);
 			} catch (Exception e) {
 				e.printStackTrace();
 				JOptionPane.showMessageDialog(panel, "There was an error applying the edits");

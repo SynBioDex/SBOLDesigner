@@ -72,7 +72,7 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 
 	private ComponentDefinition comp;
 
-	private final JComboBox typeSelection = new JComboBox(Iterables.toArray(Parts.sorted(), Part.class));
+	private final JComboBox roleSelection = new JComboBox(Iterables.toArray(Parts.sorted(), Part.class));
 	private final JButton saveButton;
 	private final JButton cancelButton;
 	private final JTextField displayId = new JTextField();
@@ -80,16 +80,20 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 	private final JTextField description = new JTextField();
 	private final JTextArea sequenceField = new JTextArea(10, 80);
 
-	public static boolean editPart(Component parent, ComponentDefinition part, boolean enableSave) {
+	/**
+	 * Returns the ComponentDefinition edited by PartEditDialog. Null if the
+	 * dialog throws an exception.
+	 */
+	public static ComponentDefinition editPart(Component parent, ComponentDefinition part, boolean enableSave) {
 		try {
 			PartEditDialog dialog = new PartEditDialog(parent, part);
 			dialog.saveButton.setEnabled(enableSave);
 			dialog.setVisible(true);
-			return dialog.comp != null;
+			return dialog.comp;
 		} catch (Exception e) {
 			e.printStackTrace();
 			JOptionPane.showMessageDialog(parent, "Error editing component");
-			return false;
+			return null;
 		}
 	}
 
@@ -121,12 +125,12 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 		saveButton.setEnabled(false);
 		getRootPane().setDefaultButton(saveButton);
 
-		typeSelection.setSelectedItem(Parts.forComponent(comp));
-		typeSelection.setRenderer(new PartCellRenderer());
-		typeSelection.addActionListener(this);
+		roleSelection.setSelectedItem(Parts.forComponent(comp));
+		roleSelection.setRenderer(new PartCellRenderer());
+		roleSelection.addActionListener(this);
 
 		FormBuilder builder = new FormBuilder();
-		builder.add("Part type", typeSelection);
+		builder.add("Part role", roleSelection);
 		builder.add("Display ID", displayId, comp.getDisplayId());
 		builder.add("Name", name, comp.getName());
 		builder.add("Description", description, comp.getDescription());
@@ -191,7 +195,7 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 	}
 
 	public void actionPerformed(ActionEvent e) {
-		if (e.getSource().equals(typeSelection)) {
+		if (e.getSource().equals(roleSelection)) {
 			saveButton.setEnabled(true);
 			return;
 		}
@@ -204,18 +208,20 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 					}
 				}
 
+				// TODO remove the ComponentDefinition and it's sequences from
+				// SBOLFactory
 				// will reassign displayId unless comp is null
 				comp = SBOLFactory.getComponentDefinition(displayId.getText(), "");
 				if (comp == null) {
 					int unique = SBOLUtils.getUniqueNumber(null, displayId.getText(), "CD");
 					comp = SBOLFactory.createComponentDefinition(displayId.getText() + unique, ComponentDefinition.DNA);
 				}
-				// comp.setDisplayId(displayId.getText());
 				comp.setName(name.getText());
 				comp.setDescription(description.getText());
+				// comp.setDisplayId(displayId.getText());
 				// comp.getTypes().clear();
 
-				Part part = (Part) typeSelection.getSelectedItem();
+				Part part = (Part) roleSelection.getSelectedItem();
 				if (part != null) {
 					comp.addRole(part.getRole());
 				}
@@ -233,6 +239,7 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 					comp.addSequence(dnaSeq);
 				}
 			} else {
+				// Sets comp to null if things don't get edited
 				comp = null;
 			}
 		} catch (SBOLValidationException exception) {
