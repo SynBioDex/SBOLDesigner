@@ -41,6 +41,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -70,6 +71,8 @@ import javax.swing.JRadioButton;
 import javax.swing.JTextArea;
 import javax.swing.KeyStroke;
 import javax.swing.SwingConstants;
+import javax.xml.stream.FactoryConfigurationError;
+import javax.xml.stream.XMLStreamException;
 
 import org.sbolstandard.core2.AccessType;
 import org.sbolstandard.core2.ComponentDefinition;
@@ -106,6 +109,8 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
+
+import uk.ac.ncl.intbio.core.io.CoreIoException;
 
 /**
  * 
@@ -204,6 +209,9 @@ public class SBOLDesign {
 
 	private final EventBus eventBus;
 
+	/**
+	 * The DesignElements displayed on the currentComponent canvas.
+	 */
 	private final List<DesignElement> elements = Lists.newArrayList();
 	private final Map<DesignElement, JLabel> buttons = Maps.newHashMap();
 	private final Set<Part> hiddenParts = Sets.newHashSet();
@@ -908,6 +916,13 @@ public class SBOLDesign {
 		DesignElement e = new DesignElement(currentComponent, comp, part);
 		JLabel button = createComponentButton(e);
 
+		// TODO debugging
+		try {
+			SBOLFactory.write(System.out);
+		} catch (XMLStreamException | FactoryConfigurationError | CoreIoException | IOException e1) {
+			e1.printStackTrace();
+		}
+
 		if (backbone) {
 			if (isCircular) {
 				throw new IllegalArgumentException("Cannot add multiple origin of replication parts");
@@ -1099,6 +1114,13 @@ public class SBOLDesign {
 				elementBox.remove(button);
 			}
 
+			// TODO debugging
+			try {
+				SBOLFactory.write(System.out);
+			} catch (XMLStreamException | FactoryConfigurationError | CoreIoException | IOException e1) {
+				e1.printStackTrace();
+			}
+
 			fireDesignChangedEvent();
 		}
 	}
@@ -1114,11 +1136,11 @@ public class SBOLDesign {
 				JOptionPane.showMessageDialog(panel, "There was an error replacing the component");
 				e1.printStackTrace();
 			}
-			if (!newComponent.getTypes().contains(e.getPart().getRole())) {
+			if (!newComponent.getRoles().contains(e.getPart().getRole())) {
 				Part newPart = Parts.forComponent(newComponent);
 				if (newPart == null) {
 					try {
-						newComponent.addType(e.getPart().getRole());
+						newComponent.addRole(e.getPart().getRole());
 					} catch (SBOLValidationException e1) {
 						JOptionPane.showMessageDialog(panel, "There was an error replacing the component");
 						e1.printStackTrace();

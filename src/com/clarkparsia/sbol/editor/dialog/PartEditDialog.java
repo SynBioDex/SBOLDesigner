@@ -209,7 +209,7 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 				}
 
 				// TODO remove the ComponentDefinition and it's sequences from
-				// SBOLFactory
+				// SBOLFactory if renaming the DisplayId
 				// will reassign displayId unless comp is null
 				comp = SBOLFactory.getComponentDefinition(displayId.getText(), "");
 				if (comp == null) {
@@ -223,7 +223,12 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 
 				Part part = (Part) roleSelection.getSelectedItem();
 				if (part != null) {
-					comp.addRole(part.getRole());
+					// change parts list of roles to set of roles
+					Set<URI> setRoles = new HashSet<URI>();
+					for (URI role : part.getRoles()) {
+						setRoles.add(role);
+					}
+					comp.setRoles(setRoles);
 				}
 
 				String seq = sequenceField.getText();
