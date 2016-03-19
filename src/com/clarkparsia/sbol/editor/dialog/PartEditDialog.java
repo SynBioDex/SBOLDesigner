@@ -244,13 +244,12 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 					comp.addSequence(dnaSeq);
 				}
 			} else {
-				// Sets comp to null if things don't get edited
+				// Sets comp to null if things don't get edited/cancel is
+				// pressed
 				comp = null;
 			}
 		} catch (SBOLValidationException exception) {
-			// TODO Generate error: if any of the fields are not valid SBOL,
-			// need to report an
-			// error message to the user.
+			JOptionPane.showMessageDialog(getParent(), "What you have entered is invalid");
 			exception.printStackTrace();
 		}
 		setVisible(false);
