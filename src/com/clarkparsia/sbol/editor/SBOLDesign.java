@@ -377,8 +377,10 @@ public class SBOLDesign {
 		Iterator<ComponentDefinition> components = SBOLUtils.getRootComponentDefinitions(doc);
 		ComponentDefinition newComponent = null;
 		if (components.hasNext()) {
+			// Sets newComponent to the root CD in the document
 			newComponent = components.next();
 			if (components.hasNext()) {
+				// There is more than one root component
 				JOptionPane.showMessageDialog(panel, "Cannot load documents with multiple root ComponentDefinitions.",
 						"Load error", JOptionPane.ERROR_MESSAGE);
 				return;
@@ -1315,6 +1317,7 @@ public class SBOLDesign {
 	}
 
 	public SBOLDocument createDocument() {
+		// TODO updateRootComponent is broken
 		updateRootComponent();
 
 		ComponentDefinition comp = parentComponents.isEmpty() ? currentComponent : parentComponents.getFirst();
@@ -1324,8 +1327,7 @@ public class SBOLDesign {
 			doc.createCopy(comp);
 			doc.setDefaultURIprefix("http://fetchfrompreferences");
 		} catch (SBOLValidationException e) {
-			JOptionPane.showMessageDialog(panel,
-					"Error in importing defualt URI prefix from preferences or adding component definition to document");
+			JOptionPane.showMessageDialog(panel, "Error creating document from the root component");
 			e.printStackTrace();
 		}
 		SBOLFactory.setSBOLDocument(doc);
@@ -1333,10 +1335,14 @@ public class SBOLDesign {
 		return doc;
 	}
 
+	/**
+	 * Builds the root sequence
+	 */
 	private void updateRootComponent() {
 		try {
-			currentComponent.getAnnotations().clear();
+			currentComponent.clearSequenceAnnotations();
 
+			// TODO this is not correct
 			StringBuilder rootSequence = new StringBuilder();
 			int location = 1;
 			SequenceAnnotation prev = null;
@@ -1345,8 +1351,8 @@ public class SBOLDesign {
 				SequenceAnnotation ann = e.getSeqAnn();
 
 				Iterator<Sequence> iter = comp.getSequences().iterator();
-				Sequence seq = iter.next();
-				if (location >= 0 && comp.getSequences() != null && seq.getElements() != null) {
+				if (location >= 0 && comp.getSequences() != null && iter.hasNext()) {
+					Sequence seq = iter.next();
 					String nucleotides = seq.getElements();
 					rootSequence.append(nucleotides);
 					// ann.setBioStart(location);
@@ -1382,7 +1388,7 @@ public class SBOLDesign {
 				// seq.setURI(SBOLUtils.createURI());
 				// seq.setNucleotides(rootSequence.toString());
 				Sequence seq = SBOLFactory.createSequence("Root Sequence", rootSequence.toString(), Sequence.IUPAC_DNA);
-
+				currentComponent.clearSequences();
 				currentComponent.addSequence(seq);
 			} else if (!hasSequence) {
 				// currentComponent.setSequence(null);
