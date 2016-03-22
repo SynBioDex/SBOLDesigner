@@ -1336,7 +1336,7 @@ public class SBOLDesign {
 	}
 
 	/**
-	 * Builds the root sequence
+	 * Updates the currentComponent's sequences and SequenceAnnotation/Constraints.
 	 */
 	private void updateRootComponent() {
 		try {
