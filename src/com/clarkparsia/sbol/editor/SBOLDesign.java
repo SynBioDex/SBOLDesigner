@@ -166,7 +166,7 @@ public class SBOLDesign {
 	};
 
 	public final SBOLEditorAction FLIP = new SBOLEditorAction("Flip Orientation",
-			"Flip the Orientation for the selected component", "flipOrientation.png") {
+			"Flip the Orientation for the selected component", "flipStrand.png") {
 		@Override
 		protected void perform() {
 			ComponentDefinition comp = getSelectedComponent();
@@ -324,7 +324,8 @@ public class SBOLDesign {
 
 		BufferedImage snapshot = getSnapshot();
 
-		updateRootComponent();
+		// TODO
+		// updateRootComponent();
 		parentComponents.push(currentComponent);
 
 		load(comp);
@@ -347,7 +348,8 @@ public class SBOLDesign {
 			return;
 		}
 
-		updateRootComponent();
+		// TODO
+		// updateRootComponent();
 
 		ComponentDefinition parentComponent = parentComponents.pop();
 		while (parentComponent != comp) {
@@ -552,22 +554,24 @@ public class SBOLDesign {
 					}
 				}));
 	}
-	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	// Adds components in the order they appear in the sequence
+	/**
+	 * Adds components in the order they appear in the sequence
+	 */
 	private void populateComponents(ComponentDefinition comp) throws SBOLValidationException {
-		if (comp.getAnnotations().isEmpty()) {
+		// If the rootComponent we passed in is empty, start with a blank
+		// canvas.
+		if (comp.getComponents().isEmpty()) {
 			if (currentComponent != comp) {
 				addComponentDefinition(comp);
 			}
 			return;
 		}
+		// get sortedComponents and add them in order
 		Iterable<org.sbolstandard.core2.Component> sortedComponents = comp.getSortedComponents();
 		for (org.sbolstandard.core2.Component component : sortedComponents) {
-			// TODO can I do this?
 			ComponentDefinition refered = component.getDefinition();
-			addComponentDefinition(refered.getSequenceAnnotations().iterator().next(), refered,
-					Parts.forComponent(refered));
+			addComponentDefinition(component, refered, Parts.forComponent(refered));
 		}
 	}
 
@@ -912,10 +916,14 @@ public class SBOLDesign {
 		return comp;
 	}
 
-	// How parts get added to the list of elements displayed on the canvas
-	private void addComponentDefinition(SequenceAnnotation seqAnn, ComponentDefinition comp, Part part) {
+	/**
+	 * Adds the part to elements. Takes in a component if one already exists,
+	 * the CD, and the part.
+	 */
+	private void addComponentDefinition(org.sbolstandard.core2.Component component, ComponentDefinition comp,
+			Part part) {
 		boolean backbone = (part == Parts.ORI);
-		DesignElement e = new DesignElement(currentComponent, comp, part);
+		DesignElement e = new DesignElement(component, currentComponent, comp, part);
 		JLabel button = createComponentButton(e);
 
 		// TODO debugging
@@ -1226,7 +1234,7 @@ public class SBOLDesign {
 			DesignElement next = elements.get(i + 1);
 
 			if (curr.getPart() != Parts.SCAR && next.getPart() != Parts.SCAR) {
-				DesignElement scar = new DesignElement(currentComponent, Parts.SCAR.createComponentDefinition(),
+				DesignElement scar = new DesignElement(null, currentComponent, Parts.SCAR.createComponentDefinition(),
 						Parts.SCAR);
 				JLabel button = createComponentButton(scar);
 
@@ -1317,8 +1325,8 @@ public class SBOLDesign {
 	}
 
 	public SBOLDocument createDocument() {
-		// TODO updateRootComponent is broken
-		updateRootComponent();
+		// TODO
+		// updateRootComponent();
 
 		ComponentDefinition comp = parentComponents.isEmpty() ? currentComponent : parentComponents.getFirst();
 		SBOLDocument doc = new SBOLDocument();
@@ -1336,7 +1344,8 @@ public class SBOLDesign {
 	}
 
 	/**
-	 * Updates the currentComponent's sequences and SequenceAnnotation/Constraints.
+	 * Updates the currentComponent's sequences and
+	 * SequenceAnnotation/Constraints.
 	 */
 	private void updateRootComponent() {
 		try {
@@ -1407,8 +1416,14 @@ public class SBOLDesign {
 		private final SequenceAnnotation seqAnn;
 		private Part part;
 
-		public DesignElement(ComponentDefinition currentComponent, ComponentDefinition comp, Part part) {
-			this.component = createComponent(currentComponent, comp);
+		public DesignElement(org.sbolstandard.core2.Component component, ComponentDefinition currentComponent,
+				ComponentDefinition comp, Part part) {
+			// Only create a new component if one does not already exist
+			if (component == null) {
+				this.component = createComponent(currentComponent, comp);
+			} else {
+				this.component = component;
+			}
 			this.seqAnn = createSeqAnn(currentComponent);
 			this.part = part;
 		}
@@ -1477,7 +1492,7 @@ public class SBOLDesign {
 				seqAnn.getLocations().iterator().next().setOrientation(Orientation == OrientationType.REVERSECOMPLEMENT
 						? OrientationType.INLINE : OrientationType.REVERSECOMPLEMENT);
 			} catch (SBOLValidationException e) {
-				// TODO Generate error: seqAnn does have a location?
+				// TODO Generate error
 				e.printStackTrace();
 			}
 		}

@@ -344,8 +344,7 @@ public class SBOLDesigner extends JFrame {
 		toolbar.setFloatable(false);
 		toolbar.setAlignmentX(LEFT_ALIGNMENT);
 
-		// TODO The "flip" button does get added to the toolbar, but it still
-		// doesn't show up.
+		// adds all the actions to the toolbar
 		for (SBOLEditorAction action : TOOLBAR_ACTIONS) {
 			if (action == DIVIDER) {
 				toolbar.addSeparator();
@@ -364,9 +363,7 @@ public class SBOLDesigner extends JFrame {
 				}
 			}
 		}
-
 		// toolbar.add(Box.createHorizontalGlue());
-
 		return toolbar;
 	}
 
@@ -461,7 +458,7 @@ public class SBOLDesigner extends JFrame {
 
 	private void saveCurrentFile() {
 		try {
-			// TODO Design.createDocument is throwing exception
+			// TODO paper that we wrote in meet up
 			SBOLDocument doc = editor.getDesign().createDocument();
 
 			documentIO.write(doc);
