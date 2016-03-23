@@ -166,7 +166,7 @@ public class SBOLDesign {
 	};
 
 	public final SBOLEditorAction FLIP = new SBOLEditorAction("Flip Orientation",
-			"Flip the Orientation for the selected component", "flipStrand.png") {
+			"Flip the Orientation for the selected component", "flipOrientation.png") {
 		@Override
 		protected void perform() {
 			ComponentDefinition comp = getSelectedComponent();
