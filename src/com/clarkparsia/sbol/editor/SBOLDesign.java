@@ -42,13 +42,9 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.net.URI;
 import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Deque;
 import java.util.EnumSet;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -76,16 +72,12 @@ import javax.xml.stream.XMLStreamException;
 
 import org.sbolstandard.core2.AccessType;
 import org.sbolstandard.core2.ComponentDefinition;
-import org.sbolstandard.core2.Cut;
-import org.sbolstandard.core2.Location;
 import org.sbolstandard.core2.Sequence;
 import org.sbolstandard.core2.SBOLDocument;
 import org.sbolstandard.core2.SBOLFactory;
 import org.sbolstandard.core2.SBOLValidationException;
 import org.sbolstandard.core2.SequenceAnnotation;
-import org.sbolstandard.core2.SequenceConstraint;
 import org.sbolstandard.core2.OrientationType;
-import org.sbolstandard.core2.Range;
 import org.sbolstandard.core2.RestrictionType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -104,10 +96,8 @@ import com.clarkparsia.sbol.editor.event.SelectionChangedEvent;
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
-import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
 
 import uk.ac.ncl.intbio.core.io.CoreIoException;
@@ -1324,28 +1314,48 @@ public class SBOLDesign {
 				designHeight);
 	}
 
+	/**
+	 * Creates a document based off of the root CD
+	 */
 	public SBOLDocument createDocument() {
 		// TODO
 		// updateRootComponent();
 
-		ComponentDefinition comp = parentComponents.isEmpty() ? currentComponent : parentComponents.getFirst();
+		ComponentDefinition rootComp = parentComponents.isEmpty() ? currentComponent : parentComponents.getFirst();
 		SBOLDocument doc = new SBOLDocument();
-		// doc.addContent(comp);
 		try {
-			doc.createCopy(comp);
 			doc.setDefaultURIprefix("http://fetchfrompreferences");
-		} catch (SBOLValidationException e) {
-			JOptionPane.showMessageDialog(panel, "Error creating document from the root component");
+			addToDocument(doc, rootComp);
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog(panel, "Error creating the document");
 			e.printStackTrace();
 		}
 		SBOLFactory.setSBOLDocument(doc);
-
 		return doc;
 	}
 
 	/**
+	 * Recursively adds all the Sequences and CDs to the document
+	 */
+	private void addToDocument(SBOLDocument doc, ComponentDefinition comp) throws SBOLValidationException {
+		doc.createCopy(comp);
+		// add all the sequences only if not already in doc
+		for (Sequence seq : comp.getSequences()) {
+			if (doc.getSequence(seq.getIdentity()) == null) {
+				doc.createCopy(seq);
+			}
+		}
+		// add all the components' CDs if not already in doc
+		for (org.sbolstandard.core2.Component component : comp.getComponents()) {
+			if (doc.getComponentDefinition(component.getDefinitionURI()) == null) {
+				addToDocument(doc, component.getDefinition());
+			}
+		}
+	}
+
+	/**
 	 * Updates the currentComponent's sequences and
-	 * SequenceAnnotation/Constraints.
+	 * SequenceAnnotations/Constraints.
 	 */
 	private void updateRootComponent() {
 		try {

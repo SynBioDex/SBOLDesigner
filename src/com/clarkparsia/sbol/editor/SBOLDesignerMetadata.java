@@ -15,8 +15,6 @@
 
 package com.clarkparsia.sbol.editor;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.Properties;
 
 //import org.sbolstandard.core2.SBOLVersion;

@@ -15,14 +15,11 @@
 
 package com.clarkparsia.sbol;
 
-import java.awt.image.BufferedImage;
 import java.net.URI;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-
-import javax.swing.JPanel;
 
 import org.sbolstandard.core2.ComponentDefinition;
 import org.sbolstandard.core2.Location;
@@ -33,12 +30,8 @@ import org.sbolstandard.core2.SBOLFactory;
 import org.sbolstandard.core2.SBOLValidationException;
 import org.sbolstandard.core2.SequenceAnnotation;
 
-import com.clarkparsia.sbol.editor.SBOLDesign;
-import com.clarkparsia.sbol.editor.SBOLEditor;
-import com.google.common.base.Function;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterators;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 /**
@@ -97,20 +90,15 @@ public class SBOLUtils {
 		}
 	}
 
-	/**
-	 * Returns a random, unique URI.
-	 */
-	public static URI createURI() {
-		// TODO import the correct URI from preferences
-		return URI.create("http://" + UUID.randomUUID());
-		// return URI.create("http://findinpreferences");
-	}
+	// public static URI createURI() {
+	// return URI.create("http://" + UUID.randomUUID());
+	// }
 
-	public static URI createURI(String uri) {
-		return uri == null || uri.length() == 0 ? createURI() : URI.create(uri);
-	}
+	// public static URI createURI(String uri) {
+	// return uri == null || uri.length() == 0 ? createURI() : URI.create(uri);
+	// }
 
-	public static String getNucleotides(ComponentDefinition comp) {
+	private static String getNucleotides(ComponentDefinition comp) {
 		// Sequence seq = comp.getSequence();
 		// TODO potentially losing information because only looking at the first
 		// sequence; loop through sequences and find the one with DNA encoding.
@@ -142,16 +130,14 @@ public class SBOLUtils {
 		return Iterators.filter(doc.getRootComponentDefinitions().iterator(), ComponentDefinition.class);
 	}
 
-	public static Sequence createSequence(String nucleotides) {
-		// TODO Check what the next unique DisplayId is. Should not be returning
-		// null.
-		Sequence seq = null;
+	private static Sequence createSequence(String nucleotides) {
 		try {
-			seq = SBOLFactory.createSequence("Sequence1", nucleotides, Sequence.IUPAC_DNA);
+			int unique = SBOLUtils.getUniqueNumber(null, "Sequence", "Sequence");
+			return SBOLFactory.createSequence("Sequence" + unique, nucleotides, Sequence.IUPAC_DNA);
 		} catch (SBOLValidationException e) {
 			e.printStackTrace();
+			return null;
 		}
-		return seq;
 	}
 
 	public static boolean isRegistryComponent(ComponentDefinition comp) {

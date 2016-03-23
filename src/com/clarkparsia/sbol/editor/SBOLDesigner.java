@@ -458,7 +458,6 @@ public class SBOLDesigner extends JFrame {
 
 	private void saveCurrentFile() {
 		try {
-			// TODO paper that we wrote in meet up
 			SBOLDocument doc = editor.getDesign().createDocument();
 
 			documentIO.write(doc);
@@ -466,6 +465,7 @@ public class SBOLDesigner extends JFrame {
 			updateEnabledButtons(false);
 		} catch (Exception ex) {
 			JOptionPane.showMessageDialog(this, "Error saving file: " + ex.getMessage());
+			ex.printStackTrace();
 		}
 	}
 
