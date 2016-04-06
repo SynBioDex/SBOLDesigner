@@ -243,6 +243,14 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 							Sequence.IUPAC_DNA);
 					comp.addSequence(dnaSeq);
 				}
+
+				// TODO
+				try {
+					SBOLFactory.write(System.out);
+				} catch (XMLStreamException | FactoryConfigurationError | CoreIoException | IOException e1) {
+					e1.printStackTrace();
+				}
+
 			} else {
 				// Sets comp to null if things don't get edited/cancel is
 				// pressed

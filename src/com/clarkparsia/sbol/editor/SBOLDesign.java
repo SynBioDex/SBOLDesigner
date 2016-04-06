@@ -1338,6 +1338,7 @@ public class SBOLDesign {
 	 * Recursively adds all the Sequences and CDs to the document
 	 */
 	private void addToDocument(SBOLDocument doc, ComponentDefinition comp) throws SBOLValidationException {
+		// TODO bug, throws exception
 		doc.createCopy(comp);
 		// add all the sequences only if not already in doc
 		for (Sequence seq : comp.getSequences()) {
@@ -1426,6 +1427,10 @@ public class SBOLDesign {
 		private final SequenceAnnotation seqAnn;
 		private Part part;
 
+		/**
+		 * The component we are making into a design element, the canvas CD, the
+		 * CD refered to by the component, and the part.
+		 */
 		public DesignElement(org.sbolstandard.core2.Component component, ComponentDefinition currentComponent,
 				ComponentDefinition comp, Part part) {
 			// Only create a new component if one does not already exist
@@ -1434,8 +1439,40 @@ public class SBOLDesign {
 			} else {
 				this.component = component;
 			}
-			this.seqAnn = createSeqAnn(currentComponent);
+
+			// Returns the SA that should be set to this.seqAnn
+			SequenceAnnotation tempAnn = seqAnnRefersToComponent(this.component, currentComponent);
+			if (tempAnn == null) {
+				// There isn't a SA already, we need to create one
+				this.seqAnn = createSeqAnn(currentComponent);
+				// Set seqAnn to refer to this component
+				try {
+					this.seqAnn.setComponent(this.component.getIdentity());
+				} catch (SBOLValidationException e) {
+					// TODO Generate Error
+					e.printStackTrace();
+				}
+			} else {
+				this.seqAnn = tempAnn;
+			}
+
 			this.part = part;
+		}
+
+		/**
+		 * Returns null if there isn't a SA belonging to currentComponents that
+		 * refers to component. Otherwise, returns that SA.
+		 */
+		private SequenceAnnotation seqAnnRefersToComponent(org.sbolstandard.core2.Component component,
+				ComponentDefinition currentComponent) {
+			SequenceAnnotation result = null;
+			for (SequenceAnnotation sa : currentComponent.getSequenceAnnotations()) {
+				if (sa.getComponentURI().equals(component.getIdentity())) {
+					result = sa;
+					break;
+				}
+			}
+			return result;
 		}
 
 		private static org.sbolstandard.core2.Component createComponent(ComponentDefinition currentComponent,
