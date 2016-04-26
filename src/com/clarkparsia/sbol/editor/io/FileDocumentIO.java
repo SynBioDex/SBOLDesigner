@@ -24,6 +24,7 @@ import javax.xml.stream.FactoryConfigurationError;
 import javax.xml.stream.XMLStreamException;
 
 import org.openrdf.rio.RDFFormat;
+import org.sbolstandard.core2.SBOLConversionException;
 import org.sbolstandard.core2.SBOLDocument;
 import org.sbolstandard.core2.SBOLFactory;
 import org.sbolstandard.core2.SBOLReader;
@@ -66,7 +67,12 @@ public class FileDocumentIO implements DocumentIO {
 	public void write(SBOLDocument doc) throws SBOLValidationException, IOException, XMLStreamException,
 			FactoryConfigurationError, CoreIoException {
 		// writer.write(doc, new FileOutputStream(file));
-		SBOLWriter.write(doc, new FileOutputStream(file));
+		try {
+			SBOLWriter.write(doc, new FileOutputStream(file));
+		} catch (SBOLConversionException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	@Override

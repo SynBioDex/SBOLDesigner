@@ -73,6 +73,12 @@ public class SBOLUtils {
 					return i;
 				}
 			}
+		case "SequenceConstraint":
+			for (int i = 1; true; i++) {
+				if (comp.getSequenceConstraint(displayId + i) == null) {
+					return i;
+				}
+			}
 		case "Component":
 			for (int i = 1; true; i++) {
 				if (comp.getComponent(displayId + i) == null) {

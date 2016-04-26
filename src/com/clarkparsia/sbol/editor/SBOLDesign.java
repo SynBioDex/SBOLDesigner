@@ -72,6 +72,7 @@ import javax.xml.stream.XMLStreamException;
 
 import org.sbolstandard.core2.AccessType;
 import org.sbolstandard.core2.ComponentDefinition;
+import org.sbolstandard.core2.Location;
 import org.sbolstandard.core2.Sequence;
 import org.sbolstandard.core2.SBOLDocument;
 import org.sbolstandard.core2.SBOLFactory;
@@ -79,6 +80,7 @@ import org.sbolstandard.core2.SBOLValidationException;
 import org.sbolstandard.core2.SequenceAnnotation;
 import org.sbolstandard.core2.OrientationType;
 import org.sbolstandard.core2.RestrictionType;
+import org.sbolstandard.core2.SBOLConversionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -314,8 +316,7 @@ public class SBOLDesign {
 
 		BufferedImage snapshot = getSnapshot();
 
-		// TODO
-		// updateRootComponent();
+		updateCurrentComponent();
 		parentComponents.push(currentComponent);
 
 		load(comp);
@@ -338,8 +339,7 @@ public class SBOLDesign {
 			return;
 		}
 
-		// TODO
-		// updateRootComponent();
+		updateCurrentComponent();
 
 		ComponentDefinition parentComponent = parentComponents.pop();
 		while (parentComponent != comp) {
@@ -356,14 +356,7 @@ public class SBOLDesign {
 			JOptionPane.showMessageDialog(panel, "No document to load.", "Load error", JOptionPane.ERROR_MESSAGE);
 			return;
 		}
-		// Importing the document
-		// TODO Create preferences file
-		try {
-			doc.setDefaultURIprefix("http://fetchfrompreferences");
-		} catch (SBOLValidationException e1) {
-			JOptionPane.showMessageDialog(panel, "Preferences contains an invalid default URI prefix");
-			e1.printStackTrace();
-		}
+		doc.setDefaultURIprefix("http://fetchfrompreferences");
 		SBOLFactory.setSBOLDocument(doc);
 
 		Iterator<ComponentDefinition> components = SBOLUtils.getRootComponentDefinitions(doc);
@@ -412,7 +405,9 @@ public class SBOLDesign {
 			e.printStackTrace();
 		}
 
-		hasSequence = (currentComponent.getSequences() != null) && elements.isEmpty();
+		// hasSequence = (currentComponent.getSequences() != null) &&
+		// elements.isEmpty();
+		hasSequence = (!currentComponent.getSequences().isEmpty()) && elements.isEmpty();
 
 		detectReadOnly();
 
@@ -919,7 +914,7 @@ public class SBOLDesign {
 		// TODO debugging
 		try {
 			SBOLFactory.write(System.out);
-		} catch (XMLStreamException | FactoryConfigurationError | CoreIoException | IOException e1) {
+		} catch (SBOLConversionException e1) {
 			e1.printStackTrace();
 		}
 
@@ -1101,8 +1096,16 @@ public class SBOLDesign {
 			DesignElement e = elements.get(index);
 
 			if (e == selectedElement) {
-				// TODO Delete this CD and all its Sequences from SBOLFactory
 				setSelectedElement(null);
+				try {
+					SBOLFactory.removeComponentDefinition(e.component.getDefinition());
+					currentComponent.removeSequenceAnnotation(e.seqAnn);
+					currentComponent.clearSequenceConstraints();
+					currentComponent.removeComponent(e.component);
+				} catch (SBOLValidationException e1) {
+					JOptionPane.showMessageDialog(panel, "There was an error deleting the part");
+					e1.printStackTrace();
+				}
 			}
 
 			JLabel button = buttons.remove(e);
@@ -1113,11 +1116,12 @@ public class SBOLDesign {
 			} else {
 				elementBox.remove(button);
 			}
+			updateCurrentComponent();
 
 			// TODO debugging
 			try {
 				SBOLFactory.write(System.out);
-			} catch (XMLStreamException | FactoryConfigurationError | CoreIoException | IOException e1) {
+			} catch (SBOLConversionException e1) {
 				e1.printStackTrace();
 			}
 
@@ -1318,14 +1322,14 @@ public class SBOLDesign {
 	 * Creates a document based off of the root CD
 	 */
 	public SBOLDocument createDocument() {
-		// TODO
-		// updateRootComponent();
-
 		ComponentDefinition rootComp = parentComponents.isEmpty() ? currentComponent : parentComponents.getFirst();
+		focusOut(rootComp);
+		updateCurrentComponent();
+
 		SBOLDocument doc = new SBOLDocument();
 		try {
+			doc = SBOLFactory.createRecursiveCopy(rootComp);
 			doc.setDefaultURIprefix("http://fetchfrompreferences");
-			addToDocument(doc, rootComp);
 		} catch (Exception e) {
 			JOptionPane.showMessageDialog(panel, "Error creating the document");
 			e.printStackTrace();
@@ -1335,85 +1339,82 @@ public class SBOLDesign {
 	}
 
 	/**
-	 * Recursively adds all the Sequences and CDs to the document
+	 * Updates the currentComponent's Sequences, SequenceConstraints, and
+	 * SequenceAnnotations.
 	 */
-	private void addToDocument(SBOLDocument doc, ComponentDefinition comp) throws SBOLValidationException {
-		// TODO bug, throws exception
-		doc.createCopy(comp);
-		// add all the sequences only if not already in doc
-		for (Sequence seq : comp.getSequences()) {
-			if (doc.getSequence(seq.getIdentity()) == null) {
-				doc.createCopy(seq);
-			}
-		}
-		// add all the components' CDs if not already in doc
-		for (org.sbolstandard.core2.Component component : comp.getComponents()) {
-			if (doc.getComponentDefinition(component.getDefinitionURI()) == null) {
-				addToDocument(doc, component.getDefinition());
-			}
-		}
-	}
-
-	/**
-	 * Updates the currentComponent's sequences and
-	 * SequenceAnnotations/Constraints.
-	 */
-	private void updateRootComponent() {
+	private void updateCurrentComponent() {
 		try {
-			currentComponent.clearSequenceAnnotations();
+			updateSequenceConstraints();
+			updateSequenceAnnotations();
 
-			// TODO this is not correct
-			StringBuilder rootSequence = new StringBuilder();
-			int location = 1;
-			SequenceAnnotation prev = null;
-			for (DesignElement e : elements) {
-				ComponentDefinition comp = e.getComponentDefinition();
-				SequenceAnnotation ann = e.getSeqAnn();
-
-				Iterator<Sequence> iter = comp.getSequences().iterator();
-				if (location >= 0 && comp.getSequences() != null && iter.hasNext()) {
-					Sequence seq = iter.next();
-					String nucleotides = seq.getElements();
-					rootSequence.append(nucleotides);
-					// ann.setBioStart(location);
-					int rangeStart = location;
-					location += nucleotides.length();
-					// ann.setBioEnd(location - 1);
-					int rangeEnd = location;
-					// TODO is ann.getDisplayId() the right displayId to pass to
-					// this create range method?
-					ann.addRange(ann.getDisplayId(), rangeStart, rangeEnd);
-				} else {
-					location = -1;
-					// ann.setBioStart(null);
-					// ann.setBioEnd(null);
-					// TODO is ann.getDisplayId() the right displayId to pass to
-					// this create range method?
-					ann.removeLocation(ann.getLocation(ann.getDisplayId()));
+			Sequence oldSeq = currentComponent.getSequenceByEncoding(Sequence.IUPAC_DNA);
+			// remove all current Sequences
+			for (Sequence s : currentComponent.getSequences()) {
+				currentComponent.removeSequence(s.getIdentity());
+			}
+			String nucleotides = currentComponent.getImpliedNucleicAcidSequence();
+			if (nucleotides.length() > 0) {
+				// use the generated sequence
+				int unique = SBOLUtils.getUniqueNumber(null, "Sequence", "Sequence");
+				Sequence newSequence = SBOLFactory.createSequence("Sequence" + unique, nucleotides,
+						ComponentDefinition.DNA);
+				currentComponent.addSequence(newSequence);
+			} else {
+				// use the old sequence provided it was there
+				if (oldSeq != null) {
+					currentComponent.addSequence(oldSeq);
 				}
-
-				if (prev != null) {
-					// prev.getPrecedes().clear();
-					// prev.addPrecede(ann);
-					comp.createSequenceConstraint("temp", RestrictionType.PRECEDES, prev.getComponent().getDisplayId(),
-							ann.getComponent().getDisplayId());
-				}
-				// TODO Only ever looks at the first location, there may be more
-				// than one
-				prev = ann;
 			}
 
-			if (location > 0 && !elements.isEmpty()) {
-				// Sequence seq = SBOLFactory.createSequence();
-				// seq.setURI(SBOLUtils.createURI());
-				// seq.setNucleotides(rootSequence.toString());
-				Sequence seq = SBOLFactory.createSequence("Root Sequence", rootSequence.toString(), Sequence.IUPAC_DNA);
-				currentComponent.clearSequences();
-				currentComponent.addSequence(seq);
-			} else if (!hasSequence) {
-				// currentComponent.setSequence(null);
-				currentComponent.clearSequences();
+			// TODO
+			try {
+				SBOLFactory.write(System.out);
+			} catch (SBOLConversionException e) {
+				e.printStackTrace();
 			}
+
+			// currentComponent.getAnnotations().clear();
+			//
+			// StringBuilder rootSequence = new StringBuilder();
+			// int location = 1;
+			// SequenceAnnotation prev = null;
+			// for (DesignElement e : elements) {
+			// DnaComponent comp = e.getComponent();
+			// SequenceAnnotation ann = e.getAnnotation();
+			//
+			// if (location >= 0 && comp.getDnaSequence() != null &&
+			// comp.getDnaSequence().getNucleotides() != null) {
+			// String nucleotides = comp.getDnaSequence().getNucleotides();
+			// rootSequence.append(nucleotides);
+			// ann.setBioStart(location);
+			// location += nucleotides.length();
+			// ann.setBioEnd(location - 1);
+			// }
+			// else {
+			// location = -1;
+			// ann.setBioStart(null);
+			// ann.setBioEnd(null);
+			// }
+			//
+			// if (prev != null) {
+			// prev.getPrecedes().clear();
+			// prev.addPrecede(ann);
+			// }
+			//
+			// currentComponent.addAnnotation(ann);
+			// prev = ann;
+			// }
+			//
+			// if (location > 0 && !elements.isEmpty()) {
+			// DnaSequence seq = SBOLFactory.createDnaSequence();
+			// seq.setURI(SBOLUtils.createURI());
+			// seq.setNucleotides(rootSequence.toString());
+			//
+			// currentComponent.setDnaSequence(seq);
+			// }
+			// else if (!hasSequence) {
+			// currentComponent.setDnaSequence(null);
+			// }
 
 			LOGGER.debug("Updated root:\n{}", currentComponent.toString());
 		} catch (SBOLValidationException e) {
@@ -1422,29 +1423,76 @@ public class SBOLDesign {
 		}
 	}
 
+	/**
+	 * Updates all the seqAnns of the DesignElements in elements
+	 */
+	private void updateSequenceAnnotations() {
+		// TODO Resets seqAnn to generic one everytime.
+		// Should instead create range location if there are sequences
+		try {
+			for (DesignElement e : elements) {
+				// We no longer need this seqAnn
+				currentComponent.removeSequenceAnnotation(e.seqAnn);
+
+				Location loc = e.seqAnn.getLocations().iterator().next();
+
+				e.seqAnn = DesignElement.createSeqAnn(currentComponent);
+				e.seqAnn.setComponent(e.component.getIdentity());
+				if (loc.getOrientation() == OrientationType.REVERSECOMPLEMENT) {
+					e.flipOrientation();
+				}
+			}
+		} catch (SBOLValidationException e) {
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * Generates currentComponent's SequenceConstraints based on ordering in
+	 * elements.
+	 */
+	private void updateSequenceConstraints() throws SBOLValidationException {
+		// only makes sense to have SCs if there are 2 or more components
+		if (elements.size() < 2) {
+			return;
+		}
+
+		currentComponent.clearSequenceConstraints();
+
+		// create a precedes relationship for all the elements except the last
+		for (int i = 0; i < (elements.size() - 1); i++) {
+			org.sbolstandard.core2.Component subject = elements.get(i).component;
+			org.sbolstandard.core2.Component object = elements.get((i + 1)).component;
+
+			int unique = SBOLUtils.getUniqueNumber(currentComponent, "SequenceConstraint", "SequenceConstraint");
+			currentComponent.createSequenceConstraint("SequenceConstraint" + unique, RestrictionType.PRECEDES,
+					subject.getIdentity(), object.getIdentity());
+		}
+	}
+
 	private static class DesignElement {
-		private final org.sbolstandard.core2.Component component;
-		private final SequenceAnnotation seqAnn;
+		private org.sbolstandard.core2.Component component;
+		private SequenceAnnotation seqAnn;
 		private Part part;
 
 		/**
 		 * The component we are making into a design element, the canvas CD, the
 		 * CD refered to by the component, and the part.
 		 */
-		public DesignElement(org.sbolstandard.core2.Component component, ComponentDefinition currentComponent,
-				ComponentDefinition comp, Part part) {
+		public DesignElement(org.sbolstandard.core2.Component component, ComponentDefinition parentCD,
+				ComponentDefinition childCD, Part part) {
 			// Only create a new component if one does not already exist
 			if (component == null) {
-				this.component = createComponent(currentComponent, comp);
+				this.component = createComponent(parentCD, childCD);
 			} else {
 				this.component = component;
 			}
 
 			// Returns the SA that should be set to this.seqAnn
-			SequenceAnnotation tempAnn = seqAnnRefersToComponent(this.component, currentComponent);
+			SequenceAnnotation tempAnn = seqAnnRefersToComponent(this.component, parentCD);
 			if (tempAnn == null) {
 				// There isn't a SA already, we need to create one
-				this.seqAnn = createSeqAnn(currentComponent);
+				this.seqAnn = createSeqAnn(parentCD);
 				// Set seqAnn to refer to this component
 				try {
 					this.seqAnn.setComponent(this.component.getIdentity());
@@ -1460,13 +1508,13 @@ public class SBOLDesign {
 		}
 
 		/**
-		 * Returns null if there isn't a SA belonging to currentComponents that
-		 * refers to component. Otherwise, returns that SA.
+		 * Returns null if there isn't a SA belonging to parentCD that refers to
+		 * component. Otherwise, returns that SA.
 		 */
 		private SequenceAnnotation seqAnnRefersToComponent(org.sbolstandard.core2.Component component,
-				ComponentDefinition currentComponent) {
+				ComponentDefinition parentCD) {
 			SequenceAnnotation result = null;
-			for (SequenceAnnotation sa : currentComponent.getSequenceAnnotations()) {
+			for (SequenceAnnotation sa : parentCD.getSequenceAnnotations()) {
 				if (sa.getComponentURI().equals(component.getIdentity())) {
 					result = sa;
 					break;
@@ -1475,18 +1523,17 @@ public class SBOLDesign {
 			return result;
 		}
 
-		private static org.sbolstandard.core2.Component createComponent(ComponentDefinition currentComponent,
-				ComponentDefinition childComp) {
+		private static org.sbolstandard.core2.Component createComponent(ComponentDefinition parentCD,
+				ComponentDefinition childCD) {
 			// SequenceAnnotation seqAnn =
 			// SublimeSBOLFactory.createSequenceAnnotation();
 			// seqAnn.setURI(SBOLUtils.createURI());
 			// seqAnn.setSubComponent(component);
 			// seqAnn.setOrientation(OrientationType.INLINE);
 			try {
-				int unique = SBOLUtils.getUniqueNumber(currentComponent, childComp.getDisplayId() + "Component",
-						"Component");
-				return currentComponent.createComponent(childComp.getDisplayId() + "Component" + unique,
-						AccessType.PUBLIC, childComp.getDisplayId());
+				int unique = SBOLUtils.getUniqueNumber(parentCD, childCD.getDisplayId() + "Component", "Component");
+				return parentCD.createComponent(childCD.getDisplayId() + "Component" + unique, AccessType.PUBLIC,
+						childCD.getDisplayId());
 			} catch (SBOLValidationException e) {
 				// TODO Generate error
 				e.printStackTrace();
@@ -1494,13 +1541,12 @@ public class SBOLDesign {
 			}
 		}
 
-		private static SequenceAnnotation createSeqAnn(ComponentDefinition currentComponent) {
+		private static SequenceAnnotation createSeqAnn(ComponentDefinition parentCD) {
 			try {
-				int unique = SBOLUtils.getUniqueNumber(currentComponent,
-						currentComponent.getDisplayId() + "SequenceAnnotation", "SequenceAnnotation");
-				return currentComponent.createSequenceAnnotation(
-						currentComponent.getDisplayId() + "SequenceAnnotation" + unique, "genericLocation",
-						OrientationType.INLINE);
+				int unique = SBOLUtils.getUniqueNumber(parentCD, parentCD.getDisplayId() + "SequenceAnnotation",
+						"SequenceAnnotation");
+				return parentCD.createSequenceAnnotation(parentCD.getDisplayId() + "SequenceAnnotation" + unique,
+						"genericLocation", OrientationType.INLINE);
 			} catch (SBOLValidationException e) {
 				// TODO Generate error
 				e.printStackTrace();

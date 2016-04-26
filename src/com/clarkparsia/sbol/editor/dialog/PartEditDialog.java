@@ -49,6 +49,7 @@ import javax.xml.stream.FactoryConfigurationError;
 import javax.xml.stream.XMLStreamException;
 
 import org.sbolstandard.core2.ComponentDefinition;
+import org.sbolstandard.core2.SBOLConversionException;
 import org.sbolstandard.core2.SBOLFactory;
 import org.sbolstandard.core2.SBOLValidationException;
 import org.sbolstandard.core2.Sequence;
@@ -247,7 +248,7 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 				// TODO
 				try {
 					SBOLFactory.write(System.out);
-				} catch (XMLStreamException | FactoryConfigurationError | CoreIoException | IOException e1) {
+				} catch (SBOLConversionException e1) {
 					e1.printStackTrace();
 				}
 
