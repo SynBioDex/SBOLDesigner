@@ -56,7 +56,8 @@ import com.google.common.collect.Maps;
 
 public class SBOLUtils {
 	/**
-	 * Returns an int which guarantees a unique URI.
+	 * Returns an int which guarantees a unique URI. Pass in the parent CD, the
+	 * displayId you want, and the type of object.
 	 */
 	public static int getUniqueNumber(ComponentDefinition comp, String displayId, String dataType) {
 		// if can get using some displayId, then try the next number
@@ -90,6 +91,15 @@ public class SBOLUtils {
 				if (SBOLFactory.getSequence(displayId + i, "") == null) {
 					return i;
 				}
+			}
+		case "Range":
+			test: for (int i = 1; true; i++) {
+				for (SequenceAnnotation sa : comp.getSequenceAnnotations()) {
+					if (sa.getLocation(displayId + i) != null) {
+						continue test;
+					}
+				}
+				return i;
 			}
 		default:
 			throw new IllegalArgumentException();

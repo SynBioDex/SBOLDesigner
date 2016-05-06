@@ -1357,7 +1357,7 @@ public class SBOLDesign {
 				// use the generated sequence
 				int unique = SBOLUtils.getUniqueNumber(null, "Sequence", "Sequence");
 				Sequence newSequence = SBOLFactory.createSequence("Sequence" + unique, nucleotides,
-						ComponentDefinition.DNA);
+						Sequence.IUPAC_DNA);
 				currentComponent.addSequence(newSequence);
 			} else {
 				// use the old sequence provided it was there
@@ -1430,17 +1430,31 @@ public class SBOLDesign {
 		// TODO Resets seqAnn to generic one everytime.
 		// Should instead create range location if there are sequences
 		try {
+			int position = 1;
 			for (DesignElement e : elements) {
+				Location loc = e.seqAnn.getLocations().iterator().next();
+
 				// We no longer need this seqAnn
 				currentComponent.removeSequenceAnnotation(e.seqAnn);
 
-				Location loc = e.seqAnn.getLocations().iterator().next();
-
 				e.seqAnn = DesignElement.createSeqAnn(currentComponent);
-				e.seqAnn.setComponent(e.component.getIdentity());
+
+				// if a sequence exists, give seqAnn a Range
+				Sequence seq = e.getComponentDefinition().getSequenceByEncoding(Sequence.IUPAC_DNA);
+				if (seq != null) {
+					int unique = SBOLUtils.getUniqueNumber(currentComponent, e.seqAnn.getDisplayId() + "Range",
+							"Range");
+					int start = position;
+					int end = seq.getElements().length() + start - 1;
+					position = end + 1;
+					e.seqAnn.addRange(e.seqAnn.getDisplayId() + "Range" + unique, start, end);
+				}
+				// maintain the orientation
 				if (loc.getOrientation() == OrientationType.REVERSECOMPLEMENT) {
 					e.flipOrientation();
 				}
+
+				e.seqAnn.setComponent(e.component.getIdentity());
 			}
 		} catch (SBOLValidationException e) {
 			e.printStackTrace();
