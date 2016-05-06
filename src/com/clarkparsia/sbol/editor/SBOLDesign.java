@@ -1322,7 +1322,12 @@ public class SBOLDesign {
 	 * Creates a document based off of the root CD
 	 */
 	public SBOLDocument createDocument() {
-		ComponentDefinition rootComp = parentComponents.isEmpty() ? currentComponent : parentComponents.getFirst();
+		ComponentDefinition rootComp = parentComponents.isEmpty() ? currentComponent : parentComponents.getLast();
+		// updateCurrentComponent on every level of the tree
+		while (currentComponent != rootComp) {
+			focusOut(parentComponents.getFirst());
+			updateCurrentComponent();
+		}
 		focusOut(rootComp);
 		updateCurrentComponent();
 
@@ -1351,13 +1356,14 @@ public class SBOLDesign {
 			// remove all current Sequences
 			for (Sequence s : currentComponent.getSequences()) {
 				currentComponent.removeSequence(s.getIdentity());
+				SBOLFactory.removeSequence(s);
 			}
 			String nucleotides = currentComponent.getImpliedNucleicAcidSequence();
 			if (nucleotides.length() > 0) {
 				// use the generated sequence
-				int unique = SBOLUtils.getUniqueNumber(null, "Sequence", "Sequence");
-				Sequence newSequence = SBOLFactory.createSequence("Sequence" + unique, nucleotides,
-						Sequence.IUPAC_DNA);
+				int unique = SBOLUtils.getUniqueNumber(null, currentComponent.getDisplayId() + "Sequence", "Sequence");
+				Sequence newSequence = SBOLFactory.createSequence(currentComponent.getDisplayId() + "Sequence" + unique,
+						nucleotides, Sequence.IUPAC_DNA);
 				currentComponent.addSequence(newSequence);
 			} else {
 				// use the old sequence provided it was there
