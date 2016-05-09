@@ -27,6 +27,8 @@
 	</classpathentry>
 	<classpathentry kind="lib" path="lib/libSBOLj-2.0.1-SNAPSHOT-sources.jar"/>
 	<classpathentry kind="lib" path="lib/libSBOLj-2.0.1-SNAPSHOT-javadoc.jar"/>
+	<classpathentry kind="lib" path="lib/sbolstack-frontend-1.0-SNAPSHOT.jar"/>
+	<classpathentry kind="lib" path="lib/sbolstack-frontend-1.0-SNAPSHOT-withDependencies.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

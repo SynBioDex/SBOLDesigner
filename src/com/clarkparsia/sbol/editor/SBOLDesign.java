@@ -1295,6 +1295,7 @@ public class SBOLDesign {
 
 	public void findPartForSelectedComponent() {
 		Part part = selectedElement.getPart();
+		// TODO get using SBOL Stack
 		ComponentDefinition newComponent = new SelectPartDialog(panel.getParent(), part).getInput();
 
 		if (newComponent != null) {
