@@ -68,17 +68,17 @@ public enum UserInfoTab implements PreferencesTab {
 		name = builder.addTextField("Full name", info == null ? null : info.getName());
 		email = builder.addTextField("Email", info == null || info.getEmail() == null ? null : info.getEmail()
 		                .getLocalName());
-		uri = builder.addTextField("URI [Optional]", info == null ? null : info.getURI().stringValue());
+		uri = builder.addTextField("URI [mandatory]", info == null ? null : info.getURI().stringValue());
 		JPanel formPanel = builder.build();
 						
 		JButton deleteInfo = new JButton("Delete user info");
 		deleteInfo.addActionListener(new ActionListener() {			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				SBOLEditorPreferences.INSTANCE.saveUserInfo(null);
+				PersonInfo userInfo = Infos.forPerson(uri.getText());
+				SBOLEditorPreferences.INSTANCE.saveUserInfo(userInfo);
 				name.setText(null);
 				email.setText(null);
-				uri.setText(null);
 			}
 		});
 		deleteInfo.setAlignmentX(Component.RIGHT_ALIGNMENT);
@@ -103,7 +103,7 @@ public enum UserInfoTab implements PreferencesTab {
 		boolean noEmail = Strings.isNullOrEmpty(email.getText());
 		if (!(noURI && noName && noEmail)) {
 			URI personURI = noURI ? Terms.unique("Person") : Terms.uri(uri.getText());
-			String personName = noName ? null : name.getText();
+			String personName = noName ? "" : name.getText();
 			URI personEmail = noEmail ? null : Terms.uri("mailto:" + email.getText());
 			PersonInfo info = Infos.forPerson(personURI, personName, personEmail);
 			SBOLEditorPreferences.INSTANCE.saveUserInfo(info);

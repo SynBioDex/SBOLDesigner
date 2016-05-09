@@ -95,6 +95,7 @@ import com.clarkparsia.sbol.editor.event.FocusInEvent;
 import com.clarkparsia.sbol.editor.event.FocusOutEvent;
 import com.clarkparsia.sbol.editor.event.PartVisibilityChangedEvent;
 import com.clarkparsia.sbol.editor.event.SelectionChangedEvent;
+import com.clarkparsia.versioning.PersonInfo;
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
@@ -356,7 +357,8 @@ public class SBOLDesign {
 			JOptionPane.showMessageDialog(panel, "No document to load.", "Load error", JOptionPane.ERROR_MESSAGE);
 			return;
 		}
-		doc.setDefaultURIprefix("http://fetchfrompreferences");
+		// TODO added get from preferences
+		doc.setDefaultURIprefix(SBOLEditorPreferences.INSTANCE.getUserInfo().getURI().toString());
 		SBOLFactory.setSBOLDocument(doc);
 
 		Iterator<ComponentDefinition> components = SBOLUtils.getRootComponentDefinitions(doc);
@@ -432,7 +434,15 @@ public class SBOLDesign {
 		}
 	}
 
+	/**
+	 * Removed version of confirmEditable
+	 */
 	private boolean confirmEditable() {
+		// TODO removed confirmEditable by renaming to confirmEditableRemoved
+		return true;
+	}
+
+	private boolean confirmEditableRemoved() {
 		if (readOnly.contains(ReadOnly.REGISTRY_COMPONENT)) {
 			if (!PartEditDialog.confirmEditing(panel, currentComponent)) {
 				return false;
@@ -1253,6 +1263,7 @@ public class SBOLDesign {
 			return;
 		}
 
+		// TODO editing displayId doesn't work due to losing references
 		ComponentDefinition comp = getCurrentComponent();
 
 		boolean edited = PartEditDialog.editPart(panel.getParent(), comp, false) != null;
@@ -1334,7 +1345,7 @@ public class SBOLDesign {
 		SBOLDocument doc = new SBOLDocument();
 		try {
 			doc = SBOLFactory.createRecursiveCopy(rootComp);
-			doc.setDefaultURIprefix("http://fetchfrompreferences");
+			doc.setDefaultURIprefix(SBOLEditorPreferences.INSTANCE.getUserInfo().getURI().toString());
 		} catch (Exception e) {
 			JOptionPane.showMessageDialog(panel, "Error creating the document");
 			e.printStackTrace();
@@ -1433,8 +1444,6 @@ public class SBOLDesign {
 	 * Updates all the seqAnns of the DesignElements in elements
 	 */
 	private void updateSequenceAnnotations() {
-		// TODO Resets seqAnn to generic one everytime.
-		// Should instead create range location if there are sequences
 		try {
 			int position = 1;
 			for (DesignElement e : elements) {
@@ -1535,7 +1544,7 @@ public class SBOLDesign {
 				ComponentDefinition parentCD) {
 			SequenceAnnotation result = null;
 			for (SequenceAnnotation sa : parentCD.getSequenceAnnotations()) {
-				if (sa.getComponentURI().equals(component.getIdentity())) {
+				if (sa.getComponentURI() != null && sa.getComponentURI().equals(component.getIdentity())) {
 					result = sa;
 					break;
 				}

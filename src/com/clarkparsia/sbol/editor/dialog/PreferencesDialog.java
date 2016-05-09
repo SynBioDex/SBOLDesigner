@@ -42,9 +42,8 @@ import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import com.clarkparsia.sbol.editor.dialog.PreferencesDialog.PreferencesTab;
 import com.google.common.base.Objects;
-
-
 
 /**
  * 
@@ -53,12 +52,13 @@ import com.google.common.base.Objects;
 public class PreferencesDialog extends JDialog implements ActionListener {
 	private static final String TITLE = "Preferences";
 
-	private static final PreferencesTab[] TABS = { UserInfoTab.INSTANCE, RegistryPreferencesTab.INSTANCE, SOMappingTab.INSTANCE, VersioningPreferencesTab.INSTANCE };
+	private static final PreferencesTab[] TABS = { UserInfoTab.INSTANCE, RegistryPreferencesTab.INSTANCE,
+			SOMappingTab.INSTANCE, VersioningPreferencesTab.INSTANCE };
 
 	public static void showPreferences(Component parent) {
 		showPreferences(parent, null);
 	}
-	
+
 	public static void showPreferences(Component parent, String selectTab) {
 		PreferencesDialog dialog = new PreferencesDialog(parent, selectTab);
 		dialog.setVisible(true);
@@ -70,12 +70,12 @@ public class PreferencesDialog extends JDialog implements ActionListener {
 		final JButton closeButton = new JButton("Close");
 		closeButton.addActionListener(this);
 		closeButton.registerKeyboardAction(this, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0),
-		                JComponent.WHEN_IN_FOCUSED_WINDOW);
+				JComponent.WHEN_IN_FOCUSED_WINDOW);
 		getRootPane().setDefaultButton(closeButton);
 
 		// Create the panel that contains the "cards".
 		final JPanel cards = new JPanel(new CardLayout());
-		DefaultListModel listModel = new DefaultListModel();
+		DefaultListModel<PreferencesTab> listModel = new DefaultListModel<PreferencesTab>();
 		int selectedIndex = 0;
 		for (PreferencesTab tab : TABS) {
 			cards.add(new JScrollPane(tab.getComponent()), tab.getTitle());
@@ -85,15 +85,16 @@ public class PreferencesDialog extends JDialog implements ActionListener {
 			listModel.addElement(tab);
 		}
 
-		final JList list = new JList(listModel);
+		final JList<PreferencesTab> list = new JList<PreferencesTab>(listModel);
 		list.setFocusable(false);
 		list.setPreferredSize(new Dimension(100, 100));
 		list.setCellRenderer(new DefaultListCellRenderer() {
-			public Component getListCellRendererComponent(JList list, // the list
-			                Object value, // value to display
-			                int index, // cell index
-			                boolean isSelected, // is the cell selected
-			                boolean cellHasFocus) // does the cell have focus
+			public Component getListCellRendererComponent(JList<?> list, // the
+																			// list
+					Object value, // value to display
+					int index, // cell index
+					boolean isSelected, // is the cell selected
+					boolean cellHasFocus) // does the cell have focus
 			{
 				super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
 				PreferencesTab tab = (PreferencesTab) value;
@@ -115,7 +116,7 @@ public class PreferencesDialog extends JDialog implements ActionListener {
 			}
 		});
 		list.setSelectedIndex(selectedIndex);
-		
+
 		JPanel buttonPane = new JPanel();
 		buttonPane.setLayout(new BoxLayout(buttonPane, BoxLayout.LINE_AXIS));
 		buttonPane.setBorder(BorderFactory.createEmptyBorder(0, 10, 10, 10));
@@ -141,7 +142,7 @@ public class PreferencesDialog extends JDialog implements ActionListener {
 		if (restart) {
 			JOptionPane.showMessageDialog(this, "Your changes will take effect next time the program is started");
 		}
-		
+
 		setVisible(false);
 	}
 
@@ -155,7 +156,7 @@ public class PreferencesDialog extends JDialog implements ActionListener {
 		Component getComponent();
 
 		void save();
-		
+
 		boolean requiresRestart();
 	}
 }

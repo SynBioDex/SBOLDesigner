@@ -64,6 +64,8 @@ import com.clarkparsia.sbol.editor.io.ReadOnlyDocumentIO;
 import com.clarkparsia.sbol.editor.sparql.RDFInput;
 import com.clarkparsia.sbol.editor.sparql.SPARQLEndpoint;
 import com.clarkparsia.versioning.Branch;
+import com.clarkparsia.versioning.Infos;
+import com.clarkparsia.versioning.PersonInfo;
 import com.google.common.base.Strings;
 import com.google.common.base.Supplier;
 
@@ -382,18 +384,43 @@ public class SBOLDesigner extends JFrame {
 	}
 
 	private void newDesign() {
-		// editor.getDesign().load(SBOLFactory.createDocument());
 		SBOLDocument doc = new SBOLDocument();
-		doc.setDefaultURIprefix("http://fetchfrompreferences");
+		setURIprefix(doc);
 		SBOLFactory.setSBOLDocument(doc);
 		editor.getDesign().load(doc);
 		setCurrentFile(null);
 	}
 
+	/**
+	 * Saves the default URI prefix and sets it to the SBOL document.
+	 */
+	private void setURIprefix(SBOLDocument doc) {
+		// try to set the URI prefix
+		try {
+			getURIprefix();
+			doc.setDefaultURIprefix(SBOLEditorPreferences.INSTANCE.getUserInfo().getURI().toString());
+		} catch (IllegalArgumentException e) {
+			setURIprefix(doc);
+		}
+	}
+
+	/**
+	 * Brings up a dialog asking for a URI, and saves the URI in
+	 * SBOLEditorPreferences.
+	 */
+	private void getURIprefix() {
+		String uri;
+		do {
+			uri = JOptionPane.showInputDialog("Please enter a valid URI");
+		} while (Strings.isNullOrEmpty(uri));
+		PersonInfo userInfo = Infos.forPerson(uri);
+		SBOLEditorPreferences.INSTANCE.saveUserInfo(userInfo);
+	}
+
 	private void openDesign(DocumentIO documentIO) {
 		try {
 			SBOLDocument doc = documentIO.read();
-			doc.setDefaultURIprefix("http://fetchfrompreferences");
+			setURIprefix(doc);
 			editor.getDesign().load(doc);
 			setCurrentFile(documentIO);
 		} catch (Throwable ex) {
