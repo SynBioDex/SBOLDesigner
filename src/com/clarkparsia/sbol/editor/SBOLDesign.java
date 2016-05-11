@@ -88,6 +88,7 @@ import com.adamtaft.eb.EventBus;
 import com.clarkparsia.sbol.CharSequences;
 import com.clarkparsia.sbol.SBOLUtils;
 import com.clarkparsia.sbol.editor.dialog.PartEditDialog;
+import com.clarkparsia.sbol.editor.dialog.SBOLStackDialog;
 import com.clarkparsia.sbol.editor.dialog.SelectPartDialog;
 import com.clarkparsia.sbol.editor.event.DesignChangedEvent;
 import com.clarkparsia.sbol.editor.event.DesignLoadedEvent;
@@ -1295,8 +1296,8 @@ public class SBOLDesign {
 
 	public void findPartForSelectedComponent() {
 		Part part = selectedElement.getPart();
-		// TODO get using SBOL Stack
-		ComponentDefinition newComponent = new SelectPartDialog(panel.getParent(), part).getInput();
+		//ComponentDefinition newComponent = new SelectPartDialog(panel.getParent(), part).getInput();
+		ComponentDefinition newComponent = new SBOLStackDialog(panel.getParent(), part).getSelection();
 
 		if (newComponent != null) {
 			if (!confirmEditable()) {
