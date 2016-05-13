@@ -204,11 +204,11 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 
 		try {
 			if (e.getSource().equals(saveButton)) {
-				if (SBOLUtils.isRegistryComponent(comp)) {
-					if (!confirmEditing(getParent(), comp)) {
-						return;
-					}
-				}
+				// if (SBOLUtils.isRegistryComponent(comp)) {
+				// if (!confirmEditing(getParent(), comp)) {
+				// return;
+				// }
+				// }
 
 				// TODO remove the ComponentDefinition and it's sequences from
 				// SBOLFactory if renaming the DisplayId
@@ -270,6 +270,8 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 			exceptionThrown = false;
 		}
 	}
+
+	private boolean exceptionThrown;
 
 	@Override
 	public void removeUpdate(DocumentEvent paramDocumentEvent) {
