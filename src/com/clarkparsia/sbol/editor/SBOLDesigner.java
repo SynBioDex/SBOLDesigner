@@ -83,7 +83,7 @@ public class SBOLDesigner extends JFrame {
 	private final SBOLEditorAction NEW = new SBOLEditorAction("New", "Create a new design", "new.gif") {
 		@Override
 		protected void perform() {
-			newDesign();
+			newDesign(false);
 		}
 	}.precondition(CONFIRM_SAVE);
 
@@ -314,7 +314,7 @@ public class SBOLDesigner extends JFrame {
 
 		editor.getEventBus().subscribe(this);
 
-		newDesign();
+		newDesign(true);
 	}
 
 	private void initGUI() {
@@ -383,9 +383,15 @@ public class SBOLDesigner extends JFrame {
 		return popup;
 	}
 
-	private void newDesign() {
+	/**
+	 * Creates a new design to show on the canvas. Asks the user for a
+	 * defaultURIprefix if askForURIPrefix is true.
+	 */
+	private void newDesign(boolean askForURIPrefix) {
 		SBOLDocument doc = new SBOLDocument();
-		setURIprefix(doc);
+		if (askForURIPrefix) {
+			setURIprefix(doc);
+		}
 		SBOLFactory.setSBOLDocument(doc);
 		editor.getDesign().load(doc);
 		setCurrentFile(null);
@@ -409,18 +415,22 @@ public class SBOLDesigner extends JFrame {
 	 * SBOLEditorPreferences.
 	 */
 	private void getURIprefix() {
+		PersonInfo oldUserInfo = SBOLEditorPreferences.INSTANCE.getUserInfo();
+
 		String uri;
 		do {
-			uri = JOptionPane.showInputDialog("Please enter a valid URI");
+			// TODO pressing cancel or 'x' should quit SBOLDesigner
+			uri = JOptionPane.showInputDialog("Please enter a valid URI", oldUserInfo.getURI());
 		} while (Strings.isNullOrEmpty(uri));
-		PersonInfo userInfo = Infos.forPerson(uri);
+
+		PersonInfo userInfo = Infos.forPerson(uri, oldUserInfo.getName(), oldUserInfo.getEmail().toString());
 		SBOLEditorPreferences.INSTANCE.saveUserInfo(userInfo);
 	}
 
 	private void openDesign(DocumentIO documentIO) {
 		try {
 			SBOLDocument doc = documentIO.read();
-			setURIprefix(doc);
+			doc.setDefaultURIprefix(SBOLEditorPreferences.INSTANCE.getUserInfo().getURI().toString());
 			editor.getDesign().load(doc);
 			setCurrentFile(documentIO);
 		} catch (Throwable ex) {

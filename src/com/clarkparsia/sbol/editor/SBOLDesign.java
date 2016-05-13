@@ -358,7 +358,6 @@ public class SBOLDesign {
 			JOptionPane.showMessageDialog(panel, "No document to load.", "Load error", JOptionPane.ERROR_MESSAGE);
 			return;
 		}
-		// TODO added get from preferences
 		doc.setDefaultURIprefix(SBOLEditorPreferences.INSTANCE.getUserInfo().getURI().toString());
 		SBOLFactory.setSBOLDocument(doc);
 
@@ -1296,7 +1295,8 @@ public class SBOLDesign {
 
 	public void findPartForSelectedComponent() {
 		Part part = selectedElement.getPart();
-		//ComponentDefinition newComponent = new SelectPartDialog(panel.getParent(), part).getInput();
+		// ComponentDefinition newComponent = new
+		// SelectPartDialog(panel.getParent(), part).getInput();
 		ComponentDefinition newComponent = new SBOLStackDialog(panel.getParent(), part).getSelection();
 
 		if (newComponent != null) {
@@ -1366,14 +1366,30 @@ public class SBOLDesign {
 			updateSequenceAnnotations();
 
 			Sequence oldSeq = currentComponent.getSequenceByEncoding(Sequence.IUPAC_DNA);
+			String oldElements = oldSeq == null ? "" : oldSeq.getElements();
 			// remove all current Sequences
 			for (Sequence s : currentComponent.getSequences()) {
 				currentComponent.removeSequence(s.getIdentity());
 				SBOLFactory.removeSequence(s);
 			}
 			String nucleotides = currentComponent.getImpliedNucleicAcidSequence();
+
 			if (nucleotides.length() > 0) {
-				// use the generated sequence
+				if (nucleotides.length() < oldElements.length()) {
+					// report to the user if the updated sequence is shorter
+					int option = JOptionPane.showConfirmDialog(panel,
+							"The implied sequence is shorter than the original sequence.  Would you like to overwrite? (Potential loss of information)",
+							"Confirm", JOptionPane.YES_NO_OPTION);
+					if (option == JOptionPane.NO_OPTION) {
+						// use the old sequence provided it was there
+						if (oldSeq != null) {
+							SBOLFactory.createSequence(oldSeq.getDisplayId(), oldSeq.getElements(), Sequence.IUPAC_DNA);
+							currentComponent.addSequence(oldSeq);
+						}
+						return;
+					}
+				}
+				// use the implied sequence
 				int unique = SBOLUtils.getUniqueNumber(null, currentComponent.getDisplayId() + "Sequence", "Sequence");
 				Sequence newSequence = SBOLFactory.createSequence(currentComponent.getDisplayId() + "Sequence" + unique,
 						nucleotides, Sequence.IUPAC_DNA);
@@ -1381,6 +1397,7 @@ public class SBOLDesign {
 			} else {
 				// use the old sequence provided it was there
 				if (oldSeq != null) {
+					SBOLFactory.createSequence(oldSeq.getDisplayId(), oldSeq.getElements(), Sequence.IUPAC_DNA);
 					currentComponent.addSequence(oldSeq);
 				}
 			}

@@ -53,6 +53,9 @@ public enum SBOLEditorPreferences {
 				prefs.put("name", userInfo.getName());
 				if (userInfo.getEmail() != null) {
 					prefs.put("email", userInfo.getEmail().toString());
+				} else {
+					// TODO is this OK?
+					prefs.put("email", "");
 				}
 			}
 	
