@@ -196,6 +196,7 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 	}
 
 	public void actionPerformed(ActionEvent e) {
+		boolean exceptionThrown = false;
 		if (e.getSource().equals(roleSelection)) {
 			saveButton.setEnabled(true);
 			return;
@@ -257,11 +258,17 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 				// pressed
 				comp = null;
 			}
-		} catch (SBOLValidationException exception) {
-			JOptionPane.showMessageDialog(getParent(), "What you have entered is invalid");
-			exception.printStackTrace();
+		} catch (SBOLValidationException e1) {
+			JOptionPane.showMessageDialog(getParent(), "What you have entered is invalid. " + e1.getMessage());
+			e1.printStackTrace();
+			exceptionThrown = true;
 		}
-		setVisible(false);
+
+		if (!exceptionThrown) {
+			setVisible(false);
+		} else {
+			exceptionThrown = false;
+		}
 	}
 
 	@Override
