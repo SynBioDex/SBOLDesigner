@@ -28,12 +28,10 @@ public enum SBOLEditorPreferences {
 	public PersonInfo getUserInfo() {
 		if (userInfo == null) {
 			Preferences prefs = Preferences.userNodeForPackage(SBOLEditorPreferences.class).node("user");			
-			String name = prefs.get("name", null);
-			String email = prefs.get("email", null);
-			String uri = prefs.get("uri", null);
-			if (uri != null) {
-				userInfo = Infos.forPerson(uri, name, email);
-			}
+			String name = prefs.get("name", "");
+			String email = prefs.get("email", "");
+			String uri = prefs.get("uri", "http://www.dummy.org");
+			userInfo = Infos.forPerson(uri, name, email);
 		}
 		
 		return userInfo;
