@@ -25,6 +25,7 @@ import javax.swing.JOptionPane;
 import org.openrdf.rio.RDFFormat;
 import org.openrdf.rio.helpers.StatementCollector;
 import org.sbolstandard.core2.ComponentDefinition;
+import org.sbolstandard.core2.SBOLConversionException;
 import org.sbolstandard.core2.SBOLDocument;
 import org.sbolstandard.core2.SBOLValidationException;
 import org.sbolstandard.core2.SBOLWriter;
@@ -124,7 +125,7 @@ public class RVTDocumentIO implements DocumentIO {
     }
 
 	@Override
-    public void write(SBOLDocument doc) throws SBOLValidationException, IOException {
+    public void write(SBOLDocument doc) throws SBOLValidationException, SBOLConversionException {
 		setCredentials();
 		
 		//ComponentDefinition comp = (ComponentDefinition) doc.getContents().iterator().next();
@@ -133,15 +134,10 @@ public class RVTDocumentIO implements DocumentIO {
 		doc.createCopy(comp, java.net.URI.create(branch.getRepository().getURI().stringValue()).toString(), comp.getDisplayId(), comp.getVersion());
 		
 		String msg = JOptionPane.showInputDialog("Enter commit message");
-	    try {
-			OutputStream bytes = new ByteArrayOutputStream();
-			SBOLWriter.write(doc, bytes);
-			// TODO Typecasting without information
-			branch.commit(RDFInput.forBytes(((ByteArrayOutputStream)bytes).toByteArray()), info(msg));
-        }	   
-		catch (Exception e) {
-			throw new IOException(e);
-		}	    
+		OutputStream bytes = new ByteArrayOutputStream();
+		SBOLWriter.write(doc, bytes);
+		// TODO Typecasting without information
+		branch.commit(RDFInput.forBytes(((ByteArrayOutputStream)bytes).toByteArray()), info(msg));
     }
 
 	@Override

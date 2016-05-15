@@ -15,12 +15,14 @@
 
 package com.clarkparsia.sbol.editor.io;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import javax.xml.stream.FactoryConfigurationError;
 import javax.xml.stream.XMLStreamException;
 
 import org.openrdf.query.QueryEvaluationException;
+import org.sbolstandard.core2.SBOLConversionException;
 import org.sbolstandard.core2.SBOLDocument;
 import org.sbolstandard.core2.SBOLValidationException;
 
@@ -65,7 +67,7 @@ public class SPARQLDocumentIO implements DocumentIO {
     }
 
 	@Override
-    public void write(SBOLDocument doc) throws SBOLValidationException, IOException, XMLStreamException, FactoryConfigurationError, CoreIoException {
+    public void write(SBOLDocument doc) throws SBOLValidationException, FileNotFoundException, SBOLConversionException {
 	    //writer.write(doc);
 		documentIO.write(doc);	    
     }

@@ -15,11 +15,13 @@
 
 package com.clarkparsia.sbol.editor.io;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import javax.xml.stream.FactoryConfigurationError;
 import javax.xml.stream.XMLStreamException;
 
+import org.sbolstandard.core2.SBOLConversionException;
 import org.sbolstandard.core2.SBOLDocument;
 import org.sbolstandard.core2.SBOLValidationException;
 
@@ -30,7 +32,7 @@ import uk.ac.ncl.intbio.core.io.CoreIoException;
  * @author Evren Sirin
  */
 public interface DocumentIO {
-	public SBOLDocument read() throws SBOLValidationException, IOException, CoreIoException, XMLStreamException, FactoryConfigurationError;
+	public SBOLDocument read() throws SBOLValidationException, IOException, SBOLConversionException;
 	
-	public void write(SBOLDocument document) throws SBOLValidationException, IOException, XMLStreamException, FactoryConfigurationError, CoreIoException;
+	public void write(SBOLDocument document) throws SBOLValidationException, FileNotFoundException, SBOLConversionException;
 }

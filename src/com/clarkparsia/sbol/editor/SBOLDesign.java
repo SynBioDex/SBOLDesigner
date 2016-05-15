@@ -1153,12 +1153,7 @@ public class SBOLDesign {
 			if (!newComponent.getRoles().contains(e.getPart().getRole())) {
 				Part newPart = Parts.forComponent(newComponent);
 				if (newPart == null) {
-					try {
-						newComponent.addRole(e.getPart().getRole());
-					} catch (SBOLValidationException e1) {
-						JOptionPane.showMessageDialog(panel, "There was an error replacing the component");
-						e1.printStackTrace();
-					}
+					newComponent.addRole(e.getPart().getRole());
 				} else {
 					e.setPart(newPart);
 					setupIcons(button, e);
@@ -1629,13 +1624,8 @@ public class SBOLDesign {
 
 		void flipOrientation() {
 			OrientationType Orientation = seqAnn.getLocations().iterator().next().getOrientation();
-			try {
-				seqAnn.getLocations().iterator().next().setOrientation(Orientation == OrientationType.REVERSECOMPLEMENT
-						? OrientationType.INLINE : OrientationType.REVERSECOMPLEMENT);
-			} catch (SBOLValidationException e) {
-				// TODO Generate error
-				e.printStackTrace();
-			}
+			seqAnn.getLocations().iterator().next().setOrientation(Orientation == OrientationType.REVERSECOMPLEMENT
+					? OrientationType.INLINE : OrientationType.REVERSECOMPLEMENT);
 		}
 
 		public String toString() {

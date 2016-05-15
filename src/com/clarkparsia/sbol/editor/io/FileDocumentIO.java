@@ -17,6 +17,7 @@ package com.clarkparsia.sbol.editor.io;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
@@ -57,15 +58,16 @@ public class FileDocumentIO implements DocumentIO {
 	}
 
 	@Override
-	public SBOLDocument read() throws SBOLValidationException, IOException, CoreIoException, XMLStreamException,
-			FactoryConfigurationError {
+	public SBOLDocument read() throws SBOLValidationException, FileNotFoundException, IOException, SBOLConversionException {
 		// return reader.read(new FileInputStream(file));
+		// TODO: FIXME to be the one in the preferences
+		SBOLReader.setURIPrefix("http://www.dummy.org");
+		SBOLReader.setCompliant(true);
 		return SBOLReader.read(new FileInputStream(file));
 	}
 
 	@Override
-	public void write(SBOLDocument doc) throws SBOLValidationException, IOException, XMLStreamException,
-			FactoryConfigurationError, CoreIoException {
+	public void write(SBOLDocument doc) throws SBOLValidationException, FileNotFoundException {
 		// writer.write(doc, new FileOutputStream(file));
 		try {
 			SBOLWriter.write(doc, new FileOutputStream(file));
