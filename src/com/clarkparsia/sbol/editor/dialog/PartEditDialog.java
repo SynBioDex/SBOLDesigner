@@ -210,13 +210,10 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 				// }
 				// }
 
-				// TODO remove the ComponentDefinition and it's sequences from
-				// SBOLFactory if renaming the DisplayId
-				// will reassign displayId unless comp is null
 				comp = SBOLFactory.getComponentDefinition(displayId.getText(), "");
 				if (comp == null) {
-					int unique = SBOLUtils.getUniqueNumber(null, displayId.getText(), "CD");
-					comp = SBOLFactory.createComponentDefinition(displayId.getText() + unique, ComponentDefinition.DNA);
+					String uniqueId = SBOLUtils.getUniqueDisplayId(null, displayId.getText(), "CD");
+					comp = SBOLFactory.createComponentDefinition(uniqueId, ComponentDefinition.DNA);
 				}
 				comp.setName(name.getText());
 				comp.setDescription(description.getText());
@@ -240,9 +237,8 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 				} else if (comp.getSequences().isEmpty()
 						|| !Objects.equal(comp.getSequences().iterator().next().getElements(), seq)) {
 					// Sequence dnaSeq = SBOLUtils.createSequence(seq);
-					int unique = SBOLUtils.getUniqueNumber(null, comp.getDisplayId() + "Sequence", "Sequence");
-					Sequence dnaSeq = SBOLFactory.createSequence(comp.getDisplayId() + "Sequence" + unique, seq,
-							Sequence.IUPAC_DNA);
+					String uniqueId = SBOLUtils.getUniqueDisplayId(null, comp.getDisplayId() + "Sequence", "Sequence");
+					Sequence dnaSeq = SBOLFactory.createSequence(uniqueId, seq, Sequence.IUPAC_DNA);
 					comp.addSequence(dnaSeq);
 				}
 

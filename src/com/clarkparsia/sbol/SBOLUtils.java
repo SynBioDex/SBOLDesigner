@@ -59,47 +59,67 @@ public class SBOLUtils {
 	 * Returns an int which guarantees a unique URI. Pass in the parent CD, the
 	 * displayId you want, and the type of object.
 	 */
-	public static int getUniqueNumber(ComponentDefinition comp, String displayId, String dataType) {
+	public static String getUniqueDisplayId(ComponentDefinition comp, String displayId, String dataType) {
 		// if can get using some displayId, then try the next number
 		switch (dataType) {
 		case "CD":
 			for (int i = 1; true; i++) {
+				if (i == 1 && SBOLFactory.getComponentDefinition(displayId, "") == null) {
+					return displayId;
+				}
 				if (SBOLFactory.getComponentDefinition(displayId + i, "") == null) {
-					return i;
+					return displayId + i;
 				}
 			}
 		case "SequenceAnnotation":
 			for (int i = 1; true; i++) {
+				if (i == 1 && comp.getSequenceAnnotation(displayId) == null) {
+					return displayId;
+				}
 				if (comp.getSequenceAnnotation(displayId + i) == null) {
-					return i;
+					return displayId + i;
 				}
 			}
 		case "SequenceConstraint":
 			for (int i = 1; true; i++) {
+				if (i == 1 && comp.getSequenceConstraint(displayId) == null) {
+					return displayId;
+				}
 				if (comp.getSequenceConstraint(displayId + i) == null) {
-					return i;
+					return displayId + i;
 				}
 			}
 		case "Component":
 			for (int i = 1; true; i++) {
+				if (i == 1 && comp.getComponent(displayId) == null) {
+					return displayId;
+				}
 				if (comp.getComponent(displayId + i) == null) {
-					return i;
+					return displayId + i;
 				}
 			}
 		case "Sequence":
 			for (int i = 1; true; i++) {
+				if (i == 1 && SBOLFactory.getSequence(displayId, "") == null) {
+					return displayId;
+				}
 				if (SBOLFactory.getSequence(displayId + i, "") == null) {
-					return i;
+					return displayId + i;
 				}
 			}
 		case "Range":
 			test: for (int i = 1; true; i++) {
 				for (SequenceAnnotation sa : comp.getSequenceAnnotations()) {
+					if (i == 1 && sa.getLocation(displayId) != null) {
+						continue test;
+					}
 					if (sa.getLocation(displayId + i) != null) {
 						continue test;
 					}
 				}
-				return i;
+				// This will always return Range, Range2, Range3... etc,
+				// skipping Range1
+				return i == 1 ? displayId : displayId + i;
 			}
 		default:
 			throw new IllegalArgumentException();
@@ -148,8 +168,8 @@ public class SBOLUtils {
 
 	private static Sequence createSequence(String nucleotides) {
 		try {
-			int unique = SBOLUtils.getUniqueNumber(null, "Sequence", "Sequence");
-			return SBOLFactory.createSequence("Sequence" + unique, nucleotides, Sequence.IUPAC_DNA);
+			String uniqueId = SBOLUtils.getUniqueDisplayId(null, "Sequence", "Sequence");
+			return SBOLFactory.createSequence(uniqueId, nucleotides, Sequence.IUPAC_DNA);
 		} catch (SBOLValidationException e) {
 			e.printStackTrace();
 			return null;

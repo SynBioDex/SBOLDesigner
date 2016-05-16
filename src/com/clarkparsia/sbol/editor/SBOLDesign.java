@@ -374,7 +374,8 @@ public class SBOLDesign {
 			}
 		} else {
 			try {
-				String rootDisplayId = JOptionPane.showInputDialog("What would you like your design to be called?", "RootComponent");
+				String rootDisplayId = JOptionPane.showInputDialog("What would you like your design to be called?",
+						"RootComponent");
 				newComponent = SBOLFactory.createComponentDefinition(rootDisplayId, ComponentDefinition.DNA);
 			} catch (SBOLValidationException e) {
 				JOptionPane.showMessageDialog(panel, "Error creating the root component");
@@ -1386,9 +1387,9 @@ public class SBOLDesign {
 					}
 				}
 				// use the implied sequence
-				int unique = SBOLUtils.getUniqueNumber(null, currentComponent.getDisplayId() + "Sequence", "Sequence");
-				Sequence newSequence = SBOLFactory.createSequence(currentComponent.getDisplayId() + "Sequence" + unique,
-						nucleotides, Sequence.IUPAC_DNA);
+				String uniqueId = SBOLUtils.getUniqueDisplayId(null, currentComponent.getDisplayId() + "Sequence",
+						"Sequence");
+				Sequence newSequence = SBOLFactory.createSequence(uniqueId, nucleotides, Sequence.IUPAC_DNA);
 				currentComponent.addSequence(newSequence);
 			} else {
 				// use the old sequence provided it was there
@@ -1472,12 +1473,12 @@ public class SBOLDesign {
 				// if a sequence exists, give seqAnn a Range
 				Sequence seq = e.getComponentDefinition().getSequenceByEncoding(Sequence.IUPAC_DNA);
 				if (seq != null) {
-					int unique = SBOLUtils.getUniqueNumber(currentComponent, e.seqAnn.getDisplayId() + "Range",
+					String uniqueId = SBOLUtils.getUniqueDisplayId(currentComponent, e.seqAnn.getDisplayId() + "Range",
 							"Range");
 					int start = position;
 					int end = seq.getElements().length() + start - 1;
 					position = end + 1;
-					e.seqAnn.addRange(e.seqAnn.getDisplayId() + "Range" + unique, start, end);
+					e.seqAnn.addRange(uniqueId, start, end);
 				}
 				// maintain the orientation
 				if (loc.getOrientation() == OrientationType.REVERSECOMPLEMENT) {
@@ -1508,9 +1509,10 @@ public class SBOLDesign {
 			org.sbolstandard.core2.Component subject = elements.get(i).component;
 			org.sbolstandard.core2.Component object = elements.get((i + 1)).component;
 
-			int unique = SBOLUtils.getUniqueNumber(currentComponent, "SequenceConstraint", "SequenceConstraint");
-			currentComponent.createSequenceConstraint("SequenceConstraint" + unique, RestrictionType.PRECEDES,
-					subject.getIdentity(), object.getIdentity());
+			String uniqueId = SBOLUtils.getUniqueDisplayId(currentComponent, "SequenceConstraint",
+					"SequenceConstraint");
+			currentComponent.createSequenceConstraint(uniqueId, RestrictionType.PRECEDES, subject.getIdentity(),
+					object.getIdentity());
 		}
 	}
 
@@ -1575,9 +1577,9 @@ public class SBOLDesign {
 			// seqAnn.setSubComponent(component);
 			// seqAnn.setOrientation(OrientationType.INLINE);
 			try {
-				int unique = SBOLUtils.getUniqueNumber(parentCD, childCD.getDisplayId() + "Component", "Component");
-				return parentCD.createComponent(childCD.getDisplayId() + "Component" + unique, AccessType.PUBLIC,
-						childCD.getDisplayId());
+				String uniqueId = SBOLUtils.getUniqueDisplayId(parentCD, childCD.getDisplayId() + "Component",
+						"Component");
+				return parentCD.createComponent(uniqueId, AccessType.PUBLIC, childCD.getDisplayId());
 			} catch (SBOLValidationException e) {
 				// TODO Generate error
 				e.printStackTrace();
@@ -1587,10 +1589,9 @@ public class SBOLDesign {
 
 		private static SequenceAnnotation createSeqAnn(ComponentDefinition parentCD) {
 			try {
-				int unique = SBOLUtils.getUniqueNumber(parentCD, parentCD.getDisplayId() + "SequenceAnnotation",
+				String uniqueId = SBOLUtils.getUniqueDisplayId(parentCD, parentCD.getDisplayId() + "SequenceAnnotation",
 						"SequenceAnnotation");
-				return parentCD.createSequenceAnnotation(parentCD.getDisplayId() + "SequenceAnnotation" + unique,
-						"genericLocation", OrientationType.INLINE);
+				return parentCD.createSequenceAnnotation(uniqueId, "GenericLocation", OrientationType.INLINE);
 			} catch (SBOLValidationException e) {
 				// TODO Generate error
 				e.printStackTrace();

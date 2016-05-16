@@ -128,9 +128,8 @@ public class Part {
 		}
 		// create ComponentDefinition using the following parameters
 		try {
-			int unique = SBOLUtils.getUniqueNumber(null, getDisplayId(), "CD");
-			ComponentDefinition comp = SBOLFactory.createComponentDefinition(getDisplayId() + unique,
-					ComponentDefinition.DNA);
+			String uniqueId = SBOLUtils.getUniqueDisplayId(null, getDisplayId(), "CD");
+			ComponentDefinition comp = SBOLFactory.createComponentDefinition(uniqueId, ComponentDefinition.DNA);
 			comp.setRoles(setRoles);
 			return comp;
 		} catch (SBOLValidationException e) {
