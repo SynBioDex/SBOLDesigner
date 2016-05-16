@@ -374,7 +374,8 @@ public class SBOLDesign {
 			}
 		} else {
 			try {
-				newComponent = SBOLFactory.createComponentDefinition("RootComponent", ComponentDefinition.DNA);
+				String rootDisplayId = JOptionPane.showInputDialog("What would you like your design to be called?", "RootComponent");
+				newComponent = SBOLFactory.createComponentDefinition(rootDisplayId, ComponentDefinition.DNA);
 			} catch (SBOLValidationException e) {
 				JOptionPane.showMessageDialog(panel, "Error creating the root component");
 				e.printStackTrace();

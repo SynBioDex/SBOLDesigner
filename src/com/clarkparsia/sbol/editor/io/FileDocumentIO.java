@@ -32,6 +32,8 @@ import org.sbolstandard.core2.SBOLReader;
 import org.sbolstandard.core2.SBOLValidationException;
 import org.sbolstandard.core2.SBOLWriter;
 
+import com.clarkparsia.sbol.editor.SBOLEditorPreferences;
+
 import uk.ac.ncl.intbio.core.io.CoreIoException;
 
 /**
@@ -58,10 +60,10 @@ public class FileDocumentIO implements DocumentIO {
 	}
 
 	@Override
-	public SBOLDocument read() throws SBOLValidationException, FileNotFoundException, IOException, SBOLConversionException {
+	public SBOLDocument read()
+			throws SBOLValidationException, FileNotFoundException, IOException, SBOLConversionException {
 		// return reader.read(new FileInputStream(file));
-		// TODO: FIXME to be the one in the preferences
-		SBOLReader.setURIPrefix("http://www.dummy.org");
+		SBOLReader.setURIPrefix(SBOLEditorPreferences.INSTANCE.getUserInfo().getURI().toString());
 		SBOLReader.setCompliant(true);
 		return SBOLReader.read(new FileInputStream(file));
 	}

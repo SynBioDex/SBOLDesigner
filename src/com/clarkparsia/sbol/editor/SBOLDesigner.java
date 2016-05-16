@@ -406,7 +406,8 @@ public class SBOLDesigner extends JFrame {
 			getURIprefix();
 			doc.setDefaultURIprefix(SBOLEditorPreferences.INSTANCE.getUserInfo().getURI().toString());
 		} catch (IllegalArgumentException e) {
-			e.printStackTrace();
+			JOptionPane.showMessageDialog(getParent(), e.getMessage());
+			setURIprefix(doc);
 		}
 	}
 
