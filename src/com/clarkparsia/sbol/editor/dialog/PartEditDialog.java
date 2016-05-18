@@ -25,7 +25,9 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.io.IOException;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import javax.swing.BorderFactory;
@@ -53,11 +55,13 @@ import org.sbolstandard.core2.SBOLConversionException;
 import org.sbolstandard.core2.SBOLFactory;
 import org.sbolstandard.core2.SBOLValidationException;
 import org.sbolstandard.core2.Sequence;
+import org.sbolstandard.core2.SequenceOntology;
 
 import com.clarkparsia.sbol.CharSequences;
 import com.clarkparsia.sbol.SBOLUtils;
 import com.clarkparsia.sbol.editor.Part;
 import com.clarkparsia.sbol.editor.Parts;
+import com.clarkparsia.sbol.terms.SO;
 import com.clarkparsia.swing.FormBuilder;
 import com.google.common.base.Objects;
 import com.google.common.collect.Iterables;
@@ -74,6 +78,7 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 	private ComponentDefinition comp;
 
 	private final JComboBox roleSelection = new JComboBox(Iterables.toArray(Parts.sorted(), Part.class));
+	private final JComboBox roleRefinement;
 	private final JButton saveButton;
 	private final JButton cancelButton;
 	private final JTextField displayId = new JTextField();
@@ -93,7 +98,7 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 			return dialog.comp;
 		} catch (Exception e) {
 			e.printStackTrace();
-			JOptionPane.showMessageDialog(parent, "Error editing component");
+			JOptionPane.showMessageDialog(parent, "Error editing component: " + e.getMessage());
 			return null;
 		}
 	}
@@ -130,8 +135,28 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 		roleSelection.setRenderer(new PartCellRenderer());
 		roleSelection.addActionListener(this);
 
+		// set up the JComboBox for role refinement
+		Part selectedPart = (Part) roleSelection.getSelectedItem();
+		SequenceOntology so = new SequenceOntology();
+		// TODO display the names, no the SO terms
+		Object[] refinements = so.getDescendantsOf(selectedPart.getRole()).toArray();
+		Object[] refine = new Object[refinements.length + 1];
+		refine[0] = "None";
+		for (int i = 1; i < refinements.length + 1; i++) {
+			refine[i] = so.getName((String) refinements[i - 1]);
+		}
+		roleRefinement = new JComboBox(refine);
+		List<URI> refinementRoles = getRefinementRoles(comp, selectedPart);
+		if (!refinementRoles.isEmpty()) {
+			roleRefinement.setSelectedItem(so.getName(refinementRoles.get(0)));
+		} else {
+			roleRefinement.setSelectedItem("None");
+		}
+		roleRefinement.addActionListener(this);
+
 		FormBuilder builder = new FormBuilder();
 		builder.add("Part role", roleSelection);
+		builder.add("Role refinement", roleRefinement);
 		builder.add("Display ID", displayId, comp.getDisplayId());
 		builder.add("Name", name, comp.getName());
 		builder.add("Description", description, comp.getDescription());
@@ -197,7 +222,7 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 
 	public void actionPerformed(ActionEvent e) {
 		boolean exceptionThrown = false;
-		if (e.getSource().equals(roleSelection)) {
+		if (e.getSource().equals(roleSelection) || e.getSource().equals(roleRefinement)) {
 			saveButton.setEnabled(true);
 			return;
 		}
@@ -226,6 +251,11 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 					Set<URI> setRoles = new HashSet<URI>();
 					for (URI role : part.getRoles()) {
 						setRoles.add(role);
+					}
+					// add the role from roleRefinement
+					if (!roleRefinement.getSelectedItem().equals("None")) {
+						SequenceOntology so = new SequenceOntology();
+						setRoles.add(so.getURIbyName((String) roleRefinement.getSelectedItem()));
 					}
 					comp.setRoles(setRoles);
 				}
@@ -298,5 +328,21 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 		SBOLUtils.rename(comp);
 
 		return true;
+	}
+
+	/**
+	 * Returns a list of all roles of a CD that are descendants of the part's
+	 * role.
+	 */
+	public List<URI> getRefinementRoles(ComponentDefinition comp, Part part) {
+		ArrayList<URI> list = new ArrayList<URI>();
+		SequenceOntology so = new SequenceOntology();
+		for (URI r : comp.getRoles()) {
+			// assumes the part role is always the first role in the list
+			if (so.isDescendantOf(r, part.getRole())) {
+				list.add(r);
+			}
+		}
+		return list;
 	}
 }

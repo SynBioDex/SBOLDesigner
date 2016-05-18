@@ -18,6 +18,7 @@ package com.clarkparsia.sbol.editor;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -26,6 +27,7 @@ import org.sbolstandard.core2.ComponentDefinition;
 import org.sbolstandard.core2.OrientationType;
 import org.sbolstandard.core2.SBOLFactory;
 import org.sbolstandard.core2.SBOLValidationException;
+import org.sbolstandard.core2.SequenceOntology;
 
 import com.clarkparsia.sbol.SBOLUtils;
 import com.google.common.collect.ImmutableList;

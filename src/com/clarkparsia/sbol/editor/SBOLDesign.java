@@ -378,7 +378,7 @@ public class SBOLDesign {
 						"RootComponent");
 				newComponent = SBOLFactory.createComponentDefinition(rootDisplayId, ComponentDefinition.DNA);
 			} catch (SBOLValidationException e) {
-				JOptionPane.showMessageDialog(panel, "Error creating the root component");
+				JOptionPane.showMessageDialog(panel, "Error creating the root component: " + e.getMessage());
 				e.printStackTrace();
 			}
 			// newComponent.setURI(SBOLUtils.createURI());
