@@ -50,54 +50,57 @@ public class SBOLEditor extends JPanel {
 	private final boolean editable;
 	private JFileChooser snapshotFileChooser;
 
-	public SBOLEditor( boolean isEditable) {
+	public SBOLEditor(boolean isEditable) {
 		super(new BorderLayout());
 
 		editable = isEditable;
-		eventBus = new BasicEventBus(); 
+		eventBus = new BasicEventBus();
 		design = new SBOLDesign(eventBus);
 		toolbar = new PartsPanel(this);
 		thumbnails = new ThumbnailsPanel(this);
-		
+
 		eventBus.subscribe(this);
 
-		JComponent designPanel = createTitledPanel("Design", design.getPanel(), VERTICAL_SCROLLBAR_AS_NEEDED, HORIZONTAL_SCROLLBAR_AS_NEEDED);
-		JComponent thumbnailsPanel = createTitledPanel("Thumbnails", thumbnails, VERTICAL_SCROLLBAR_AS_NEEDED, HORIZONTAL_SCROLLBAR_AS_NEEDED);		
-		JComponent partsPanel = createTitledPanel("Parts",  toolbar, VERTICAL_SCROLLBAR_NEVER, HORIZONTAL_SCROLLBAR_ALWAYS);
-		
+		JComponent designPanel = createTitledPanel("Design", design.getPanel(), VERTICAL_SCROLLBAR_AS_NEEDED,
+				HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		JComponent thumbnailsPanel = createTitledPanel("Thumbnails", thumbnails, VERTICAL_SCROLLBAR_AS_NEEDED,
+				HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		JComponent partsPanel = createTitledPanel("Parts", toolbar, VERTICAL_SCROLLBAR_NEVER,
+				HORIZONTAL_SCROLLBAR_ALWAYS);
+
 		top = new InvisibleSplitPane(JSplitPane.HORIZONTAL_SPLIT, designPanel, thumbnailsPanel);
 		top.setBackground(Color.WHITE);
 		top.setResizeWeight(1.0);
 		top.setBorder(null);
 		top.setDividerSize(5);
 		add(top, BorderLayout.CENTER);
-		
+
 		add(partsPanel, BorderLayout.SOUTH);
-		
+
 		thumbnailsPanel.setVisible(false);
 		top.setDividerVisible(false);
 	}
-	
+
 	public void setThumbnailsVisible(boolean isVisible) {
 		Component thumnailsPanel = top.getRightComponent();
 		if (thumnailsPanel.isVisible() != isVisible) {
 			thumnailsPanel.setVisible(isVisible);
 			top.setDividerVisible(isVisible);
-			
+
 			eventBus.publish(new ThumbnailVisibilityChangedEvent(isVisible));
 		}
 	}
-	
+
 	private JComponent createTitledPanel(String title, JComponent contents, int vsbPolicy, int hsbPolicy) {
 		contents.setBackground(Color.WHITE);
 		contents.setBorder(null);
 
-		if (vsbPolicy != VERTICAL_SCROLLBAR_NEVER || vsbPolicy != HORIZONTAL_SCROLLBAR_NEVER) {		
+		if (vsbPolicy != VERTICAL_SCROLLBAR_NEVER || vsbPolicy != HORIZONTAL_SCROLLBAR_NEVER) {
 			JScrollPane scroller = new JScrollPane(contents, vsbPolicy, hsbPolicy);
 			scroller.setBackground(Color.WHITE);
 			contents = scroller;
 		}
-		
+
 		contents.setBackground(Color.WHITE);
 		contents.setBorder(BorderFactory.createTitledBorder(title));
 
@@ -105,34 +108,38 @@ public class SBOLEditor extends JPanel {
 		outerPanel.add(contents);
 		return outerPanel;
 	}
-	
+
 	public EventBus getEventBus() {
 		return eventBus;
 	}
-	
+
 	public SBOLDesign getDesign() {
 		return design;
 	}
-	
+
 	public ThumbnailsPanel getThumbnails() {
 		return thumbnails;
 	}
-	
+
 	public boolean isEditable() {
 		return editable;
 	}
-	
+
 	public void takeSnapshot() {
-		String[] buttons = { "Copy to clipboard", "Save to file" };    
-		int returnValue = JOptionPane.showOptionDialog(this, 
-				"What do you want to do with the snapshot of the design?", "Take a snapshot",
-		        JOptionPane.INFORMATION_MESSAGE, JOptionPane.QUESTION_MESSAGE, null, buttons, buttons[1]);
-						
+		String[] buttons = { "Copy to clipboard", "Save to file" };
+		int returnValue = JOptionPane.showOptionDialog(this, "What do you want to do with the snapshot of the design?",
+				"Take a snapshot", JOptionPane.INFORMATION_MESSAGE, JOptionPane.QUESTION_MESSAGE, null, buttons,
+				buttons[1]);
+
 		BufferedImage image = design.getSnapshot();
-		if (returnValue == 0) {
+
+		switch (returnValue) {
+		case 0:
+			// Copy to clipboard
 			Images.copyToClipboard(image);
-		}
-		else {
+			break;
+		case 1:
+			// Save to file
 			JFileChooser fc = getSnapshotFileChooser();
 			int saveFile = fc.showSaveDialog(this);
 			if (saveFile == JFileChooser.APPROVE_OPTION) {
@@ -144,13 +151,18 @@ public class SBOLEditor extends JPanel {
 					if (!fileName.contains(".")) {
 						file = new File(file + formatExt);
 					}
-					
+
 					ImageIO.write(image, format, file);
-				}
-				catch (Exception ex) {
+				} catch (Exception ex) {
 					JOptionPane.showMessageDialog(this, "Error saving image: " + ex.getMessage());
 				}
 			}
+			break;
+		case JOptionPane.CLOSED_OPTION:
+			// Cancel
+			break;
+		default:
+			throw new IllegalArgumentException("Getting a snapshot failed");
 		}
 	}
 
@@ -159,12 +171,12 @@ public class SBOLEditor extends JPanel {
 			snapshotFileChooser = new JFileChooser(new File("."));
 			snapshotFileChooser.setMultiSelectionEnabled(false);
 			snapshotFileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-			String[] formats = new String[] { "gif", "jpg", "png" } ;
+			String[] formats = new String[] { "gif", "jpg", "png" };
 			for (String format : formats) {
-				snapshotFileChooser.setFileFilter(new FileNameExtensionFilter(format.toUpperCase(), format));   
-            }
+				snapshotFileChooser.setFileFilter(new FileNameExtensionFilter(format.toUpperCase(), format));
+			}
 		}
-		
+
 		return snapshotFileChooser;
 	}
 }
