@@ -314,7 +314,9 @@ public class SBOLDesigner extends JFrame {
 
 		editor.getEventBus().subscribe(this);
 
-		newDesign(true);
+		// Only ask for a URI prefix if the current one is
+		// "http://www.dummy.org"
+		newDesign(SBOLEditorPreferences.INSTANCE.getUserInfo().getURI().toString().equals("http://www.dummy.org"));
 	}
 
 	private void initGUI() {
