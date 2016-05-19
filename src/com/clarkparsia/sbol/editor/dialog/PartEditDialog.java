@@ -169,7 +169,7 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 
 		JPanel tablePane = new JPanel();
 		tablePane.setLayout(new BoxLayout(tablePane, BoxLayout.PAGE_AXIS));
-		JLabel label = new JLabel("DNASequence");
+		JLabel label = new JLabel("DNA sequence");
 		label.setLabelFor(sequenceField);
 		tablePane.add(label);
 		tablePane.add(Box.createRigidArea(new Dimension(0, 5)));

@@ -1149,7 +1149,7 @@ public class SBOLDesign {
 			try {
 				e.setComponentDefinition(newComponent);
 			} catch (SBOLValidationException e1) {
-				JOptionPane.showMessageDialog(panel, "There was an error replacing the component");
+				JOptionPane.showMessageDialog(panel, "There was an error replacing the component: " + e1.getMessage());
 				e1.printStackTrace();
 			}
 			if (!newComponent.getRoles().contains(e.getPart().getRole())) {
