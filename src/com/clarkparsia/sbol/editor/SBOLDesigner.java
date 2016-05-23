@@ -308,7 +308,8 @@ public class SBOLDesigner extends JFrame {
 		fc.setMultiSelectionEnabled(false);
 		fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
 		fc.setAcceptAllFileFilterUsed(true);
-		fc.setFileFilter(new FileNameExtensionFilter("SBOL file (*.xml, *.rdf)", "xml", "rdf"));
+		fc.setFileFilter(new FileNameExtensionFilter("SBOL file (*.xml, *.rdf), GenBank (*.gb), FASTA (*.fas)", "xml",
+				"rdf", "gb", "fas"));
 
 		initGUI();
 

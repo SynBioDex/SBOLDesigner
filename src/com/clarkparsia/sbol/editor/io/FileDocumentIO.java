@@ -21,6 +21,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+import javax.swing.JOptionPane;
 import javax.xml.stream.FactoryConfigurationError;
 import javax.xml.stream.XMLStreamException;
 
@@ -69,13 +70,31 @@ public class FileDocumentIO implements DocumentIO {
 	}
 
 	@Override
-	public void write(SBOLDocument doc) throws SBOLValidationException, FileNotFoundException {
+	public void write(SBOLDocument doc) throws SBOLValidationException, SBOLConversionException, IOException {
 		// writer.write(doc, new FileOutputStream(file));
-		try {
-			SBOLWriter.write(doc, new FileOutputStream(file));
-		} catch (SBOLConversionException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		String[] formats = { "SBOL 2.0", "SBOL 1.1", "GenBank", "FASTA" };
+		int format = JOptionPane.showOptionDialog(null, "Please select an output format", "Save as",
+				JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, formats, "SBOL 2.0");
+
+		switch (format) {
+		case JOptionPane.CLOSED_OPTION:
+			break;
+		case 0:
+			// SBOL 2.0
+			SBOLWriter.write(doc, new FileOutputStream(file), SBOLDocument.RDF);
+			break;
+		case 1:
+			// SBOL 1.1
+			SBOLWriter.write(doc, new FileOutputStream(file), SBOLDocument.RDFV1);
+			break;
+		case 2:
+			// GenBank
+			SBOLWriter.write(doc, new FileOutputStream(file), SBOLDocument.GENBANK);
+			break;
+		case 3:
+			// FASTA
+			SBOLWriter.write(doc, new FileOutputStream(file), SBOLDocument.FASTAformat);
+			break;
 		}
 	}
 

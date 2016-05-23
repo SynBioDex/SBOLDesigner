@@ -33,6 +33,7 @@ import uk.ac.ncl.intbio.core.io.CoreIoException;
  */
 public interface DocumentIO {
 	public SBOLDocument read() throws SBOLValidationException, IOException, SBOLConversionException;
-	
-	public void write(SBOLDocument document) throws SBOLValidationException, FileNotFoundException, SBOLConversionException;
+
+	public void write(SBOLDocument document)
+			throws SBOLValidationException, FileNotFoundException, SBOLConversionException, IOException;
 }
