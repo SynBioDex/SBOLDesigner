@@ -43,8 +43,10 @@ import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Deque;
 import java.util.EnumSet;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -352,42 +354,60 @@ public class SBOLDesign {
 		eventBus.publish(new FocusOutEvent(this, parentComponent));
 	}
 
-	public void load(SBOLDocument doc) {
+	/**
+	 * Loads the given SBOLDocument. Returns true if only a partial design is
+	 * loaded (due to multiple root CDs). Otherwise, returns false.
+	 */
+	public boolean load(SBOLDocument doc) {
+		boolean isPartialDesign = false;
 		if (doc == null) {
 			JOptionPane.showMessageDialog(panel, "No document to load.", "Load error", JOptionPane.ERROR_MESSAGE);
-			return;
+			return isPartialDesign;
 		}
 		doc.setDefaultURIprefix(SBOLEditorPreferences.INSTANCE.getUserInfo().getURI().toString());
 		SBOLFactory.setSBOLDocument(doc);
 
-		Iterator<ComponentDefinition> components = SBOLUtils.getRootComponentDefinitions(doc);
-		ComponentDefinition newComponent = null;
-		if (components.hasNext()) {
-			// Sets newComponent to the root CD in the document
-			newComponent = components.next();
-			if (components.hasNext()) {
-				// There is more than one root component
-				JOptionPane.showMessageDialog(panel, "Cannot load documents with multiple root ComponentDefinitions.",
-						"Load error", JOptionPane.ERROR_MESSAGE);
-				return;
-			}
-		} else {
+		ComponentDefinition[] rootCDs = doc.getRootComponentDefinitions().toArray(new ComponentDefinition[0]);
+		ComponentDefinition rootCD = null;
+
+		switch (rootCDs.length) {
+		case 0:
+			// There isn't a rootCD
 			try {
 				String rootDisplayId = JOptionPane.showInputDialog("What would you like your design to be called?",
 						"RootComponent");
-				newComponent = SBOLFactory.createComponentDefinition(rootDisplayId, ComponentDefinition.DNA);
+				rootCD = SBOLFactory.createComponentDefinition(rootDisplayId, ComponentDefinition.DNA);
 			} catch (SBOLValidationException e) {
 				JOptionPane.showMessageDialog(panel, "Error creating the root component: " + e.getMessage());
 				e.printStackTrace();
 			}
-			// newComponent.setURI(SBOLUtils.createURI());
-			// newComponent.setDisplayId("Unnamed");
+			break;
+		case 1:
+			// There is a single root CD
+			rootCD = rootCDs[0];
+			break;
+		default:
+			// There are multiple root CDs
+			ArrayList<String> displayIDs = new ArrayList<String>();
+			for (ComponentDefinition cd : rootCDs) {
+				displayIDs.add(cd.getDisplayId());
+			}
+
+			int selection = JOptionPane.showOptionDialog(panel,
+					"There are multiple root ComponentDefinitions.  Which would you like to load? (You will be editing a new partial design)",
+					"Select root ComponentDefinition", JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null,
+					displayIDs.toArray(), displayIDs.toArray()[0]);
+			rootCD = rootCDs[selection];
+
+			isPartialDesign = true;
+			break;
 		}
 
 		parentComponents.clear();
-		load(newComponent);
+		load(rootCD);
 
 		eventBus.publish(new DesignLoadedEvent(this));
+		return isPartialDesign;
 	}
 
 	private void load(ComponentDefinition newRoot) {

@@ -160,11 +160,13 @@ public class SBOLUtils {
 				Iterators.filter(doc.getRootComponentDefinitions().iterator(), ComponentDefinition.class), null);
 	}
 
-	public static Iterator<ComponentDefinition> getRootComponentDefinitions(SBOLDocument doc) {
-		// return Iterators.filter(doc.getContents().iterator(),
-		// ComponentDefinition.class);
-		return Iterators.filter(doc.getRootComponentDefinitions().iterator(), ComponentDefinition.class);
-	}
+	// public static Iterator<ComponentDefinition>
+	// getRootComponentDefinitions(SBOLDocument doc) {
+	// // return Iterators.filter(doc.getContents().iterator(),
+	// // ComponentDefinition.class);
+	// return Iterators.filter(doc.getRootComponentDefinitions().iterator(),
+	// ComponentDefinition.class);
+	// }
 
 	private static Sequence createSequence(String nucleotides) {
 		try {

@@ -46,7 +46,7 @@ public class FileDocumentIO implements DocumentIO {
 		RDFFormat.register(RDFFormat.RDFXML);
 	}
 
-	private final File file;
+	private File file;
 	// private final SBOLReader reader;
 	// private final SBOLWriter writer;
 
@@ -76,23 +76,37 @@ public class FileDocumentIO implements DocumentIO {
 		int format = JOptionPane.showOptionDialog(null, "Please select an output format", "Save as",
 				JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, formats, "SBOL 2.0");
 
+		String fileName = file.getName();
+
 		switch (format) {
 		case JOptionPane.CLOSED_OPTION:
 			break;
 		case 0:
 			// SBOL 2.0
+			if (!fileName.contains(".")) {
+				file = new File(file + ".rdf");
+			}
 			SBOLWriter.write(doc, new FileOutputStream(file), SBOLDocument.RDF);
 			break;
 		case 1:
 			// SBOL 1.1
+			if (!fileName.contains(".")) {
+				file = new File(file + ".rdf");
+			}
 			SBOLWriter.write(doc, new FileOutputStream(file), SBOLDocument.RDFV1);
 			break;
 		case 2:
 			// GenBank
+			if (!fileName.contains(".")) {
+				file = new File(file + ".gb");
+			}
 			SBOLWriter.write(doc, new FileOutputStream(file), SBOLDocument.GENBANK);
 			break;
 		case 3:
 			// FASTA
+			if (!fileName.contains(".")) {
+				file = new File(file + ".fasta");
+			}
 			SBOLWriter.write(doc, new FileOutputStream(file), SBOLDocument.FASTAformat);
 			break;
 		}

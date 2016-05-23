@@ -308,8 +308,8 @@ public class SBOLDesigner extends JFrame {
 		fc.setMultiSelectionEnabled(false);
 		fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
 		fc.setAcceptAllFileFilterUsed(true);
-		fc.setFileFilter(new FileNameExtensionFilter("SBOL file (*.xml, *.rdf), GenBank (*.gb), FASTA (*.fas)", "xml",
-				"rdf", "gb", "fas"));
+		fc.setFileFilter(new FileNameExtensionFilter("SBOL file (*.xml, *.rdf), GenBank (*.gb, *.gbk), FASTA (*.fasta)",
+				"xml", "rdf", "gb", "gbk", "fasta"));
 
 		initGUI();
 
@@ -435,8 +435,9 @@ public class SBOLDesigner extends JFrame {
 		try {
 			SBOLDocument doc = documentIO.read();
 			doc.setDefaultURIprefix(SBOLEditorPreferences.INSTANCE.getUserInfo().getURI().toString());
-			editor.getDesign().load(doc);
-			setCurrentFile(documentIO);
+			if (!editor.getDesign().load(doc)) {
+				setCurrentFile(documentIO);
+			}
 		} catch (Throwable ex) {
 			ex.printStackTrace();
 			JOptionPane.showMessageDialog(this, "Error loading file: " + ex.getMessage());
@@ -481,10 +482,10 @@ public class SBOLDesigner extends JFrame {
 
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
 			File file = fc.getSelectedFile();
-			String fileName = file.getName();
-			if (!fileName.contains(".")) {
-				file = new File(file + ".rdf");
-			}
+			// String fileName = file.getName();
+			// if (!fileName.contains(".")) {
+			// file = new File(file + ".rdf");
+			// }
 			setCurrentFile(new FileDocumentIO(file, false));
 			return true;
 		}
