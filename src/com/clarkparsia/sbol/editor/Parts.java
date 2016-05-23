@@ -110,8 +110,21 @@ public class Parts {
 		return SORTED_PARTS;
 	}
 
+	/**
+	 * Returns a part for the given role.
+	 */
 	public static Part forRole(URI role) {
-		return PARTS.get(role);
+		if (PARTS.get(role) != null) {
+			return PARTS.get(role);
+		}
+
+		SequenceOntology so = new SequenceOntology();
+		for (Part part : PARTS.values()) {
+			if (so.isDescendantOf(role, part.getRole())) {
+				return part;
+			}
+		}
+		return GENERIC;
 	}
 
 	public static Part forComponent(ComponentDefinition comp) {

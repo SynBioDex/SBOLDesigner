@@ -138,7 +138,6 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 		// set up the JComboBox for role refinement
 		Part selectedPart = (Part) roleSelection.getSelectedItem();
 		SequenceOntology so = new SequenceOntology();
-		// TODO display the names, no the SO terms
 		Object[] refinements = so.getDescendantsOf(selectedPart.getRole()).toArray();
 		Object[] refine = new Object[refinements.length + 1];
 		refine[0] = "None";
@@ -252,10 +251,16 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 					for (URI role : part.getRoles()) {
 						setRoles.add(role);
 					}
-					// add the role from roleRefinement
+					// use the role from roleRefinement if not "None"
 					if (!roleRefinement.getSelectedItem().equals("None")) {
 						SequenceOntology so = new SequenceOntology();
-						setRoles.add(so.getURIbyName((String) roleRefinement.getSelectedItem()));
+						setRoles.clear();
+						URI roleURI = so.getURIbyName((String) roleRefinement.getSelectedItem());
+						if (!so.isDescendantOf(roleURI, part.getRole())) {
+							throw new IllegalArgumentException(roleRefinement.getSelectedItem()
+									+ " isn't applicable for " + roleSelection.getSelectedItem());
+						}
+						setRoles.add(roleURI);
 					}
 					comp.setRoles(setRoles);
 				}
@@ -284,7 +289,7 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 				// pressed
 				comp = null;
 			}
-		} catch (SBOLValidationException e1) {
+		} catch (Exception e1) {
 			JOptionPane.showMessageDialog(getParent(), "What you have entered is invalid. " + e1.getMessage());
 			e1.printStackTrace();
 			exceptionThrown = true;

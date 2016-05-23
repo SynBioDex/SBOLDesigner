@@ -147,7 +147,6 @@ public class SBOLDesign {
 		@Override
 		protected void perform() {
 			editSelectedComponent();
-
 		}
 	};
 	public final SBOLEditorAction DELETE = new SBOLEditorAction("Delete component", "Delete the selected component",
@@ -1000,7 +999,7 @@ public class SBOLDesign {
 			@Override
 			public void mouseClicked(MouseEvent event) {
 				if (event.getClickCount() == 2) {
-					focusIn();
+					editSelectedComponent();
 				}
 			}
 		});
