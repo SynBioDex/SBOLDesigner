@@ -1311,9 +1311,9 @@ public class SBOLDesign {
 
 	public void findPartForSelectedComponent() {
 		Part part = selectedElement.getPart();
+		ComponentDefinition newComponent = new SelectPartDialog(panel.getParent(), part).getInput();
 		// ComponentDefinition newComponent = new
-		// SelectPartDialog(panel.getParent(), part).getInput();
-		ComponentDefinition newComponent = new SBOLStackDialog(panel.getParent(), part).getSelection();
+		// SBOLStackDialog(panel.getParent(), part).getSelection();
 
 		if (newComponent != null) {
 			if (!confirmEditable()) {

@@ -23,6 +23,7 @@ import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
@@ -37,6 +38,7 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
+import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -46,13 +48,16 @@ import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.text.html.HTMLDocument.Iterator;
 import javax.xml.stream.FactoryConfigurationError;
 import javax.xml.stream.XMLStreamException;
 
 import org.sbolstandard.core2.ComponentDefinition;
 import org.sbolstandard.core2.SBOLConversionException;
+import org.sbolstandard.core2.SBOLDocument;
 import org.sbolstandard.core2.SBOLFactory;
+import org.sbolstandard.core2.SBOLReader;
 import org.sbolstandard.core2.SBOLValidationException;
 import org.sbolstandard.core2.Sequence;
 import org.sbolstandard.core2.SequenceOntology;
@@ -61,6 +66,7 @@ import com.clarkparsia.sbol.CharSequences;
 import com.clarkparsia.sbol.SBOLUtils;
 import com.clarkparsia.sbol.editor.Part;
 import com.clarkparsia.sbol.editor.Parts;
+import com.clarkparsia.sbol.editor.SBOLEditorPreferences;
 import com.clarkparsia.sbol.terms.SO;
 import com.clarkparsia.swing.FormBuilder;
 import com.google.common.base.Objects;
@@ -81,6 +87,7 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 	private final JComboBox roleRefinement;
 	private final JButton saveButton;
 	private final JButton cancelButton;
+	private final JButton importFASTA;
 	private final JTextField displayId = new JTextField();
 	private final JTextField name = new JTextField();
 	private final JTextField description = new JTextField();
@@ -131,6 +138,9 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 		saveButton.setEnabled(false);
 		getRootPane().setDefaultButton(saveButton);
 
+		importFASTA = new JButton("Import FASTA sequence");
+		importFASTA.addActionListener(this);
+
 		roleSelection.setSelectedItem(Parts.forComponent(comp));
 		roleSelection.setRenderer(new PartCellRenderer());
 		roleSelection.addActionListener(this);
@@ -153,13 +163,13 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 		}
 		roleRefinement.addActionListener(this);
 
+		// put the controlsPane together
 		FormBuilder builder = new FormBuilder();
 		builder.add("Part role", roleSelection);
 		builder.add("Role refinement", roleRefinement);
 		builder.add("Display ID", displayId, comp.getDisplayId());
 		builder.add("Name", name, comp.getName());
 		builder.add("Description", description, comp.getDescription());
-
 		JPanel controlsPane = builder.build();
 
 		JScrollPane tableScroller = new JScrollPane(sequenceField);
@@ -177,29 +187,17 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 
 		sequenceField.setLineWrap(true);
 		sequenceField.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
-		// if (comp.getDnaSequence() != null &&
-		// comp.getDnaSequence().getNucleotides() != null) {
-		// sequence.setText(comp.getDnaSequence().getNucleotides());
-		// }
-		// Check if set has sequences and that the sequences's nucleotides
-		// aren't null.
-		Set<Sequence> sequences = comp.getSequences();
-		if (sequences != null && !sequences.isEmpty()) {
-			java.util.Iterator<Sequence> iter = sequences.iterator();
-			while (iter.hasNext()) {
-				Sequence seq = iter.next();
-				if (seq.getElements() != null) {
-					sequenceField.setText(seq.getElements());
-				}
-			}
+		Sequence seq = comp.getSequenceByEncoding(Sequence.IUPAC_DNA);
+		if (seq != null && !seq.getElements().isEmpty()) {
+			sequenceField.setText(seq.getElements());
 		}
-		//
 
 		// Lay out the buttons from left to right.
 		JPanel buttonPane = new JPanel();
 		buttonPane.setLayout(new BoxLayout(buttonPane, BoxLayout.LINE_AXIS));
 		buttonPane.setBorder(BorderFactory.createEmptyBorder(0, 10, 10, 10));
 		buttonPane.add(Box.createHorizontalGlue());
+		buttonPane.add(importFASTA);
 		buttonPane.add(cancelButton);
 		buttonPane.add(saveButton);
 
@@ -215,18 +213,54 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 		sequenceField.getDocument().addDocumentListener(this);
 
 		pack();
+
 		setLocationRelativeTo(parent);
 		displayId.requestFocusInWindow();
 	}
 
 	public void actionPerformed(ActionEvent e) {
 		boolean exceptionThrown = false;
-		if (e.getSource().equals(roleSelection) || e.getSource().equals(roleRefinement)) {
-			saveButton.setEnabled(true);
-			return;
-		}
-
 		try {
+			if (e.getSource().equals(roleSelection) || e.getSource().equals(roleRefinement)) {
+				saveButton.setEnabled(true);
+				return;
+			}
+
+			if (e.getSource() == importFASTA) {
+				JFileChooser fc = new JFileChooser(new File("."));
+				fc.setMultiSelectionEnabled(false);
+				fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
+				fc.setAcceptAllFileFilterUsed(true);
+				fc.setFileFilter(new FileNameExtensionFilter("FASTA (*.fasta)", "fasta"));
+
+				int returnVal = fc.showOpenDialog(getParent());
+				if (returnVal == JFileChooser.APPROVE_OPTION) {
+					File file = fc.getSelectedFile();
+					SBOLDocument doc;
+					try {
+						SBOLReader.setURIPrefix(SBOLEditorPreferences.INSTANCE.getUserInfo().getURI().toString());
+						SBOLReader.setCompliant(true);
+						doc = SBOLReader.read(file);
+					} catch (Exception e1) {
+						JOptionPane.showMessageDialog(getParent(),
+								"This FASTA file is unable to be imported.  It must contain at least one sequence.");
+						e1.printStackTrace();
+						return;
+					}
+					Set<Sequence> seqSet = doc.getSequences();
+					String importedNucleotides = "";
+					if (seqSet.size() == 1) {
+						// only one Sequence
+						importedNucleotides = seqSet.iterator().next().getElements();
+					} else {
+						// multiple Sequences
+						importedNucleotides = sequenceSelector(seqSet);
+					}
+					sequenceField.setText(importedNucleotides);
+				}
+				return;
+			}
+
 			if (e.getSource().equals(saveButton)) {
 				// if (SBOLUtils.isRegistryComponent(comp)) {
 				// if (!confirmEditing(getParent(), comp)) {
@@ -302,7 +336,24 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 		}
 	}
 
-	private boolean exceptionThrown;
+	/**
+	 * Displays to the user all the sequences and returns the elements of the
+	 * sequence the user chooses. sequences should contain at leasts one
+	 * Sequence object.
+	 */
+	private String sequenceSelector(Set<Sequence> sequences) {
+		Object[] sList = sequences.toArray();
+
+		// create an Object[] of all the displayIds
+		Object[] sDisplayId = new Object[sList.length];
+		for (int i = 0; i < sList.length; i++) {
+			sDisplayId[i] = ((Sequence) sList[i]).getDisplayId();
+		}
+
+		int selection = JOptionPane.showOptionDialog(null, "Please select a sequence", "Sequence selector",
+				JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, sDisplayId, sDisplayId[0]);
+		return ((Sequence) sList[selection]).getElements();
+	}
 
 	@Override
 	public void removeUpdate(DocumentEvent paramDocumentEvent) {
