@@ -87,7 +87,8 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 	private final JComboBox roleRefinement;
 	private final JButton saveButton;
 	private final JButton cancelButton;
-	private final JButton importFASTA;
+	private final JButton importSequence;
+	private final JButton importCD;
 	private final JTextField displayId = new JTextField();
 	private final JTextField name = new JTextField();
 	private final JTextField description = new JTextField();
@@ -138,8 +139,10 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 		saveButton.setEnabled(false);
 		getRootPane().setDefaultButton(saveButton);
 
-		importFASTA = new JButton("Import FASTA sequence");
-		importFASTA.addActionListener(this);
+		importSequence = new JButton("Import sequence");
+		importSequence.addActionListener(this);
+		importCD = new JButton("Import part");
+		importCD.addActionListener(this);
 
 		roleSelection.setSelectedItem(Parts.forComponent(comp));
 		roleSelection.setRenderer(new PartCellRenderer());
@@ -197,7 +200,8 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 		buttonPane.setLayout(new BoxLayout(buttonPane, BoxLayout.LINE_AXIS));
 		buttonPane.setBorder(BorderFactory.createEmptyBorder(0, 10, 10, 10));
 		buttonPane.add(Box.createHorizontalGlue());
-		buttonPane.add(importFASTA);
+		buttonPane.add(importCD);
+		buttonPane.add(importSequence);
 		buttonPane.add(cancelButton);
 		buttonPane.add(saveButton);
 
@@ -219,105 +223,33 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 	}
 
 	public void actionPerformed(ActionEvent e) {
-		boolean exceptionThrown = false;
+		boolean keepVisible = false;
+		if (e.getSource().equals(roleSelection) || e.getSource().equals(roleRefinement)) {
+			saveButton.setEnabled(true);
+			return;
+		}
+
+		if (e.getSource() == importSequence) {
+			importSequenceHandler();
+			return;
+		}
+
+		if (e.getSource() == importCD) {
+			boolean isImported = false;
+			try {
+				isImported = importCDHandler();
+			} catch (SBOLValidationException e1) {
+				e1.printStackTrace();
+			}
+			if (isImported) {
+				setVisible(false);
+			}
+			return;
+		}
+
 		try {
-			if (e.getSource().equals(roleSelection) || e.getSource().equals(roleRefinement)) {
-				saveButton.setEnabled(true);
-				return;
-			}
-
-			if (e.getSource() == importFASTA) {
-				JFileChooser fc = new JFileChooser(new File("."));
-				fc.setMultiSelectionEnabled(false);
-				fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
-				fc.setAcceptAllFileFilterUsed(true);
-				fc.setFileFilter(new FileNameExtensionFilter("FASTA (*.fasta)", "fasta"));
-
-				int returnVal = fc.showOpenDialog(getParent());
-				if (returnVal == JFileChooser.APPROVE_OPTION) {
-					File file = fc.getSelectedFile();
-					SBOLDocument doc;
-					try {
-						SBOLReader.setURIPrefix(SBOLEditorPreferences.INSTANCE.getUserInfo().getURI().toString());
-						SBOLReader.setCompliant(true);
-						doc = SBOLReader.read(file);
-					} catch (Exception e1) {
-						JOptionPane.showMessageDialog(getParent(),
-								"This FASTA file is unable to be imported.  It must contain at least one sequence.");
-						e1.printStackTrace();
-						return;
-					}
-					Set<Sequence> seqSet = doc.getSequences();
-					String importedNucleotides = "";
-					if (seqSet.size() == 1) {
-						// only one Sequence
-						importedNucleotides = seqSet.iterator().next().getElements();
-					} else {
-						// multiple Sequences
-						importedNucleotides = sequenceSelector(seqSet);
-					}
-					sequenceField.setText(importedNucleotides);
-				}
-				return;
-			}
-
 			if (e.getSource().equals(saveButton)) {
-				// if (SBOLUtils.isRegistryComponent(comp)) {
-				// if (!confirmEditing(getParent(), comp)) {
-				// return;
-				// }
-				// }
-
-				comp = SBOLFactory.getComponentDefinition(displayId.getText(), "");
-				if (comp == null) {
-					String uniqueId = SBOLUtils.getUniqueDisplayId(null, displayId.getText(), "CD");
-					comp = SBOLFactory.createComponentDefinition(uniqueId, ComponentDefinition.DNA);
-				}
-				comp.setName(name.getText());
-				comp.setDescription(description.getText());
-				// comp.setDisplayId(displayId.getText());
-				// comp.getTypes().clear();
-
-				Part part = (Part) roleSelection.getSelectedItem();
-				if (part != null) {
-					// change parts list of roles to set of roles
-					Set<URI> setRoles = new HashSet<URI>();
-					for (URI role : part.getRoles()) {
-						setRoles.add(role);
-					}
-					// use the role from roleRefinement if not "None"
-					if (!roleRefinement.getSelectedItem().equals("None")) {
-						SequenceOntology so = new SequenceOntology();
-						setRoles.clear();
-						URI roleURI = so.getURIbyName((String) roleRefinement.getSelectedItem());
-						if (!so.isDescendantOf(roleURI, part.getRole())) {
-							throw new IllegalArgumentException(roleRefinement.getSelectedItem()
-									+ " isn't applicable for " + roleSelection.getSelectedItem());
-						}
-						setRoles.add(roleURI);
-					}
-					comp.setRoles(setRoles);
-				}
-
-				String seq = sequenceField.getText();
-				if (seq == null || seq.isEmpty()) {
-					// comp.setDnaSequence(null);
-					comp.clearSequences();
-				} else if (comp.getSequences().isEmpty()
-						|| !Objects.equal(comp.getSequences().iterator().next().getElements(), seq)) {
-					// Sequence dnaSeq = SBOLUtils.createSequence(seq);
-					String uniqueId = SBOLUtils.getUniqueDisplayId(null, comp.getDisplayId() + "Sequence", "Sequence");
-					Sequence dnaSeq = SBOLFactory.createSequence(uniqueId, seq, Sequence.IUPAC_DNA);
-					comp.addSequence(dnaSeq);
-				}
-
-				// TODO
-				try {
-					SBOLFactory.write(System.out);
-				} catch (SBOLConversionException e1) {
-					e1.printStackTrace();
-				}
-
+				saveButtonHandler();
 			} else {
 				// Sets comp to null if things don't get edited/cancel is
 				// pressed
@@ -326,13 +258,134 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 		} catch (Exception e1) {
 			JOptionPane.showMessageDialog(getParent(), "What you have entered is invalid. " + e1.getMessage());
 			e1.printStackTrace();
-			exceptionThrown = true;
+			keepVisible = true;
 		}
 
-		if (!exceptionThrown) {
+		if (!keepVisible) {
 			setVisible(false);
 		} else {
-			exceptionThrown = false;
+			keepVisible = false;
+		}
+	}
+
+	/**
+	 * Handles importing of a CD and all its dependencies. Returns true if
+	 * something was imported. False otherwise.
+	 */
+	private boolean importCDHandler() throws SBOLValidationException {
+		SBOLDocument doc = importDoc();
+		if (doc != null) {
+			Object[] CDs = doc.getComponentDefinitions().toArray();
+
+			switch (CDs.length) {
+			case 0:
+				JOptionPane.showMessageDialog(getParent(), "There are no parts to import");
+				return false;
+			case 1:
+				comp = (ComponentDefinition) CDs[0];
+				SBOLFactory.createCopy(doc.createRecursiveCopy(comp));
+				return true;
+			default:
+				// create an Object[] of Strings from the displayIds of the CDs
+				// in CDs
+				Object[] cdDisplayIds = new Object[CDs.length];
+				for (int i = 0; i < CDs.length; i++) {
+					cdDisplayIds[i] = ((ComponentDefinition) CDs[i]).getDisplayId();
+				}
+
+				// TODO replace with something more scalable
+				int selection = JOptionPane.showOptionDialog(null, "Please select a part", "Part selector",
+						JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, cdDisplayIds, cdDisplayIds[0]);
+				if (selection == -1) {
+					return false;
+				} else {
+					this.comp = (ComponentDefinition) CDs[selection];
+					SBOLFactory.createCopy(doc.createRecursiveCopy(comp));
+					return true;
+				}
+			}
+		}
+		return false;
+
+	}
+
+	/**
+	 * Fills in a CD and Sequence based on this dialog's state.
+	 */
+	private void saveButtonHandler() throws SBOLValidationException {
+		// if (SBOLUtils.isRegistryComponent(comp)) {
+		// if (!confirmEditing(getParent(), comp)) {
+		// return;
+		// }
+		// }
+
+		comp = SBOLFactory.getComponentDefinition(displayId.getText(), "");
+		if (comp == null) {
+			String uniqueId = SBOLUtils.getUniqueDisplayId(null, displayId.getText(), "CD");
+			comp = SBOLFactory.createComponentDefinition(uniqueId, ComponentDefinition.DNA);
+		}
+		comp.setName(name.getText());
+		comp.setDescription(description.getText());
+		// comp.setDisplayId(displayId.getText());
+		// comp.getTypes().clear();
+
+		Part part = (Part) roleSelection.getSelectedItem();
+		if (part != null) {
+			// change parts list of roles to set of roles
+			Set<URI> setRoles = new HashSet<URI>();
+			for (URI role : part.getRoles()) {
+				setRoles.add(role);
+			}
+			// use the role from roleRefinement if not "None"
+			if (!roleRefinement.getSelectedItem().equals("None")) {
+				SequenceOntology so = new SequenceOntology();
+				setRoles.clear();
+				URI roleURI = so.getURIbyName((String) roleRefinement.getSelectedItem());
+				if (!so.isDescendantOf(roleURI, part.getRole())) {
+					throw new IllegalArgumentException(roleRefinement.getSelectedItem() + " isn't applicable for "
+							+ roleSelection.getSelectedItem());
+				}
+				setRoles.add(roleURI);
+			}
+			comp.setRoles(setRoles);
+		}
+
+		String seq = sequenceField.getText();
+		if (seq == null || seq.isEmpty()) {
+			// comp.setDnaSequence(null);
+			comp.clearSequences();
+		} else if (comp.getSequences().isEmpty()
+				|| !Objects.equal(comp.getSequences().iterator().next().getElements(), seq)) {
+			// Sequence dnaSeq = SBOLUtils.createSequence(seq);
+			String uniqueId = SBOLUtils.getUniqueDisplayId(null, comp.getDisplayId() + "Sequence", "Sequence");
+			Sequence dnaSeq = SBOLFactory.createSequence(uniqueId, seq, Sequence.IUPAC_DNA);
+			comp.addSequence(dnaSeq);
+		}
+
+		// TODO debugging
+		try {
+			SBOLFactory.write(System.out);
+		} catch (SBOLConversionException e1) {
+			e1.printStackTrace();
+		}
+	}
+
+	/**
+	 * Handles when the import sequence button is clicked.
+	 */
+	private void importSequenceHandler() {
+		SBOLDocument doc = importDoc();
+		if (doc != null) {
+			Set<Sequence> seqSet = doc.getSequences();
+			String importedNucleotides = "";
+			if (seqSet.size() == 1) {
+				// only one Sequence
+				importedNucleotides = seqSet.iterator().next().getElements();
+			} else {
+				// multiple Sequences
+				importedNucleotides = sequenceSelector(seqSet);
+			}
+			sequenceField.setText(importedNucleotides);
 		}
 	}
 
@@ -350,9 +403,41 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 			sDisplayId[i] = ((Sequence) sList[i]).getDisplayId();
 		}
 
+		// TODO replace with something more scalable
 		int selection = JOptionPane.showOptionDialog(null, "Please select a sequence", "Sequence selector",
 				JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, sDisplayId, sDisplayId[0]);
 		return ((Sequence) sList[selection]).getElements();
+	}
+
+	/**
+	 * Prompts the user to choose a file and reads it, returning the output
+	 * SBOLDocument. If the user cancels or the file in unable to be imported,
+	 * returns null.
+	 */
+	private SBOLDocument importDoc() {
+		JFileChooser fc = new JFileChooser(new File("."));
+		fc.setMultiSelectionEnabled(false);
+		fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
+		fc.setAcceptAllFileFilterUsed(true);
+		fc.setFileFilter(
+				new FileNameExtensionFilter("SBOL file (*.xml, *.rdf, *.sbol), GenBank (*.gb, *.gbk), FASTA (*.fasta)",
+						"xml", "rdf", "sbol", "gb", "gbk", "fasta"));
+
+		int returnVal = fc.showOpenDialog(getParent());
+		if (returnVal == JFileChooser.APPROVE_OPTION) {
+			File file = fc.getSelectedFile();
+			SBOLDocument doc = null;
+			try {
+				SBOLReader.setURIPrefix(SBOLEditorPreferences.INSTANCE.getUserInfo().getURI().toString());
+				SBOLReader.setCompliant(true);
+				doc = SBOLReader.read(file);
+			} catch (Exception e1) {
+				JOptionPane.showMessageDialog(getParent(), "This file is unable to be imported: " + e1.getMessage());
+				e1.printStackTrace();
+			}
+			return doc;
+		}
+		return null;
 	}
 
 	@Override

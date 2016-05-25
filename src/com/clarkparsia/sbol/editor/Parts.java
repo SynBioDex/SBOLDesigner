@@ -36,7 +36,6 @@ public class Parts {
 
 	private static final List<Part> PARTS_LIST = Lists.newArrayList();
 
-	// TODO switch to engineered region or engineered gene?
 	public static final Part GENERIC = createPart("Generic", "Gen", "generic.png", ImageType.SHORT_OVER_BASELINE,
 			SequenceOntology.ENGINEERED_REGION);
 	public static final Part PROMOTER = createPart("Promoter", "Pro", "promoter.png", ImageType.TALL_OVER_BASELINE,

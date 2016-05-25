@@ -136,12 +136,9 @@ public class SBOLUtils {
 
 	private static String getNucleotides(ComponentDefinition comp) {
 		// Sequence seq = comp.getSequence();
-		// TODO potentially losing information because only looking at the first
-		// sequence; loop through sequences and find the one with DNA encoding.
-		// Otherwise return null.
 		Sequence seq = null;
 		if (comp.getSequences().size() > 0) {
-			seq = comp.getSequences().iterator().next();
+			seq = comp.getSequenceByEncoding(Sequence.IUPAC_DNA);
 		}
 		return (seq == null) ? null : seq.getElements();
 	}

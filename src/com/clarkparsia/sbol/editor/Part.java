@@ -135,8 +135,6 @@ public class Part {
 			comp.setRoles(setRoles);
 			return comp;
 		} catch (SBOLValidationException e) {
-			// TODO Generate error: This part contains either invalid roles or
-			// displayId.
 			e.printStackTrace();
 			return null;
 		}

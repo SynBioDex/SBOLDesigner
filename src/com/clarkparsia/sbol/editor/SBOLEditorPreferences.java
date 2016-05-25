@@ -22,86 +22,83 @@ import com.clarkparsia.versioning.PersonInfo;
 
 public enum SBOLEditorPreferences {
 	INSTANCE;
-	
+
 	private PersonInfo userInfo;
-	
+
 	public PersonInfo getUserInfo() {
 		if (userInfo == null) {
-			Preferences prefs = Preferences.userNodeForPackage(SBOLEditorPreferences.class).node("user");			
+			Preferences prefs = Preferences.userNodeForPackage(SBOLEditorPreferences.class).node("user");
 			String name = prefs.get("name", "");
 			String email = prefs.get("email", "");
 			String uri = prefs.get("uri", "http://www.dummy.org");
 			userInfo = Infos.forPerson(uri, name, email);
 		}
-		
+
 		return userInfo;
-	}	
-	
+	}
+
 	public void saveUserInfo(PersonInfo userInfo) {
 		this.userInfo = userInfo;
-		
+
 		Preferences prefs = Preferences.userNodeForPackage(SBOLEditorPreferences.class).node("user");
-		
-		try{ 
+
+		try {
 			if (userInfo == null) {
 				prefs.removeNode();
-			}
-			else {
+			} else {
 				prefs.put("uri", userInfo.getURI().toString());
 				prefs.put("name", userInfo.getName());
 				if (userInfo.getEmail() != null) {
 					prefs.put("email", userInfo.getEmail().toString());
 				} else {
-					// TODO is this OK?
 					prefs.put("email", "");
 				}
 			}
-	
-	        prefs.flush();
-	    }
-	    catch (Exception e) {
-	    	e.printStackTrace();
-	    }
+
+			prefs.flush();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
-	
+
 	public boolean getValidate() {
 		return false;
 	}
-	
+
 	private Boolean enableBranching = null;
 	private Boolean enableVersioning = null;
-	
+
 	public boolean isBranchingEnabled() {
 		if (enableBranching == null) {
-			Preferences prefs = Preferences.userNodeForPackage(SBOLEditorPreferences.class).node("versioning");			
+			Preferences prefs = Preferences.userNodeForPackage(SBOLEditorPreferences.class).node("versioning");
 			enableBranching = prefs.getBoolean("enableBranching", false);
 		}
-		
+
 		return enableBranching;
 	}
-	
+
 	public void setBranchingEnabled(boolean enableBranching) {
 		// requires restart
 		// this.enableBranching = enableBranching;
-		
-		Preferences prefs = Preferences.userNodeForPackage(SBOLEditorPreferences.class).node("versioning");			
+
+		Preferences prefs = Preferences.userNodeForPackage(SBOLEditorPreferences.class).node("versioning");
 		prefs.putBoolean("enableBranching", enableBranching);
 	}
-	
+
 	public boolean isVersioningEnabled() {
 		if (enableVersioning == null) {
-			Preferences prefs = Preferences.userNodeForPackage(SBOLEditorPreferences.class).node("versioning");			
+			Preferences prefs = Preferences.userNodeForPackage(SBOLEditorPreferences.class).node("versioning");
 			enableVersioning = prefs.getBoolean("enable", true);
 		}
-		
+
 		return enableVersioning;
 	}
-	
+
 	public void setVersioningEnabled(boolean enableVersioning) {
 		// requires restart
 		// this.enableVersioning = enableVersioning;
-		
-		Preferences prefs = Preferences.userNodeForPackage(SBOLEditorPreferences.class).node("versioning");			
+
+		Preferences prefs = Preferences.userNodeForPackage(SBOLEditorPreferences.class).node("versioning");
 		prefs.putBoolean("enable", enableVersioning);
 	}
 }

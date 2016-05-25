@@ -1296,6 +1296,14 @@ public class SBOLDesign {
 
 		ComponentDefinition comp = getSelectedComponent();
 		ComponentDefinition newComp = PartEditDialog.editPart(panel.getParent(), comp, false);
+
+		// TODO debugging
+		try {
+			SBOLFactory.write(System.out);
+		} catch (SBOLConversionException e1) {
+			e1.printStackTrace();
+		}
+
 		boolean edited = newComp != null;
 		if (edited) {
 			try {
@@ -1417,7 +1425,7 @@ public class SBOLDesign {
 				}
 			}
 
-			// TODO
+			// TODO debugging
 			try {
 				SBOLFactory.write(System.out);
 			} catch (SBOLConversionException e) {
@@ -1561,7 +1569,6 @@ public class SBOLDesign {
 				try {
 					this.seqAnn.setComponent(this.component.getIdentity());
 				} catch (SBOLValidationException e) {
-					// TODO Generate Error
 					e.printStackTrace();
 				}
 			} else {
@@ -1599,7 +1606,6 @@ public class SBOLDesign {
 						"Component");
 				return parentCD.createComponent(uniqueId, AccessType.PUBLIC, childCD.getDisplayId());
 			} catch (SBOLValidationException e) {
-				// TODO Generate error
 				e.printStackTrace();
 				return null;
 			}
@@ -1611,7 +1617,6 @@ public class SBOLDesign {
 						"SequenceAnnotation");
 				return parentCD.createSequenceAnnotation(uniqueId, "GenericLocation", OrientationType.INLINE);
 			} catch (SBOLValidationException e) {
-				// TODO Generate error
 				e.printStackTrace();
 				return null;
 			}

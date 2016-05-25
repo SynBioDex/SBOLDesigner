@@ -424,7 +424,6 @@ public class SBOLDesigner extends JFrame {
 
 		String uri;
 		do {
-			// TODO pressing cancel or 'x' should quit SBOLDesigner
 			uri = JOptionPane.showInputDialog("Please enter a valid URI", oldUserInfo.getURI());
 		} while (Strings.isNullOrEmpty(uri));
 

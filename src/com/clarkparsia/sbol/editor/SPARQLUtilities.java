@@ -46,6 +46,14 @@ public class SPARQLUtilities {
 	}
 
 	public static List<ComponentDefinition> findMatchingParts(final SPARQLEndpoint endpoint, final Part part) {
+		return null;
+	}
+
+	/**
+	 * TODO Returns a list of CDs based on the endpoint (part location) and
+	 * part. DEPRECATED by renaming to findMatchingPartsRemoved
+	 */
+	public static List<ComponentDefinition> findMatchingPartsRemoved(final SPARQLEndpoint endpoint, final Part part) {
 		if (endpoint == null) {
 			return Collections.emptyList();
 		}
@@ -66,6 +74,7 @@ public class SPARQLUtilities {
 
 		final List<ComponentDefinition> parts = Lists.newArrayList();
 		try {
+			// TODO This hangs, which causes find registry part to not work
 			endpoint.executeSelectQuery(query, new TupleQueryResultHandlerBase() {
 				@Override
 				public void handleSolution(BindingSet binding) throws TupleQueryResultHandlerException {
@@ -93,7 +102,6 @@ public class SPARQLUtilities {
 
 						parts.add(comp);
 					} catch (SBOLValidationException e) {
-						// TODO Generate error
 						e.printStackTrace();
 					}
 
