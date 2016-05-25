@@ -1368,7 +1368,6 @@ public class SBOLDesign {
 			JOptionPane.showMessageDialog(panel, "Error creating the document");
 			e.printStackTrace();
 		}
-		SBOLFactory.setSBOLDocument(doc);
 		return doc;
 	}
 
