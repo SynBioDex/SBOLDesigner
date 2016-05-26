@@ -917,16 +917,31 @@ public class SBOLDesign {
 		addComponentDefinition(null, comp, Parts.forComponent(comp));
 	}
 
+	/**
+	 * edit is whether or not you want to bring up PartEditDialog when part
+	 * button is pressed.
+	 */
 	public ComponentDefinition addComponentDefinition(Part part, boolean edit) {
 		if (!confirmEditable()) {
 			return null;
 		}
 
 		ComponentDefinition comp = part.createComponentDefinition();
-		if (edit && PartEditDialog.editPart(panel.getParent(), comp, edit) == null) {
-			return null;
+		if (edit) {
+			comp = PartEditDialog.editPart(panel.getParent(), comp, edit);
+			if (comp == null) {
+				return null;
+			}
 		}
 
+		// TODO debugging
+		try {
+			SBOLFactory.write(System.out);
+		} catch (SBOLConversionException e) {
+			e.printStackTrace();
+		}
+
+		part = Parts.forComponent(comp);
 		addComponentDefinition(null, comp, part);
 
 		return comp;
@@ -1160,27 +1175,27 @@ public class SBOLDesign {
 		}
 	}
 
-	private void replaceComponent(ComponentDefinition component, ComponentDefinition newComponent) {
-		int index = getElementIndex(component);
+	private void replaceComponent(ComponentDefinition oldCD, ComponentDefinition newCD) {
+		int index = getElementIndex(oldCD);
 		if (index >= 0) {
 			DesignElement e = elements.get(index);
 			JLabel button = buttons.get(e);
 			try {
-				e.setComponentDefinition(newComponent);
+				e.setComponentDefinition(newCD);
 			} catch (SBOLValidationException e1) {
 				JOptionPane.showMessageDialog(panel, "There was an error replacing the component: " + e1.getMessage());
 				e1.printStackTrace();
 			}
-			if (!newComponent.getRoles().contains(e.getPart().getRole())) {
-				Part newPart = Parts.forComponent(newComponent);
+			if (!newCD.getRoles().contains(e.getPart().getRole())) {
+				Part newPart = Parts.forComponent(newCD);
 				if (newPart == null) {
-					newComponent.addRole(e.getPart().getRole());
+					newCD.addRole(e.getPart().getRole());
 				} else {
 					e.setPart(newPart);
 					setupIcons(button, e);
 				}
 			}
-			button.setText(newComponent.getDisplayId());
+			button.setText(newCD.getDisplayId());
 			button.setToolTipText(getTooltipText(e));
 
 			fireDesignChangedEvent();
@@ -1296,13 +1311,6 @@ public class SBOLDesign {
 
 		ComponentDefinition comp = getSelectedComponent();
 		ComponentDefinition newComp = PartEditDialog.editPart(panel.getParent(), comp, false);
-
-		// TODO debugging
-		try {
-			SBOLFactory.write(System.out);
-		} catch (SBOLConversionException e1) {
-			e1.printStackTrace();
-		}
 
 		boolean edited = newComp != null;
 		if (edited) {
@@ -1604,7 +1612,7 @@ public class SBOLDesign {
 			try {
 				String uniqueId = SBOLUtils.getUniqueDisplayId(parentCD, childCD.getDisplayId() + "Component",
 						"Component");
-				return parentCD.createComponent(uniqueId, AccessType.PUBLIC, childCD.getDisplayId());
+				return parentCD.createComponent(uniqueId, AccessType.PUBLIC, childCD.getIdentity());
 			} catch (SBOLValidationException e) {
 				e.printStackTrace();
 				return null;
@@ -1632,6 +1640,12 @@ public class SBOLDesign {
 		}
 
 		ComponentDefinition getComponentDefinition() {
+			// TODO debugging
+			try {
+				SBOLFactory.write(System.out);
+			} catch (SBOLConversionException e) {
+				e.printStackTrace();
+			}
 			return component.getDefinition();
 		}
 

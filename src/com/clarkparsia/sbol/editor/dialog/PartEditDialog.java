@@ -241,6 +241,7 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 			try {
 				isImported = importCDHandler();
 			} catch (SBOLValidationException e1) {
+				JOptionPane.showMessageDialog(null, "This file cannot be imported: " + e1.getMessage());
 				e1.printStackTrace();
 			}
 			if (isImported) {
