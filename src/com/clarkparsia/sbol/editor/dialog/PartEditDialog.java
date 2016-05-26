@@ -308,7 +308,6 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 			}
 		}
 		return false;
-
 	}
 
 	/**
