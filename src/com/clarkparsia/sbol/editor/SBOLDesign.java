@@ -90,8 +90,8 @@ import com.adamtaft.eb.EventBus;
 import com.clarkparsia.sbol.CharSequences;
 import com.clarkparsia.sbol.SBOLUtils;
 import com.clarkparsia.sbol.editor.dialog.PartEditDialog;
-import com.clarkparsia.sbol.editor.dialog.SBOLStackDialog;
 import com.clarkparsia.sbol.editor.dialog.SelectPartDialog;
+import com.clarkparsia.sbol.editor.dialog.SelectionDialog;
 import com.clarkparsia.sbol.editor.event.DesignChangedEvent;
 import com.clarkparsia.sbol.editor.event.DesignLoadedEvent;
 import com.clarkparsia.sbol.editor.event.FocusInEvent;
@@ -392,11 +392,9 @@ public class SBOLDesign {
 			for (ComponentDefinition cd : rootCDs) {
 				displayIDs.add(cd.getDisplayId());
 			}
-
-			int selection = JOptionPane.showOptionDialog(panel,
-					"There are multiple root ComponentDefinitions.  Which would you like to load? (You will be editing a new partial design)",
-					"Select root ComponentDefinition", JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null,
-					displayIDs.toArray(), displayIDs.toArray()[0]);
+			int selection = SelectionDialog.selectFrom(panel,
+					"There are multiple root ComponentDefinitions.  Which would you like to load?  (You will be editing a new partial design)",
+					"ComponentDefinition selector", displayIDs.toArray(), displayIDs.toArray()[0]);
 			rootCD = rootCDs[selection];
 
 			isPartialDesign = true;

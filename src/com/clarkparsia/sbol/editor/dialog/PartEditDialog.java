@@ -295,10 +295,8 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 				for (int i = 0; i < CDs.length; i++) {
 					cdDisplayIds[i] = ((ComponentDefinition) CDs[i]).getDisplayId();
 				}
-
-				// TODO replace with something more scalable
-				int selection = JOptionPane.showOptionDialog(null, "Please select a part", "Part selector",
-						JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, cdDisplayIds, cdDisplayIds[0]);
+				int selection = SelectionDialog.selectFrom(null, "Please select a part:", "Part selector", cdDisplayIds,
+						cdDisplayIds[0]);
 				if (selection == -1) {
 					return false;
 				} else {
@@ -404,10 +402,8 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 		for (int i = 0; i < sList.length; i++) {
 			sDisplayId[i] = ((Sequence) sList[i]).getDisplayId();
 		}
-
-		// TODO replace with something more scalable
-		int selection = JOptionPane.showOptionDialog(null, "Please select a sequence", "Sequence selector",
-				JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, sDisplayId, sDisplayId[0]);
+		int selection = SelectionDialog.selectFrom(null, "Please select a sequence:", "Sequence selector", sDisplayId,
+				sDisplayId[0]);
 		return ((Sequence) sList[selection]).getElements();
 	}
 
