@@ -3,6 +3,7 @@ package com.clarkparsia.sbol.editor.dialog;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Container;
+import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
@@ -47,13 +48,16 @@ public class SelectionDialog extends JDialog implements ActionListener {
 		selectButton.addActionListener(this);
 		getRootPane().setDefaultButton(selectButton);
 
-		JPanel panel = new JPanel();
-		panel.add(this.message);
-		panel.add(this.options);
-		panel.add(selectButton);
+		JPanel selectionPanel = new JPanel();
+		selectionPanel.add(this.message);
+		selectionPanel.add(this.options);
+		JPanel selectPanel = new JPanel();
+		selectPanel.add(selectButton);
 
 		Container contentPane = getContentPane();
-		contentPane.add(panel);
+		contentPane.setLayout(new BorderLayout());
+		contentPane.add(selectionPanel, BorderLayout.NORTH);
+		contentPane.add(selectPanel, BorderLayout.SOUTH);
 
 		pack();
 		setLocationRelativeTo(parent);
