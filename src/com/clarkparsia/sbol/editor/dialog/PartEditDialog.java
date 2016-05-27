@@ -201,9 +201,10 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 		JPanel buttonPane = new JPanel();
 		buttonPane.setLayout(new BoxLayout(buttonPane, BoxLayout.LINE_AXIS));
 		buttonPane.setBorder(BorderFactory.createEmptyBorder(0, 10, 10, 10));
-		buttonPane.add(Box.createHorizontalGlue());
 		buttonPane.add(importCD);
 		buttonPane.add(importSequence);
+		buttonPane.add(Box.createHorizontalStrut(100));
+		buttonPane.add(Box.createHorizontalGlue());
 		buttonPane.add(cancelButton);
 		buttonPane.add(saveButton);
 

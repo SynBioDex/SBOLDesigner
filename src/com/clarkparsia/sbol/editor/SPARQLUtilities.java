@@ -15,21 +15,27 @@
 
 package com.clarkparsia.sbol.editor;
 
+import java.io.File;
 import java.net.PasswordAuthentication;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 import org.openrdf.query.Binding;
 import org.openrdf.query.BindingSet;
 import org.openrdf.query.TupleQueryResultHandlerBase;
 import org.openrdf.query.TupleQueryResultHandlerException;
 import org.sbolstandard.core2.ComponentDefinition;
+import org.sbolstandard.core2.SBOLDocument;
 import org.sbolstandard.core2.SBOLFactory;
+import org.sbolstandard.core2.SBOLReader;
 import org.sbolstandard.core2.SBOLValidationException;
 import org.sbolstandard.core2.Sequence;
 import org.sbolstandard.core2.SequenceOntology;
@@ -45,7 +51,45 @@ public class SPARQLUtilities {
 		return findMatchingParts(endpoint, new Part(null, "All", "All parts"));
 	}
 
+	/////////////////////////////////////////////////////////////////
 	public static List<ComponentDefinition> findMatchingParts(final SPARQLEndpoint endpoint, final Part part) {
+		SBOLDocument doc = importDoc();
+		Object[] arr = doc.getComponentDefinitions().toArray();
+		ArrayList<ComponentDefinition> list = new ArrayList<ComponentDefinition>();
+		for (int i = 0; i < arr.length; i++) {
+			list.add(((ComponentDefinition) arr[i]));
+		}
+		return list;
+	}
+
+	/**
+	 * Prompts the user to choose a file and reads it, returning the output
+	 * SBOLDocument. If the user cancels or the file in unable to be imported,
+	 * returns null.
+	 */
+	private static SBOLDocument importDoc() {
+		JFileChooser fc = new JFileChooser(new File("."));
+		fc.setMultiSelectionEnabled(false);
+		fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
+		fc.setAcceptAllFileFilterUsed(true);
+		fc.setFileFilter(
+				new FileNameExtensionFilter("SBOL file (*.xml, *.rdf, *.sbol), GenBank (*.gb, *.gbk), FASTA (*.fasta)",
+						"xml", "rdf", "sbol", "gb", "gbk", "fasta"));
+
+		int returnVal = fc.showOpenDialog(null);
+		if (returnVal == JFileChooser.APPROVE_OPTION) {
+			File file = fc.getSelectedFile();
+			SBOLDocument doc = null;
+			try {
+				SBOLReader.setURIPrefix(SBOLEditorPreferences.INSTANCE.getUserInfo().getURI().toString());
+				SBOLReader.setCompliant(true);
+				doc = SBOLReader.read(file);
+			} catch (Exception e1) {
+				JOptionPane.showMessageDialog(null, "This file is unable to be imported: " + e1.getMessage());
+				e1.printStackTrace();
+			}
+			return doc;
+		}
 		return null;
 	}
 
@@ -115,6 +159,7 @@ public class SPARQLUtilities {
 			return Collections.emptyList();
 		}
 	}
+	////////////////////////////////////////////////////////
 
 	private static String getBindingAsString(BindingSet bindings, String name) {
 		Binding binding = bindings.getBinding(name);
