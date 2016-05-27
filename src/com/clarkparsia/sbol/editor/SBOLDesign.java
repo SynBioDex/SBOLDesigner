@@ -392,9 +392,14 @@ public class SBOLDesign {
 			for (ComponentDefinition cd : rootCDs) {
 				displayIDs.add(cd.getDisplayId());
 			}
-			int selection = SelectionDialog.selectFrom(panel,
-					"There are multiple root ComponentDefinitions.  Which would you like to load?  (You will be editing a new partial design)",
-					"ComponentDefinition selector", displayIDs.toArray(), displayIDs.toArray()[0]);
+
+			int selection = -1;
+			while (selection == -1) {
+				selection = SelectionDialog.selectFrom(panel,
+						"There are multiple root ComponentDefinitions.  Which would you like to load?  (You will be editing a new partial design)",
+						"ComponentDefinition selector", displayIDs.toArray(), displayIDs.toArray()[0]);
+			}
+
 			rootCD = rootCDs[selection];
 
 			isPartialDesign = true;

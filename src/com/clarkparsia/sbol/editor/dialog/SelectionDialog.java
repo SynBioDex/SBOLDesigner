@@ -7,6 +7,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
+import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -28,7 +29,6 @@ public class SelectionDialog extends JDialog implements ActionListener {
 	 */
 	public static int selectFrom(Component parent, String message, String title, Object[] options,
 			Object defaultOption) {
-		// TODO should make this overall bigger
 		SelectionDialog dialog = new SelectionDialog(parent, message, title, options, defaultOption);
 		dialog.selectButton.setEnabled(true);
 		dialog.setVisible(true);
@@ -47,10 +47,13 @@ public class SelectionDialog extends JDialog implements ActionListener {
 		selectButton.addActionListener(this);
 		getRootPane().setDefaultButton(selectButton);
 
-		Container panel = getContentPane();
-		panel.add(this.message, BorderLayout.PAGE_START);
-		panel.add(this.options, BorderLayout.CENTER);
-		panel.add(selectButton, BorderLayout.PAGE_END);
+		JPanel panel = new JPanel();
+		panel.add(this.message);
+		panel.add(this.options);
+		panel.add(selectButton);
+
+		Container contentPane = getContentPane();
+		contentPane.add(panel);
 
 		pack();
 		setLocationRelativeTo(parent);
@@ -64,5 +67,4 @@ public class SelectionDialog extends JDialog implements ActionListener {
 			setVisible(false);
 		}
 	}
-
 }
