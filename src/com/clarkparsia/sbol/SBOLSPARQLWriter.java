@@ -19,8 +19,8 @@ import java.io.ByteArrayOutputStream;
 
 import org.openrdf.query.QueryEvaluationException;
 import org.sbolstandard.core2.SBOLValidationException;
-import org.sbolstandard.core2.SBOLVisitable;
 
+import com.clarkparsia.sbol.editor.io.SBOLRDFWriter;
 import com.clarkparsia.sbol.editor.sparql.RDFInput;
 import com.clarkparsia.sbol.editor.sparql.SPARQLEndpoint;
 
@@ -32,7 +32,7 @@ import com.clarkparsia.sbol.editor.sparql.SPARQLEndpoint;
 public class SBOLSPARQLWriter {
 	private final SPARQLEndpoint endpoint;
 	private final SBOLRDFWriter writer;
-	
+
 	public SBOLSPARQLWriter(SPARQLEndpoint endpoint) {
 		this(endpoint, true);
 	}
@@ -47,14 +47,11 @@ public class SBOLSPARQLWriter {
 		try {
 			writer.write(visitable, bytes);
 			endpoint.addData(RDFInput.forBytes(bytes.toByteArray()));
-		}
-		catch (QueryEvaluationException e) {
+		} catch (QueryEvaluationException e) {
 			throw e;
-		}
-		catch (RuntimeException e) {
+		} catch (RuntimeException e) {
 			throw e;
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			throw new QueryEvaluationException(e);
 		}
 	}

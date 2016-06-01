@@ -140,8 +140,7 @@ public class SPARQLUtilities {
 
 						String seqURI = getBindingAsString(binding, "seq");
 						String nucleotides = getBindingAsString(binding, "nucleotides");
-						Sequence seq = new Sequence(URI.create(seqURI).toString(), "no displayId", "", nucleotides,
-								Sequence.IUPAC_DNA);
+						Sequence seq = SBOLFactory.createSequence(seqURI, nucleotides, Sequence.IUPAC_DNA);
 						comp.addSequence(seq);
 
 						parts.add(comp);

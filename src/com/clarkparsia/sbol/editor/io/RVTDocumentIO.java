@@ -30,7 +30,6 @@ import org.sbolstandard.core2.SBOLDocument;
 import org.sbolstandard.core2.SBOLValidationException;
 import org.sbolstandard.core2.SBOLWriter;
 
-import com.clarkparsia.sbol.SBOLSPARQLReader;
 import com.clarkparsia.sbol.editor.Registry;
 import com.clarkparsia.sbol.editor.SBOLEditorPreferences;
 import com.clarkparsia.sbol.editor.SPARQLUtilities;
@@ -54,142 +53,146 @@ import com.clarkparsia.versioning.Revision;
  */
 public class RVTDocumentIO implements DocumentIO {
 	private static final RDFFormat FORMAT = RDFFormat.RDFXML;
-	
+
 	private final Revision revision;
 	private final Branch branch;
 	private final SBOLRDFReader reader;
 	private final SBOLRDFWriter writer;
-	
+
 	public static RVTDocumentIO createForNewRepo(SPARQLEndpoint endpoint, String repoName, String repoMsg) {
 		RVT rvt = null;
-		
+
 		try {
-	        rvt = RVTFactory.get(endpoint);
-        }
-        catch (IllegalArgumentException e) {
-        	rvt = RVTFactory.init(endpoint);
-        	addUserInfo(endpoint, false);
-        }		
-		
+			rvt = RVTFactory.get(endpoint);
+		} catch (IllegalArgumentException e) {
+			rvt = RVTFactory.init(endpoint);
+			addUserInfo(endpoint, false);
+		}
+
 		Repository repo = rvt.createRepo(repoName, info(repoMsg, endpoint));
-		
+
 		return createForBranch(repo, Branch.MASTER);
 	}
-	
+
 	public static RVTDocumentIO createForBranch(Registry registry, String repoName, String branchName) {
 		return createForBranch(registry.createEndpoint(), repoName, branchName);
 	}
-	
+
 	public static RVTDocumentIO createForBranch(SPARQLEndpoint endpoint, String repoName, String branchName) {
-		RVT rvt = RVTFactory.get(endpoint);		
-		
+		RVT rvt = RVTFactory.get(endpoint);
+
 		Repository repo = rvt.repos().get(repoName);
-		
+
 		return createForBranch(repo, branchName);
 	}
-	
+
 	public static RVTDocumentIO createForBranch(Repository repo, String branchName) {
 		return new RVTDocumentIO(repo.branches().get(branchName), null);
 	}
-	
+
 	public static RVTDocumentIO createForRevision(Revision revision) {
 		return new RVTDocumentIO(revision.getBranch(), revision);
 	}
-	
+
 	private RVTDocumentIO(Branch branch, Revision revision) {
-		this(branch, revision, new SBOLRDFReader(FORMAT, SBOLEditorPreferences.INSTANCE.getValidate()), new SBOLRDFWriter(FORMAT, SBOLEditorPreferences.INSTANCE.getValidate()));
+		this(branch, revision, new SBOLRDFReader(FORMAT, SBOLEditorPreferences.INSTANCE.getValidate()),
+				new SBOLRDFWriter(FORMAT, SBOLEditorPreferences.INSTANCE.getValidate()));
 	}
-		
+
 	private RVTDocumentIO(Branch branch, Revision revision, SBOLRDFReader reader, SBOLRDFWriter writer) {
 		this.revision = revision;
 		this.branch = branch;
-		this.reader= reader;
+		this.reader = reader;
 		this.writer = writer;
-    }
-	
+	}
+
 	@Override
 	public SBOLDocument read() throws SBOLValidationException, IOException {
 		StatementCollector handler = new StatementCollector();
 		Revision rev = (revision == null) ? branch.getHead() : revision;
 		rev.checkout(handler);
-		
-		try {
-	        LocalEndpoint endpoint = new LocalEndpoint();
-	        endpoint.addData(RDFInput.forStatements(handler.getStatements()));
 
-	        return new SBOLSPARQLReader(endpoint, false).read(branch.getRepository().getURI().stringValue());
-        }
-        catch (Exception e) {
-	        throw new IOException(e);
-        }
-    }
+		try {
+			LocalEndpoint endpoint = new LocalEndpoint();
+			endpoint.addData(RDFInput.forStatements(handler.getStatements()));
+
+			// return new SBOLSPARQLReader(endpoint,
+			// false).read(branch.getRepository().getURI().stringValue());
+			// TODO This is no longer used
+			return null;
+		} catch (Exception e) {
+			throw new IOException(e);
+		}
+	}
 
 	@Override
-    public void write(SBOLDocument doc) throws SBOLValidationException, SBOLConversionException {
+	public void write(SBOLDocument doc) throws SBOLValidationException, SBOLConversionException {
 		setCredentials();
-		
-		//ComponentDefinition comp = (ComponentDefinition) doc.getContents().iterator().next();
+
+		// ComponentDefinition comp = (ComponentDefinition)
+		// doc.getContents().iterator().next();
 		ComponentDefinition comp = (ComponentDefinition) doc.getComponentDefinitions().iterator().next();
-		//comp.setURI(java.net.URI.create(branch.getRepository().getURI().stringValue()));
-		doc.createCopy(comp, java.net.URI.create(branch.getRepository().getURI().stringValue()).toString(), comp.getDisplayId(), comp.getVersion());
-		
+		// comp.setURI(java.net.URI.create(branch.getRepository().getURI().stringValue()));
+		doc.createCopy(comp, java.net.URI.create(branch.getRepository().getURI().stringValue()).toString(),
+				comp.getDisplayId(), comp.getVersion());
+
 		String msg = JOptionPane.showInputDialog("Enter commit message");
 		OutputStream bytes = new ByteArrayOutputStream();
 		SBOLWriter.write(doc, bytes);
 		// TODO Typecasting without information
-		branch.commit(RDFInput.forBytes(((ByteArrayOutputStream)bytes).toByteArray()), info(msg));
-    }
+		branch.commit(RDFInput.forBytes(((ByteArrayOutputStream) bytes).toByteArray()), info(msg));
+	}
 
 	@Override
-    public String toString() {
-	    return branch.getRepository().getName() + " - " + branch.getName();
-    }
+	public String toString() {
+		return branch.getRepository().getName() + " - " + branch.getName();
+	}
 
 	public RVTDocumentIO createBranch(String name, String msg) {
 		setCredentials();
-		
-	    Branch newBranch = branch.getHead().branch(name, info(msg));
-	    return new RVTDocumentIO(newBranch, null, reader, writer);
-    }	
+
+		Branch newBranch = branch.getHead().branch(name, info(msg));
+		return new RVTDocumentIO(newBranch, null, reader, writer);
+	}
 
 	public RVTDocumentIO switchBranch(String name) {
-	    Branch newBranch = branch.getRepository().branches().get(name);
-	    return switchBranch(newBranch);
-    }
+		Branch newBranch = branch.getRepository().branches().get(name);
+		return switchBranch(newBranch);
+	}
 
 	public RVTDocumentIO switchBranch(Branch newBranch) {
-	    return new RVTDocumentIO(newBranch, null, reader, writer);
-    }
+		return new RVTDocumentIO(newBranch, null, reader, writer);
+	}
 
 	public RVTDocumentIO mergeBranch(Branch mergeBranch, String msg) {
 		setCredentials();
-	    branch.merge(mergeBranch.getHead(), info(msg));
-	    return this;
-    }
+		branch.merge(mergeBranch.getHead(), info(msg));
+		return this;
+	}
 
 	public void createTag(String name, String msg) {
 		setCredentials();
 		branch.getHead().tag(name, info(msg));
-    }
-	
+	}
+
 	public Branch getBranch() {
 		return branch;
 	}
-	
+
 	private boolean setCredentials() {
 		SPARQLEndpoint endpoint = branch.getEndpoint();
 		return SPARQLUtilities.setCredentials(endpoint);
 	}
-	
+
 	public ActionInfo info(String msg) {
 		return info(msg, branch.getEndpoint());
 	}
-	
+
 	private static ActionInfo info(String msg, SPARQLEndpoint endpoint) {
 		PersonInfo userInfo = addUserInfo(endpoint, true);
 		return Infos.forAction(userInfo, msg);
 	}
-	
+
 	private static PersonInfo addUserInfo(SPARQLEndpoint endpoint, boolean skipIfInPreferences) {
 		boolean add = true;
 		PersonInfo userInfo = SBOLEditorPreferences.INSTANCE.getUserInfo();
@@ -199,15 +202,14 @@ public class RVTDocumentIO implements DocumentIO {
 			if (userInfo == null) {
 				throw new UnsupportedOperationException("Cannot perform operation without user information");
 			}
-		}
-		else {
+		} else {
 			add = !skipIfInPreferences;
 		}
-		
+
 		if (add) {
 			RVTFactory.get(endpoint).addPersonInfo(userInfo);
-		}		
-		
+		}
+
 		return userInfo;
 	}
 }

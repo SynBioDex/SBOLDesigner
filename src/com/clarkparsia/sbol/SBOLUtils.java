@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import org.sbolstandard.core.SBOLObject;
 import org.sbolstandard.core2.ComponentDefinition;
 import org.sbolstandard.core2.Location;
 import org.sbolstandard.core2.Range;
@@ -231,17 +232,17 @@ public class SBOLUtils {
 	}
 
 	public static void rename(ComponentDefinition comp) {
-		renameObj(comp);
-		renameObj(comp.getSequence());
-		for (SequenceAnnotation ann : comp.getAnnotations()) {
-			renameObj(ann);
-		}
+		// renameObj(comp);
+		// renameObj(comp.getSequence());
+		// for (SequenceAnnotation ann : comp.getAnnotations()) {
+		// renameObj(ann);
+		// }
 	}
 
 	private static void renameObj(SBOLObject obj) {
-		if (obj != null) {
-			obj.setURI(SBOLUtils.createURI());
-		}
+		// if (obj != null) {
+		// obj.setURI(SBOLUtils.createURI());
+		// }
 	}
 
 	// public static BufferedImage getImage(ComponentDefinition comp) {

@@ -34,7 +34,6 @@ import javax.swing.table.TableRowSorter;
 import org.sbolstandard.core2.ComponentDefinition;
 import org.sbolstandard.core2.SBOLDocument;
 
-import com.clarkparsia.sbol.SBOLSPARQLReader;
 import com.clarkparsia.sbol.SBOLUtils;
 import com.clarkparsia.sbol.editor.Part;
 import com.clarkparsia.sbol.editor.Parts;
@@ -136,7 +135,11 @@ public class SelectPartDialog extends InputDialog<ComponentDefinition> {
 			try {
 				// SBOLDocument doc = SublimeSBOLFactory.createReader(endpoint,
 				// false).read(comp.getIdentity().toString());
-				SBOLDocument doc = new SBOLSPARQLReader(endpoint, false).read(comp.getIdentity().toString());
+
+				// TODO This is no longer used
+				// SBOLDocument doc = new SBOLSPARQLReader(endpoint,
+				// false).read(comp.getIdentity().toString());
+				SBOLDocument doc = new SBOLDocument();
 				comp = SBOLUtils.getRootComponentDefinition(doc);
 			} catch (Exception e) {
 				e.printStackTrace();

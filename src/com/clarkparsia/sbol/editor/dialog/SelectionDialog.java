@@ -28,15 +28,14 @@ public class SelectionDialog extends JDialog implements ActionListener {
 	 * Returns the int of the index of the array that was selected. Returns -1
 	 * if closed.
 	 */
-	public static int selectFrom(Component parent, String message, String title, Object[] options,
-			Object defaultOption) {
+	public static <T> int selectFrom(Component parent, String message, String title, T[] options, T defaultOption) {
 		SelectionDialog dialog = new SelectionDialog(parent, message, title, options, defaultOption);
 		dialog.selectButton.setEnabled(true);
 		dialog.setVisible(true);
 		return dialog.selection;
 	}
 
-	private SelectionDialog(Component parent, String message, String title, Object[] options, Object defaultOption) {
+	private <T> SelectionDialog(Component parent, String message, String title, T[] options, T defaultOption) {
 		super(JOptionPane.getFrameForComponent(parent), title, true);
 
 		this.message = new JLabel(message);

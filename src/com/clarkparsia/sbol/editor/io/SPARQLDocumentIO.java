@@ -44,36 +44,35 @@ public class SPARQLDocumentIO implements DocumentIO {
 	private final SBOLSPARQLReader reader;
 	private final SBOLSPARQLWriter writer;
 	private DocumentIO documentIO;
-	
+
 	public SPARQLDocumentIO(Registry registry, String componentURI, boolean validate) {
 		this.registry = registry;
 		this.endpoint = registry.createEndpoint();
 		this.componentURI = componentURI;
-		
-		//reader = SublimeSBOLFactory.createReader(endpoint, validate);
+
+		// reader = SublimeSBOLFactory.createReader(endpoint, validate);
 		reader = new SBOLSPARQLReader(endpoint, validate);
-		//writer = SublimeSBOLFactory.createWriter(endpoint, validate);
+		// writer = SublimeSBOLFactory.createWriter(endpoint, validate);
 		writer = new SBOLSPARQLWriter(endpoint, validate);
-    }
-	
+	}
+
 	@Override
-	public SBOLDocument read() throws SBOLValidationException, IOException {	
+	public SBOLDocument read() throws SBOLValidationException, IOException {
 		try {
-	        return reader.read(componentURI);
-        }
-        catch (QueryEvaluationException e) {
-        	throw new IOException(e);
-        }
-    }
+			return reader.read(componentURI);
+		} catch (QueryEvaluationException e) {
+			throw new IOException(e);
+		}
+	}
 
 	@Override
-    public void write(SBOLDocument doc) throws SBOLValidationException, FileNotFoundException, SBOLConversionException {
-	    //writer.write(doc);
-		documentIO.write(doc);	    
-    }
+	public void write(SBOLDocument doc) throws SBOLValidationException, SBOLConversionException, IOException {
+		// writer.write(doc);
+		documentIO.write(doc);
+	}
 
 	@Override
-    public String toString() {
-	    return registry.toString();
-    }	
+	public String toString() {
+		return registry.toString();
+	}
 }

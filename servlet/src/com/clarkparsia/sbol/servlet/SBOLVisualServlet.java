@@ -30,7 +30,6 @@ import org.sbolstandard.core2.SBOLDocument;
 import org.sbolstandard.core2.SBOLReader;
 import org.sbolstandard.core2.SBOLWriter;
 
-import com.clarkparsia.sbol.SBOLSPARQLReader;
 import com.clarkparsia.sbol.editor.SBOLDesign;
 import com.clarkparsia.sbol.editor.SBOLEditor;
 import com.clarkparsia.sbol.editor.sparql.StardogEndpoint;
@@ -67,10 +66,13 @@ public class SBOLVisualServlet extends HttpServlet {
 		System.out.println("endpointURL " + endpointURL);
 		System.out.println("componentURI " + componentURI);
 		try {
-			// May be broken. Stardog???
 			// SBOLDocument doc = SublimeSBOLFactory.createReader(new
 			// StardogEndpoint(endpointURL), false).read(componentURI);
-			SBOLDocument doc = new SBOLSPARQLReader(new StardogEndpoint(endpointURL), false).read(componentURI);
+
+			// TODO This is no longer used
+			// SBOLDocument doc = new SBOLSPARQLReader(new
+			// StardogEndpoint(endpointURL), false).read(componentURI);
+			SBOLDocument doc = new SBOLDocument();
 			doc.setDefaultURIprefix("http://fetchfrompreferences");
 			writeImage(doc, response);
 		} catch (Exception e) {
