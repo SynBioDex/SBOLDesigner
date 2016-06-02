@@ -30,38 +30,23 @@ import javax.swing.plaf.basic.BasicSplitPaneUI;
 public class InvisibleSplitPane extends JSplitPane {
 	private static final long serialVersionUID = 429222851935165219L;
 
-	/**
-	 * {@inheritDoc}
-	 */
 	public InvisibleSplitPane() {
 		super();
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	public InvisibleSplitPane(int newOrientation, boolean newContinuousLayout, Component newLeftComponent,
 	                Component newRightComponent) {
 		super(newOrientation, newContinuousLayout, newLeftComponent, newRightComponent);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	public InvisibleSplitPane(int newOrientation, boolean newContinuousLayout) {
 		super(newOrientation, newContinuousLayout);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	public InvisibleSplitPane(int newOrientation, Component newLeftComponent, Component newRightComponent) {
 		super(newOrientation, newLeftComponent, newRightComponent);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	public InvisibleSplitPane(int newOrientation) {
 		super(newOrientation);
 	}
