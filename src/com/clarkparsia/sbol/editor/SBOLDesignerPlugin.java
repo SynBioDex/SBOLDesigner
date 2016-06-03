@@ -23,6 +23,7 @@ import java.awt.Component;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.logging.LogManager;
@@ -44,6 +45,7 @@ import org.sbolstandard.core2.SBOLConversionException;
 import org.sbolstandard.core2.SBOLDocument;
 import org.sbolstandard.core2.SBOLFactory;
 import org.sbolstandard.core2.SBOLValidationException;
+import org.sbolstandard.core2.SBOLWriter;
 
 import com.adamtaft.eb.EventHandler;
 import com.clarkparsia.sbol.SBOLUtils;
@@ -290,8 +292,8 @@ public class SBOLDesignerPlugin extends JPanel {
 	private final SBOLEditor editor = new SBOLEditor(true);
 	private final SBOLDesign design = editor.getDesign();
 
-	private final SBOLEditorActions TOOLBAR_ACTIONS = new SBOLEditorActions().add(/*NEW, OPEN,*/ SAVE, DIVIDER)
-			.addIf(SBOLEditorPreferences.INSTANCE.isVersioningEnabled(), VERSION, DIVIDER)
+	private final SBOLEditorActions TOOLBAR_ACTIONS = new SBOLEditorActions()//.add(NEW, OPEN, SAVE, DIVIDER)
+			//.addIf(SBOLEditorPreferences.INSTANCE.isVersioningEnabled(), VERSION, DIVIDER)
 			.add(design.EDIT_ROOT, design.EDIT, design.FIND, design.DELETE, design.FLIP, DIVIDER)
 			.add(design.HIDE_SCARS, design.ADD_SCARS, DIVIDER).add(design.FOCUS_IN, design.FOCUS_OUT, DIVIDER, SNAPSHOT)
 			.add(PREFERENCES).add(SPACER, INFO);
@@ -363,6 +365,20 @@ public class SBOLDesignerPlugin extends JPanel {
 	public void saveSBOL() {
 		save();
 		updateEnabledButtons(false);
+	}
+	
+	public void exportSBOL(String exportFileName) {
+		try {
+			SBOLDocument doc = editor.getDesign().createDocument();
+			File file = new File(exportFileName);
+			DocumentIO exportIO = new FileDocumentIO(file, false);
+			exportIO.write(doc);
+
+			updateEnabledButtons(false);
+		} catch (Exception ex) {
+			JOptionPane.showMessageDialog(this, "Error saving file: " + ex.getMessage());
+			ex.printStackTrace();
+		}
 	}
 
 	private void initGUI() {
@@ -545,8 +561,9 @@ public class SBOLDesignerPlugin extends JPanel {
 	private void saveCurrentFile() {
 		try {
 			SBOLDocument doc = editor.getDesign().createDocument();
-
-			documentIO.write(doc);
+			File file = new File(path + fileName);
+			SBOLWriter.write(doc, new FileOutputStream(file), SBOLDocument.RDF);
+			//documentIO.write(doc);
 
 			updateEnabledButtons(false);
 		} catch (Exception ex) {
