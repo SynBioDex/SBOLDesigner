@@ -72,7 +72,7 @@ import com.google.common.base.Supplier;
 /**
  * @author Evren Sirin
  */
-public class SBOLDesigner extends JFrame {
+public class SBOLDesignerPlugin extends JPanel {
 	private final Supplier<Boolean> CONFIRM_SAVE = new Supplier<Boolean>() {
 		@Override
 		public Boolean get() {
@@ -90,7 +90,7 @@ public class SBOLDesigner extends JFrame {
 	private final SBOLEditorAction OPEN = new SBOLEditorAction("Open", "Load a design from an SBOL file", "open.gif") {
 		@Override
 		protected void perform() {
-			int returnVal = fc.showOpenDialog(SBOLDesigner.this);
+			int returnVal = fc.showOpenDialog(SBOLDesignerPlugin.this);
 
 			if (returnVal == JFileChooser.APPROVE_OPTION) {
 				File file = fc.getSelectedFile();
@@ -125,14 +125,14 @@ public class SBOLDesigner extends JFrame {
 			"configure.gif") {
 		@Override
 		protected void perform() {
-			PreferencesDialog.showPreferences(SBOLDesigner.this);
+			PreferencesDialog.showPreferences(SBOLDesignerPlugin.this);
 		}
 	};
 
 	private final SBOLEditorAction INFO = new SBOLEditorAction("About SBOL Designer", "info.gif") {
 		@Override
 		protected void perform() {
-			AboutDialog.show(SBOLDesigner.this);
+			AboutDialog.show(SBOLDesignerPlugin.this);
 		}
 	};
 
@@ -140,7 +140,7 @@ public class SBOLDesigner extends JFrame {
 			"newRepository.png") {
 		@Override
 		protected void perform() {
-			DocumentIO rvtIO = new CreateVersionDialog(SBOLDesigner.this).getInput();
+			DocumentIO rvtIO = new CreateVersionDialog(SBOLDesignerPlugin.this).getInput();
 			if (rvtIO != null) {
 				setCurrentFile(rvtIO);
 			}
@@ -149,7 +149,7 @@ public class SBOLDesigner extends JFrame {
 	private final SBOLEditorAction CHECKOUT = new SBOLEditorAction("Checkout", "Checks out a version", "checkout.gif") {
 		@Override
 		protected void perform() {
-			CheckoutResult result = new CheckoutDialog(SBOLDesigner.this).getInput();
+			CheckoutResult result = new CheckoutDialog(SBOLDesignerPlugin.this).getInput();
 			if (result != null) {
 				DocumentIO newIO = result.getDocumentIO();
 				if (result.isInsert()) {
@@ -158,7 +158,7 @@ public class SBOLDesigner extends JFrame {
 						design.addComponentDefinition(newComponent);
 					} catch (Throwable ex) {
 						ex.printStackTrace();
-						JOptionPane.showMessageDialog(SBOLDesigner.this, "Error checking out: " + ex.getMessage());
+						JOptionPane.showMessageDialog(SBOLDesignerPlugin.this, "Error checking out: " + ex.getMessage());
 					}
 				} else {
 					openDesign(newIO);
@@ -172,7 +172,7 @@ public class SBOLDesigner extends JFrame {
 		@Override
 		protected void perform() {
 			if (documentIO == null || !(documentIO instanceof RVTDocumentIO)) {
-				DocumentIO rvtIO = new CreateVersionDialog(SBOLDesigner.this).getInput();
+				DocumentIO rvtIO = new CreateVersionDialog(SBOLDesignerPlugin.this).getInput();
 				if (rvtIO == null) {
 					return;
 				}
@@ -189,7 +189,7 @@ public class SBOLDesigner extends JFrame {
 		protected void perform() {
 
 			RVTDocumentIO rvtIO = ((RVTDocumentIO) documentIO);
-			CreateBranchDialog dialog = new CreateBranchDialog(SBOLDesigner.this);
+			CreateBranchDialog dialog = new CreateBranchDialog(SBOLDesignerPlugin.this);
 			String branchName = dialog.getInput();
 			if (branchName != null) {
 				DocumentIO newIO = rvtIO.createBranch(branchName, dialog.getBranchMessage());
@@ -204,7 +204,7 @@ public class SBOLDesigner extends JFrame {
 		protected void perform() {
 
 			RVTDocumentIO rvtIO = ((RVTDocumentIO) documentIO);
-			MergeBranchDialog dialog = new MergeBranchDialog(SBOLDesigner.this, rvtIO.getBranch());
+			MergeBranchDialog dialog = new MergeBranchDialog(SBOLDesignerPlugin.this, rvtIO.getBranch());
 			Branch branch = dialog.getInput();
 			if (branch != null) {
 				DocumentIO newIO = rvtIO.mergeBranch(branch, dialog.getMergeMessage());
@@ -219,7 +219,7 @@ public class SBOLDesigner extends JFrame {
 		protected void perform() {
 
 			RVTDocumentIO rvtIO = ((RVTDocumentIO) documentIO);
-			Branch branch = new SwitchBranchDialog(SBOLDesigner.this, rvtIO.getBranch()).getInput();
+			Branch branch = new SwitchBranchDialog(SBOLDesignerPlugin.this, rvtIO.getBranch()).getInput();
 			if (branch != null) {
 				DocumentIO newIO = rvtIO.switchBranch(branch);
 				openDesign(newIO);
@@ -231,7 +231,7 @@ public class SBOLDesigner extends JFrame {
 		@Override
 		protected void perform() {
 			RVTDocumentIO rvtIO = ((RVTDocumentIO) documentIO);
-			CreateTagDialog dialog = new CreateTagDialog(SBOLDesigner.this);
+			CreateTagDialog dialog = new CreateTagDialog(SBOLDesignerPlugin.this);
 			String tagName = dialog.getInput();
 			if (tagName != null) {
 				rvtIO.createTag(tagName, dialog.getTagMessage());
@@ -259,7 +259,7 @@ public class SBOLDesigner extends JFrame {
 			"queryVersion.png") {
 		@Override
 		protected void perform() {
-			new QueryVersionsDialog(SBOLDesigner.this).getInput();
+			new QueryVersionsDialog(SBOLDesignerPlugin.this).getInput();
 		}
 	};
 
@@ -267,7 +267,7 @@ public class SBOLDesigner extends JFrame {
 			"Commits the current design as a new version", "history.gif") {
 		@Override
 		protected void perform() {
-			DocumentIO docIO = HistoryDialog.show(SBOLDesigner.this, (RVTDocumentIO) documentIO);
+			DocumentIO docIO = HistoryDialog.show(SBOLDesignerPlugin.this, (RVTDocumentIO) documentIO);
 			if (docIO != null) {
 				if (docIO instanceof ReadOnlyDocumentIO) {
 					try {
@@ -302,8 +302,27 @@ public class SBOLDesigner extends JFrame {
 	private final JFileChooser fc;
 
 	private DocumentIO documentIO;
+	
+	private String fileName;
+	
+	/**
+	 * @return the fileName
+	 */
+	public String getFileName() {
+		return fileName;
+	}
 
-	public SBOLDesigner() throws SBOLValidationException {
+	/**
+	 * @param fileName the fileName to set
+	 */
+	public void setFileName(String fileName) {
+		this.fileName = fileName;
+	}
+
+	private String path;
+
+	public SBOLDesignerPlugin(String path,String fileName) throws SBOLValidationException {
+		super(new BorderLayout());
 		fc = new JFileChooser(new File("."));
 		fc.setMultiSelectionEnabled(false);
 		fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
@@ -311,6 +330,8 @@ public class SBOLDesigner extends JFrame {
 		fc.setFileFilter(
 				new FileNameExtensionFilter("SBOL file (*.xml, *.rdf, *.sbol), GenBank (*.gb, *.gbk), FASTA (*.fasta)",
 						"xml", "rdf", "sbol", "gb", "gbk", "fasta"));
+		this.path = path;
+		this.fileName = fileName;
 
 		initGUI();
 
@@ -318,7 +339,12 @@ public class SBOLDesigner extends JFrame {
 
 		// Only ask for a URI prefix if the current one is
 		// "http://www.dummy.org"
-		newDesign(SBOLEditorPreferences.INSTANCE.getUserInfo().getURI().toString().equals("http://www.dummy.org"));
+		if (fileName.equals("")) {
+			newDesign(SBOLEditorPreferences.INSTANCE.getUserInfo().getURI().toString().equals("http://www.dummy.org"));
+		} else {
+			File file = new File(path + fileName);
+			openDesign(new FileDocumentIO(file, false));
+		}
 	}
 
 	private void initGUI() {
@@ -330,10 +356,12 @@ public class SBOLDesigner extends JFrame {
 		panel.add(topPanel, BorderLayout.NORTH);
 		panel.add(editor, BorderLayout.CENTER);
 
-		setContentPane(panel);
-		setLocationRelativeTo(null);
-		setSize(800, 600);
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setLayout(new BorderLayout());
+		add(panel,BorderLayout.CENTER);
+		//setContentPane(panel);
+		//setLocationRelativeTo(null);
+		//setSize(800, 600);
+		//setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	}
 	
 	private JToolBar createFocusBar() {
@@ -398,6 +426,7 @@ public class SBOLDesigner extends JFrame {
 		}
 		SBOLFactory.setSBOLDocument(doc);
 		editor.getDesign().load(doc);
+		fileName = design.getRootComponent().getDisplayId() + ".sbol";
 		setCurrentFile(null);
 	}
 
@@ -472,25 +501,27 @@ public class SBOLDesigner extends JFrame {
 	}
 
 	private boolean selectCurrentFile() {
-		String name = design.getRootComponent().getDisplayId();
-		if (!Strings.isNullOrEmpty(name)) {
-			File currentDirectory = fc.getCurrentDirectory();
-			fc.setSelectedFile(new File(currentDirectory, name));
-		}
-
-		int returnVal = fc.showSaveDialog(this);
-
-		if (returnVal == JFileChooser.APPROVE_OPTION) {
-			File file = fc.getSelectedFile();
-			// String fileName = file.getName();
-			// if (!fileName.contains(".")) {
-			// file = new File(file + ".rdf");
-			// }
-			setCurrentFile(new FileDocumentIO(file, false));
-			return true;
-		}
-
-		return false;
+//		String name = design.getRootComponent().getDisplayId();
+//		if (!Strings.isNullOrEmpty(name)) {
+//			File currentDirectory = fc.getCurrentDirectory();
+//			fc.setSelectedFile(new File(currentDirectory, name));
+//		}
+//
+//		int returnVal = fc.showSaveDialog(this);
+//
+//		if (returnVal == JFileChooser.APPROVE_OPTION) {
+//			File file = fc.getSelectedFile();
+//			// String fileName = file.getName();
+//			// if (!fileName.contains(".")) {
+//			// file = new File(file + ".rdf");
+//			// }
+//			setCurrentFile(new FileDocumentIO(file, false));
+//			return true;
+//		}
+//		return false;
+		File file = new File(path+fileName);
+		setCurrentFile(new FileDocumentIO(file, false));
+		return true;
 	}
 
 	private void saveCurrentFile() {
@@ -511,7 +542,7 @@ public class SBOLDesigner extends JFrame {
 
 		String title = SBOLDesignerMetadata.NAME + " v" + SBOLDesignerMetadata.VERSION + " - "
 				+ (documentIO == null ? "New design" : documentIO);
-		setTitle(title);
+		//setTitle(title);
 
 		updateEnabledButtons(false);
 	}
@@ -545,9 +576,9 @@ public class SBOLDesigner extends JFrame {
 	public static void main(String[] args) throws SBOLValidationException {
 		setup();
 
-		final SBOLDesigner frame = new SBOLDesigner();
+		final SBOLDesignerPlugin frame = new SBOLDesignerPlugin("","");
 		frame.setVisible(true);
-		frame.setLocationRelativeTo(null);
+		//frame.setLocationRelativeTo(null);
 
 		if (args.length > 0) {
 			try {
@@ -573,7 +604,7 @@ public class SBOLDesigner extends JFrame {
 	}
 
 	private static void setupLogging() {
-		final InputStream inputStream = SBOLDesigner.class.getResourceAsStream("/logging.properties");
+		final InputStream inputStream = SBOLDesignerPlugin.class.getResourceAsStream("/logging.properties");
 		try {
 			LogManager.getLogManager().readConfiguration(inputStream);
 		} catch (final Exception e) {
