@@ -23,6 +23,7 @@ import java.awt.Component;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
@@ -39,6 +40,7 @@ import javax.swing.UIManager;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import org.sbolstandard.core2.ComponentDefinition;
+import org.sbolstandard.core2.SBOLConversionException;
 import org.sbolstandard.core2.SBOLDocument;
 import org.sbolstandard.core2.SBOLFactory;
 import org.sbolstandard.core2.SBOLValidationException;
@@ -288,7 +290,7 @@ public class SBOLDesignerPlugin extends JPanel {
 	private final SBOLEditor editor = new SBOLEditor(true);
 	private final SBOLDesign design = editor.getDesign();
 
-	private final SBOLEditorActions TOOLBAR_ACTIONS = new SBOLEditorActions().add(NEW, OPEN, SAVE, DIVIDER)
+	private final SBOLEditorActions TOOLBAR_ACTIONS = new SBOLEditorActions().add(/*NEW, OPEN,*/ SAVE, DIVIDER)
 			.addIf(SBOLEditorPreferences.INSTANCE.isVersioningEnabled(), VERSION, DIVIDER)
 			.add(design.EDIT_ROOT, design.EDIT, design.FIND, design.DELETE, design.FLIP, DIVIDER)
 			.add(design.HIDE_SCARS, design.ADD_SCARS, DIVIDER).add(design.FOCUS_IN, design.FOCUS_OUT, DIVIDER, SNAPSHOT)
@@ -341,10 +343,26 @@ public class SBOLDesignerPlugin extends JPanel {
 		// "http://www.dummy.org"
 		if (fileName.equals("")) {
 			newDesign(SBOLEditorPreferences.INSTANCE.getUserInfo().getURI().toString().equals("http://www.dummy.org"));
+			try {
+				SBOLFactory.write(path + fileName);
+			}
+			catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			catch (SBOLConversionException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		} else {
 			File file = new File(path + fileName);
 			openDesign(new FileDocumentIO(file, false));
 		}
+	}
+	
+	public void saveSBOL() {
+		save();
+		updateEnabledButtons(false);
 	}
 
 	private void initGUI() {
