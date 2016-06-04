@@ -322,6 +322,10 @@ public class SBOLDesignerPlugin extends JPanel {
 	public void setFileName(String fileName) {
 		this.fileName = fileName;
 	}
+	
+	public String getRootDisplayId() {
+		return design.getRootComponent().getDisplayId();
+	}
 
 	private String path;
 
