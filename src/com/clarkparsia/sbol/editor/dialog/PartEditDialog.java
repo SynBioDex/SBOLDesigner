@@ -364,11 +364,11 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 		}
 
 		// TODO debugging
-		try {
-			SBOLFactory.write(System.out);
-		} catch (SBOLConversionException e1) {
-			e1.printStackTrace();
-		}
+//		try {
+//			SBOLFactory.write(System.out);
+//		} catch (SBOLConversionException e1) {
+//			e1.printStackTrace();
+//		}
 	}
 
 	/**
