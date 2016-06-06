@@ -936,7 +936,6 @@ public class SBOLDesign {
 				return null;
 			}
 		}
-
 		part = Parts.forComponent(comp);
 		addComponentDefinition(null, comp, part);
 
