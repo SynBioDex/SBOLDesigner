@@ -27,7 +27,7 @@ import com.clarkparsia.swing.FormBuilder;
  * 
  * @author Evren Sirin
  */
-public class CreateVersionDialog extends InputDialog<RVTDocumentIO> {
+public class CreateVersionDialog extends RegistryInputDialog<RVTDocumentIO> {
 	private JTextField designName;
 	private JTextField designMsg;
 		

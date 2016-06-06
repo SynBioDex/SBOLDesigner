@@ -45,7 +45,7 @@ import com.google.common.collect.Lists;
  * 
  * @author Evren Sirin
  */
-public class SelectPartDialog extends InputDialog<ComponentDefinition> {
+public class SelectPartFromRegistryDialog extends RegistryInputDialog<ComponentDefinition> {
 	private static final String TITLE = "Select a part from registry";
 
 	private static final Part ALL_PARTS = new Part("All parts", "All");
@@ -59,7 +59,7 @@ public class SelectPartDialog extends InputDialog<ComponentDefinition> {
 
 	private JCheckBox importSubparts;
 
-	public SelectPartDialog(final Component parent, final Part part) {
+	public SelectPartFromRegistryDialog(final Component parent, final Part part) {
 		super(parent, TITLE, RegistryType.PART);
 
 		this.part = part;

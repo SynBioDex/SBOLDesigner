@@ -30,9 +30,11 @@ import com.clarkparsia.swing.FormBuilder;
 import com.google.common.collect.Lists;
 
 /**
+ * A GUI for choosing a CD from an SBOLDocument
+ * 
  * @author Michael Zhang
  */
-public class ImportPartDialog extends InputDialog2<ComponentDefinition> {
+public class ImportPartDialog extends InputDialog<SBOLDocument> {
 	private static final String TITLE = "Select a part to import";
 
 	private static final Part ALL_PARTS = new Part("All parts", "All");

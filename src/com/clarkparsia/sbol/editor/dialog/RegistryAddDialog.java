@@ -34,7 +34,7 @@ import com.google.common.base.Strings;
  * 
  * @author Evren Sirin
  */
-public class RegistryAddDialog extends InputDialog<Registry> {
+public class RegistryAddDialog extends RegistryInputDialog<Registry> {
 	private JTextField nameField;
 	private JTextField urlField;
 	private JTextComponent description;

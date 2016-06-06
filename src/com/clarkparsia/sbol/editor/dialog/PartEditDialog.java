@@ -373,28 +373,10 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 				importedNucleotides = seqSet.iterator().next().getElements();
 			} else {
 				// multiple Sequences
-				importedNucleotides = sequenceSelector(seqSet);
+				importedNucleotides = new ImportSequenceDialog(getParent(), seqSet).getInput();
 			}
 			sequenceField.setText(importedNucleotides);
 		}
-	}
-
-	/**
-	 * Displays to the user all the sequences and returns the elements of the
-	 * sequence the user chooses. sequences should contain at leasts one
-	 * Sequence object.
-	 */
-	private String sequenceSelector(Set<Sequence> sequences) {
-		Object[] sList = sequences.toArray();
-
-		// create an Object[] of all the displayIds
-		Object[] sDisplayId = new Object[sList.length];
-		for (int i = 0; i < sList.length; i++) {
-			sDisplayId[i] = ((Sequence) sList[i]).getDisplayId();
-		}
-		int selection = SelectionDialog.selectFrom(null, "Please select a sequence:", "Sequence selector", sDisplayId,
-				sDisplayId[0]);
-		return ((Sequence) sList[selection]).getElements();
 	}
 
 	/**

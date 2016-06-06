@@ -28,7 +28,7 @@ import com.clarkparsia.swing.FormBuilder;
  * 
  * @author Evren Sirin
  */
-public class UserCredentialsDialog extends InputDialog<PasswordAuthentication> {
+public class UserCredentialsDialog extends RegistryInputDialog<PasswordAuthentication> {
 	private JTextField username;
 	private JTextField password;
 		

@@ -28,7 +28,7 @@ import com.google.common.collect.ImmutableList;
  * 
  * @author Evren Sirin
  */
-public class SwitchBranchDialog extends InputDialog<Branch> {
+public class SwitchBranchDialog extends RegistryInputDialog<Branch> {
 	private Branch currentBranch;
 	
 	private RefTableModel<Branch> tableModel;
