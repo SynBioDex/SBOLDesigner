@@ -937,13 +937,6 @@ public class SBOLDesign {
 			}
 		}
 
-		// TODO debugging
-		try {
-			SBOLFactory.write(System.out);
-		} catch (SBOLConversionException e) {
-			e.printStackTrace();
-		}
-
 		part = Parts.forComponent(comp);
 		addComponentDefinition(null, comp, part);
 
@@ -959,13 +952,6 @@ public class SBOLDesign {
 		boolean backbone = (part == Parts.ORI);
 		DesignElement e = new DesignElement(component, currentComponent, comp, part);
 		JLabel button = createComponentButton(e);
-
-		// TODO debugging
-		try {
-			SBOLFactory.write(System.out);
-		} catch (SBOLConversionException e1) {
-			e1.printStackTrace();
-		}
 
 		if (backbone) {
 			if (isCircular) {
@@ -1166,14 +1152,6 @@ public class SBOLDesign {
 				elementBox.remove(button);
 			}
 			updateCurrentComponent();
-
-			// TODO debugging
-			try {
-				SBOLFactory.write(System.out);
-			} catch (SBOLConversionException e1) {
-				e1.printStackTrace();
-			}
-
 			fireDesignChangedEvent();
 		}
 	}
@@ -1436,13 +1414,6 @@ public class SBOLDesign {
 				}
 			}
 
-			// TODO debugging
-			try {
-				SBOLFactory.write(System.out);
-			} catch (SBOLConversionException e) {
-				e.printStackTrace();
-			}
-
 			// currentComponent.getAnnotations().clear();
 			//
 			// StringBuilder rootSequence = new StringBuilder();
@@ -1643,12 +1614,6 @@ public class SBOLDesign {
 		}
 
 		ComponentDefinition getComponentDefinition() {
-			// TODO debugging
-			try {
-				SBOLFactory.write(System.out);
-			} catch (SBOLConversionException e) {
-				e.printStackTrace();
-			}
 			return component.getDefinition();
 		}
 

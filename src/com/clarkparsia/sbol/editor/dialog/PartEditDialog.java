@@ -290,19 +290,15 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 				SBOLFactory.createCopy(doc.createRecursiveCopy(comp));
 				return true;
 			default:
-				// create an Object[] of Strings from the displayIds of the CDs
-				// in CDs
-				Object[] cdDisplayIds = new Object[CDs.length];
-				for (int i = 0; i < CDs.length; i++) {
-					cdDisplayIds[i] = ((ComponentDefinition) CDs[i]).getDisplayId();
-				}
-				int selection = SelectionDialog.selectFrom(null, "Please select a part:", "Part selector", cdDisplayIds,
-						cdDisplayIds[0]);
-				if (selection == -1) {
+				Part criteria = roleRefinement.getSelectedItem().equals("None") ? (Part) roleSelection.getSelectedItem()
+						: (Part) roleRefinement.getSelectedItem();
+				SBOLDocument selection = new ImportPartDialog(getParent(), doc, criteria).getInput();
+				if (selection == null) {
 					return false;
 				} else {
-					this.comp = (ComponentDefinition) CDs[selection];
-					SBOLFactory.createCopy(doc.createRecursiveCopy(comp));
+					this.comp = selection.getRootComponentDefinitions().iterator().next();
+					// copy the rest of the design into SBOLFactory
+					SBOLFactory.createCopy(selection);
 					return true;
 				}
 			}
@@ -361,13 +357,6 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 			String uniqueId = SBOLUtils.getUniqueDisplayId(null, comp.getDisplayId() + "Sequence", "Sequence");
 			Sequence dnaSeq = SBOLFactory.createSequence(uniqueId, seq, Sequence.IUPAC_DNA);
 			comp.addSequence(dnaSeq);
-		}
-
-		// TODO debugging
-		try {
-			SBOLFactory.write(System.out);
-		} catch (SBOLConversionException e1) {
-			e1.printStackTrace();
 		}
 	}
 

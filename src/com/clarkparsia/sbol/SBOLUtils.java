@@ -16,6 +16,7 @@
 package com.clarkparsia.sbol;
 
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -31,6 +32,7 @@ import org.sbolstandard.core2.SBOLFactory;
 import org.sbolstandard.core2.SBOLValidationException;
 import org.sbolstandard.core2.SequenceAnnotation;
 
+import com.clarkparsia.sbol.editor.Part;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Maps;
@@ -243,6 +245,30 @@ public class SBOLUtils {
 		// if (obj != null) {
 		// obj.setURI(SBOLUtils.createURI());
 		// }
+	}
+
+	/**
+	 * Returns all the CDs in doc with the same role as that of part. If the
+	 * part doesn't have any roles, returns all the CDs.
+	 */
+	public static List<ComponentDefinition> getCDOfRole(SBOLDocument doc, Part part) {
+		List<ComponentDefinition> list = new ArrayList<ComponentDefinition>();
+
+		if (part.getRoles() == null || part.getRoles().isEmpty()) {
+			// roles don't exist
+			for (ComponentDefinition cd : doc.getComponentDefinitions()) {
+				list.add(cd);
+			}
+		} else {
+			// roles exist
+			for (ComponentDefinition cd : doc.getComponentDefinitions()) {
+				// TODO should use SequenceOntology for better role selecting
+				if (cd.getRoles().contains(part.getRole())) {
+					list.add(cd);
+				}
+			}
+		}
+		return list;
 	}
 
 	// public static BufferedImage getImage(ComponentDefinition comp) {

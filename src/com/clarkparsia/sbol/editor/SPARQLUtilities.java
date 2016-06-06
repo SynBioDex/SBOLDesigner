@@ -51,53 +51,11 @@ public class SPARQLUtilities {
 		return findMatchingParts(endpoint, new Part(null, "All", "All parts"));
 	}
 
-	/////////////////////////////////////////////////////////////////
-	public static List<ComponentDefinition> findMatchingParts(final SPARQLEndpoint endpoint, final Part part) {
-		SBOLDocument doc = importDoc();
-		Object[] arr = doc.getComponentDefinitions().toArray();
-		ArrayList<ComponentDefinition> list = new ArrayList<ComponentDefinition>();
-		for (int i = 0; i < arr.length; i++) {
-			list.add(((ComponentDefinition) arr[i]));
-		}
-		return list;
-	}
-
-	/**
-	 * Prompts the user to choose a file and reads it, returning the output
-	 * SBOLDocument. If the user cancels or the file in unable to be imported,
-	 * returns null.
-	 */
-	private static SBOLDocument importDoc() {
-		JFileChooser fc = new JFileChooser(new File("."));
-		fc.setMultiSelectionEnabled(false);
-		fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
-		fc.setAcceptAllFileFilterUsed(true);
-		fc.setFileFilter(
-				new FileNameExtensionFilter("SBOL file (*.xml, *.rdf, *.sbol), GenBank (*.gb, *.gbk), FASTA (*.fasta)",
-						"xml", "rdf", "sbol", "gb", "gbk", "fasta"));
-
-		int returnVal = fc.showOpenDialog(null);
-		if (returnVal == JFileChooser.APPROVE_OPTION) {
-			File file = fc.getSelectedFile();
-			SBOLDocument doc = null;
-			try {
-				SBOLReader.setURIPrefix(SBOLEditorPreferences.INSTANCE.getUserInfo().getURI().toString());
-				SBOLReader.setCompliant(true);
-				doc = SBOLReader.read(file);
-			} catch (Exception e1) {
-				JOptionPane.showMessageDialog(null, "This file is unable to be imported: " + e1.getMessage());
-				e1.printStackTrace();
-			}
-			return doc;
-		}
-		return null;
-	}
-
 	/**
 	 * TODO Returns a list of CDs based on the endpoint (part location) and
 	 * part. DEPRECATED by renaming to findMatchingPartsRemoved
 	 */
-	public static List<ComponentDefinition> findMatchingPartsRemoved(final SPARQLEndpoint endpoint, final Part part) {
+	public static List<ComponentDefinition> findMatchingParts(final SPARQLEndpoint endpoint, final Part part) {
 		if (endpoint == null) {
 			return Collections.emptyList();
 		}
@@ -158,7 +116,6 @@ public class SPARQLUtilities {
 			return Collections.emptyList();
 		}
 	}
-	////////////////////////////////////////////////////////
 
 	private static String getBindingAsString(BindingSet bindings, String name) {
 		Binding binding = bindings.getBinding(name);

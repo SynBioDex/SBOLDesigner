@@ -77,20 +77,20 @@ public class Parts {
 
 	private static Part createPart(String name, String displayId, String imageFileName, ImageType imageType,
 			String... soIDs) {
-		URI[] types = new URI[soIDs.length];
+		URI[] roles = new URI[soIDs.length];
 		SequenceOntology so = new SequenceOntology();
 		for (int i = 0; i < soIDs.length; i++) {
-			types[i] = so.getURIbyId(soIDs[i]);
+			roles[i] = so.getURIbyId(soIDs[i]);
 		}
-		return createPart(name, displayId, imageFileName, imageType, types);
+		return createPart(name, displayId, imageFileName, imageType, roles);
 	}
 
 	private static Part createPart(String name, String displayId, String imageFileName, ImageType imageType,
-			URI... types) {
-		Part part = new Part(name, displayId, imageFileName, imageType, types);
-		for (URI type : types) {
-			if (!PARTS.containsKey(type)) {
-				PARTS.put(type, part);
+			URI... roles) {
+		Part part = new Part(name, displayId, imageFileName, imageType, roles);
+		for (URI role : roles) {
+			if (!PARTS.containsKey(role)) {
+				PARTS.put(role, part);
 			}
 		}
 		PARTS_LIST.add(part);
@@ -144,7 +144,7 @@ public class Parts {
 		return result != null ? result : GENERIC;
 	}
 
-	public static Part generic(URI type) {
-		return new Part("", "", "generic.png", ImageType.CENTERED_ON_BASELINE, type);
+	public static Part generic(URI role) {
+		return new Part("", "", "generic.png", ImageType.CENTERED_ON_BASELINE, role);
 	}
 }
