@@ -51,7 +51,7 @@ import com.google.common.collect.Iterables;
 public abstract class InputDialog<T> extends JDialog {
 	protected final ActionListener actionListener = new DialogActionListener();
 
-	protected JComboBox registrySelection = null;
+	protected JComboBox<Registry> registrySelection = null;
 	private JButton cancelButton, selectButton, optionsButton;
 	protected String url;
 

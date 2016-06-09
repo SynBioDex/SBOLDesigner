@@ -1,9 +1,12 @@
 package com.clarkparsia.sbol.editor.dialog;
 
 import java.awt.Component;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -17,7 +20,12 @@ import javax.swing.table.TableRowSorter;
 import org.sbolstandard.core2.ComponentDefinition;
 import org.sbolstandard.core2.SBOLDocument;
 import org.sbolstandard.core2.SBOLValidationException;
+
+import com.clarkparsia.sbol.SBOLUtils;
+import com.clarkparsia.sbol.editor.Part;
+import com.clarkparsia.sbol.editor.Parts;
 import com.clarkparsia.swing.FormBuilder;
+import com.google.common.collect.Lists;
 
 /**
  * A GUI for choosing a root CD from an SBOLDocument
@@ -29,6 +37,9 @@ public class RootInputDialog extends InputDialog<SBOLDocument> {
 
 	private JTable table;
 	private JLabel tableLabel;
+
+	private JComboBox<Part> roleSelection;
+	private static final Part ALL_PARTS = new Part("All parts", "All");
 
 	private SBOLDocument doc;
 
@@ -49,6 +60,20 @@ public class RootInputDialog extends InputDialog<SBOLDocument> {
 
 	@Override
 	public void initFormPanel(FormBuilder builder) {
+		List<Part> parts = Lists.newArrayList(Parts.sorted());
+		parts.add(0, ALL_PARTS);
+
+		roleSelection = new JComboBox<Part>(parts.toArray(new Part[0]));
+		roleSelection.setRenderer(new PartCellRenderer());
+		roleSelection.setSelectedItem(ALL_PARTS);
+		roleSelection.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent event) {
+				partRoleChanged();
+			}
+		});
+		builder.add("Part role", roleSelection);
+
 		final JTextField filterSelection = new JTextField();
 		filterSelection.getDocument().addDocumentListener(new DocumentListener() {
 			@Override
@@ -94,6 +119,17 @@ public class RootInputDialog extends InputDialog<SBOLDocument> {
 			e.printStackTrace();
 			return null;
 		}
+	}
+
+	public void partRoleChanged() {
+		Part part = isRoleSelection() ? (Part) roleSelection.getSelectedItem() : ALL_PARTS;
+		List<ComponentDefinition> components = SBOLUtils.getCDOfRole(doc, part);
+		((ComponentDefinitionTableModel) table.getModel()).setElements(components);
+		tableLabel.setText("Matching parts (" + components.size() + ")");
+	}
+
+	private boolean isRoleSelection() {
+		return roleSelection != null;
 	}
 
 	private void updateFilter(String filterText) {

@@ -87,10 +87,8 @@ public class StackInputDialog extends InputDialog<SBOLDocument> {
 	private static final String TITLE = "Select a part from registry";
 
 	private static final Part ALL_PARTS = new Part("All parts", "All");
-
 	private Part part;
-
-	private JComboBox typeSelection;
+	private JComboBox<Part> roleSelection;
 
 	private JTable table;
 	private JLabel tableLabel;
@@ -113,7 +111,7 @@ public class StackInputDialog extends InputDialog<SBOLDocument> {
 			url = registries.get(selectedRegistry).getURL();
 		}
 
-		registrySelection = new JComboBox(Iterables.toArray(registries, Registry.class));
+		registrySelection = new JComboBox<Registry>(Iterables.toArray(registries, Registry.class));
 		if (registries.size() > 0) {
 			registrySelection.setSelectedIndex(selectedRegistry);
 		}
@@ -129,18 +127,18 @@ public class StackInputDialog extends InputDialog<SBOLDocument> {
 			List<Part> parts = Lists.newArrayList(Parts.sorted());
 			parts.add(0, ALL_PARTS);
 
-			typeSelection = new JComboBox(parts.toArray());
-			typeSelection.setRenderer(new PartCellRenderer());
-			typeSelection.setSelectedItem(part);
-			typeSelection.addActionListener(new ActionListener() {
+			roleSelection = new JComboBox<Part>(parts.toArray(new Part[0]));
+			roleSelection.setRenderer(new PartCellRenderer());
+			roleSelection.setSelectedItem(part);
+			roleSelection.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent event) {
-					partTypeChanged();
+					partRoleChanged();
 				}
 			});
-			builder.add("Part type", typeSelection);
+			builder.add("Part role", roleSelection);
 		} else {
-			typeSelection = null;
+			roleSelection = null;
 		}
 
 		importSubparts = new JCheckBox("Import with subcomponents");
@@ -167,13 +165,13 @@ public class StackInputDialog extends InputDialog<SBOLDocument> {
 		builder.add("Filter parts", filterSelection);
 	}
 
-	private boolean isTypeSelection() {
-		return typeSelection != null;
+	private boolean isRoleSelection() {
+		return roleSelection != null;
 	}
 
 	@Override
 	protected JPanel initMainPanel() {
-		List<ComponentDefinition> components = searchParts(isTypeSelection() ? part : null, url);
+		List<ComponentDefinition> components = searchParts(isRoleSelection() ? part : null, url);
 		ComponentDefinitionTableModel tableModel = new ComponentDefinitionTableModel(components);
 
 		JPanel panel = createTablePanel(tableModel, "Matching parts (" + tableModel.getRowCount() + ")");
@@ -234,12 +232,12 @@ public class StackInputDialog extends InputDialog<SBOLDocument> {
 	}
 
 	protected void registryChanged() {
-		partTypeChanged();
+		partRoleChanged();
 	}
 
-	public void partTypeChanged() {
+	public void partRoleChanged() {
 		List<ComponentDefinition> components = searchParts(
-				isTypeSelection() ? (Part) typeSelection.getSelectedItem() : null, url);
+				isRoleSelection() ? (Part) roleSelection.getSelectedItem() : null, url);
 		((ComponentDefinitionTableModel) table.getModel()).setElements(components);
 		tableLabel.setText("Matching parts (" + components.size() + ")");
 	}

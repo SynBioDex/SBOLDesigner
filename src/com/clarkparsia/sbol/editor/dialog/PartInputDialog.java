@@ -37,11 +37,9 @@ import com.google.common.collect.Lists;
 public class PartInputDialog extends InputDialog<SBOLDocument> {
 	private static final String TITLE = "Select a part to import";
 
-	private static final Part ALL_PARTS = new Part("All parts", "All");
-
 	private Part part;
-
-	private JComboBox typeSelection;
+	private JComboBox<Part> roleSelection;
+	public static final Part ALL_PARTS = new Part("All parts", "All");
 
 	private JTable table;
 	private JLabel tableLabel;
@@ -63,18 +61,18 @@ public class PartInputDialog extends InputDialog<SBOLDocument> {
 			List<Part> parts = Lists.newArrayList(Parts.sorted());
 			parts.add(0, ALL_PARTS);
 
-			typeSelection = new JComboBox(parts.toArray());
-			typeSelection.setRenderer(new PartCellRenderer());
-			typeSelection.setSelectedItem(part);
-			typeSelection.addActionListener(new ActionListener() {
+			roleSelection = new JComboBox<Part>(parts.toArray(new Part[0]));
+			roleSelection.setRenderer(new PartCellRenderer());
+			roleSelection.setSelectedItem(part);
+			roleSelection.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent event) {
-					partTypeChanged();
+					partRoleChanged();
 				}
 			});
-			builder.add("Part type", typeSelection);
+			builder.add("Part role", roleSelection);
 		} else {
-			typeSelection = null;
+			roleSelection = null;
 		}
 
 		importSubparts = new JCheckBox("Import with subcomponents");
@@ -101,13 +99,13 @@ public class PartInputDialog extends InputDialog<SBOLDocument> {
 		builder.add("Filter parts", filterSelection);
 	}
 
-	private boolean isTypeSelection() {
-		return typeSelection != null;
+	private boolean isRoleSelection() {
+		return roleSelection != null;
 	}
 
 	@Override
 	protected JPanel initMainPanel() {
-		List<ComponentDefinition> components = SBOLUtils.getCDOfRole(doc, isTypeSelection() ? part : ALL_PARTS);
+		List<ComponentDefinition> components = SBOLUtils.getCDOfRole(doc, isRoleSelection() ? part : ALL_PARTS);
 		ComponentDefinitionTableModel tableModel = new ComponentDefinitionTableModel(components);
 
 		JPanel panel = createTablePanel(tableModel, "Matching parts (" + tableModel.getRowCount() + ")");
@@ -141,8 +139,8 @@ public class PartInputDialog extends InputDialog<SBOLDocument> {
 		}
 	}
 
-	public void partTypeChanged() {
-		Part part = isTypeSelection() ? (Part) typeSelection.getSelectedItem() : ALL_PARTS;
+	public void partRoleChanged() {
+		Part part = isRoleSelection() ? (Part) roleSelection.getSelectedItem() : ALL_PARTS;
 		List<ComponentDefinition> components = SBOLUtils.getCDOfRole(doc, part);
 		((ComponentDefinitionTableModel) table.getModel()).setElements(components);
 		tableLabel.setText("Matching parts (" + components.size() + ")");

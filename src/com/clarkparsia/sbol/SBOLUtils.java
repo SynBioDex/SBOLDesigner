@@ -256,16 +256,24 @@ public class SBOLUtils {
 	 * part doesn't have any roles, returns all the CDs.
 	 */
 	public static List<ComponentDefinition> getCDOfRole(SBOLDocument doc, Part part) {
+		return getCDOfRole(doc.getComponentDefinitions(), part);
+	}
+
+	/**
+	 * Returns all the CDs in setCD with the same role as that of part. If the
+	 * part doesn't have any roles, returns all the CDs.
+	 */
+	public static List<ComponentDefinition> getCDOfRole(Set<ComponentDefinition> setCD, Part part) {
 		List<ComponentDefinition> list = new ArrayList<ComponentDefinition>();
 
 		if (part.getRoles() == null || part.getRoles().isEmpty()) {
 			// roles don't exist
-			for (ComponentDefinition cd : doc.getComponentDefinitions()) {
+			for (ComponentDefinition cd : setCD) {
 				list.add(cd);
 			}
 		} else {
 			// roles exist
-			for (ComponentDefinition cd : doc.getComponentDefinitions()) {
+			for (ComponentDefinition cd : setCD) {
 				// TODO should use SequenceOntology for better role selecting
 				if (cd.getRoles().contains(part.getRole())) {
 					list.add(cd);

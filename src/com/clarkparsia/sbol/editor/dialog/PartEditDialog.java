@@ -87,8 +87,8 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 
 	private ComponentDefinition comp;
 
-	private final JComboBox roleSelection = new JComboBox(Iterables.toArray(Parts.sorted(), Part.class));
-	private final JComboBox roleRefinement;
+	private final JComboBox<Part> roleSelection = new JComboBox<Part>(Iterables.toArray(Parts.sorted(), Part.class));
+	private final JComboBox<String> roleRefinement;
 	private final JButton saveButton;
 	private final JButton cancelButton;
 	private final JButton importSequence;
@@ -154,8 +154,8 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 
 		// set up the JComboBox for role refinement
 		Part selectedPart = (Part) roleSelection.getSelectedItem();
-		Object[] refine = createRefinements(selectedPart);
-		roleRefinement = new JComboBox(refine);
+		String[] refine = createRefinements(selectedPart);
+		roleRefinement = new JComboBox<String>(refine);
 		List<URI> refinementRoles = getRefinementRoles(comp, selectedPart);
 		if (!refinementRoles.isEmpty()) {
 			SequenceOntology so = new SequenceOntology();
@@ -223,16 +223,16 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 	}
 
 	/**
-	 * Creates an Object[] of Strings representing SO names of descendant roles
-	 * based on the passed in part's role.
+	 * Creates an String[] representing SO names of descendant roles based on
+	 * the passed in part's role.
 	 */
-	private Object[] createRefinements(Part part) {
+	private String[] createRefinements(Part part) {
 		SequenceOntology so = new SequenceOntology();
-		Object[] refinements = so.getDescendantsOf(part.getRole()).toArray();
-		Object[] refine = new Object[refinements.length + 1];
+		String[] refinements = so.getDescendantsOf(part.getRole()).toArray(new String[0]);
+		String[] refine = new String[refinements.length + 1];
 		refine[0] = "None";
 		for (int i = 1; i < refinements.length + 1; i++) {
-			refine[i] = so.getName((String) refinements[i - 1]);
+			refine[i] = so.getName(refinements[i - 1]);
 		}
 		return refine;
 	}
@@ -244,8 +244,8 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 			if (e.getSource().equals(roleSelection)) {
 				// redraw roleRefinement
 				roleRefinement.removeAllItems();
-				for (Object o : createRefinements((Part) roleSelection.getSelectedItem())) {
-					roleRefinement.addItem(o);
+				for (String s : createRefinements((Part) roleSelection.getSelectedItem())) {
+					roleRefinement.addItem(s);
 				}
 			}
 			return;
@@ -298,19 +298,21 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 	private boolean importCDHandler() throws SBOLValidationException {
 		SBOLDocument doc = importDoc();
 		if (doc != null) {
-			Object[] CDs = doc.getComponentDefinitions().toArray();
+			ComponentDefinition[] CDs = doc.getComponentDefinitions().toArray(new ComponentDefinition[0]);
 
 			switch (CDs.length) {
 			case 0:
 				JOptionPane.showMessageDialog(getParent(), "There are no parts to import");
 				return false;
 			case 1:
-				comp = (ComponentDefinition) CDs[0];
+				comp = CDs[0];
 				SBOLUtils.insertTopLevels(doc.createRecursiveCopy(comp));
 				return true;
 			default:
-				Part criteria = roleRefinement.getSelectedItem().equals("None") ? (Part) roleSelection.getSelectedItem()
-						: (Part) roleRefinement.getSelectedItem();
+				Part criteria = roleSelection.getSelectedItem().equals("None") ? PartInputDialog.ALL_PARTS
+						: (Part) roleSelection.getSelectedItem();
+
+				// User selects the CD
 				SBOLDocument selection = new PartInputDialog(getParent(), doc, criteria).getInput();
 				if (selection == null) {
 					return false;
