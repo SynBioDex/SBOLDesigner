@@ -97,6 +97,11 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 	private final JTextArea sequenceField = new JTextArea(10, 80);
 
 	/**
+	 * Remembers the directory the fileChooser should open
+	 */
+	private static File file;
+
+	/**
 	 * Returns the ComponentDefinition edited by PartEditDialog. Null if the
 	 * dialog throws an exception.
 	 */
@@ -287,7 +292,7 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 				return false;
 			case 1:
 				comp = (ComponentDefinition) CDs[0];
-				SBOLFactory.createCopy(doc.createRecursiveCopy(comp));
+				SBOLUtils.insertTopLevels(doc.createRecursiveCopy(comp));
 				return true;
 			default:
 				Part criteria = roleRefinement.getSelectedItem().equals("None") ? (Part) roleSelection.getSelectedItem()
@@ -298,7 +303,7 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 				} else {
 					this.comp = selection.getRootComponentDefinitions().iterator().next();
 					// copy the rest of the design into SBOLFactory
-					SBOLFactory.createCopy(selection);
+					SBOLUtils.insertTopLevels(selection);
 					return true;
 				}
 			}
@@ -386,6 +391,9 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 	 */
 	private SBOLDocument importDoc() {
 		JFileChooser fc = new JFileChooser(new File("."));
+		if (file != null) {
+			fc.setCurrentDirectory(file);
+		}
 		fc.setMultiSelectionEnabled(false);
 		fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
 		fc.setAcceptAllFileFilterUsed(true);
@@ -394,6 +402,7 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 						"xml", "rdf", "sbol", "gb", "gbk", "fasta"));
 
 		int returnVal = fc.showOpenDialog(getParent());
+		file = fc.getCurrentDirectory();
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
 			File file = fc.getSelectedFile();
 			SBOLDocument doc = null;

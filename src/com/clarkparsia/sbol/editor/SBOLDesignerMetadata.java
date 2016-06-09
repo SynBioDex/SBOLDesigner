@@ -20,42 +20,43 @@ import java.util.Properties;
 //import org.sbolstandard.core2.SBOLVersion;
 
 public class SBOLDesignerMetadata {
-	private SBOLDesignerMetadata() { };
-	
-	public static final String NAME = "SBOL Designer";
-	
-	public static final String AUTHORS = "Clark & Parsia, LLC";
-	
-	public static final String HOME_PAGE = "http://clarkparsia.github.io/sbol/";
-	
-	public static final String EMAIL = "sbol@clarkparsia.com";
-	
+	private SBOLDesignerMetadata() {
+	};
+
+	public static final String NAME = "SBOLDesigner";
+
+	public static final String AUTHORS = "Clark & Parsia, LLC and Myers Research Group";
+
+	public static final String HOME_PAGE = "https://github.com/SynBioDex/SBOLDesigner";
+
+	public static final String EMAIL = "michael13162@gmail.com";
+
 	public static final String VERSION = readVersion();
-	
+
 	private static String readVersion() {
 		Properties versionProperties = new Properties();
-		
-//		InputStream vstream = SBOLVersion.class.getResourceAsStream("/plugin.properties");
-//		if (vstream != null) {
-//			try {
-//				versionProperties.load(vstream);
-//			}
-//			catch (IOException e) {
-//				System.err.println("Could not load version properties:");
-//				e.printStackTrace();
-//			}
-//			finally {
-//				try {
-//					vstream.close();
-//				}
-//				catch (IOException e) {
-//					System.err.println("Could not close version properties:");
-//					e.printStackTrace();
-//				}
-//			}
-//		}
-		
+
+		// InputStream vstream =
+		// SBOLVersion.class.getResourceAsStream("/plugin.properties");
+		// if (vstream != null) {
+		// try {
+		// versionProperties.load(vstream);
+		// }
+		// catch (IOException e) {
+		// System.err.println("Could not load version properties:");
+		// e.printStackTrace();
+		// }
+		// finally {
+		// try {
+		// vstream.close();
+		// }
+		// catch (IOException e) {
+		// System.err.println("Could not close version properties:");
+		// e.printStackTrace();
+		// }
+		// }
+		// }
+
 		return versionProperties.getProperty("plugin-version", "2.0");
 	}
 }
-

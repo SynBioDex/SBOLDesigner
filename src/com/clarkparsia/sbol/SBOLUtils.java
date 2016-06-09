@@ -20,7 +20,10 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
+
+import javax.swing.JOptionPane;
 
 import org.sbolstandard.core.SBOLObject;
 import org.sbolstandard.core2.ComponentDefinition;
@@ -31,6 +34,7 @@ import org.sbolstandard.core2.SBOLDocument;
 import org.sbolstandard.core2.SBOLFactory;
 import org.sbolstandard.core2.SBOLValidationException;
 import org.sbolstandard.core2.SequenceAnnotation;
+import org.sbolstandard.core2.TopLevel;
 
 import com.clarkparsia.sbol.editor.Part;
 import com.google.common.collect.ImmutableMap;
@@ -269,6 +273,22 @@ public class SBOLUtils {
 			}
 		}
 		return list;
+	}
+
+	/**
+	 * Inserts all the TopLevels (CDs and Sequences) in doc which aren't already
+	 * in the SBOLFactory.
+	 */
+	public static void insertTopLevels(SBOLDocument doc) {
+		for (TopLevel tl : doc.getTopLevels()) {
+			if (!SBOLFactory.getTopLevels().contains(tl)) {
+				try {
+					SBOLFactory.createCopy(tl);
+				} catch (SBOLValidationException e) {
+					JOptionPane.showMessageDialog(null, "There was an error copying over data: " + e.getMessage());
+				}
+			}
+		}
 	}
 
 	// public static BufferedImage getImage(ComponentDefinition comp) {

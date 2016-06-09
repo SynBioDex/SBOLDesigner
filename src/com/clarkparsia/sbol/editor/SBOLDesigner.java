@@ -39,6 +39,7 @@ import javax.swing.UIManager;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import org.sbolstandard.core2.ComponentDefinition;
+import org.sbolstandard.core2.SBOLConversionException;
 import org.sbolstandard.core2.SBOLDocument;
 import org.sbolstandard.core2.SBOLFactory;
 import org.sbolstandard.core2.SBOLValidationException;
@@ -132,6 +133,11 @@ public class SBOLDesigner extends JFrame {
 	private final SBOLEditorAction INFO = new SBOLEditorAction("About SBOL Designer", "info.gif") {
 		@Override
 		protected void perform() {
+			// TODO debugging
+			try {
+				SBOLFactory.write(System.out);
+			} catch (SBOLConversionException e) {
+			}
 			AboutDialog.show(SBOLDesigner.this);
 		}
 	};

@@ -1307,23 +1307,23 @@ public class SBOLDesign {
 
 	public void findPartForSelectedComponent() {
 		Part part = selectedElement.getPart();
-		SBOLDocument newComponent = null;
+		SBOLDocument selection = null;
 		try {
-			newComponent = new StackInputDialog(panel.getParent(), part).getInput();
-			SBOLFactory.createCopy(newComponent);
+			selection = new StackInputDialog(panel.getParent(), part).getInput();
+			SBOLUtils.insertTopLevels(selection);
 		} catch (Exception e1) {
 			JOptionPane.showMessageDialog(null, "Failed to get part");
 			e1.printStackTrace();
 		}
 
-		if (newComponent != null) {
+		if (selection != null) {
 			if (!confirmEditable()) {
 				return;
 			}
 
 			try {
 				replaceComponent(selectedElement.getComponentDefinition(),
-						newComponent.getRootComponentDefinitions().iterator().next());
+						selection.getRootComponentDefinitions().iterator().next());
 			} catch (Exception e) {
 				e.printStackTrace();
 				JOptionPane.showMessageDialog(panel, "There was an error adding the selected part to the design");
@@ -1414,7 +1414,11 @@ public class SBOLDesign {
 			} else {
 				// use the old sequence provided it was there
 				if (oldSeq != null) {
-					SBOLFactory.createSequence(oldSeq.getDisplayId(), oldSeq.getElements(), Sequence.IUPAC_DNA);
+					// only recreate it if it isn't in SBOLFactory
+					if (!SBOLFactory.getSequences().contains(oldSeq)) {
+						oldSeq = SBOLFactory.createSequence(oldSeq.getDisplayId(), oldSeq.getElements(),
+								Sequence.IUPAC_DNA);
+					}
 					currentComponent.addSequence(oldSeq);
 				}
 			}
