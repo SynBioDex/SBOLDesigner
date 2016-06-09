@@ -162,7 +162,8 @@ public class SBOLDesignerPlugin extends JPanel {
 						design.addComponentDefinition(newComponent);
 					} catch (Throwable ex) {
 						ex.printStackTrace();
-						JOptionPane.showMessageDialog(SBOLDesignerPlugin.this, "Error checking out: " + ex.getMessage());
+						JOptionPane.showMessageDialog(SBOLDesignerPlugin.this,
+								"Error checking out: " + ex.getMessage());
 					}
 				} else {
 					openDesign(newIO);
@@ -292,8 +293,12 @@ public class SBOLDesignerPlugin extends JPanel {
 	private final SBOLEditor editor = new SBOLEditor(true);
 	private final SBOLDesign design = editor.getDesign();
 
-	private final SBOLEditorActions TOOLBAR_ACTIONS = new SBOLEditorActions()//.add(NEW, OPEN, SAVE, DIVIDER)
-			//.addIf(SBOLEditorPreferences.INSTANCE.isVersioningEnabled(), VERSION, DIVIDER)
+	private final SBOLEditorActions TOOLBAR_ACTIONS = new SBOLEditorActions()// .add(NEW,
+																				// OPEN,
+																				// SAVE,
+																				// DIVIDER)
+			// .addIf(SBOLEditorPreferences.INSTANCE.isVersioningEnabled(),
+			// VERSION, DIVIDER)
 			.add(design.EDIT_ROOT, design.EDIT, design.FIND, design.DELETE, design.FLIP, DIVIDER)
 			.add(design.HIDE_SCARS, design.ADD_SCARS, DIVIDER).add(design.FOCUS_IN, design.FOCUS_OUT, DIVIDER, SNAPSHOT)
 			.add(PREFERENCES).add(SPACER, INFO);
@@ -306,9 +311,9 @@ public class SBOLDesignerPlugin extends JPanel {
 	private final JFileChooser fc;
 
 	private DocumentIO documentIO;
-	
+
 	private String fileName;
-	
+
 	/**
 	 * @return the fileName
 	 */
@@ -317,19 +322,20 @@ public class SBOLDesignerPlugin extends JPanel {
 	}
 
 	/**
-	 * @param fileName the fileName to set
+	 * @param fileName
+	 *            the fileName to set
 	 */
 	public void setFileName(String fileName) {
 		this.fileName = fileName;
 	}
-	
+
 	public String getRootDisplayId() {
 		return design.getRootComponent().getDisplayId();
 	}
 
 	private String path;
 
-	public SBOLDesignerPlugin(String path,String fileName) throws SBOLValidationException {
+	public SBOLDesignerPlugin(String path, String fileName) throws SBOLValidationException {
 		super(new BorderLayout());
 		fc = new JFileChooser(new File("."));
 		fc.setMultiSelectionEnabled(false);
@@ -351,13 +357,7 @@ public class SBOLDesignerPlugin extends JPanel {
 			newDesign(SBOLEditorPreferences.INSTANCE.getUserInfo().getURI().toString().equals("http://www.dummy.org"));
 			try {
 				SBOLFactory.write(path + fileName);
-			}
-			catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			catch (SBOLConversionException e) {
-				// TODO Auto-generated catch block
+			} catch (IOException | SBOLConversionException e) {
 				e.printStackTrace();
 			}
 		} else {
@@ -365,12 +365,12 @@ public class SBOLDesignerPlugin extends JPanel {
 			openDesign(new FileDocumentIO(file, false));
 		}
 	}
-	
+
 	public void saveSBOL() {
 		save();
 		updateEnabledButtons(false);
 	}
-	
+
 	public void exportSBOL(String exportFileName) {
 		try {
 			SBOLDocument doc = editor.getDesign().createDocument();
@@ -395,13 +395,13 @@ public class SBOLDesignerPlugin extends JPanel {
 		panel.add(editor, BorderLayout.CENTER);
 
 		setLayout(new BorderLayout());
-		add(panel,BorderLayout.CENTER);
-		//setContentPane(panel);
-		//setLocationRelativeTo(null);
-		//setSize(800, 600);
-		//setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		add(panel, BorderLayout.CENTER);
+		// setContentPane(panel);
+		// setLocationRelativeTo(null);
+		// setSize(800, 600);
+		// setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	}
-	
+
 	private JToolBar createFocusBar() {
 		AddressBar focusbar = new AddressBar(editor);
 		focusbar.setFloatable(false);
@@ -539,25 +539,25 @@ public class SBOLDesignerPlugin extends JPanel {
 	}
 
 	private boolean selectCurrentFile() {
-//		String name = design.getRootComponent().getDisplayId();
-//		if (!Strings.isNullOrEmpty(name)) {
-//			File currentDirectory = fc.getCurrentDirectory();
-//			fc.setSelectedFile(new File(currentDirectory, name));
-//		}
-//
-//		int returnVal = fc.showSaveDialog(this);
-//
-//		if (returnVal == JFileChooser.APPROVE_OPTION) {
-//			File file = fc.getSelectedFile();
-//			// String fileName = file.getName();
-//			// if (!fileName.contains(".")) {
-//			// file = new File(file + ".rdf");
-//			// }
-//			setCurrentFile(new FileDocumentIO(file, false));
-//			return true;
-//		}
-//		return false;
-		File file = new File(path+fileName);
+		// String name = design.getRootComponent().getDisplayId();
+		// if (!Strings.isNullOrEmpty(name)) {
+		// File currentDirectory = fc.getCurrentDirectory();
+		// fc.setSelectedFile(new File(currentDirectory, name));
+		// }
+		//
+		// int returnVal = fc.showSaveDialog(this);
+		//
+		// if (returnVal == JFileChooser.APPROVE_OPTION) {
+		// File file = fc.getSelectedFile();
+		// // String fileName = file.getName();
+		// // if (!fileName.contains(".")) {
+		// // file = new File(file + ".rdf");
+		// // }
+		// setCurrentFile(new FileDocumentIO(file, false));
+		// return true;
+		// }
+		// return false;
+		File file = new File(path + fileName);
 		setCurrentFile(new FileDocumentIO(file, false));
 		return true;
 	}
@@ -567,7 +567,7 @@ public class SBOLDesignerPlugin extends JPanel {
 			SBOLDocument doc = editor.getDesign().createDocument();
 			File file = new File(path + fileName);
 			SBOLWriter.write(doc, new FileOutputStream(file), SBOLDocument.RDF);
-			//documentIO.write(doc);
+			// documentIO.write(doc);
 
 			updateEnabledButtons(false);
 		} catch (Exception ex) {
@@ -581,7 +581,7 @@ public class SBOLDesignerPlugin extends JPanel {
 
 		String title = SBOLDesignerMetadata.NAME + " v" + SBOLDesignerMetadata.VERSION + " - "
 				+ (documentIO == null ? "New design" : documentIO);
-		//setTitle(title);
+		// setTitle(title);
 
 		updateEnabledButtons(false);
 	}
@@ -615,9 +615,9 @@ public class SBOLDesignerPlugin extends JPanel {
 	public static void main(String[] args) throws SBOLValidationException {
 		setup();
 
-		final SBOLDesignerPlugin frame = new SBOLDesignerPlugin("","");
+		final SBOLDesignerPlugin frame = new SBOLDesignerPlugin("", "");
 		frame.setVisible(true);
-		//frame.setLocationRelativeTo(null);
+		// frame.setLocationRelativeTo(null);
 
 		if (args.length > 0) {
 			try {

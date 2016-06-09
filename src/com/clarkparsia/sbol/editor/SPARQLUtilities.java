@@ -52,8 +52,7 @@ public class SPARQLUtilities {
 	}
 
 	/**
-	 * TODO Returns a list of CDs based on the endpoint (part location) and
-	 * part. DEPRECATED by renaming to findMatchingPartsRemoved
+	 * Returns a list of CDs based on the endpoint (part location) and part.
 	 */
 	public static List<ComponentDefinition> findMatchingParts(final SPARQLEndpoint endpoint, final Part part) {
 		if (endpoint == null) {

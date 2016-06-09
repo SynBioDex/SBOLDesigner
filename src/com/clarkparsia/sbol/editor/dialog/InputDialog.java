@@ -49,11 +49,13 @@ import com.google.common.collect.Iterables;
  * @author Michael Zhang
  */
 public abstract class InputDialog<T> extends JDialog {
-	private final ActionListener actionListener = new DialogActionListener();
+	protected final ActionListener actionListener = new DialogActionListener();
 
-	private JButton cancelButton, selectButton;
+	protected JComboBox registrySelection = null;
+	private JButton cancelButton, selectButton, optionsButton;
+	protected String url;
 
-	private FormBuilder builder = new FormBuilder();
+	protected FormBuilder builder = new FormBuilder();
 
 	protected boolean canceled = true;
 
@@ -75,10 +77,19 @@ public abstract class InputDialog<T> extends JDialog {
 	protected void initFinished() {
 	}
 
+	protected void registryChanged() {
+	}
+
 	private void initGUI() {
 		JPanel buttonPanel = new JPanel();
 		buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.LINE_AXIS));
 		buttonPanel.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0));
+
+		if (registrySelection != null) {
+			optionsButton = new JButton("Options");
+			optionsButton.addActionListener(actionListener);
+			buttonPanel.add(optionsButton);
+		}
 
 		buttonPanel.add(Box.createHorizontalStrut(200));
 		buttonPanel.add(Box.createHorizontalGlue());
@@ -126,6 +137,10 @@ public abstract class InputDialog<T> extends JDialog {
 
 		initFinished();
 
+		if (registrySelection != null) {
+			registryChanged();
+		}
+
 		pack();
 		setLocationRelativeTo(getOwner());
 	}
@@ -146,6 +161,7 @@ public abstract class InputDialog<T> extends JDialog {
 			if (canceled) {
 				return null;
 			}
+			Registries.get().save();
 			return getSelection();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -215,7 +231,33 @@ public abstract class InputDialog<T> extends JDialog {
 	private class DialogActionListener implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
 			Object source = e.getSource();
-			if (source == cancelButton) {
+			if (source == registrySelection) {
+				final Registry registry = (Registry) registrySelection.getSelectedItem();
+				if (registry == null) {
+					url = null;
+				} else {
+					int selectedIndex = registrySelection.getSelectedIndex();
+					// if (registryType != RegistryType.PART) {
+					// Registries.get().setPartRegistryIndex(selectedIndex);
+					// } else {
+					Registries.get().setVersionRegistryIndex(selectedIndex);
+					// }
+					url = registry.getURL();
+				}
+				SwingUtilities.invokeLater(new Runnable() {
+					@Override
+					public void run() {
+						registryChanged();
+					}
+				});
+			} else if (source == optionsButton) {
+				PreferencesDialog.showPreferences(InputDialog.this, RegistryPreferencesTab.INSTANCE.getTitle());
+				registrySelection.removeAllItems();
+				for (Registry r : Registries.get()) {
+					registrySelection.addItem(r);
+				}
+				registrySelection.setSelectedIndex(Registries.get().getPartRegistryIndex());
+			} else if (source == cancelButton) {
 				canceled = true;
 				setVisible(false);
 			} else if (source == selectButton) {

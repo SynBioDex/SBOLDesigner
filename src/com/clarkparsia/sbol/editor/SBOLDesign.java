@@ -90,7 +90,7 @@ import com.adamtaft.eb.EventBus;
 import com.clarkparsia.sbol.CharSequences;
 import com.clarkparsia.sbol.SBOLUtils;
 import com.clarkparsia.sbol.editor.dialog.PartEditDialog;
-import com.clarkparsia.sbol.editor.dialog.SelectPartFromRegistryDialog;
+import com.clarkparsia.sbol.editor.dialog.StackInputDialog;
 import com.clarkparsia.sbol.editor.dialog.SelectionDialog;
 import com.clarkparsia.sbol.editor.event.DesignChangedEvent;
 import com.clarkparsia.sbol.editor.event.DesignLoadedEvent;
@@ -1307,9 +1307,14 @@ public class SBOLDesign {
 
 	public void findPartForSelectedComponent() {
 		Part part = selectedElement.getPart();
-		ComponentDefinition newComponent = new SelectPartFromRegistryDialog(panel.getParent(), part).getInput();
-		// ComponentDefinition newComponent = new
-		// SBOLStackDialog(panel.getParent(), part).getSelection();
+		SBOLDocument newComponent = null;
+		try {
+			newComponent = new StackInputDialog(panel.getParent(), part).getInput();
+			SBOLFactory.createCopy(newComponent);
+		} catch (Exception e1) {
+			JOptionPane.showMessageDialog(null, "Failed to get part");
+			e1.printStackTrace();
+		}
 
 		if (newComponent != null) {
 			if (!confirmEditable()) {
@@ -1317,7 +1322,8 @@ public class SBOLDesign {
 			}
 
 			try {
-				replaceComponent(selectedElement.getComponentDefinition(), newComponent);
+				replaceComponent(selectedElement.getComponentDefinition(),
+						newComponent.getRootComponentDefinitions().iterator().next());
 			} catch (Exception e) {
 				e.printStackTrace();
 				JOptionPane.showMessageDialog(panel, "There was an error adding the selected part to the design");

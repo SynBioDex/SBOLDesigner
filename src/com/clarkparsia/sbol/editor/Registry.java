@@ -26,66 +26,66 @@ public class Registry implements Serializable {
 	private final String name;
 	private final String description;
 	private final String url;
-	
+
 	public static final Registry BUILT_IN = new Registry("Built-in parts",
-	                "Built-in registry with minimal set of parts", 
-	                Registries.class.getResource("cmyk_parts.rdf").toString());
+			"Built-in registry with minimal set of parts", Registries.class.getResource("cmyk_parts.rdf").toString());
 
 	public static final Registry SBPKB = new Registry("SBPkb (Cloud)",
-	                "The Standard Biological Parts knowledgebase (SBPkb) is a Semantic Web resource " +
-	                "which uses SBOL-semantic to represent standard biological parts from the Registry " +
-	                "of Standard Biological Parts at MIT.", 
-	                "http://ec2-174-129-47-60.compute-1.amazonaws.com:5822/SBPkb");
-	
+			"The Standard Biological Parts knowledgebase (SBPkb) is a Semantic Web resource which uses SBOL-semantic to represent standard biological parts from the Registry of Standard Biological Parts at MIT.",
+			"http://ec2-174-129-47-60.compute-1.amazonaws.com:5822/SBPkb");
+
+	// TODO Try out with actual Stack instance
+	public static final Registry STACK = new Registry("SBOL Stack", "The Newcastle instance of the SBOL Stack",
+			"http://temp.com");
 
 	public Registry(String name, String description, String url) {
 		Preconditions.checkNotNull(name, "Name cannot be null");
 		Preconditions.checkNotNull(url, "URL cannot be null");
-	    this.name = name;
-	    this.description = description;
-	    this.url = url;
-    }
-	
+		this.name = name;
+		this.description = description;
+		this.url = url;
+	}
+
 	public String getName() {
-    	return name;
-    }
-	
+		return name;
+	}
+
 	public String getDescription() {
-    	return description;
-    }
-	
+		return description;
+	}
+
 	public String getURL() {
-    	return url;
-    }
+		return url;
+	}
 
 	@Override
-    public boolean equals(Object obj) {
-	    if (this == obj)
-		    return true;
-	    if (!(obj instanceof Registry))
-		    return false;
-	    Registry that = (Registry) obj;
-	    return this.url.equals(that.url);
-    }
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (!(obj instanceof Registry))
+			return false;
+		Registry that = (Registry) obj;
+		return this.url.equals(that.url);
+	}
 
 	@Override
-    public int hashCode() {
-	    final int prime = 31;
-	    int result = 1;
-	    result = prime * result + ((url == null) ? 0 : url.hashCode());
-	    return result;
-    }
-		
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((url == null) ? 0 : url.hashCode());
+		return result;
+	}
+
 	public boolean isBuiltin() {
 		return this.equals(Registry.BUILT_IN);
 	}
-	
+
 	public SPARQLEndpoint createEndpoint() {
 		return isBuiltin() ? new LocalEndpoint(url) : new StardogEndpoint(url);
 	}
 
 	@Override
-    public String toString() {
-	    return isBuiltin() ? name : name + " (" + url + ")";
-    }
+	public String toString() {
+		return isBuiltin() ? name : name + " (" + url + ")";
+	}
 }

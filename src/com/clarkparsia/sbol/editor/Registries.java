@@ -25,20 +25,20 @@ import com.google.common.collect.Lists;
 
 public class Registries implements Iterable<Registry> {
 	private static Registries INSTANCE;
-	
+
 	public static Registries get() {
 		if (INSTANCE == null) {
 			INSTANCE = new Registries();
 		}
-		
+
 		return INSTANCE;
 	}
-	
+
 	private final List<Registry> registries;
 	private int partRegistryIndex;
 	private int versionRegistryIndex;
 	private boolean isModified = false;
-	
+
 	private Registries() {
 		registries = Lists.newArrayList();
 		Preferences prefs = Preferences.userNodeForPackage(Registries.class).node("registries");
@@ -48,62 +48,61 @@ public class Registries implements Iterable<Registry> {
 			String name = child.get("name", null);
 			String desc = child.get("description", null);
 			String url = child.get("url", null);
-			try {
-				if (url.startsWith("jar:") || url.startsWith("file:")) {
-					registries.add(Registry.BUILT_IN);
-				}
-				else {
-					registries.add(new Registry(name, desc, url));
-				}
-            }
-            catch (Exception e) {
-            	e.printStackTrace();
-            }
+			// try {
+			// if (url.startsWith("jar:") || url.startsWith("file:")) {
+			// registries.add(Registry.BUILT_IN);
+			// }
+			// else {
+			registries.add(new Registry(name, desc, url));
+			// }
+			// }
+			// catch (Exception e) {
+			// e.printStackTrace();
+			// }
 		}
-		
-		if (registries.isEmpty()) {	
+
+		if (registries.isEmpty()) {
 			restoreDefaults();
-		}
-		else {
+		} else {
 			partRegistryIndex = prefs.getInt("partRegistry", 0);
 			if (!isValidIndex(partRegistryIndex)) {
 				partRegistryIndex = 0;
 			}
-			
+
 			versionRegistryIndex = prefs.getInt("versionRegistry", 0);
 			if (!isValidIndex(versionRegistryIndex)) {
 				versionRegistryIndex = 0;
 			}
 		}
 	}
-	
+
 	public void restoreDefaults() {
 		registries.clear();
-		registries.add(Registry.BUILT_IN);	
+		registries.add(Registry.BUILT_IN);
 		registries.add(Registry.SBPKB);
+		registries.add(Registry.STACK);
 		partRegistryIndex = 1;
 		versionRegistryIndex = 1;
 		isModified = true;
 	}
-	
+
 	public void save() {
 		if (!isModified) {
 			return;
 		}
 		isModified = false;
-		
+
 		Preferences prefs = Preferences.userNodeForPackage(Registries.class).node("registries");
 		try {
-	        prefs.removeNode();
-        }
-        catch (BackingStoreException e) {
-	        e.printStackTrace();
-        }
+			prefs.removeNode();
+		} catch (BackingStoreException e) {
+			e.printStackTrace();
+		}
 		prefs = Preferences.userNodeForPackage(Registries.class).node("registries");
 		int size = registries.size();
 		prefs.putInt("size", size);
 		prefs.putInt("partRegistry", partRegistryIndex);
-		prefs.putInt("versionRegistry",versionRegistryIndex);
+		prefs.putInt("versionRegistry", versionRegistryIndex);
 		for (int i = 0; i < size; i++) {
 			Registry registry = registries.get(i);
 			Preferences child = prefs.node("registry" + i);
@@ -112,19 +111,19 @@ public class Registries implements Iterable<Registry> {
 			child.put("url", registry.getURL());
 		}
 	}
-	
+
 	private boolean isValidIndex(int index) {
 		return index >= 0 && index < registries.size();
 	}
-	
+
 	public Iterator<Registry> iterator() {
 		return registries.iterator();
 	}
-	
+
 	public int size() {
 		return registries.size();
 	}
-	
+
 	public void setPartRegistryIndex(int index) {
 		Preconditions.checkArgument(isValidIndex(index));
 		if (partRegistryIndex != index) {
@@ -132,11 +131,11 @@ public class Registries implements Iterable<Registry> {
 			isModified = true;
 		}
 	}
-	
+
 	public int getPartRegistryIndex() {
 		return partRegistryIndex;
-	}	
-	
+	}
+
 	public void setVersionRegistryIndex(int index) {
 		Preconditions.checkArgument(isValidIndex(index));
 		if (versionRegistryIndex != index) {
@@ -144,20 +143,20 @@ public class Registries implements Iterable<Registry> {
 			isModified = true;
 		}
 	}
-	
+
 	public int getVersionRegistryIndex() {
 		return versionRegistryIndex;
 	}
-	
+
 	public void add(Registry registry) {
 		registries.add(registry);
 		isModified = true;
 	}
-	
+
 	public Registry get(int index) {
 		return registries.get(index);
 	}
-	
+
 	public void remove(int index) {
 		Preconditions.checkArgument(isValidIndex(index));
 		registries.remove(index);
@@ -165,7 +164,7 @@ public class Registries implements Iterable<Registry> {
 		versionRegistryIndex = updateIndex(versionRegistryIndex, index);
 		isModified = true;
 	}
-	
+
 	private int updateIndex(int index, int removedIndex) {
 		return (partRegistryIndex == index) ? 0 : (partRegistryIndex > index) ? index - 1 : index;
 	}
