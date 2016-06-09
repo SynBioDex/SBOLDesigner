@@ -90,6 +90,7 @@ import com.adamtaft.eb.EventBus;
 import com.clarkparsia.sbol.CharSequences;
 import com.clarkparsia.sbol.SBOLUtils;
 import com.clarkparsia.sbol.editor.dialog.PartEditDialog;
+import com.clarkparsia.sbol.editor.dialog.RootInputDialog;
 import com.clarkparsia.sbol.editor.dialog.StackInputDialog;
 import com.clarkparsia.sbol.editor.dialog.SelectionDialog;
 import com.clarkparsia.sbol.editor.event.DesignChangedEvent;
@@ -388,21 +389,16 @@ public class SBOLDesign {
 			break;
 		default:
 			// There are multiple root CDs
-			ArrayList<String> displayIDs = new ArrayList<String>();
-			for (ComponentDefinition cd : rootCDs) {
-				displayIDs.add(cd.getDisplayId());
+			doc = new RootInputDialog(panel, doc).getInput();
+			if (doc == null) {
+				return false;
 			}
-
-			int selection = -1;
-			while (selection == -1) {
-				selection = SelectionDialog.selectFrom(panel,
-						"There are multiple root ComponentDefinitions.  Which would you like to load?  (You will be editing a new partial design)",
-						"ComponentDefinition selector", displayIDs.toArray(), displayIDs.toArray()[0]);
-			}
-
-			rootCD = rootCDs[selection];
+			doc.setDefaultURIprefix(SBOLEditorPreferences.INSTANCE.getUserInfo().getURI().toString());
+			SBOLFactory.setSBOLDocument(doc);
+			rootCD = doc.getRootComponentDefinitions().iterator().next();
 
 			isPartialDesign = true;
+			// TODO save should now be enabled
 			break;
 		}
 
@@ -1312,7 +1308,7 @@ public class SBOLDesign {
 			selection = new StackInputDialog(panel.getParent(), part).getInput();
 			SBOLUtils.insertTopLevels(selection);
 		} catch (Exception e1) {
-			JOptionPane.showMessageDialog(null, "Failed to get part");
+			JOptionPane.showMessageDialog(panel, "Failed to get part");
 			e1.printStackTrace();
 		}
 

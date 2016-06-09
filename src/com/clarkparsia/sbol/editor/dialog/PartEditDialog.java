@@ -154,16 +154,11 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 
 		// set up the JComboBox for role refinement
 		Part selectedPart = (Part) roleSelection.getSelectedItem();
-		SequenceOntology so = new SequenceOntology();
-		Object[] refinements = so.getDescendantsOf(selectedPart.getRole()).toArray();
-		Object[] refine = new Object[refinements.length + 1];
-		refine[0] = "None";
-		for (int i = 1; i < refinements.length + 1; i++) {
-			refine[i] = so.getName((String) refinements[i - 1]);
-		}
+		Object[] refine = createRefinements(selectedPart);
 		roleRefinement = new JComboBox(refine);
 		List<URI> refinementRoles = getRefinementRoles(comp, selectedPart);
 		if (!refinementRoles.isEmpty()) {
+			SequenceOntology so = new SequenceOntology();
 			roleRefinement.setSelectedItem(so.getName(refinementRoles.get(0)));
 		} else {
 			roleRefinement.setSelectedItem("None");
@@ -227,10 +222,32 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 		displayId.requestFocusInWindow();
 	}
 
+	/**
+	 * Creates an Object[] of Strings representing SO names of descendant roles
+	 * based on the passed in part's role.
+	 */
+	private Object[] createRefinements(Part part) {
+		SequenceOntology so = new SequenceOntology();
+		Object[] refinements = so.getDescendantsOf(part.getRole()).toArray();
+		Object[] refine = new Object[refinements.length + 1];
+		refine[0] = "None";
+		for (int i = 1; i < refinements.length + 1; i++) {
+			refine[i] = so.getName((String) refinements[i - 1]);
+		}
+		return refine;
+	}
+
 	public void actionPerformed(ActionEvent e) {
 		boolean keepVisible = false;
 		if (e.getSource().equals(roleSelection) || e.getSource().equals(roleRefinement)) {
 			saveButton.setEnabled(true);
+			if (e.getSource().equals(roleSelection)) {
+				// redraw roleRefinement
+				roleRefinement.removeAllItems();
+				for (Object o : createRefinements((Part) roleSelection.getSelectedItem())) {
+					roleRefinement.addItem(o);
+				}
+			}
 			return;
 		}
 
