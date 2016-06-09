@@ -32,6 +32,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Scanner;
 import java.util.Set;
+import java.util.prefs.Preferences;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -69,6 +70,7 @@ import com.clarkparsia.sbol.SBOLUtils;
 import com.clarkparsia.sbol.editor.Part;
 import com.clarkparsia.sbol.editor.Parts;
 import com.clarkparsia.sbol.editor.SBOLEditorPreferences;
+import com.clarkparsia.sbol.editor.io.FileDocumentIO;
 import com.clarkparsia.sbol.terms.SO;
 import com.clarkparsia.swing.FormBuilder;
 import com.google.common.base.Objects;
@@ -95,11 +97,6 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 	private final JTextField name = new JTextField();
 	private final JTextField description = new JTextField();
 	private final JTextArea sequenceField = new JTextArea(10, 80);
-
-	/**
-	 * Remembers the directory the fileChooser should open
-	 */
-	private static File file;
 
 	/**
 	 * Returns the ComponentDefinition edited by PartEditDialog. Null if the
@@ -297,7 +294,7 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 			default:
 				Part criteria = roleRefinement.getSelectedItem().equals("None") ? (Part) roleSelection.getSelectedItem()
 						: (Part) roleRefinement.getSelectedItem();
-				SBOLDocument selection = new ImportPartDialog(getParent(), doc, criteria).getInput();
+				SBOLDocument selection = new PartInputDialog(getParent(), doc, criteria).getInput();
 				if (selection == null) {
 					return false;
 				} else {
@@ -378,7 +375,7 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 				importedNucleotides = seqSet.iterator().next().getElements();
 			} else {
 				// multiple Sequences
-				importedNucleotides = new ImportSequenceDialog(getParent(), seqSet).getInput();
+				importedNucleotides = new SequenceInputDialog(getParent(), seqSet).getInput();
 			}
 			sequenceField.setText(importedNucleotides);
 		}
@@ -390,10 +387,7 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 	 * returns null.
 	 */
 	private SBOLDocument importDoc() {
-		JFileChooser fc = new JFileChooser(new File("."));
-		if (file != null) {
-			fc.setCurrentDirectory(file);
-		}
+		JFileChooser fc = new JFileChooser(FileDocumentIO.setupFile());
 		fc.setMultiSelectionEnabled(false);
 		fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
 		fc.setAcceptAllFileFilterUsed(true);
@@ -402,9 +396,11 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 						"xml", "rdf", "sbol", "gb", "gbk", "fasta"));
 
 		int returnVal = fc.showOpenDialog(getParent());
-		file = fc.getCurrentDirectory();
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
-			File file = fc.getSelectedFile();
+			File file = fc.getCurrentDirectory();
+			Preferences.userRoot().node("path").put("path", file.getPath());
+
+			file = fc.getSelectedFile();
 			SBOLDocument doc = null;
 			try {
 				SBOLReader.setURIPrefix(SBOLEditorPreferences.INSTANCE.getUserInfo().getURI().toString());

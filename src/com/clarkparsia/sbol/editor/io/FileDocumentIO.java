@@ -20,6 +20,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.prefs.Preferences;
 
 import javax.swing.JOptionPane;
 import javax.xml.stream.FactoryConfigurationError;
@@ -46,13 +47,11 @@ public class FileDocumentIO implements DocumentIO {
 		RDFFormat.register(RDFFormat.RDFXML);
 	}
 
-	private File file;
 	// private final SBOLReader reader;
 	// private final SBOLWriter writer;
 
-	public FileDocumentIO(File file, boolean validate) {
-		this.file = file;
-
+	public FileDocumentIO(boolean validate) {
+		File file = setupFile();
 		String fileName = file.getName();
 		RDFFormat format = fileName.endsWith(".xml") ? RDFFormat.RDFXML
 				: RDFFormat.forFileName(fileName, RDFFormat.RDFXML);
@@ -64,6 +63,7 @@ public class FileDocumentIO implements DocumentIO {
 	public SBOLDocument read()
 			throws SBOLValidationException, FileNotFoundException, IOException, SBOLConversionException {
 		// return reader.read(new FileInputStream(file));
+		File file = setupFile();
 		SBOLReader.setURIPrefix(SBOLEditorPreferences.INSTANCE.getUserInfo().getURI().toString());
 		SBOLReader.setCompliant(true);
 		return SBOLReader.read(new FileInputStream(file));
@@ -72,6 +72,7 @@ public class FileDocumentIO implements DocumentIO {
 	@Override
 	public void write(SBOLDocument doc) throws SBOLValidationException, SBOLConversionException, IOException {
 		// writer.write(doc, new FileOutputStream(file));
+		File file = setupFile();
 		String[] formats = { "SBOL 2.0", "SBOL 1.1", "GenBank", "FASTA" };
 		int format = JOptionPane.showOptionDialog(null, "Please select an output format", "Save as",
 				JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, formats, "SBOL 2.0");
@@ -114,6 +115,15 @@ public class FileDocumentIO implements DocumentIO {
 
 	@Override
 	public String toString() {
+		File file = setupFile();
 		return file.getName();
+	}
+
+	/**
+	 * Gets the path from Preferences and returns a File
+	 */
+	public static File setupFile() {
+		String path = Preferences.userRoot().node("path").get("path", "");
+		return new File(path);
 	}
 }

@@ -34,7 +34,7 @@ import com.google.common.collect.Lists;
  * 
  * @author Michael Zhang
  */
-public class ImportPartDialog extends InputDialog<SBOLDocument> {
+public class PartInputDialog extends InputDialog<SBOLDocument> {
 	private static final String TITLE = "Select a part to import";
 
 	private static final Part ALL_PARTS = new Part("All parts", "All");
@@ -50,7 +50,7 @@ public class ImportPartDialog extends InputDialog<SBOLDocument> {
 
 	private SBOLDocument doc;
 
-	public ImportPartDialog(final Component parent, SBOLDocument doc, final Part part) {
+	public PartInputDialog(final Component parent, SBOLDocument doc, final Part part) {
 		super(parent, TITLE);
 
 		this.doc = doc;

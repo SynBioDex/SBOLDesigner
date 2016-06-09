@@ -26,6 +26,7 @@ import java.io.File;
 import java.io.InputStream;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
+import java.util.prefs.Preferences;
 
 import javax.swing.AbstractButton;
 import javax.swing.Box;
@@ -95,7 +96,8 @@ public class SBOLDesigner extends JFrame {
 
 			if (returnVal == JFileChooser.APPROVE_OPTION) {
 				File file = fc.getSelectedFile();
-				openDesign(new FileDocumentIO(file, false));
+				Preferences.userRoot().node("path").put("path", file.getPath());
+				openDesign(new FileDocumentIO(false));
 			}
 		}
 	}.precondition(CONFIRM_SAVE);
@@ -310,7 +312,7 @@ public class SBOLDesigner extends JFrame {
 	private DocumentIO documentIO;
 
 	public SBOLDesigner() throws SBOLValidationException {
-		fc = new JFileChooser(new File("."));
+		fc = new JFileChooser(FileDocumentIO.setupFile());
 		fc.setMultiSelectionEnabled(false);
 		fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
 		fc.setAcceptAllFileFilterUsed(true);
@@ -341,7 +343,7 @@ public class SBOLDesigner extends JFrame {
 		setSize(800, 600);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	}
-	
+
 	private JToolBar createFocusBar() {
 		AddressBar focusbar = new AddressBar(editor);
 		focusbar.setFloatable(false);
@@ -492,7 +494,8 @@ public class SBOLDesigner extends JFrame {
 			// if (!fileName.contains(".")) {
 			// file = new File(file + ".rdf");
 			// }
-			setCurrentFile(new FileDocumentIO(file, false));
+			Preferences.userRoot().node("path").put("path", file.getPath());
+			setCurrentFile(new FileDocumentIO(false));
 			return true;
 		}
 
@@ -558,7 +561,8 @@ public class SBOLDesigner extends JFrame {
 		if (args.length > 0) {
 			try {
 				File file = new File(args[0]);
-				frame.openDesign(new FileDocumentIO(file, false));
+				Preferences.userRoot().node("path").put("path", file.getPath());
+				frame.openDesign(new FileDocumentIO(false));
 			} catch (Exception e) {
 				e.printStackTrace();
 			}

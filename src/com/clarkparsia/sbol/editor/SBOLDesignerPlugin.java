@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
+import java.util.prefs.Preferences;
 
 import javax.swing.AbstractButton;
 import javax.swing.Box;
@@ -98,7 +99,8 @@ public class SBOLDesignerPlugin extends JPanel {
 
 			if (returnVal == JFileChooser.APPROVE_OPTION) {
 				File file = fc.getSelectedFile();
-				openDesign(new FileDocumentIO(file, false));
+				Preferences.userRoot().node("path").put("path", file.getPath());
+				openDesign(new FileDocumentIO(false));
 			}
 		}
 	}.precondition(CONFIRM_SAVE);
@@ -337,7 +339,7 @@ public class SBOLDesignerPlugin extends JPanel {
 
 	public SBOLDesignerPlugin(String path, String fileName) throws SBOLValidationException {
 		super(new BorderLayout());
-		fc = new JFileChooser(new File("."));
+		fc = new JFileChooser(FileDocumentIO.setupFile());
 		fc.setMultiSelectionEnabled(false);
 		fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
 		fc.setAcceptAllFileFilterUsed(true);
@@ -362,7 +364,8 @@ public class SBOLDesignerPlugin extends JPanel {
 			}
 		} else {
 			File file = new File(path + fileName);
-			openDesign(new FileDocumentIO(file, false));
+			Preferences.userRoot().node("path").put("path", file.getPath());
+			openDesign(new FileDocumentIO(false));
 		}
 	}
 
@@ -375,7 +378,8 @@ public class SBOLDesignerPlugin extends JPanel {
 		try {
 			SBOLDocument doc = editor.getDesign().createDocument();
 			File file = new File(exportFileName);
-			DocumentIO exportIO = new FileDocumentIO(file, false);
+			Preferences.userRoot().node("path").put("path", file.getPath());
+			DocumentIO exportIO = new FileDocumentIO(false);
 			exportIO.write(doc);
 
 			updateEnabledButtons(false);
@@ -558,7 +562,8 @@ public class SBOLDesignerPlugin extends JPanel {
 		// }
 		// return false;
 		File file = new File(path + fileName);
-		setCurrentFile(new FileDocumentIO(file, false));
+		Preferences.userRoot().node("path").put("path", file.getPath());
+		setCurrentFile(new FileDocumentIO(false));
 		return true;
 	}
 
@@ -622,7 +627,8 @@ public class SBOLDesignerPlugin extends JPanel {
 		if (args.length > 0) {
 			try {
 				File file = new File(args[0]);
-				frame.openDesign(new FileDocumentIO(file, false));
+				Preferences.userRoot().node("path").put("path", file.getPath());
+				frame.openDesign(new FileDocumentIO(false));
 			} catch (Exception e) {
 				e.printStackTrace();
 			}

@@ -25,7 +25,7 @@ import scala.Array;
  * 
  * @author Michael Zhang
  */
-public class ImportSequenceDialog extends InputDialog<String> {
+public class SequenceInputDialog extends InputDialog<String> {
 	private static final String TITLE = "Select a sequence to import";
 
 	private List<Sequence> sequences;
@@ -33,7 +33,7 @@ public class ImportSequenceDialog extends InputDialog<String> {
 	private JTable table;
 	private JLabel tableLabel;
 
-	public ImportSequenceDialog(final Component parent, Set<Sequence> sequences) {
+	public SequenceInputDialog(final Component parent, Set<Sequence> sequences) {
 		super(parent, TITLE);
 
 		ArrayList<Sequence> list = new ArrayList<Sequence>();
