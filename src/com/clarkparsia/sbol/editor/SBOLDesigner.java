@@ -23,6 +23,7 @@ import java.awt.Component;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
@@ -43,7 +44,10 @@ import org.sbolstandard.core2.ComponentDefinition;
 import org.sbolstandard.core2.SBOLConversionException;
 import org.sbolstandard.core2.SBOLDocument;
 import org.sbolstandard.core2.SBOLFactory;
+import org.sbolstandard.core2.SBOLReader;
 import org.sbolstandard.core2.SBOLValidationException;
+import org.sbolstandard.core2.SBOLWriter;
+import org.sbolstandard.core2.TopLevel;
 
 import com.adamtaft.eb.EventHandler;
 import com.clarkparsia.sbol.SBOLUtils;
@@ -490,10 +494,10 @@ public class SBOLDesigner extends JFrame {
 
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
 			File file = fc.getSelectedFile();
-			// String fileName = file.getName();
-			// if (!fileName.contains(".")) {
-			// file = new File(file + ".rdf");
-			// }
+			if (file.exists()) {
+				saveExistingFile(file);
+				return false;
+			}
 			Preferences.userRoot().node("path").put("path", file.getPath());
 			setCurrentFile(new FileDocumentIO(false));
 			return true;
@@ -513,6 +517,59 @@ public class SBOLDesigner extends JFrame {
 			JOptionPane.showMessageDialog(this, "Error saving file: " + ex.getMessage());
 			ex.printStackTrace();
 		}
+	}
+
+	/**
+	 * Save SBOLFactory into an existing file
+	 */
+	private void saveExistingFile(File file) {
+		try {
+			SBOLDocument doc = SBOLReader.read(file);
+			String[] options = { "Overwrite", "New Version", "Cancel" };
+			int selection = JOptionPane.showOptionDialog(this,
+					"You have selected an existing SBOL file.  Would you like to create a new version or overwrite the existing file?",
+					"Save", JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
+			switch (selection) {
+			case JOptionPane.CLOSED_OPTION:
+				// closed
+				break;
+			case 0:
+				// Overwrite
+				ComponentDefinition rootCD = SBOLFactory.getRootComponentDefinitions().iterator().next();
+				SBOLDocument newDoc = SBOLFactory.createRecursiveCopy(rootCD);
+				SBOLFactory.setSBOLDocument(newDoc);
+				SBOLWriter.write(newDoc, file);
+				break;
+			case 1:
+				// New Version
+				rootCD = SBOLFactory.getRootComponentDefinitions().iterator().next();
+				SBOLDocument currentDoc = SBOLFactory.createRecursiveCopy(rootCD);
+				SBOLFactory.setSBOLDocument(currentDoc);
+				for (TopLevel tp : currentDoc.getTopLevels()) {
+					String previousVersion = tp.getVersion();
+					int newVersion;
+					try {
+						newVersion = Integer.parseInt(previousVersion) + 1;
+					} catch (NumberFormatException e) {
+						newVersion = 1;
+					}
+					doc.createCopy(tp, tp.getDisplayId(), newVersion + "");
+				}
+
+				SBOLWriter.write(doc, file);
+				break;
+			case 2:
+				// Cancel
+				break;
+			default:
+				throw new IllegalArgumentException();
+			}
+			return;
+		} catch (SBOLValidationException | IOException | SBOLConversionException e) {
+			JOptionPane.showMessageDialog(this, "This isn't a valid SBOL file: " + e.getMessage());
+			e.printStackTrace();
+		}
+
 	}
 
 	private void setCurrentFile(DocumentIO documentIO) {
