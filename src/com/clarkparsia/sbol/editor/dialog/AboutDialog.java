@@ -48,7 +48,17 @@ public class AboutDialog {
                         + "<br><br>"
                         + "See <a href='" + SBOLDesignerMetadata.HOME_PAGE + "'>" + SBOLDesignerMetadata.HOME_PAGE + "</a> for more info.<br><br>"
                         + "Send your questions and comments to <a href='mailto:" + SBOLDesignerMetadata.EMAIL + "'>" + SBOLDesignerMetadata.EMAIL + "</a>."
-                        + "<br><br>" + "Copyright &copy; 2013 " + SBOLDesignerMetadata.AUTHORS.replace("&", "&amp;") 
+                        + "<br><br>" + "This project is made possible by " + SBOLDesignerMetadata.AUTHORS.replace("&", "&amp;") 
+                        + "<br><br>" + "Developers:"
+                        + "<ul>"
+                        + "<li>Michal Galdzicki</li>"
+                        + "<li>Bryan Bartley</li>"
+                        + "<li>Sean Sleight</li>"
+                        + "<li>Evren Sirin</li>"
+                        + "<li>John Gennari</li>"
+                        + "<li>Michael Zhang</li>"
+                        + "<li>Chris Myers</li>"
+                        + "</ul>"
                         + "</html>");
 
 		// handle link events

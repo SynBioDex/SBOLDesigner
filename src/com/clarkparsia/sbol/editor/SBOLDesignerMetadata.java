@@ -25,7 +25,7 @@ public class SBOLDesignerMetadata {
 
 	public static final String NAME = "SBOLDesigner";
 
-	public static final String AUTHORS = "Clark & Parsia, LLC and Myers Research Group";
+	public static final String AUTHORS = "Clark & Parsia, LLC and the University of Utah";
 
 	public static final String HOME_PAGE = "https://github.com/SynBioDex/SBOLDesigner";
 
