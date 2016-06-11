@@ -1403,7 +1403,7 @@ public class SBOLDesign {
 					}
 				}
 				// use the implied sequence
-				String uniqueId = SBOLUtils.getUniqueDisplayId(null, currentComponent.getDisplayId() + "Sequence",
+				String uniqueId = SBOLUtils.getUniqueDisplayId(null, currentComponent.getDisplayId() + "Sequence", "",
 						"Sequence");
 				Sequence newSequence = SBOLFactory.createSequence(uniqueId, nucleotides, Sequence.IUPAC_DNA);
 				currentComponent.addSequence(newSequence);
@@ -1487,7 +1487,7 @@ public class SBOLDesign {
 				Sequence seq = e.getComponentDefinition().getSequenceByEncoding(Sequence.IUPAC_DNA);
 				if (seq != null) {
 					String uniqueId = SBOLUtils.getUniqueDisplayId(currentComponent, e.seqAnn.getDisplayId() + "Range",
-							"Range");
+							null, "Range");
 					int start = position;
 					int end = seq.getElements().length() + start - 1;
 					position = end + 1;
@@ -1522,7 +1522,7 @@ public class SBOLDesign {
 			org.sbolstandard.core2.Component subject = elements.get(i).component;
 			org.sbolstandard.core2.Component object = elements.get((i + 1)).component;
 
-			String uniqueId = SBOLUtils.getUniqueDisplayId(currentComponent, "SequenceConstraint",
+			String uniqueId = SBOLUtils.getUniqueDisplayId(currentComponent, "SequenceConstraint", null,
 					"SequenceConstraint");
 			currentComponent.createSequenceConstraint(uniqueId, RestrictionType.PRECEDES, subject.getIdentity(),
 					object.getIdentity());
@@ -1589,7 +1589,7 @@ public class SBOLDesign {
 			// seqAnn.setSubComponent(component);
 			// seqAnn.setOrientation(OrientationType.INLINE);
 			try {
-				String uniqueId = SBOLUtils.getUniqueDisplayId(parentCD, childCD.getDisplayId() + "Component",
+				String uniqueId = SBOLUtils.getUniqueDisplayId(parentCD, childCD.getDisplayId() + "Component", "",
 						"Component");
 				return parentCD.createComponent(uniqueId, AccessType.PUBLIC, childCD.getIdentity());
 			} catch (SBOLValidationException e) {
@@ -1601,7 +1601,7 @@ public class SBOLDesign {
 		private static SequenceAnnotation createSeqAnn(ComponentDefinition parentCD) {
 			try {
 				String uniqueId = SBOLUtils.getUniqueDisplayId(parentCD, parentCD.getDisplayId() + "SequenceAnnotation",
-						"SequenceAnnotation");
+						"", "SequenceAnnotation");
 				return parentCD.createSequenceAnnotation(uniqueId, "GenericLocation", OrientationType.INLINE);
 			} catch (SBOLValidationException e) {
 				e.printStackTrace();

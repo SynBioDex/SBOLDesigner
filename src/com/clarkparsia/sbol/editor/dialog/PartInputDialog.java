@@ -129,6 +129,11 @@ public class PartInputDialog extends InputDialog<SBOLDocument> {
 				if (comp.getSequenceByEncoding(Sequence.IUPAC_DNA) != null) {
 					newDoc.createCopy(comp.getSequenceByEncoding(Sequence.IUPAC_DNA));
 				}
+				// remove all dependencies
+				comp.clearSequenceConstraints();
+				comp.clearSequenceAnnotations();
+				comp.clearComponents();
+
 				newDoc.createCopy(comp);
 				return newDoc;
 			}

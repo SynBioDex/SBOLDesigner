@@ -486,8 +486,9 @@ public class SBOLDesigner extends JFrame {
 	private boolean selectCurrentFile() {
 		String name = design.getRootComponent().getDisplayId();
 		if (!Strings.isNullOrEmpty(name)) {
-			File currentDirectory = fc.getCurrentDirectory();
-			fc.setSelectedFile(new File(currentDirectory, name));
+			// File currentDirectory = fc.getCurrentDirectory();
+			// fc.setSelectedFile(new File(currentDirectory, name));
+			fc.setSelectedFile(FileDocumentIO.setupFile());
 		}
 
 		int returnVal = fc.showSaveDialog(this);
@@ -527,24 +528,26 @@ public class SBOLDesigner extends JFrame {
 			SBOLDocument doc = SBOLReader.read(file);
 			String[] options = { "Overwrite", "New Version", "Cancel" };
 			int selection = JOptionPane.showOptionDialog(this,
-					"You have selected an existing SBOL file.  Would you like to create a new version or overwrite the existing file?",
-					"Save", JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
+					"You have selected an existing SBOL file.  Would you like to create a new version or overwrite the existing file?  \n(Overwriting will reopen the file)",
+					"Save over existing file", JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, options,
+					options[0]);
 			switch (selection) {
 			case JOptionPane.CLOSED_OPTION:
 				// closed
 				break;
 			case 0:
 				// Overwrite
-				ComponentDefinition rootCD = SBOLFactory.getRootComponentDefinitions().iterator().next();
-				SBOLDocument newDoc = SBOLFactory.createRecursiveCopy(rootCD);
-				SBOLFactory.setSBOLDocument(newDoc);
+				SBOLDocument newDoc = design.createDocument();
 				SBOLWriter.write(newDoc, file);
+				Preferences.userRoot().node("path").put("path", file.getPath());
+				SBOLFactory.clear();
+				openDesign(new FileDocumentIO(false));
 				break;
 			case 1:
 				// New Version
-				rootCD = SBOLFactory.getRootComponentDefinitions().iterator().next();
-				SBOLDocument currentDoc = SBOLFactory.createRecursiveCopy(rootCD);
-				SBOLFactory.setSBOLDocument(currentDoc);
+				// TODO Doesn't work because has to update all references to new
+				// version as well
+				SBOLDocument currentDoc = design.createDocument();
 				for (TopLevel tp : currentDoc.getTopLevels()) {
 					String previousVersion = tp.getVersion();
 					int newVersion;
@@ -555,8 +558,10 @@ public class SBOLDesigner extends JFrame {
 					}
 					doc.createCopy(tp, tp.getDisplayId(), newVersion + "");
 				}
-
 				SBOLWriter.write(doc, file);
+				Preferences.userRoot().node("path").put("path", file.getPath());
+				SBOLFactory.clear();
+				openDesign(new FileDocumentIO(false));
 				break;
 			case 2:
 				// Cancel

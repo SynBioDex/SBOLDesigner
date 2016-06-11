@@ -95,6 +95,7 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 	private final JButton importCD;
 	private final JTextField displayId = new JTextField();
 	private final JTextField name = new JTextField();
+	private final JTextField version = new JTextField();
 	private final JTextField description = new JTextField();
 	private final JTextArea sequenceField = new JTextArea(10, 80);
 
@@ -171,6 +172,7 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 		builder.add("Role refinement", roleRefinement);
 		builder.add("Display ID", displayId, comp.getDisplayId());
 		builder.add("Name", name, comp.getName());
+		builder.add("Version", version, comp.getVersion());
 		builder.add("Description", description, comp.getDescription());
 		JPanel controlsPane = builder.build();
 
@@ -213,6 +215,7 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 
 		displayId.getDocument().addDocumentListener(this);
 		name.getDocument().addDocumentListener(this);
+		version.getDocument().addDocumentListener(this);
 		description.getDocument().addDocumentListener(this);
 		sequenceField.getDocument().addDocumentListener(this);
 
@@ -337,10 +340,10 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 		// }
 		// }
 
-		comp = SBOLFactory.getComponentDefinition(displayId.getText(), "");
+		comp = SBOLFactory.getComponentDefinition(displayId.getText(), version.getText());
 		if (comp == null) {
-			String uniqueId = SBOLUtils.getUniqueDisplayId(null, displayId.getText(), "CD");
-			comp = SBOLFactory.createComponentDefinition(uniqueId, ComponentDefinition.DNA);
+			String uniqueId = SBOLUtils.getUniqueDisplayId(null, displayId.getText(), version.getText(), "CD");
+			comp = SBOLFactory.createComponentDefinition(uniqueId, version.getText(), ComponentDefinition.DNA);
 		}
 		comp.setName(name.getText());
 		comp.setDescription(description.getText());
@@ -375,7 +378,7 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 		} else if (comp.getSequences().isEmpty()
 				|| !Objects.equal(comp.getSequences().iterator().next().getElements(), seq)) {
 			// Sequence dnaSeq = SBOLUtils.createSequence(seq);
-			String uniqueId = SBOLUtils.getUniqueDisplayId(null, comp.getDisplayId() + "Sequence", "Sequence");
+			String uniqueId = SBOLUtils.getUniqueDisplayId(null, comp.getDisplayId() + "Sequence", "", "Sequence");
 			Sequence dnaSeq = SBOLFactory.createSequence(uniqueId, seq, Sequence.IUPAC_DNA);
 			comp.addSequence(dnaSeq);
 		}

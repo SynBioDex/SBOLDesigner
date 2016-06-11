@@ -63,18 +63,20 @@ import com.google.common.collect.Maps;
 
 public class SBOLUtils {
 	/**
-	 * Returns an int which guarantees a unique URI. Pass in the parent CD, the
-	 * displayId you want, and the type of object.
+	 * Returns an int which guarantees a unique URI. Pass in the parent CD (if
+	 * dataType isn't a TopLevel), the displayId you want, the version (if
+	 * dataType is a TopLevel), and the type of object.
 	 */
-	public static String getUniqueDisplayId(ComponentDefinition comp, String displayId, String dataType) {
+	public static String getUniqueDisplayId(ComponentDefinition comp, String displayId, String version,
+			String dataType) {
 		// if can get using some displayId, then try the next number
 		switch (dataType) {
 		case "CD":
 			for (int i = 1; true; i++) {
-				if (i == 1 && SBOLFactory.getComponentDefinition(displayId, "") == null) {
+				if (i == 1 && SBOLFactory.getComponentDefinition(displayId, version) == null) {
 					return displayId;
 				}
-				if (SBOLFactory.getComponentDefinition(displayId + i, "") == null) {
+				if (SBOLFactory.getComponentDefinition(displayId + i, version) == null) {
 					return displayId + i;
 				}
 			}
@@ -107,10 +109,10 @@ public class SBOLUtils {
 			}
 		case "Sequence":
 			for (int i = 1; true; i++) {
-				if (i == 1 && SBOLFactory.getSequence(displayId, "") == null) {
+				if (i == 1 && SBOLFactory.getSequence(displayId, version) == null) {
 					return displayId;
 				}
-				if (SBOLFactory.getSequence(displayId + i, "") == null) {
+				if (SBOLFactory.getSequence(displayId + i, version) == null) {
 					return displayId + i;
 				}
 			}
@@ -174,7 +176,7 @@ public class SBOLUtils {
 
 	private static Sequence createSequence(String nucleotides) {
 		try {
-			String uniqueId = SBOLUtils.getUniqueDisplayId(null, "Sequence", "Sequence");
+			String uniqueId = SBOLUtils.getUniqueDisplayId(null, "Sequence", "", "Sequence");
 			return SBOLFactory.createSequence(uniqueId, nucleotides, Sequence.IUPAC_DNA);
 		} catch (SBOLValidationException e) {
 			e.printStackTrace();
