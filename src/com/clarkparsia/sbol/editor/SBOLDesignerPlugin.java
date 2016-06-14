@@ -332,7 +332,7 @@ public class SBOLDesignerPlugin extends JPanel {
 	}
 
 	public String getRootDisplayId() {
-		return design.getRootComponent().getDisplayId();
+		return design.getRootComponentDefinition().getDisplayId();
 	}
 
 	private String path;
@@ -468,7 +468,7 @@ public class SBOLDesignerPlugin extends JPanel {
 		}
 		SBOLFactory.setSBOLDocument(doc);
 		editor.getDesign().load(doc);
-		fileName = design.getRootComponent().getDisplayId() + ".sbol";
+		fileName = design.getRootComponentDefinition().getDisplayId() + ".sbol";
 		setCurrentFile(null);
 	}
 

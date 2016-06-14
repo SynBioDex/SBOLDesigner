@@ -484,7 +484,7 @@ public class SBOLDesigner extends JFrame {
 	}
 
 	private boolean selectCurrentFile() {
-		String name = design.getRootComponent().getDisplayId();
+		String name = design.getRootComponentDefinition().getDisplayId();
 		if (!Strings.isNullOrEmpty(name)) {
 			// File currentDirectory = fc.getCurrentDirectory();
 			// fc.setSelectedFile(new File(currentDirectory, name));

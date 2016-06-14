@@ -111,14 +111,14 @@ public class AddressBar extends JToolBar {
 		while (count > 0) {
 			remove(idx(--count));
 		}
-		addButton(event.getDesign().getCurrentComponent());
+		addButton(event.getDesign().getCurrentComponentDefinition());
 		repaint();
 	}
 	
 	@EventHandler
 	public void designChanged(DesignChangedEvent event) {
 		JButton button = (JButton) getComponent(idx(count - 1));
-		button.setText(event.getDesign().getCurrentComponent().getDisplayId());
+		button.setText(event.getDesign().getCurrentComponentDefinition().getDisplayId());
 	}
 	
 	@EventHandler
