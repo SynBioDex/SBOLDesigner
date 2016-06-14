@@ -42,6 +42,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.net.URI;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
@@ -1270,10 +1271,25 @@ public class SBOLDesign {
 			return;
 		}
 
-		// TODO editing displayId doesn't work due to losing references
 		ComponentDefinition comp = getCurrentComponent();
+		URI previous = comp.getIdentity();
+		List<org.sbolstandard.core2.Component> oldComponents = null;
+		try {
+			oldComponents = comp.getSortedComponents();
+		} catch (SBOLValidationException e) {
+			JOptionPane.showMessageDialog(panel, e.getMessage());
+		}
 
-		boolean edited = PartEditDialog.editPart(panel.getParent(), comp, false) != null;
+		comp = PartEditDialog.editPart(panel.getParent(), comp, false);
+		boolean edited = comp != null;
+
+		if (comp.getIdentity() != previous) {
+			// The displayId or version has been changed
+			for (org.sbolstandard.core2.Component c : oldComponents) {
+				DesignElement.createComponent(comp, c.getDefinition());
+			}
+			load(comp);
+		}
 
 		if (edited) {
 			fireDesignChangedEvent();
