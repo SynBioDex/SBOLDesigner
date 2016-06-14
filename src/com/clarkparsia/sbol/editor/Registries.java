@@ -78,12 +78,13 @@ public class Registries implements Iterable<Registry> {
 
 	public void restoreDefaults() {
 		registries.clear();
-		registries.add(Registry.BUILT_IN);
-		registries.add(Registry.SBPKB);
+		// registries.add(Registry.BUILT_IN);
+		// registries.add(Registry.SBPKB);
 		registries.add(Registry.STACK);
 		partRegistryIndex = 1;
 		versionRegistryIndex = 1;
 		isModified = true;
+		save();
 	}
 
 	public void save() {

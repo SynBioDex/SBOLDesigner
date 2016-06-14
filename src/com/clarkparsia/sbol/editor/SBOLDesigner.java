@@ -554,6 +554,7 @@ public class SBOLDesigner extends JFrame {
 					try {
 						newVersion = Integer.parseInt(previousVersion) + 1;
 					} catch (NumberFormatException e) {
+						// TODO doesn't always work
 						newVersion = 1;
 					}
 					doc.createCopy(tp, tp.getDisplayId(), newVersion + "");

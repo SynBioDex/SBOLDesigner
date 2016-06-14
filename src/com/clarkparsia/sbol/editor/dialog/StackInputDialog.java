@@ -57,6 +57,8 @@ import com.clarkparsia.swing.FormBuilder;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 
+import javassist.NotFoundException;
+
 /**
  * 
  * @author Evren Sirin
@@ -204,7 +206,7 @@ public class StackInputDialog extends InputDialog<SBOLDocument> {
 				return listCD;
 			}
 		} catch (StackException e) {
-			JOptionPane.showMessageDialog(null, "Querying this repository failed");
+			JOptionPane.showMessageDialog(null, "Querying this repository failed: " + e.getMessage());
 			e.printStackTrace();
 			return null;
 		}
@@ -216,15 +218,14 @@ public class StackInputDialog extends InputDialog<SBOLDocument> {
 			int row = table.convertRowIndexToModel(table.getSelectedRow());
 			ComponentDefinition comp = ((ComponentDefinitionTableModel) table.getModel()).getElement(row);
 
-			StackFrontend sf = new StackFrontend(url);
-			// TODO This may not return the correct CD
-			SBOLDocument doc = sf.searchComponents(comp.getName(), comp.getRoles(), null, 1);
+			SBOLDocument doc = new SBOLDocument();
 			if (!importSubparts.isSelected()) {
-				doc = new SBOLDocument();
 				doc.createCopy(comp);
+			} else {
+				doc = doc.createRecursiveCopy(comp);
 			}
 			return doc;
-		} catch (StackException | SBOLValidationException e) {
+		} catch (Exception e) {
 			JOptionPane.showMessageDialog(null, "Getting this selection failed");
 			e.printStackTrace();
 			return null;

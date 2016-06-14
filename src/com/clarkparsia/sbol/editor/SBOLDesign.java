@@ -1002,7 +1002,7 @@ public class SBOLDesign {
 		button.setVerticalTextPosition(SwingConstants.BOTTOM);
 		button.setHorizontalTextPosition(SwingConstants.CENTER);
 		button.setToolTipText(getTooltipText(e));
-		button.setMaximumSize(new Dimension(IMG_WIDTH, IMG_HEIGHT + 20));
+		button.setMaximumSize(new Dimension(IMG_WIDTH + 1, IMG_HEIGHT + 20));
 		button.setPreferredSize(new Dimension(IMG_WIDTH, IMG_HEIGHT + 20));
 		button.setBorder(BorderFactory.createEmptyBorder());
 		button.setFont(LABEL_FONT);
