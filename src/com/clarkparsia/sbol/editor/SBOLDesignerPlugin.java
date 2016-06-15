@@ -45,8 +45,10 @@ import org.sbolstandard.core2.ComponentDefinition;
 import org.sbolstandard.core2.SBOLConversionException;
 import org.sbolstandard.core2.SBOLDocument;
 import org.sbolstandard.core2.SBOLFactory;
+import org.sbolstandard.core2.SBOLReader;
 import org.sbolstandard.core2.SBOLValidationException;
 import org.sbolstandard.core2.SBOLWriter;
+import org.sbolstandard.core2.TopLevel;
 
 import com.adamtaft.eb.EventHandler;
 import com.clarkparsia.sbol.SBOLUtils;
@@ -543,23 +545,24 @@ public class SBOLDesignerPlugin extends JPanel {
 	}
 
 	private boolean selectCurrentFile() {
-		// String name = design.getRootComponent().getDisplayId();
+		// String name = design.getRootComponentDefinition().getDisplayId();
 		// if (!Strings.isNullOrEmpty(name)) {
-		// File currentDirectory = fc.getCurrentDirectory();
-		// fc.setSelectedFile(new File(currentDirectory, name));
+		// fc.setSelectedFile(FileDocumentIO.setupFile());
 		// }
 		//
 		// int returnVal = fc.showSaveDialog(this);
 		//
 		// if (returnVal == JFileChooser.APPROVE_OPTION) {
 		// File file = fc.getSelectedFile();
-		// // String fileName = file.getName();
-		// // if (!fileName.contains(".")) {
-		// // file = new File(file + ".rdf");
-		// // }
-		// setCurrentFile(new FileDocumentIO(file, false));
+		// if (file.exists()) {
+		// saveExistingFile(file);
+		// return false;
+		// }
+		// Preferences.userRoot().node("path").put("path", file.getPath());
+		// setCurrentFile(new FileDocumentIO(false));
 		// return true;
 		// }
+		//
 		// return false;
 		File file = new File(path + fileName);
 		Preferences.userRoot().node("path").put("path", file.getPath());
@@ -578,6 +581,63 @@ public class SBOLDesignerPlugin extends JPanel {
 		} catch (Exception ex) {
 			JOptionPane.showMessageDialog(this, "Error saving file: " + ex.getMessage());
 			ex.printStackTrace();
+		}
+	}
+
+	/**
+	 * Save SBOLFactory into an existing file
+	 */
+	private void saveExistingFile(File file) {
+		try {
+			SBOLDocument doc = SBOLReader.read(file);
+			String[] options = { "Overwrite", "New Version", "Cancel" };
+			int selection = JOptionPane.showOptionDialog(this,
+					"You have selected an existing SBOL file.  Would you like to create a new version or overwrite the existing file?  \n(Overwriting will reopen the file)",
+					"Save over existing file", JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, options,
+					options[0]);
+			switch (selection) {
+			case JOptionPane.CLOSED_OPTION:
+				// closed
+				break;
+			case 0:
+				// Overwrite
+				SBOLDocument newDoc = design.createDocument();
+				SBOLWriter.write(newDoc, file);
+				Preferences.userRoot().node("path").put("path", file.getPath());
+				SBOLFactory.clear();
+				openDesign(new FileDocumentIO(false));
+				break;
+			case 1:
+				// New Version
+				// TODO Doesn't work because has to update all references to new
+				// version as well
+				SBOLDocument currentDoc = design.createDocument();
+				for (TopLevel tp : currentDoc.getTopLevels()) {
+					String previousVersion = tp.getVersion();
+					int newVersion;
+					try {
+						newVersion = Integer.parseInt(previousVersion) + 1;
+					} catch (NumberFormatException e) {
+						// TODO doesn't always work
+						newVersion = 1;
+					}
+					doc.createCopy(tp, tp.getDisplayId(), newVersion + "");
+				}
+				SBOLWriter.write(doc, file);
+				Preferences.userRoot().node("path").put("path", file.getPath());
+				SBOLFactory.clear();
+				openDesign(new FileDocumentIO(false));
+				break;
+			case 2:
+				// Cancel
+				break;
+			default:
+				throw new IllegalArgumentException();
+			}
+			return;
+		} catch (SBOLValidationException | IOException | SBOLConversionException e) {
+			JOptionPane.showMessageDialog(this, "This isn't a valid SBOL file: " + e.getMessage());
+			e.printStackTrace();
 		}
 	}
 
