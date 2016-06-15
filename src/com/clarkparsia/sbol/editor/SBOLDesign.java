@@ -146,7 +146,7 @@ public class SBOLDesign {
 		}
 	};
 
-	public final SBOLEditorAction EDIT = new SBOLEditorAction("Edit component", "Edit selected component information",
+	public final SBOLEditorAction EDIT = new SBOLEditorAction("Edit component", "Edit selected part information",
 			"edit.gif") {
 		@Override
 		protected void perform() {

@@ -83,7 +83,7 @@ import uk.ac.ncl.intbio.core.io.CoreIoException;
  * @author Evren Sirin
  */
 public class PartEditDialog extends JDialog implements ActionListener, DocumentListener {
-	private static final String TITLE = "Component: ";
+	private static final String TITLE = "Part: ";
 
 	private ComponentDefinition comp;
 
