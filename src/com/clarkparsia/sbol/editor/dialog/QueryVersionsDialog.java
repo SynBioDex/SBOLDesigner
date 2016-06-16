@@ -43,7 +43,7 @@ import com.clarkparsia.swing.InvisibleSplitPane;
  * 
  * @author Evren Sirin
  */
-public class QueryVersionsDialog extends RegistryInputDialog<ComponentDefinition> {
+public class QueryVersionsDialog extends OldInputDialog<ComponentDefinition> {
 	private static final String TITLE = "Query versions";
 	
 	private static class ExampleQuery {

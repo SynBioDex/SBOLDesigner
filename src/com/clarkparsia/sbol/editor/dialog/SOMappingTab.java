@@ -71,7 +71,7 @@ public enum SOMappingTab implements PreferencesTab {
 		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		table.setPreferredScrollableViewportSize(new Dimension(100, 100));
 		
-		RegistryInputDialog.setWidthAsPercentages(table, tableModel.getWidths());
+		OldInputDialog.setWidthAsPercentages(table, tableModel.getWidths());
 		
 		final JComboBox typeSelection = new JComboBox(Iterables.toArray(Parts.sorted(), Part.class));
 		typeSelection.setRenderer(new PartCellRenderer());

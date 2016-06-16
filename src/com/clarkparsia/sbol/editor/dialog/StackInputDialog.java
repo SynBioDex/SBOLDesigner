@@ -42,6 +42,7 @@ import org.sbolstandard.core2.SBOLDocument;
 import org.sbolstandard.core2.SBOLFactory;
 import org.sbolstandard.core2.SBOLValidationException;
 import org.sbolstack.*;
+import org.sbolstack.frontend.ComponentMetadata;
 import org.sbolstack.frontend.StackException;
 import org.sbolstack.frontend.StackFrontend;
 
@@ -144,6 +145,7 @@ public class StackInputDialog extends InputDialog<SBOLDocument> {
 		}
 
 		importSubparts = new JCheckBox("Import with subcomponents");
+		importSubparts.setSelected(true);
 		builder.add("", importSubparts);
 
 		final JTextField filterSelection = new JTextField();
@@ -173,8 +175,8 @@ public class StackInputDialog extends InputDialog<SBOLDocument> {
 
 	@Override
 	protected JPanel initMainPanel() {
-		List<ComponentDefinition> components = searchParts(isRoleSelection() ? part : null, url);
-		ComponentDefinitionTableModel tableModel = new ComponentDefinitionTableModel(components);
+		List<ComponentMetadata> components = searchParts(isRoleSelection() ? part : null, url);
+		ComponentMetadataTableModel tableModel = new ComponentMetadataTableModel(components);
 
 		JPanel panel = createTablePanel(tableModel, "Matching parts (" + tableModel.getRowCount() + ")");
 
@@ -187,23 +189,17 @@ public class StackInputDialog extends InputDialog<SBOLDocument> {
 	/**
 	 * Queries the stack url provided for CDs matching the role(s) of the part
 	 */
-	private List<ComponentDefinition> searchParts(Part part, String url) {
+	private List<ComponentMetadata> searchParts(Part part, String url) {
 		try {
 			StackFrontend sf = new StackFrontend(url);
 			if (part != null) {
 				Set<URI> setRoles = new HashSet<URI>();
 				setRoles.addAll(part.getRoles());
-				Set<ComponentDefinition> setCD = sf.searchComponents(null, setRoles, null, null)
-						.getComponentDefinitions();
-				List<ComponentDefinition> listCD = new ArrayList<ComponentDefinition>();
-				listCD.addAll(setCD);
-				return listCD;
+				ArrayList<ComponentMetadata> l = sf.searchComponentMetadata(null, setRoles, 0, 99);
+				return l;
 			} else {
-				Set<ComponentDefinition> setCD = sf.searchComponents(null, new HashSet<URI>(), null, null)
-						.getComponentDefinitions();
-				List<ComponentDefinition> listCD = new ArrayList<ComponentDefinition>();
-				listCD.addAll(setCD);
-				return listCD;
+				ArrayList<ComponentMetadata> l = sf.searchComponentMetadata(null, new HashSet<URI>(), 0, 99);
+				return l;
 			}
 		} catch (StackException e) {
 			JOptionPane.showMessageDialog(null, "Querying this repository failed: " + e.getMessage());
@@ -216,7 +212,9 @@ public class StackInputDialog extends InputDialog<SBOLDocument> {
 	protected SBOLDocument getSelection() {
 		try {
 			int row = table.convertRowIndexToModel(table.getSelectedRow());
-			ComponentDefinition comp = ((ComponentDefinitionTableModel) table.getModel()).getElement(row);
+			ComponentMetadata compMeta = ((ComponentMetadataTableModel) table.getModel()).getElement(row);
+			StackFrontend sf = new StackFrontend(url);
+			ComponentDefinition comp = sf.fetchComponent(URI.create(compMeta.uri));
 
 			SBOLDocument doc = new SBOLDocument();
 			if (!importSubparts.isSelected()) {
@@ -237,20 +235,20 @@ public class StackInputDialog extends InputDialog<SBOLDocument> {
 	}
 
 	public void partRoleChanged() {
-		List<ComponentDefinition> components = searchParts(
+		List<ComponentMetadata> components = searchParts(
 				isRoleSelection() ? (Part) roleSelection.getSelectedItem() : null, url);
-		((ComponentDefinitionTableModel) table.getModel()).setElements(components);
+		((ComponentMetadataTableModel) table.getModel()).setElements(components);
 		tableLabel.setText("Matching parts (" + components.size() + ")");
 	}
 
 	private void updateFilter(String filterText) {
 		@SuppressWarnings({ "rawtypes", "unchecked" })
-		TableRowSorter<ComponentDefinitionTableModel> sorter = (TableRowSorter) table.getRowSorter();
+		TableRowSorter<ComponentMetadataTableModel> sorter = (TableRowSorter) table.getRowSorter();
 		if (filterText.length() == 0) {
 			sorter.setRowFilter(null);
 		} else {
 			try {
-				RowFilter<ComponentDefinitionTableModel, Object> rf = RowFilter.regexFilter(filterText, 0, 1);
+				RowFilter<ComponentMetadataTableModel, Object> rf = RowFilter.regexFilter(filterText, 0, 1);
 				sorter.setRowFilter(rf);
 			} catch (java.util.regex.PatternSyntaxException e) {
 				sorter.setRowFilter(null);

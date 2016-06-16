@@ -28,7 +28,7 @@ import com.google.common.base.Strings;
  * 
  * @author Evren Sirin
  */
-public class CreateTagDialog extends RegistryInputDialog<String> {
+public class CreateTagDialog extends OldInputDialog<String> {
 	private JTextField tagName;
 	private JTextComponent tagMsg;
 		

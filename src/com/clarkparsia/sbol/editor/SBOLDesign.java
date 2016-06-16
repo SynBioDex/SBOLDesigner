@@ -1364,13 +1364,13 @@ public class SBOLDesign {
 		SBOLDocument selection = null;
 		try {
 			selection = new StackInputDialog(panel.getParent(), part).getInput();
-			SBOLUtils.insertTopLevels(selection);
 		} catch (Exception e1) {
 			JOptionPane.showMessageDialog(panel, "Failed to get part");
 			e1.printStackTrace();
 		}
 
 		if (selection != null) {
+			SBOLUtils.insertTopLevels(selection);
 			if (!confirmEditable()) {
 				return;
 			}
@@ -1446,7 +1446,7 @@ public class SBOLDesign {
 			}
 			String nucleotides = currentComponentDefinition.getImpliedNucleicAcidSequence();
 
-			if (nucleotides.length() > 0) {
+			if (nucleotides != null && nucleotides.length() > 0) {
 				if (nucleotides.length() < oldElements.length()) {
 					// report to the user if the updated sequence is shorter
 					int option = JOptionPane.showConfirmDialog(panel,

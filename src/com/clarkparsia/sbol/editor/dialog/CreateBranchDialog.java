@@ -26,7 +26,7 @@ import com.clarkparsia.swing.FormBuilder;
  * 
  * @author Evren Sirin
  */
-public class CreateBranchDialog extends RegistryInputDialog<String> {
+public class CreateBranchDialog extends OldInputDialog<String> {
 	private JTextField branchName;
 	private JTextField branchMsg;
 		

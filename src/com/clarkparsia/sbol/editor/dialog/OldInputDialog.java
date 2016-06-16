@@ -60,7 +60,7 @@ import com.google.common.collect.Iterables;
  * 
  * @author Evren Sirin
  */
-public abstract class RegistryInputDialog<T> extends JDialog {
+public abstract class OldInputDialog<T> extends JDialog {
 	protected enum RegistryType { PART, VERSION, NONE }
 	
 	private final ComboBoxRenderer<Registry> registryRenderer = new ComboBoxRenderer<Registry>() {	
@@ -97,7 +97,7 @@ public abstract class RegistryInputDialog<T> extends JDialog {
 	
 	protected boolean canceled = true;
 
-	protected RegistryInputDialog(final Component parent, String title, RegistryType registryType) {
+	protected OldInputDialog(final Component parent, String title, RegistryType registryType) {
 		super(JOptionPane.getFrameForComponent(parent), title, true);
 
 		this.registryType = registryType;
@@ -312,7 +312,7 @@ public abstract class RegistryInputDialog<T> extends JDialog {
 				});
 			}
 			else if (source == optionsButton) {
-				PreferencesDialog.showPreferences(RegistryInputDialog.this, RegistryPreferencesTab.INSTANCE.getTitle());
+				PreferencesDialog.showPreferences(OldInputDialog.this, RegistryPreferencesTab.INSTANCE.getTitle());
 				registrySelection.removeAllItems();
 				for (Registry r : Registries.get()) {
 					registrySelection.addItem(r);

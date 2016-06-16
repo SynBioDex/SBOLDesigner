@@ -110,7 +110,7 @@ public enum RegistryPreferencesTab implements PreferencesTab {
 			}
 		});
 
-		RegistryInputDialog.setWidthAsPercentages(table, 0.2, 0.2, 0.6);
+		OldInputDialog.setWidthAsPercentages(table, 0.2, 0.2, 0.6);
 
 		TableRowSorter<RegistryTableModel> sorter = new TableRowSorter<RegistryTableModel>(tableModel);
 		table.setRowSorter(sorter);

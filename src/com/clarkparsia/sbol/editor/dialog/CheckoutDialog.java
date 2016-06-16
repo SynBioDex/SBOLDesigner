@@ -65,7 +65,7 @@ import com.google.common.collect.Sets;
  * 
  * @author Evren Sirin
  */
-public class CheckoutDialog extends RegistryInputDialog<CheckoutResult> {
+public class CheckoutDialog extends OldInputDialog<CheckoutResult> {
 	public static class CheckoutResult {
 		private final RVTDocumentIO documentIO;
 		private final boolean insert;

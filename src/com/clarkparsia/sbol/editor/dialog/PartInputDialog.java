@@ -76,6 +76,7 @@ public class PartInputDialog extends InputDialog<SBOLDocument> {
 		}
 
 		importSubparts = new JCheckBox("Import with subcomponents");
+		importSubparts.setSelected(true);
 		builder.add("", importSubparts);
 
 		final JTextField filterSelection = new JTextField();
