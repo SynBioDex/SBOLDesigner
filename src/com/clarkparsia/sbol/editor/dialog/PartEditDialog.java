@@ -299,7 +299,7 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 	 * something was imported. False otherwise.
 	 */
 	private boolean importCDHandler() throws SBOLValidationException {
-		SBOLDocument doc = importDoc();
+		SBOLDocument doc = SBOLUtils.importDoc();
 		if (doc != null) {
 			ComponentDefinition[] CDs = doc.getComponentDefinitions().toArray(new ComponentDefinition[0]);
 
@@ -389,7 +389,7 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 	 * Handles when the import sequence button is clicked.
 	 */
 	private void importSequenceHandler() {
-		SBOLDocument doc = importDoc();
+		SBOLDocument doc = SBOLUtils.importDoc();
 		if (doc != null) {
 			Set<Sequence> seqSet = doc.getSequences();
 			String importedNucleotides = "";
@@ -402,40 +402,6 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 			}
 			sequenceField.setText(importedNucleotides);
 		}
-	}
-
-	/**
-	 * Prompts the user to choose a file and reads it, returning the output
-	 * SBOLDocument. If the user cancels or the file in unable to be imported,
-	 * returns null.
-	 */
-	private SBOLDocument importDoc() {
-		JFileChooser fc = new JFileChooser(FileDocumentIO.setupFile());
-		fc.setMultiSelectionEnabled(false);
-		fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
-		fc.setAcceptAllFileFilterUsed(true);
-		fc.setFileFilter(
-				new FileNameExtensionFilter("SBOL file (*.xml, *.rdf, *.sbol), GenBank (*.gb, *.gbk), FASTA (*.fasta)",
-						"xml", "rdf", "sbol", "gb", "gbk", "fasta"));
-
-		int returnVal = fc.showOpenDialog(getParent());
-		if (returnVal == JFileChooser.APPROVE_OPTION) {
-			File file = fc.getCurrentDirectory();
-			Preferences.userRoot().node("path").put("path", file.getPath());
-
-			file = fc.getSelectedFile();
-			SBOLDocument doc = null;
-			try {
-				SBOLReader.setURIPrefix(SBOLEditorPreferences.INSTANCE.getUserInfo().getURI().toString());
-				SBOLReader.setCompliant(true);
-				doc = SBOLReader.read(file);
-			} catch (Exception e1) {
-				JOptionPane.showMessageDialog(getParent(), "This file is unable to be imported: " + e1.getMessage());
-				e1.printStackTrace();
-			}
-			return doc;
-		}
-		return null;
 	}
 
 	@Override

@@ -341,7 +341,7 @@ public class SBOLDesignerPlugin extends JPanel {
 
 	public SBOLDesignerPlugin(String path, String fileName) throws SBOLValidationException {
 		super(new BorderLayout());
-		fc = new JFileChooser(FileDocumentIO.setupFile());
+		fc = new JFileChooser(SBOLUtils.setupFile());
 		fc.setMultiSelectionEnabled(false);
 		fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
 		fc.setAcceptAllFileFilterUsed(true);

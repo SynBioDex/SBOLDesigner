@@ -34,6 +34,7 @@ import org.sbolstandard.core2.SBOLReader;
 import org.sbolstandard.core2.SBOLValidationException;
 import org.sbolstandard.core2.SBOLWriter;
 
+import com.clarkparsia.sbol.SBOLUtils;
 import com.clarkparsia.sbol.editor.SBOLEditorPreferences;
 
 import uk.ac.ncl.intbio.core.io.CoreIoException;
@@ -51,7 +52,7 @@ public class FileDocumentIO implements DocumentIO {
 	// private final SBOLWriter writer;
 
 	public FileDocumentIO(boolean validate) {
-		File file = setupFile();
+		File file = SBOLUtils.setupFile();
 		String fileName = file.getName();
 		RDFFormat format = fileName.endsWith(".xml") ? RDFFormat.RDFXML
 				: RDFFormat.forFileName(fileName, RDFFormat.RDFXML);
@@ -63,7 +64,7 @@ public class FileDocumentIO implements DocumentIO {
 	public SBOLDocument read()
 			throws SBOLValidationException, FileNotFoundException, IOException, SBOLConversionException {
 		// return reader.read(new FileInputStream(file));
-		File file = setupFile();
+		File file = SBOLUtils.setupFile();
 		SBOLReader.setURIPrefix(SBOLEditorPreferences.INSTANCE.getUserInfo().getURI().toString());
 		SBOLReader.setCompliant(true);
 		return SBOLReader.read(new FileInputStream(file));
@@ -72,58 +73,18 @@ public class FileDocumentIO implements DocumentIO {
 	@Override
 	public void write(SBOLDocument doc) throws SBOLValidationException, SBOLConversionException, IOException {
 		// writer.write(doc, new FileOutputStream(file));
-		File file = setupFile();
-		String[] formats = { "SBOL 2.0", "SBOL 1.1", "GenBank", "FASTA" };
-		int format = JOptionPane.showOptionDialog(null, "Please select an output format", "Save as",
-				JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, formats, "SBOL 2.0");
-
+		File file = SBOLUtils.setupFile();
 		String fileName = file.getName();
-
-		switch (format) {
-		case JOptionPane.CLOSED_OPTION:
-			break;
-		case 0:
-			// SBOL 2.0
-			if (!fileName.contains(".")) {
-				file = new File(file + ".rdf");
-			}
-			SBOLWriter.write(doc, new FileOutputStream(file), SBOLDocument.RDF);
-			break;
-		case 1:
-			// SBOL 1.1
-			if (!fileName.contains(".")) {
-				file = new File(file + ".rdf");
-			}
-			SBOLWriter.write(doc, new FileOutputStream(file), SBOLDocument.RDFV1);
-			break;
-		case 2:
-			// GenBank
-			if (!fileName.contains(".")) {
-				file = new File(file + ".gb");
-			}
-			SBOLWriter.write(doc, new FileOutputStream(file), SBOLDocument.GENBANK);
-			break;
-		case 3:
-			// FASTA
-			if (!fileName.contains(".")) {
-				file = new File(file + ".fasta");
-			}
-			SBOLWriter.write(doc, new FileOutputStream(file), SBOLDocument.FASTAformat);
-			break;
+		if (!fileName.contains(".")) {
+			file = new File(file + ".rdf");
 		}
+		SBOLWriter.write(doc, new FileOutputStream(file));
 	}
 
 	@Override
 	public String toString() {
-		File file = setupFile();
+		File file = SBOLUtils.setupFile();
 		return file.getName();
 	}
 
-	/**
-	 * Gets the path from Preferences and returns a File
-	 */
-	public static File setupFile() {
-		String path = Preferences.userRoot().node("path").get("path", "");
-		return new File(path);
-	}
 }

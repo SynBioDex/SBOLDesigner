@@ -15,6 +15,7 @@
 
 package com.clarkparsia.sbol;
 
+import java.io.File;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -22,8 +23,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.prefs.Preferences;
 
+import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 import org.sbolstandard.core.SBOLObject;
 import org.sbolstandard.core2.ComponentDefinition;
@@ -32,11 +36,14 @@ import org.sbolstandard.core2.Range;
 import org.sbolstandard.core2.Sequence;
 import org.sbolstandard.core2.SBOLDocument;
 import org.sbolstandard.core2.SBOLFactory;
+import org.sbolstandard.core2.SBOLReader;
 import org.sbolstandard.core2.SBOLValidationException;
 import org.sbolstandard.core2.SequenceAnnotation;
 import org.sbolstandard.core2.TopLevel;
 
 import com.clarkparsia.sbol.editor.Part;
+import com.clarkparsia.sbol.editor.SBOLEditorPreferences;
+import com.clarkparsia.sbol.editor.io.FileDocumentIO;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Maps;
@@ -133,6 +140,48 @@ public class SBOLUtils {
 		default:
 			throw new IllegalArgumentException();
 		}
+	}
+
+	/**
+	 * Prompts the user to choose a file and reads it, returning the output
+	 * SBOLDocument. If the user cancels or the file in unable to be imported,
+	 * returns null.
+	 */
+	public static SBOLDocument importDoc() {
+		JFileChooser fc = new JFileChooser(SBOLUtils.setupFile());
+		fc.setMultiSelectionEnabled(false);
+		fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
+		fc.setAcceptAllFileFilterUsed(true);
+		fc.setFileFilter(
+				new FileNameExtensionFilter("SBOL file (*.xml, *.rdf, *.sbol), GenBank (*.gb, *.gbk), FASTA (*.fasta)",
+						"xml", "rdf", "sbol", "gb", "gbk", "fasta"));
+
+		int returnVal = fc.showOpenDialog(null);
+		if (returnVal == JFileChooser.APPROVE_OPTION) {
+			File file = fc.getCurrentDirectory();
+			Preferences.userRoot().node("path").put("path", file.getPath());
+
+			file = fc.getSelectedFile();
+			SBOLDocument doc = null;
+			try {
+				SBOLReader.setURIPrefix(SBOLEditorPreferences.INSTANCE.getUserInfo().getURI().toString());
+				SBOLReader.setCompliant(true);
+				doc = SBOLReader.read(file);
+			} catch (Exception e1) {
+				JOptionPane.showMessageDialog(null, "This file is unable to be imported: " + e1.getMessage());
+				e1.printStackTrace();
+			}
+			return doc;
+		}
+		return null;
+	}
+
+	/**
+	 * Gets the path from Preferences and returns a File
+	 */
+	public static File setupFile() {
+		String path = Preferences.userRoot().node("path").get("path", "");
+		return new File(path);
 	}
 
 	// public static URI createURI() {

@@ -23,6 +23,8 @@ import java.awt.Component;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.logging.LogManager;
@@ -110,6 +112,18 @@ public class SBOLDesigner extends JFrame {
 		@Override
 		protected void perform() {
 			save();
+		}
+	};
+
+	private final SBOLEditorAction EXPORT = new SBOLEditorAction("Export", "Export your current design", "export.png") {
+		@Override
+		protected void perform() {
+			try {
+				export();
+			} catch (SBOLConversionException | IOException e) {
+				JOptionPane.showMessageDialog(null, "There was a problem exporting this design: " + e.getMessage());
+				e.printStackTrace();
+			}
 		}
 	};
 
@@ -300,7 +314,7 @@ public class SBOLDesigner extends JFrame {
 	private final SBOLEditor editor = new SBOLEditor(true);
 	private final SBOLDesign design = editor.getDesign();
 
-	private final SBOLEditorActions TOOLBAR_ACTIONS = new SBOLEditorActions().add(NEW, OPEN, SAVE, DIVIDER)
+	private final SBOLEditorActions TOOLBAR_ACTIONS = new SBOLEditorActions().add(NEW, OPEN, SAVE, EXPORT, DIVIDER)
 			.addIf(SBOLEditorPreferences.INSTANCE.isVersioningEnabled(), VERSION, DIVIDER)
 			.add(design.EDIT_ROOT, design.EDIT, design.FIND, design.DELETE, design.FLIP, DIVIDER)
 			.add(design.HIDE_SCARS, design.ADD_SCARS, DIVIDER).add(design.FOCUS_IN, design.FOCUS_OUT, DIVIDER, SNAPSHOT)
@@ -316,7 +330,7 @@ public class SBOLDesigner extends JFrame {
 	private DocumentIO documentIO;
 
 	public SBOLDesigner() throws SBOLValidationException {
-		fc = new JFileChooser(FileDocumentIO.setupFile());
+		fc = new JFileChooser(SBOLUtils.setupFile());
 		fc.setMultiSelectionEnabled(false);
 		fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
 		fc.setAcceptAllFileFilterUsed(true);
@@ -456,6 +470,54 @@ public class SBOLDesigner extends JFrame {
 		}
 	}
 
+	private void export() throws FileNotFoundException, SBOLConversionException, IOException {
+		String[] formats = { "SBOL 1.1", "GenBank", "FASTA" };
+		int format = JOptionPane.showOptionDialog(this, "Please select an export format", "Export",
+				JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, formats, "SBOL 1.1");
+		if (format == JOptionPane.CLOSED_OPTION) {
+			return;
+		}
+
+		fc.setSelectedFile(SBOLUtils.setupFile());
+		int returnVal = fc.showSaveDialog(this);
+		if (returnVal == JFileChooser.APPROVE_OPTION) {
+			File file = fc.getSelectedFile();
+			if (file.exists()) {
+				JOptionPane.showMessageDialog(this, "You cannot select this file");
+				return;
+			}
+			Preferences.userRoot().node("path").put("path", file.getPath());
+			String fileName = file.getName();
+			SBOLDocument doc = editor.getDesign().createDocument();
+
+			switch (format) {
+			case JOptionPane.CLOSED_OPTION:
+				break;
+			case 0:
+				// SBOL 1.1
+				if (!fileName.contains(".")) {
+					file = new File(file + ".rdf");
+				}
+				SBOLWriter.write(doc, new FileOutputStream(file), SBOLDocument.RDFV1);
+				break;
+			case 1:
+				// GenBank
+				if (!fileName.contains(".")) {
+					file = new File(file + ".gb");
+				}
+				SBOLWriter.write(doc, new FileOutputStream(file), SBOLDocument.GENBANK);
+				break;
+			case 2:
+				// FASTA
+				if (!fileName.contains(".")) {
+					file = new File(file + ".fasta");
+				}
+				SBOLWriter.write(doc, new FileOutputStream(file), SBOLDocument.FASTAformat);
+				break;
+			}
+		}
+	}
+
 	private boolean confirmSave() {
 		if (isModified()) {
 			int confirmation = JOptionPane.showConfirmDialog(this,
@@ -486,7 +548,7 @@ public class SBOLDesigner extends JFrame {
 	private boolean selectCurrentFile() {
 		String name = design.getRootComponentDefinition().getDisplayId();
 		if (!Strings.isNullOrEmpty(name)) {
-			fc.setSelectedFile(FileDocumentIO.setupFile());
+			fc.setSelectedFile(SBOLUtils.setupFile());
 		}
 
 		int returnVal = fc.showSaveDialog(this);
@@ -599,8 +661,9 @@ public class SBOLDesigner extends JFrame {
 		// commit enabled is design changed or it is not versioned so you can
 		// load a design from a file and save it in the version registry
 		COMMIT.setEnabled(designChanged || !versionedDesign);
-		// save is enabled only if the design changed
+		// save and export is enabled only if the design changed
 		SAVE.setEnabled(designChanged);
+		EXPORT.setEnabled(designChanged);
 	}
 
 	public boolean isModified() {
