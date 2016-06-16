@@ -1464,7 +1464,7 @@ public class SBOLDesign {
 				// use the implied sequence
 				String uniqueId = SBOLUtils.getUniqueDisplayId(null,
 						currentComponentDefinition.getDisplayId() + "Sequence", "", "Sequence");
-				Sequence newSequence = SBOLFactory.createSequence(uniqueId, nucleotides, Sequence.IUPAC_DNA);
+				Sequence newSequence = SBOLFactory.createSequence(uniqueId, "1", nucleotides, Sequence.IUPAC_DNA);
 				currentComponentDefinition.addSequence(newSequence);
 			} else {
 				// use the old sequence provided it was there

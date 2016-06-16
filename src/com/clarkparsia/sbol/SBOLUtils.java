@@ -177,7 +177,7 @@ public class SBOLUtils {
 	private static Sequence createSequence(String nucleotides) {
 		try {
 			String uniqueId = SBOLUtils.getUniqueDisplayId(null, "Sequence", "", "Sequence");
-			return SBOLFactory.createSequence(uniqueId, nucleotides, Sequence.IUPAC_DNA);
+			return SBOLFactory.createSequence(uniqueId, "1", nucleotides, Sequence.IUPAC_DNA);
 		} catch (SBOLValidationException e) {
 			e.printStackTrace();
 			return null;

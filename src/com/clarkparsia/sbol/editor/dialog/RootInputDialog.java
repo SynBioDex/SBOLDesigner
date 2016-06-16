@@ -4,8 +4,11 @@ import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -39,6 +42,7 @@ public class RootInputDialog extends InputDialog<SBOLDocument> {
 	private JLabel tableLabel;
 
 	private JComboBox<Part> roleSelection;
+	private JCheckBox onlyShowRootCDs;
 	private static final Part ALL_PARTS = new Part("All parts", "All");
 
 	private SBOLDocument doc;
@@ -69,10 +73,20 @@ public class RootInputDialog extends InputDialog<SBOLDocument> {
 		roleSelection.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent event) {
-				partRoleChanged();
+				updateTable();
 			}
 		});
 		builder.add("Part role", roleSelection);
+
+		onlyShowRootCDs = new JCheckBox("Only show root ComponentDefinitions");
+		onlyShowRootCDs.setSelected(true);
+		onlyShowRootCDs.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent event) {
+				updateTable();
+			}
+		});
+		builder.add("", onlyShowRootCDs);
 
 		final JTextField filterSelection = new JTextField();
 		filterSelection.getDocument().addDocumentListener(new DocumentListener() {
@@ -98,7 +112,11 @@ public class RootInputDialog extends InputDialog<SBOLDocument> {
 	@Override
 	protected JPanel initMainPanel() {
 		List<ComponentDefinition> components = new ArrayList<ComponentDefinition>();
-		components.addAll(doc.getRootComponentDefinitions());
+		if (onlyShowRootCDs.isSelected()) {
+			components.addAll(doc.getRootComponentDefinitions());
+		} else {
+			components.addAll(doc.getComponentDefinitions());
+		}
 
 		ComponentDefinitionTableModel tableModel = new ComponentDefinitionTableModel(components);
 		JPanel panel = createTablePanel(tableModel, "Matching parts (" + tableModel.getRowCount() + ")");
@@ -121,9 +139,16 @@ public class RootInputDialog extends InputDialog<SBOLDocument> {
 		}
 	}
 
-	public void partRoleChanged() {
+	public void updateTable() {
 		Part part = isRoleSelection() ? (Part) roleSelection.getSelectedItem() : ALL_PARTS;
-		List<ComponentDefinition> components = SBOLUtils.getCDOfRole(doc, part);
+		Set<ComponentDefinition> CDsToDisplay;
+		if (onlyShowRootCDs.isSelected()) {
+			CDsToDisplay = doc.getRootComponentDefinitions();
+		} else {
+			CDsToDisplay = doc.getComponentDefinitions();
+		}
+
+		List<ComponentDefinition> components = SBOLUtils.getCDOfRole(CDsToDisplay, part);
 		((ComponentDefinitionTableModel) table.getModel()).setElements(components);
 		tableLabel.setText("Matching parts (" + components.size() + ")");
 	}

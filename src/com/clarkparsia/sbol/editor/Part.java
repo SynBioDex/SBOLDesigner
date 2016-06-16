@@ -131,7 +131,7 @@ public class Part {
 		// create ComponentDefinition using the following parameters
 		try {
 			String uniqueId = SBOLUtils.getUniqueDisplayId(null, getDisplayId(), "", "CD");
-			ComponentDefinition comp = SBOLFactory.createComponentDefinition(uniqueId, ComponentDefinition.DNA);
+			ComponentDefinition comp = SBOLFactory.createComponentDefinition(uniqueId, "1", ComponentDefinition.DNA);
 			comp.setRoles(setRoles);
 			return comp;
 		} catch (SBOLValidationException e) {

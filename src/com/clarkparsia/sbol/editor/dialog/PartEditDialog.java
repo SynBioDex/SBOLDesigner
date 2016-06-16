@@ -343,6 +343,7 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 		comp = SBOLFactory.getComponentDefinition(displayId.getText(), version.getText());
 		if (comp == null) {
 			String uniqueId = SBOLUtils.getUniqueDisplayId(null, displayId.getText(), version.getText(), "CD");
+			// TODO Version should start at 1 by default
 			comp = SBOLFactory.createComponentDefinition(uniqueId, version.getText(), ComponentDefinition.DNA);
 		}
 		comp.setName(name.getText());
@@ -379,7 +380,7 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 				|| !Objects.equal(comp.getSequences().iterator().next().getElements(), seq)) {
 			// Sequence dnaSeq = SBOLUtils.createSequence(seq);
 			String uniqueId = SBOLUtils.getUniqueDisplayId(null, comp.getDisplayId() + "Sequence", "", "Sequence");
-			Sequence dnaSeq = SBOLFactory.createSequence(uniqueId, seq, Sequence.IUPAC_DNA);
+			Sequence dnaSeq = SBOLFactory.createSequence(uniqueId, "1", seq, Sequence.IUPAC_DNA);
 			comp.addSequence(dnaSeq);
 		}
 	}
