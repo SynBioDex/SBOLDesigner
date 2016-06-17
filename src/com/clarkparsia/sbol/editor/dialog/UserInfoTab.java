@@ -41,7 +41,7 @@ import com.google.common.base.Strings;
 
 public enum UserInfoTab implements PreferencesTab {
 	INSTANCE;
-	
+
 	private JTextField name;
 	private JTextField email;
 	private JTextField uri;
@@ -66,13 +66,13 @@ public enum UserInfoTab implements PreferencesTab {
 		PersonInfo info = SBOLEditorPreferences.INSTANCE.getUserInfo();
 		FormBuilder builder = new FormBuilder();
 		name = builder.addTextField("Full name", info == null ? null : info.getName());
-		email = builder.addTextField("Email", info == null || info.getEmail() == null ? null : info.getEmail()
-		                .getLocalName());
+		email = builder.addTextField("Email",
+				info == null || info.getEmail() == null ? null : info.getEmail().getLocalName());
 		uri = builder.addTextField("URI [mandatory]", info == null ? null : info.getURI().stringValue());
 		JPanel formPanel = builder.build();
-						
+
 		JButton deleteInfo = new JButton("Delete user info");
-		deleteInfo.addActionListener(new ActionListener() {			
+		deleteInfo.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				PersonInfo userInfo = Infos.forPerson(uri.getText());
@@ -83,13 +83,13 @@ public enum UserInfoTab implements PreferencesTab {
 		});
 		deleteInfo.setAlignmentX(Component.RIGHT_ALIGNMENT);
 		deleteInfo.setEnabled(info != null);
-		
+
 		Box buttonPanel = Box.createHorizontalBox();
 		buttonPanel.setBorder(BorderFactory.createEmptyBorder(0, 10, 10, 10));
 		buttonPanel.add(Box.createHorizontalGlue());
 		buttonPanel.add(deleteInfo);
-		
-		JPanel p = new JPanel(new BorderLayout());			
+
+		JPanel p = new JPanel(new BorderLayout());
 		p.add(formPanel, BorderLayout.NORTH);
 		p.add(buttonPanel, BorderLayout.SOUTH);
 

@@ -15,6 +15,7 @@
 
 package com.clarkparsia.sbol.editor;
 
+import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
 import com.clarkparsia.versioning.Infos;
@@ -100,5 +101,27 @@ public enum SBOLEditorPreferences {
 
 		Preferences prefs = Preferences.userNodeForPackage(SBOLEditorPreferences.class).node("versioning");
 		prefs.putBoolean("enable", enableVersioning);
+	}
+
+	private Integer saveBehavior = null;
+
+	/**
+	 * askUser is 0, overwrite is 1, and newVersion is 2
+	 */
+	public Integer getSaveBehavior() {
+		if (saveBehavior == null) {
+			Preferences prefs = Preferences.userNodeForPackage(SBOLEditorPreferences.class).node("settings");
+			saveBehavior = prefs.getInt("saveBehavior", 0);
+		}
+		return saveBehavior;
+	}
+
+	/**
+	 * askUser is 0, overwrite is 1, and newVersion is 2
+	 */
+	public void setSaveBehavior(int saveBehavior) {
+		Preferences prefs = Preferences.userNodeForPackage(SBOLEditorPreferences.class).node("settings");
+		prefs.putInt("saveBehavior", saveBehavior);
+		this.saveBehavior = saveBehavior;
 	}
 }

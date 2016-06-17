@@ -398,13 +398,31 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 	/**
 	 * Ask the user if they want to overwrite or create a new version. The
 	 * respective CD is then returned.
-	 * 
-	 * @throws SBOLValidationException
 	 */
 	private ComponentDefinition showSaveOptions() throws SBOLValidationException {
-		Object[] options = { "Overwrite", "New Version" };
-		int option = JOptionPane.showOptionDialog(getParent(), "Would you like to overwrite or save as a new version?",
-				"Save", JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
+		int option = 0;
+
+		// check preferences
+		// askUser is 0, overwrite is 1, and newVersion is 2
+		int saveBehavior = SBOLEditorPreferences.INSTANCE.getSaveBehavior();
+		switch (saveBehavior) {
+		case 0:
+			// askUser
+			Object[] options = { "Overwrite", "New Version" };
+			option = JOptionPane.showOptionDialog(getParent(), "Would you like to overwrite or save as a new version?",
+					"Save", JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
+			break;
+		case 1:
+			// overwrite
+			option = 0;
+			break;
+		case 2:
+			// newVersion
+			option = 1;
+			break;
+		}
+
+		// either overwrite the part or create a new version
 		switch (option) {
 		case 0:
 			// Overwrite
@@ -422,6 +440,7 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 			break;
 		case JOptionPane.CLOSED_OPTION:
 			comp = null;
+			break;
 		}
 		return comp;
 	}
