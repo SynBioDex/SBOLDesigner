@@ -350,6 +350,20 @@ public class SBOLUtils {
 		}
 	}
 
+	/**
+	 * Returns an int that represents the passed in version. 0 if version isn't
+	 * a number.
+	 */
+	public static int getVersion(String version) {
+		int v;
+		try {
+			v = Integer.parseInt(version);
+		} catch (NumberFormatException e) {
+			v = 0;
+		}
+		return v;
+	}
+
 	// public static BufferedImage getImage(ComponentDefinition comp) {
 	// SBOLEditor editor = new SBOLEditor(false);
 	// SBOLDesign design = editor.getDesign();

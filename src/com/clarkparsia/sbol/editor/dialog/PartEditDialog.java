@@ -172,6 +172,7 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 		builder.add("Role refinement", roleRefinement);
 		builder.add("Display ID", displayId, comp.getDisplayId());
 		builder.add("Name", name, comp.getName());
+		version.setEditable(false);
 		builder.add("Version", version, comp.getVersion());
 		builder.add("Description", description, comp.getDescription());
 		JPanel controlsPane = builder.build();
@@ -340,12 +341,20 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 		// }
 		// }
 
-		comp = SBOLFactory.getComponentDefinition(displayId.getText(), version.getText());
-		if (comp == null) {
-			String uniqueId = SBOLUtils.getUniqueDisplayId(null, displayId.getText(), version.getText(), "CD");
-			// TODO Version should start at 1 by default
-			comp = SBOLFactory.createComponentDefinition(uniqueId, version.getText(), ComponentDefinition.DNA);
+		// either continue without version or showSaveOptions()
+		if (version.getText().equals("")) {
+			comp = SBOLFactory.getComponentDefinition(displayId.getText(), "");
+			if (comp == null) {
+				String uniqueId = SBOLUtils.getUniqueDisplayId(null, displayId.getText(), "", "CD");
+				comp = SBOLFactory.createComponentDefinition(uniqueId, ComponentDefinition.DNA);
+			}
+		} else {
+			comp = showSaveOptions();
+			if (comp == null) {
+				return;
+			}
 		}
+
 		comp.setName(name.getText());
 		comp.setDescription(description.getText());
 		// comp.setDisplayId(displayId.getText());
@@ -379,10 +388,42 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 		} else if (comp.getSequences().isEmpty()
 				|| !Objects.equal(comp.getSequences().iterator().next().getElements(), seq)) {
 			// Sequence dnaSeq = SBOLUtils.createSequence(seq);
-			String uniqueId = SBOLUtils.getUniqueDisplayId(null, comp.getDisplayId() + "Sequence", "", "Sequence");
-			Sequence dnaSeq = SBOLFactory.createSequence(uniqueId, "1", seq, Sequence.IUPAC_DNA);
+			String uniqueId = SBOLUtils.getUniqueDisplayId(null, comp.getDisplayId() + "Sequence", comp.getVersion(),
+					"Sequence");
+			Sequence dnaSeq = SBOLFactory.createSequence(uniqueId, comp.getVersion(), seq, Sequence.IUPAC_DNA);
 			comp.addSequence(dnaSeq);
 		}
+	}
+
+	/**
+	 * Ask the user if they want to overwrite or create a new version. The
+	 * respective CD is then returned.
+	 * 
+	 * @throws SBOLValidationException
+	 */
+	private ComponentDefinition showSaveOptions() throws SBOLValidationException {
+		Object[] options = { "Overwrite", "New Version" };
+		int option = JOptionPane.showOptionDialog(getParent(), "Would you like to overwrite or save as a new version?",
+				"Save", JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
+		switch (option) {
+		case 0:
+			// Overwrite
+			comp = SBOLFactory.getComponentDefinition(displayId.getText(), version.getText());
+			if (comp == null) {
+				String uniqueId = SBOLUtils.getUniqueDisplayId(null, displayId.getText(), version.getText(), "CD");
+				comp = SBOLFactory.createComponentDefinition(uniqueId, version.getText(), ComponentDefinition.DNA);
+			}
+			break;
+		case 1:
+			// New Version
+			String newVersion = SBOLUtils.getVersion(version.getText()) + 1 + "";
+			String uniqueId = SBOLUtils.getUniqueDisplayId(null, displayId.getText(), newVersion, "CD");
+			comp = SBOLFactory.createComponentDefinition(uniqueId, newVersion, ComponentDefinition.DNA);
+			break;
+		case JOptionPane.CLOSED_OPTION:
+			comp = null;
+		}
+		return comp;
 	}
 
 	/**
