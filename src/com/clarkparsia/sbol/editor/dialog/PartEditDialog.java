@@ -397,7 +397,8 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 
 	/**
 	 * Ask the user if they want to overwrite or create a new version. The
-	 * respective CD is then returned.
+	 * respective CD is then returned. This should only be used when the version
+	 * field isn't blank.
 	 */
 	private ComponentDefinition showSaveOptions() throws SBOLValidationException {
 		int option = 0;

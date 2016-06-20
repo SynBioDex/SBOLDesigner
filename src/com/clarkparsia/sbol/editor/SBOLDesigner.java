@@ -547,7 +547,7 @@ public class SBOLDesigner extends JFrame {
 		if (!SBOLUtils.setupFile().exists()) {
 			saveIntoNewFile();
 		} else {
-			saveIntoExistingFile(SBOLUtils.setupFile());
+			saveIntoExistingFile();
 		}
 		return true;
 	}
@@ -588,13 +588,14 @@ public class SBOLDesigner extends JFrame {
 	}
 
 	/**
-	 * Save SBOLFactory into an existing file TODO can't use this if no version
+	 * Save SBOLFactory into an existing SBOL file
 	 */
-	private void saveIntoExistingFile(File file) {
+	private void saveIntoExistingFile() {
+		// TODO This could be different based on context, like whether the
+		// current design already exists in doc. Also, this could be tied to
+		// the settings as well.
 		try {
-			SBOLReader.setURIPrefix(SBOLEditorPreferences.INSTANCE.getUserInfo().getURI().toString());
-			SBOLReader.setCompliant(true);
-			SBOLDocument doc = SBOLReader.read(file);
+			SBOLDocument doc = documentIO.read();
 			SBOLDocument currentDesign = design.createDocument();
 			ComponentDefinition currentRootCD = currentDesign.getRootComponentDefinitions().iterator().next();
 			int selection;
@@ -603,7 +604,7 @@ public class SBOLDesigner extends JFrame {
 			} else {
 				String[] options = { "Overwrite", "New Version" };
 				selection = JOptionPane.showOptionDialog(this,
-						"You are saving into an existing SBOL file.  Would you like to save a new version of the design or overwrite the existing design if it exists?  \n(Overwriting will reopen the file)",
+						"You are saving into an existing SBOL file.  Would you like to save a new version of the design or overwrite the existing design if it exists? (The design will be reopened)",
 						"Save Options", JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, options,
 						options[0]);
 			}
@@ -669,8 +670,7 @@ public class SBOLDesigner extends JFrame {
 			default:
 				throw new IllegalArgumentException();
 			}
-			SBOLWriter.write(doc, file);
-			Preferences.userRoot().node("path").put("path", file.getPath());
+			documentIO.write(doc);
 			SBOLFactory.clear();
 			openDesign(new FileDocumentIO(false));
 			return;
