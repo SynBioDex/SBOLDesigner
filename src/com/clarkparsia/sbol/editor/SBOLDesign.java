@@ -378,7 +378,7 @@ public class SBOLDesign {
 			try {
 				String rootDisplayId = JOptionPane.showInputDialog("What would you like your design to be called?",
 						"RootComponent");
-				rootCD = SBOLFactory.createComponentDefinition(rootDisplayId, ComponentDefinition.DNA);
+				rootCD = SBOLFactory.createComponentDefinition(rootDisplayId, "1", ComponentDefinition.DNA);
 			} catch (SBOLValidationException e) {
 				JOptionPane.showMessageDialog(panel, "Error creating the root component: " + e.getMessage());
 				e.printStackTrace();
@@ -1310,7 +1310,7 @@ public class SBOLDesign {
 		comp = PartEditDialog.editPart(panel.getParent(), comp, false);
 		boolean edited = comp != null;
 
-		if (comp.getIdentity() != previous) {
+		if (edited && comp.getIdentity() != previous) {
 			// The displayId or version has been changed, so we preserve the
 			// components and their ordering
 			List<org.sbolstandard.core2.Component> newComponents = new ArrayList<org.sbolstandard.core2.Component>();

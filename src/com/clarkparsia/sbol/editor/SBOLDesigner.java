@@ -49,6 +49,7 @@ import org.sbolstandard.core2.SBOLFactory;
 import org.sbolstandard.core2.SBOLReader;
 import org.sbolstandard.core2.SBOLValidationException;
 import org.sbolstandard.core2.SBOLWriter;
+import org.sbolstandard.core2.Sequence;
 import org.sbolstandard.core2.TopLevel;
 
 import com.adamtaft.eb.EventHandler;
@@ -541,7 +542,13 @@ public class SBOLDesigner extends JFrame {
 				return false;
 			}
 		}
-		saveCurrentFile();
+
+		// save into existing file or into a new file
+		if (!SBOLUtils.setupFile().exists()) {
+			saveIntoNewFile();
+		} else {
+			saveIntoExistingFile(SBOLUtils.setupFile());
+		}
 		return true;
 	}
 
@@ -555,10 +562,10 @@ public class SBOLDesigner extends JFrame {
 
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
 			File file = fc.getSelectedFile();
-			if (file.exists()) {
-				saveExistingFile(file);
-				return false;
-			}
+			// if (file.exists()) {
+			// saveExistingFile(file);
+			// return false;
+			// }
 			Preferences.userRoot().node("path").put("path", file.getPath());
 			setCurrentFile(new FileDocumentIO(false));
 			return true;
@@ -567,7 +574,7 @@ public class SBOLDesigner extends JFrame {
 		return false;
 	}
 
-	private void saveCurrentFile() {
+	private void saveIntoNewFile() {
 		try {
 			SBOLDocument doc = editor.getDesign().createDocument();
 
@@ -581,61 +588,96 @@ public class SBOLDesigner extends JFrame {
 	}
 
 	/**
-	 * Save SBOLFactory into an existing file
+	 * Save SBOLFactory into an existing file TODO can't use this if no version
 	 */
-	private void saveExistingFile(File file) {
+	private void saveIntoExistingFile(File file) {
 		try {
+			SBOLReader.setURIPrefix(SBOLEditorPreferences.INSTANCE.getUserInfo().getURI().toString());
+			SBOLReader.setCompliant(true);
 			SBOLDocument doc = SBOLReader.read(file);
-			String[] options = { "Overwrite", "New Version", "Cancel" };
-			int selection = JOptionPane.showOptionDialog(this,
-					"You have selected an existing SBOL file.  Would you like to create a new version or overwrite the existing file?  \n(Overwriting will reopen the file)",
-					"Save over existing file", JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, options,
-					options[0]);
+			SBOLDocument currentDesign = design.createDocument();
+			ComponentDefinition currentRootCD = currentDesign.getRootComponentDefinitions().iterator().next();
+			int selection;
+			if (currentRootCD.getVersion() == null || currentRootCD.getVersion().equals("")) {
+				selection = 0;
+			} else {
+				String[] options = { "Overwrite", "New Version" };
+				selection = JOptionPane.showOptionDialog(this,
+						"You are saving into an existing SBOL file.  Would you like to save a new version of the design or overwrite the existing design if it exists?  \n(Overwriting will reopen the file)",
+						"Save Options", JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, options,
+						options[0]);
+			}
+
 			switch (selection) {
 			case JOptionPane.CLOSED_OPTION:
 				// closed
-				break;
+				return;
 			case 0:
 				// Overwrite
-				SBOLDocument newDoc = design.createDocument();
-				SBOLWriter.write(newDoc, file);
-				Preferences.userRoot().node("path").put("path", file.getPath());
-				SBOLFactory.clear();
-				openDesign(new FileDocumentIO(false));
+				// Remove from doc everything contained within currentDesign
+				// that exists
+				for (TopLevel tl : currentDesign.getTopLevels()) {
+					if (doc.getTopLevel(tl.getIdentity()) != null) {
+						if (tl instanceof ComponentDefinition) {
+							if (!doc.removeComponentDefinition(doc.getComponentDefinition(tl.getIdentity()))) {
+								throw new Exception("ERROR: " + tl.getDisplayId() + " didn't get removed");
+							}
+						} else if (tl instanceof Sequence) {
+							if (!doc.removeSequence(doc.getSequence(tl.getIdentity()))) {
+								throw new Exception("ERROR: " + tl.getDisplayId() + " didn't get removed");
+							}
+						}
+					}
+				}
+				doc.createCopy(currentDesign);
 				break;
 			case 1:
 				// New Version
-				// TODO Doesn't work because has to update all references to new
-				// version as well
-				SBOLDocument currentDoc = design.createDocument();
-				for (TopLevel tp : currentDoc.getTopLevels()) {
-					String previousVersion = tp.getVersion();
-					int newVersion;
-					try {
-						newVersion = Integer.parseInt(previousVersion) + 1;
-					} catch (NumberFormatException e) {
-						// TODO doesn't always work
-						newVersion = 1;
+				// Copy over the rootCD with an incremented version
+				if (doc.getComponentDefinition(currentRootCD.getIdentity()) != null) {
+					boolean created = false;
+					int increment = 1;
+					while (!created) {
+						try {
+							doc.createCopy(currentRootCD, currentRootCD.getDisplayId(),
+									SBOLUtils.getVersion(currentRootCD.getVersion()) + increment + "");
+							created = true;
+						} catch (SBOLValidationException e) {
+							increment++;
+						}
 					}
-					doc.createCopy(tp, tp.getDisplayId(), newVersion + "");
 				}
-				SBOLWriter.write(doc, file);
-				Preferences.userRoot().node("path").put("path", file.getPath());
-				SBOLFactory.clear();
-				openDesign(new FileDocumentIO(false));
-				break;
-			case 2:
-				// Cancel
+				// Copy over everything else
+				for (TopLevel tl : currentDesign.getTopLevels()) {
+					if (tl instanceof ComponentDefinition) {
+						if (doc.getComponentDefinition(tl.getIdentity()) != null) {
+							if (!doc.removeComponentDefinition(doc.getComponentDefinition(tl.getIdentity()))) {
+								throw new Exception("ERROR: " + tl.getDisplayId() + " didn't get removed");
+							}
+						}
+						doc.createCopy(tl);
+					} else if (tl instanceof Sequence) {
+						if (doc.getSequence(tl.getIdentity()) != null) {
+							if (!doc.removeSequence(doc.getSequence(tl.getIdentity()))) {
+								throw new Exception("ERROR: " + tl.getDisplayId() + " didn't get removed");
+							}
+						}
+						doc.createCopy(tl);
+					}
+				}
 				break;
 			default:
 				throw new IllegalArgumentException();
 			}
+			SBOLWriter.write(doc, file);
+			Preferences.userRoot().node("path").put("path", file.getPath());
+			SBOLFactory.clear();
+			openDesign(new FileDocumentIO(false));
 			return;
-		} catch (SBOLValidationException | IOException | SBOLConversionException e) {
-			JOptionPane.showMessageDialog(this, "This isn't a valid SBOL file: " + e.getMessage());
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog(this, "Saving failed: " + e.getMessage());
 			e.printStackTrace();
 		}
-
 	}
 
 	private void setCurrentFile(DocumentIO documentIO) {

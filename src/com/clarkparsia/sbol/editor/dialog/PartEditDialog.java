@@ -434,9 +434,18 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 			break;
 		case 1:
 			// New Version
-			String newVersion = SBOLUtils.getVersion(version.getText()) + 1 + "";
-			String uniqueId = SBOLUtils.getUniqueDisplayId(null, displayId.getText(), newVersion, "CD");
-			comp = SBOLFactory.createComponentDefinition(uniqueId, newVersion, ComponentDefinition.DNA);
+			int increment = 1;
+			boolean created = false;
+			while (!created) {
+				try {
+					String newVersion = SBOLUtils.getVersion(version.getText()) + increment + "";
+					String uniqueId = SBOLUtils.getUniqueDisplayId(null, displayId.getText(), newVersion, "CD");
+					comp = SBOLFactory.createComponentDefinition(uniqueId, newVersion, ComponentDefinition.DNA);
+					created = true;
+				} catch (SBOLValidationException e) {
+					increment++;
+				}
+			}
 			break;
 		case JOptionPane.CLOSED_OPTION:
 			comp = null;
