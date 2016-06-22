@@ -410,7 +410,8 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 		case 0:
 			// askUser
 			Object[] options = { "Overwrite", "New Version" };
-			option = JOptionPane.showOptionDialog(getParent(), "Would you like to overwrite or save as a new version?",
+			option = JOptionPane.showOptionDialog(getParent(),
+					"Would you like to overwrite or save as a new version?  (The default behavior can be changed in settings)",
 					"Save", JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
 			break;
 		case 1:

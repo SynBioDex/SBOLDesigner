@@ -151,7 +151,7 @@ public class SBOLDesigner extends JFrame {
 		}
 	};
 
-	private final SBOLEditorAction INFO = new SBOLEditorAction("About SBOL Designer", "info.gif") {
+	private final SBOLEditorAction INFO = new SBOLEditorAction("About SBOLDesigner", "info.gif") {
 		@Override
 		protected void perform() {
 			// TODO debugging
@@ -181,8 +181,8 @@ public class SBOLDesigner extends JFrame {
 				DocumentIO newIO = result.getDocumentIO();
 				if (result.isInsert()) {
 					try {
-						ComponentDefinition newComponent = SBOLUtils.getRootComponentDefinition(newIO.read());
-						design.addComponentDefinition(newComponent);
+						ComponentDefinition newComponent = SBOLUtils.getRootCD(newIO.read());
+						design.addCD(newComponent);
 					} catch (Throwable ex) {
 						ex.printStackTrace();
 						JOptionPane.showMessageDialog(SBOLDesigner.this, "Error checking out: " + ex.getMessage());
@@ -299,8 +299,8 @@ public class SBOLDesigner extends JFrame {
 				if (docIO instanceof ReadOnlyDocumentIO) {
 					try {
 						SBOLDocument doc = docIO.read();
-						ComponentDefinition comp = SBOLUtils.getRootComponentDefinition(doc);
-						design.addComponentDefinition(comp);
+						ComponentDefinition comp = SBOLUtils.getRootCD(doc);
+						design.addCD(comp);
 					} catch (Exception e) {
 						JOptionPane.showMessageDialog(null, "ERROR: " + e.getMessage());
 						e.printStackTrace();
@@ -317,7 +317,7 @@ public class SBOLDesigner extends JFrame {
 
 	private final SBOLEditorActions TOOLBAR_ACTIONS = new SBOLEditorActions().add(NEW, OPEN, SAVE, EXPORT, DIVIDER)
 			.addIf(SBOLEditorPreferences.INSTANCE.isVersioningEnabled(), VERSION, DIVIDER)
-			.add(design.EDIT_ROOT, design.EDIT, design.FIND, design.DELETE, design.FLIP, DIVIDER)
+			.add(design.EDIT_CANVAS, design.EDIT, design.FIND, design.DELETE, design.FLIP, DIVIDER)
 			.add(design.HIDE_SCARS, design.ADD_SCARS, DIVIDER).add(design.FOCUS_IN, design.FOCUS_OUT, DIVIDER, SNAPSHOT)
 			.add(PREFERENCES).add(SPACER, INFO);
 
@@ -553,7 +553,7 @@ public class SBOLDesigner extends JFrame {
 	}
 
 	private boolean selectCurrentFile() {
-		String name = design.getRootComponentDefinition().getDisplayId();
+		String name = design.getRootCD().getDisplayId();
 		if (!Strings.isNullOrEmpty(name)) {
 			fc.setSelectedFile(SBOLUtils.setupFile());
 		}

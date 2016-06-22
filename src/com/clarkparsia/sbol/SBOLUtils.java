@@ -207,7 +207,7 @@ public class SBOLUtils {
 	// return doc;
 	// }
 
-	public static ComponentDefinition getRootComponentDefinition(SBOLDocument doc) {
+	public static ComponentDefinition getRootCD(SBOLDocument doc) {
 		// return
 		// Iterators.getOnlyElement(Iterators.filter(doc.getContents().iterator(),
 		// ComponentDefinition.class), null);
@@ -225,7 +225,7 @@ public class SBOLUtils {
 
 	private static Sequence createSequence(String nucleotides) {
 		try {
-			String uniqueId = SBOLUtils.getUniqueDisplayId(null, "Sequence", "", "Sequence");
+			String uniqueId = SBOLUtils.getUniqueDisplayId(null, "Sequence", "1", "Sequence");
 			return SBOLFactory.createSequence(uniqueId, "1", nucleotides, Sequence.IUPAC_DNA);
 		} catch (SBOLValidationException e) {
 			e.printStackTrace();

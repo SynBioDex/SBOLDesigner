@@ -75,7 +75,7 @@ public class ThumbnailsPanel extends JPanel {
 		button.setOpaque(false);
 		button.putClientProperty("comp", comp);
 		 
-		final ComponentDefinition parentComponent = editor.getDesign().getParentComponentDefinition();
+		final ComponentDefinition parentComponent = editor.getDesign().getParentCD();
 		button.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
