@@ -383,6 +383,9 @@ public class SBOLDesign {
 			} catch (SBOLValidationException e) {
 				JOptionPane.showMessageDialog(panel, "Error creating the root part: " + e.getMessage());
 				e.printStackTrace();
+			} catch (NullPointerException e) {
+				// User pressed cancel
+				System.exit(0);
 			}
 			break;
 		case 1:
@@ -1446,11 +1449,35 @@ public class SBOLDesign {
 
 			if (nucleotides != null && nucleotides.length() > 0) {
 				if (nucleotides.length() < oldElements.length()) {
+					// TODO buggy
 					// report to the user if the updated sequence is shorter
-					int option = JOptionPane.showConfirmDialog(panel,
-							"The implied sequence is shorter than the original sequence.  Would you like to overwrite? (Potential loss of information)",
-							"Confirm", JOptionPane.YES_NO_OPTION);
-					if (option == JOptionPane.NO_OPTION) {
+					int option = 0;
+					// check preferences
+					// askUser is 0, overwrite is 1, and keep is 2
+					int seqBehavior = SBOLEditorPreferences.INSTANCE.getSeqBehavior();
+					switch (seqBehavior) {
+					case 0:
+						// askUser
+						Object[] options = { "Keep", "Overwrite" };
+						do {
+							option = JOptionPane.showOptionDialog(panel,
+									"The implied sequence for " + canvasCD.getDisplayId()
+											+ " is shorter than the original sequence.  Would you like to overwrite or keep the original sequence? \n(The default behavior can be changed in settings)",
+									"Implied sequece", JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null,
+									options, options[0]);
+						} while (option == JOptionPane.CLOSED_OPTION);
+						break;
+					case 1:
+						// overwrite
+						option = 1;
+						break;
+					case 2:
+						// keep
+						option = 0;
+						break;
+					}
+
+					if (option == 0) {
 						// use the old sequence provided it was there
 						if (oldSeq != null) {
 							String uniqueId = SBOLUtils.getUniqueDisplayId(null, canvasCD.getDisplayId() + "Sequence",

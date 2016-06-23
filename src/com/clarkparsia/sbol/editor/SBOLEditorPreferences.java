@@ -111,7 +111,7 @@ public enum SBOLEditorPreferences {
 	public Integer getSaveBehavior() {
 		if (saveBehavior == null) {
 			Preferences prefs = Preferences.userNodeForPackage(SBOLEditorPreferences.class).node("settings");
-			saveBehavior = prefs.getInt("saveBehavior", 0);
+			saveBehavior = prefs.getInt("saveBehavior", 1);
 		}
 		return saveBehavior;
 	}
@@ -123,5 +123,27 @@ public enum SBOLEditorPreferences {
 		Preferences prefs = Preferences.userNodeForPackage(SBOLEditorPreferences.class).node("settings");
 		prefs.putInt("saveBehavior", saveBehavior);
 		this.saveBehavior = saveBehavior;
+	}
+
+	private Integer seqBehavior = null;
+
+	/**
+	 * askUser is 0, overwrite is 1, and keep is 2
+	 */
+	public Integer getSeqBehavior() {
+		if (seqBehavior == null) {
+			Preferences prefs = Preferences.userNodeForPackage(SBOLEditorPreferences.class).node("settings");
+			seqBehavior = prefs.getInt("seqBehavior", 2);
+		}
+		return seqBehavior;
+	}
+
+	/**
+	 * askUser is 0, overwrite is 1, and keep is 2
+	 */
+	public void setSeqBehavior(int seqBehavior) {
+		Preferences prefs = Preferences.userNodeForPackage(SBOLEditorPreferences.class).node("settings");
+		prefs.putInt("seqBehavior", seqBehavior);
+		this.seqBehavior = seqBehavior;
 	}
 }

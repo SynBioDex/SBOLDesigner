@@ -341,19 +341,22 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 		// }
 		// }
 
-		// either continue without version or showSaveOptions()
-		if (version.getText().equals("")) {
-			comp = SBOLFactory.getComponentDefinition(displayId.getText(), "");
-			if (comp == null) {
-				String uniqueId = SBOLUtils.getUniqueDisplayId(null, displayId.getText(), "", "CD");
-				comp = SBOLFactory.createComponentDefinition(uniqueId, ComponentDefinition.DNA);
-			}
-		} else {
-			comp = showSaveOptions();
-			if (comp == null) {
-				return;
-			}
-		}
+		// REMOVED
+		// // either continue without version or showSaveOptions()
+		// if (version.getText().equals("")) {
+		// comp = SBOLFactory.getComponentDefinition(displayId.getText(), "");
+		// if (comp == null) {
+		// String uniqueId = SBOLUtils.getUniqueDisplayId(null,
+		// displayId.getText(), "", "CD");
+		// comp = SBOLFactory.createComponentDefinition(uniqueId,
+		// ComponentDefinition.DNA);
+		// }
+		// } else {
+		// comp = showSaveOptions();
+		// if (comp == null) {
+		// return;
+		// }
+		// }
 
 		comp.setName(name.getText());
 		comp.setDescription(description.getText());
