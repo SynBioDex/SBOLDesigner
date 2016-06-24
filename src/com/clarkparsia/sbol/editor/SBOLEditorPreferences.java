@@ -103,28 +103,6 @@ public enum SBOLEditorPreferences {
 		prefs.putBoolean("enable", enableVersioning);
 	}
 
-	private Integer saveBehavior = null;
-
-	/**
-	 * askUser is 0, overwrite is 1, and newVersion is 2
-	 */
-	public Integer getSaveBehavior() {
-		if (saveBehavior == null) {
-			Preferences prefs = Preferences.userNodeForPackage(SBOLEditorPreferences.class).node("settings");
-			saveBehavior = prefs.getInt("saveBehavior", 1);
-		}
-		return saveBehavior;
-	}
-
-	/**
-	 * askUser is 0, overwrite is 1, and newVersion is 2
-	 */
-	public void setSaveBehavior(int saveBehavior) {
-		Preferences prefs = Preferences.userNodeForPackage(SBOLEditorPreferences.class).node("settings");
-		prefs.putInt("saveBehavior", saveBehavior);
-		this.saveBehavior = saveBehavior;
-	}
-
 	private Integer seqBehavior = null;
 
 	/**

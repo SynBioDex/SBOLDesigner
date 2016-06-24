@@ -27,6 +27,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
 import java.util.prefs.Preferences;
@@ -597,14 +598,15 @@ public class SBOLDesigner extends JFrame {
 		try {
 			SBOLDocument doc = documentIO.read();
 			SBOLDocument currentDesign = design.createDocument();
-			ComponentDefinition currentRootCD = currentDesign.getRootComponentDefinitions().iterator().next();
+			ComponentDefinition currentRootCD = SBOLUtils.getRootCD(currentDesign);
 			int selection;
 			if (currentRootCD.getVersion() == null || currentRootCD.getVersion().equals("")) {
+				// can only overwrite
 				selection = 0;
 			} else {
 				String[] options = { "Overwrite", "New Version" };
 				selection = JOptionPane.showOptionDialog(this,
-						"You are saving into an existing SBOL file.  Would you like to save a new version of the design or overwrite the existing design if it exists? (The design will be reopened)",
+						"You are saving into an existing SBOL file.  Would you like to overwrite or create new versions of parts that already exist in the design? (The design will be reopened)",
 						"Save Options", JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, options,
 						options[0]);
 			}
@@ -634,38 +636,7 @@ public class SBOLDesigner extends JFrame {
 				break;
 			case 1:
 				// New Version
-				// Copy over the rootCD with an incremented version
-				if (doc.getComponentDefinition(currentRootCD.getIdentity()) != null) {
-					boolean created = false;
-					int increment = 1;
-					while (!created) {
-						try {
-							doc.createCopy(currentRootCD, currentRootCD.getDisplayId(),
-									SBOLUtils.getVersion(currentRootCD.getVersion()) + increment + "");
-							created = true;
-						} catch (SBOLValidationException e) {
-							increment++;
-						}
-					}
-				}
-				// Copy over everything else
-				for (TopLevel tl : currentDesign.getTopLevels()) {
-					if (tl instanceof ComponentDefinition) {
-						if (doc.getComponentDefinition(tl.getIdentity()) != null) {
-							if (!doc.removeComponentDefinition(doc.getComponentDefinition(tl.getIdentity()))) {
-								throw new Exception("ERROR: " + tl.getDisplayId() + " didn't get removed");
-							}
-						}
-						doc.createCopy(tl);
-					} else if (tl instanceof Sequence) {
-						if (doc.getSequence(tl.getIdentity()) != null) {
-							if (!doc.removeSequence(doc.getSequence(tl.getIdentity()))) {
-								throw new Exception("ERROR: " + tl.getDisplayId() + " didn't get removed");
-							}
-						}
-						doc.createCopy(tl);
-					}
-				}
+				saveNewVersion(currentRootCD, currentDesign, doc);
 				break;
 			default:
 				throw new IllegalArgumentException();
@@ -678,6 +649,63 @@ public class SBOLDesigner extends JFrame {
 			JOptionPane.showMessageDialog(this, "Saving failed: " + e.getMessage());
 			e.printStackTrace();
 		}
+	}
+
+	/**
+	 * Takes every TopLevel in currentDesign, and copies it over to doc with a
+	 * new version.
+	 */
+	private URI saveNewVersion(TopLevel tl, SBOLDocument currentDesign, SBOLDocument doc)
+			throws SBOLValidationException {
+		if (tl.getVersion() == null || tl.getVersion().equals("")) {
+			return tl.getIdentity();
+		}
+		if (tl instanceof Sequence) {
+			Sequence seq = doc.getSequence(tl.getIdentity());
+			if (seq != null && seq.equals(tl)) {
+				return tl.getIdentity();
+			}
+			boolean created = false;
+			String version = "";
+			int increment = 1;
+			while (!created) {
+				try {
+					version = SBOLUtils.getVersion(tl.getVersion()) + increment + "";
+					doc.createCopy(tl, tl.getDisplayId(), version);
+					created = true;
+				} catch (SBOLValidationException e) {
+					increment++;
+				}
+			}
+			return doc.getSequence(tl.getDisplayId(), version).getIdentity();
+		} else if (tl instanceof ComponentDefinition) {
+			for (org.sbolstandard.core2.Component comp : ((ComponentDefinition) tl).getComponents()) {
+				comp.setDefinition(saveNewVersion(comp.getDefinition(), currentDesign, doc));
+			}
+			for (Sequence seq : ((ComponentDefinition) tl).getSequences()) {
+				((ComponentDefinition) tl).removeSequence(seq.getIdentity());
+				((ComponentDefinition) tl).addSequence(saveNewVersion(seq, currentDesign, doc));
+			}
+			ComponentDefinition CD = doc.getComponentDefinition(tl.getIdentity());
+			if (CD != null && CD.equals(tl)) {
+				return tl.getIdentity();
+			}
+			boolean created = false;
+			String version = "";
+			int increment = 1;
+			while (!created) {
+				try {
+					version = SBOLUtils.getVersion(tl.getVersion()) + increment + "";
+					doc.createCopy(tl, tl.getDisplayId(), version);
+					created = true;
+				} catch (SBOLValidationException e) {
+					increment++;
+				}
+			}
+			return doc.getComponentDefinition(tl.getDisplayId(), version).getIdentity();
+		}
+		// Something broke
+		return null;
 	}
 
 	private void setCurrentFile(DocumentIO documentIO) {

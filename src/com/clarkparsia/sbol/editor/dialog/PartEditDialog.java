@@ -335,33 +335,14 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 	 * Fills in a CD and Sequence based on this dialog's state.
 	 */
 	private void saveButtonHandler() throws SBOLValidationException {
-		// if (SBOLUtils.isRegistryComponent(comp)) {
-		// if (!confirmEditing(getParent(), comp)) {
-		// return;
-		// }
-		// }
-
-		// REMOVED
-		// // either continue without version or showSaveOptions()
-		// if (version.getText().equals("")) {
-		// comp = SBOLFactory.getComponentDefinition(displayId.getText(), "");
-		// if (comp == null) {
-		// String uniqueId = SBOLUtils.getUniqueDisplayId(null,
-		// displayId.getText(), "", "CD");
-		// comp = SBOLFactory.createComponentDefinition(uniqueId,
-		// ComponentDefinition.DNA);
-		// }
-		// } else {
-		// comp = showSaveOptions();
-		// if (comp == null) {
-		// return;
-		// }
-		// }
+		comp = SBOLFactory.getComponentDefinition(displayId.getText(), version.getText());
+		if (comp == null) {
+			String uniqueId = SBOLUtils.getUniqueDisplayId(null, displayId.getText(), version.getText(), "CD");
+			comp = SBOLFactory.createComponentDefinition(uniqueId, version.getText(), ComponentDefinition.DNA);
+		}
 
 		comp.setName(name.getText());
 		comp.setDescription(description.getText());
-		// comp.setDisplayId(displayId.getText());
-		// comp.getTypes().clear();
 
 		Part part = (Part) roleSelection.getSelectedItem();
 		if (part != null) {
@@ -386,77 +367,15 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 
 		String seq = sequenceField.getText();
 		if (seq == null || seq.isEmpty()) {
-			// comp.setDnaSequence(null);
 			comp.clearSequences();
 		} else if (comp.getSequences().isEmpty()
 				|| !Objects.equal(comp.getSequences().iterator().next().getElements(), seq)) {
-			// Sequence dnaSeq = SBOLUtils.createSequence(seq);
+			comp.clearSequences();
 			String uniqueId = SBOLUtils.getUniqueDisplayId(null, comp.getDisplayId() + "Sequence", comp.getVersion(),
 					"Sequence");
 			Sequence dnaSeq = SBOLFactory.createSequence(uniqueId, comp.getVersion(), seq, Sequence.IUPAC_DNA);
 			comp.addSequence(dnaSeq);
 		}
-	}
-
-	/**
-	 * Ask the user if they want to overwrite or create a new version. The
-	 * respective CD is then returned. This should only be used when the version
-	 * field isn't blank.
-	 */
-	private ComponentDefinition showSaveOptions() throws SBOLValidationException {
-		int option = 0;
-
-		// check preferences
-		// askUser is 0, overwrite is 1, and newVersion is 2
-		int saveBehavior = SBOLEditorPreferences.INSTANCE.getSaveBehavior();
-		switch (saveBehavior) {
-		case 0:
-			// askUser
-			Object[] options = { "Overwrite", "New Version" };
-			option = JOptionPane.showOptionDialog(getParent(),
-					"Would you like to overwrite or save as a new version?  (The default behavior can be changed in settings)",
-					"Save", JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
-			break;
-		case 1:
-			// overwrite
-			option = 0;
-			break;
-		case 2:
-			// newVersion
-			option = 1;
-			break;
-		}
-
-		// either overwrite the part or create a new version
-		switch (option) {
-		case 0:
-			// Overwrite
-			comp = SBOLFactory.getComponentDefinition(displayId.getText(), version.getText());
-			if (comp == null) {
-				String uniqueId = SBOLUtils.getUniqueDisplayId(null, displayId.getText(), version.getText(), "CD");
-				comp = SBOLFactory.createComponentDefinition(uniqueId, version.getText(), ComponentDefinition.DNA);
-			}
-			break;
-		case 1:
-			// New Version
-			int increment = 1;
-			boolean created = false;
-			while (!created) {
-				try {
-					String newVersion = SBOLUtils.getVersion(version.getText()) + increment + "";
-					String uniqueId = SBOLUtils.getUniqueDisplayId(null, displayId.getText(), newVersion, "CD");
-					comp = SBOLFactory.createComponentDefinition(uniqueId, newVersion, ComponentDefinition.DNA);
-					created = true;
-				} catch (SBOLValidationException e) {
-					increment++;
-				}
-			}
-			break;
-		case JOptionPane.CLOSED_OPTION:
-			comp = null;
-			break;
-		}
-		return comp;
 	}
 
 	/**

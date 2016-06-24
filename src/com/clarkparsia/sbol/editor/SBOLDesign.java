@@ -134,7 +134,12 @@ public class SBOLDesign {
 			"edit_root.gif") {
 		@Override
 		protected void perform() {
-			editCanvasCD();
+			try {
+				editCanvasCD();
+			} catch (SBOLValidationException e) {
+				JOptionPane.showMessageDialog(panel, "There was an error applying the edits: " + e.getMessage());
+				e.printStackTrace();
+			}
 		}
 	};
 
@@ -150,7 +155,12 @@ public class SBOLDesign {
 			"edit.gif") {
 		@Override
 		protected void perform() {
-			editSelectedCD();
+			try {
+				editSelectedCD();
+			} catch (SBOLValidationException e) {
+				JOptionPane.showMessageDialog(panel, "There was an error applying the edits: " + e.getMessage());
+				e.printStackTrace();
+			}
 		}
 	};
 	public final SBOLEditorAction DELETE = new SBOLEditorAction("Delete part", "Delete the selected part",
@@ -1022,7 +1032,12 @@ public class SBOLDesign {
 			@Override
 			public void mouseClicked(MouseEvent event) {
 				if (event.getClickCount() == 2) {
-					editSelectedCD();
+					try {
+						editSelectedCD();
+					} catch (SBOLValidationException e) {
+						JOptionPane.showMessageDialog(panel, "There was a problem editing: " + e.getMessage());
+						e.printStackTrace();
+					}
 				}
 			}
 		});
@@ -1155,17 +1170,12 @@ public class SBOLDesign {
 		}
 	}
 
-	private void replaceCD(ComponentDefinition oldCD, ComponentDefinition newCD) {
+	private void replaceCD(ComponentDefinition oldCD, ComponentDefinition newCD) throws SBOLValidationException {
 		int index = getElementIndex(oldCD);
 		if (index >= 0) {
 			DesignElement e = elements.get(index);
 			JLabel button = buttons.get(e);
-			try {
-				e.setCD(newCD);
-			} catch (SBOLValidationException e1) {
-				JOptionPane.showMessageDialog(panel, "There was an error replacing the component: " + e1.getMessage());
-				e1.printStackTrace();
-			}
+			e.setCD(newCD);
 			if (!newCD.getRoles().contains(e.getPart().getRole())) {
 				Part newPart = Parts.forComponent(newCD);
 				if (newPart == null) {
@@ -1177,31 +1187,6 @@ public class SBOLDesign {
 			}
 			button.setText(newCD.getDisplayId());
 			button.setToolTipText(getTooltipText(e));
-
-			// Maintain components and their ordering of the oldCD
-			List<org.sbolstandard.core2.Component> oldComponents = null;
-			try {
-				oldComponents = oldCD.getSortedComponents();
-			} catch (SBOLValidationException e1) {
-				JOptionPane.showMessageDialog(panel, e1.getMessage());
-			}
-			List<org.sbolstandard.core2.Component> newComponents = new ArrayList<org.sbolstandard.core2.Component>();
-			for (int i = 0; i < oldComponents.size(); i++) {
-				org.sbolstandard.core2.Component c = oldComponents.get(i);
-				newComponents.add(DesignElement.createComponent(newCD, c.getDefinition()));
-				if (i > 0) {
-					// create a SC based off the ordering of oldComponents
-					String uniqueId = SBOLUtils.getUniqueDisplayId(newCD, "SequenceConstraint", null,
-							"SequenceConstraint");
-					try {
-						newCD.createSequenceConstraint(uniqueId, RestrictionType.PRECEDES,
-								newComponents.get(i - 1).getIdentity(), newComponents.get(i).getIdentity());
-					} catch (SBOLValidationException e2) {
-						JOptionPane.showMessageDialog(panel, e2.getMessage());
-						e2.printStackTrace();
-					}
-				}
-			}
 
 			fireDesignChangedEvent();
 		}
@@ -1294,7 +1279,7 @@ public class SBOLDesign {
 		setPartVisible(Parts.SCAR, true);
 	}
 
-	public void editCanvasCD() {
+	public void editCanvasCD() throws SBOLValidationException {
 		if (!confirmEditable()) {
 			return;
 		}
@@ -1303,12 +1288,7 @@ public class SBOLDesign {
 		URI previousIdentity = comp.getIdentity();
 		updateCanvasCD();
 		List<org.sbolstandard.core2.Component> oldComponents = null;
-		try {
-			oldComponents = comp.getSortedComponents();
-		} catch (SBOLValidationException e) {
-			JOptionPane.showMessageDialog(panel, e.getMessage());
-			e.printStackTrace();
-		}
+		oldComponents = comp.getSortedComponents();
 
 		comp = PartEditDialog.editPart(panel.getParent(), comp, false);
 		boolean edited = comp != null;
@@ -1324,13 +1304,8 @@ public class SBOLDesign {
 					// create a SC based off the ordering of oldComponents
 					String uniqueId = SBOLUtils.getUniqueDisplayId(comp, "SequenceConstraint", null,
 							"SequenceConstraint");
-					try {
-						comp.createSequenceConstraint(uniqueId, RestrictionType.PRECEDES,
-								newComponents.get(i - 1).getIdentity(), newComponents.get(i).getIdentity());
-					} catch (SBOLValidationException e) {
-						JOptionPane.showMessageDialog(panel, e.getMessage());
-						e.printStackTrace();
-					}
+					comp.createSequenceConstraint(uniqueId, RestrictionType.PRECEDES,
+							newComponents.get(i - 1).getIdentity(), newComponents.get(i).getIdentity());
 				}
 			}
 			load(comp);
@@ -1341,25 +1316,43 @@ public class SBOLDesign {
 		}
 	}
 
-	public void editSelectedCD() {
+	public void editSelectedCD() throws SBOLValidationException {
 		if (!confirmEditable()) {
 			return;
 		}
 
-		ComponentDefinition comp = getSelectedCD();
-		ComponentDefinition newComp = PartEditDialog.editPart(panel.getParent(), comp, false);
+		ComponentDefinition originalCD = getSelectedCD();
+		URI originalIdentity = originalCD.getIdentity();
+		ComponentDefinition editedCD = PartEditDialog.editPart(panel.getParent(), originalCD, false);
 
-		boolean edited = newComp != null;
-		if (edited && !newComp.equals(comp)) {
-			try {
-				// if the CD type or the displyId has been edited we need to
-				// update the component view so we'll replace it with the new CD
-				replaceCD(comp, newComp);
-			} catch (Exception e) {
-				e.printStackTrace();
-				JOptionPane.showMessageDialog(panel, "There was an error applying the edits: " + e.getMessage());
+		boolean edited = editedCD != null;
+		if (edited) {
+			// if the CD type or the displyId has been edited we need to
+			// update the component view so we'll replace it with the new CD
+			replaceCD(originalCD, editedCD);
+
+			if (!originalIdentity.equals(editedCD.getIdentity())) {
+				// Also maintain components and their ordering of the oldCD
+				editedCD.clearSequenceAnnotations();
+				editedCD.clearSequenceConstraints();
+				editedCD.clearComponents();
+				List<org.sbolstandard.core2.Component> oldComponents = null;
+				oldComponents = originalCD.getSortedComponents();
+				List<org.sbolstandard.core2.Component> newComponents = new ArrayList<org.sbolstandard.core2.Component>();
+				for (int i = 0; i < oldComponents.size(); i++) {
+					org.sbolstandard.core2.Component c = oldComponents.get(i);
+					newComponents.add(DesignElement.createComponent(editedCD, c.getDefinition()));
+					if (i > 0) {
+						// create a SC based off the ordering of oldComponents
+						String uniqueId = SBOLUtils.getUniqueDisplayId(editedCD, "SequenceConstraint", null,
+								"SequenceConstraint");
+						editedCD.createSequenceConstraint(uniqueId, RestrictionType.PRECEDES,
+								newComponents.get(i - 1).getIdentity(), newComponents.get(i).getIdentity());
+					}
+				}
 			}
 		}
+		fireDesignChangedEvent();
 	}
 
 	public void findPartForSelectedCD() {

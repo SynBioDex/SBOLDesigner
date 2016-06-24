@@ -67,7 +67,9 @@ public class FileDocumentIO implements DocumentIO {
 		File file = SBOLUtils.setupFile();
 		SBOLReader.setURIPrefix(SBOLEditorPreferences.INSTANCE.getUserInfo().getURI().toString());
 		SBOLReader.setCompliant(true);
-		return SBOLReader.read(new FileInputStream(file));
+		SBOLDocument doc = SBOLReader.read(new FileInputStream(file));
+		doc.setDefaultURIprefix(SBOLEditorPreferences.INSTANCE.getUserInfo().getURI().toString());
+		return doc;
 	}
 
 	@Override
