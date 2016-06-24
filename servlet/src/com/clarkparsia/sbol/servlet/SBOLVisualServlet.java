@@ -28,6 +28,7 @@ import javax.swing.JPanel;
 
 import org.sbolstandard.core2.SBOLDocument;
 import org.sbolstandard.core2.SBOLReader;
+import org.sbolstandard.core2.SBOLValidationException;
 import org.sbolstandard.core2.SBOLWriter;
 
 import com.clarkparsia.sbol.editor.SBOLDesign;
@@ -80,7 +81,8 @@ public class SBOLVisualServlet extends HttpServlet {
 		}
 	}
 
-	private void writeImage(SBOLDocument doc, HttpServletResponse response) throws IOException {
+	private void writeImage(SBOLDocument doc, HttpServletResponse response)
+			throws IOException, SBOLValidationException {
 		response.setContentType("image/png");
 
 		SBOLEditor editor = new SBOLEditor(false);

@@ -90,7 +90,12 @@ public class SBOLDesignerPlugin extends JPanel {
 	private final SBOLEditorAction NEW = new SBOLEditorAction("New", "Create a new design", "new.gif") {
 		@Override
 		protected void perform() {
-			newDesign(false);
+			try {
+				newDesign(false);
+			} catch (SBOLValidationException e) {
+				JOptionPane.showMessageDialog(null, "There was a problem creating a this design: " + e.getMessage());
+				e.printStackTrace();
+			}
 		}
 	}.precondition(CONFIRM_SAVE);
 
@@ -462,8 +467,10 @@ public class SBOLDesignerPlugin extends JPanel {
 	/**
 	 * Creates a new design to show on the canvas. Asks the user for a
 	 * defaultURIprefix if askForURIPrefix is true.
+	 * 
+	 * @throws SBOLValidationException
 	 */
-	private void newDesign(boolean askForURIPrefix) {
+	private void newDesign(boolean askForURIPrefix) throws SBOLValidationException {
 		SBOLDocument doc = new SBOLDocument();
 		if (askForURIPrefix) {
 			setURIprefix(doc);

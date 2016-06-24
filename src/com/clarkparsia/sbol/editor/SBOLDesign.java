@@ -147,7 +147,12 @@ public class SBOLDesign {
 			"find.gif") {
 		@Override
 		protected void perform() {
-			findPartForSelectedCD();
+			try {
+				findPartForSelectedCD();
+			} catch (SBOLValidationException e) {
+				JOptionPane.showMessageDialog(panel, "There was a problem finding a part: " + e.getMessage());
+				e.printStackTrace();
+			}
 		}
 	};
 
@@ -167,8 +172,13 @@ public class SBOLDesign {
 			"delete.gif") {
 		@Override
 		protected void perform() {
-			ComponentDefinition comp = getSelectedCD();
-			deleteCD(comp);
+			try {
+				ComponentDefinition comp = getSelectedCD();
+				deleteCD(comp);
+			} catch (SBOLValidationException e) {
+				JOptionPane.showMessageDialog(panel, "There was an error deleting the part: " + e.getMessage());
+				e.printStackTrace();
+			}
 		}
 	};
 
@@ -194,7 +204,12 @@ public class SBOLDesign {
 			"Add a scar between every two non-scar part in the design", "addScars.png") {
 		@Override
 		protected void perform() {
-			addScars();
+			try {
+				addScars();
+			} catch (SBOLValidationException e) {
+				JOptionPane.showMessageDialog(panel, "There was a problem adding scars: " + e.getMessage());
+				e.printStackTrace();
+			}
 		}
 	};
 
@@ -202,7 +217,12 @@ public class SBOLDesign {
 			"Focus in the part to view and edit its subparts", "go_down.png") {
 		@Override
 		protected void perform() {
-			focusIn();
+			try {
+				focusIn();
+			} catch (SBOLValidationException e) {
+				JOptionPane.showMessageDialog(panel, "There was a problem focussing in: " + e.getMessage());
+				e.printStackTrace();
+			}
 		}
 	};
 
@@ -210,7 +230,12 @@ public class SBOLDesign {
 			"go_up.png") {
 		@Override
 		protected void perform() {
-			focusOut();
+			try {
+				focusOut();
+			} catch (SBOLValidationException e) {
+				JOptionPane.showMessageDialog(panel, "There was a problem focussing out: " + e.getMessage());
+				e.printStackTrace();
+			}
 		}
 	};
 
@@ -299,7 +324,13 @@ public class SBOLDesign {
 			@Override
 			public void actionPerformed(ActionEvent paramActionEvent) {
 				if (selectedElement != null) {
-					deleteCD(getSelectedCD());
+					try {
+						deleteCD(getSelectedCD());
+					} catch (SBOLValidationException e) {
+						JOptionPane.showMessageDialog(panel,
+								"There was an problem deleting this part: " + e.getMessage());
+						e.printStackTrace();
+					}
 				}
 			}
 		};
@@ -324,7 +355,7 @@ public class SBOLDesign {
 		return comp != null;
 	}
 
-	public void focusIn() {
+	public void focusIn() throws SBOLValidationException {
 		Preconditions.checkState(canFocusIn(), "No selection to focus in");
 
 		ComponentDefinition comp = getSelectedCD();
@@ -343,13 +374,13 @@ public class SBOLDesign {
 		return !parentCDs.isEmpty();
 	}
 
-	public void focusOut() {
+	public void focusOut() throws SBOLValidationException {
 		Preconditions.checkState(canFocusOut(), "No parent design to focus out");
 
 		focusOut(getParentCD());
 	}
 
-	public void focusOut(ComponentDefinition comp) {
+	public void focusOut(ComponentDefinition comp) throws SBOLValidationException {
 		if (canvasCD == comp) {
 			return;
 		}
@@ -369,8 +400,10 @@ public class SBOLDesign {
 	/**
 	 * Loads the given SBOLDocument. Returns true if only a partial design is
 	 * loaded (due to multiple root CDs). Otherwise, returns false.
+	 * 
+	 * @throws SBOLValidationException
 	 */
-	public boolean load(SBOLDocument doc) {
+	public boolean load(SBOLDocument doc) throws SBOLValidationException {
 		boolean isPartialDesign = false;
 		if (doc == null) {
 			JOptionPane.showMessageDialog(panel, "No document to load.", "Load error", JOptionPane.ERROR_MESSAGE);
@@ -413,7 +446,6 @@ public class SBOLDesign {
 			rootCD = doc.getRootComponentDefinitions().iterator().next();
 
 			isPartialDesign = true;
-			// TODO save should now be enabled
 			break;
 		}
 
@@ -424,7 +456,7 @@ public class SBOLDesign {
 		return isPartialDesign;
 	}
 
-	private void load(ComponentDefinition newRoot) {
+	private void load(ComponentDefinition newRoot) throws SBOLValidationException {
 		loading = true;
 
 		elementBox.removeAll();
@@ -435,12 +467,7 @@ public class SBOLDesign {
 		readOnly.clear();
 
 		canvasCD = newRoot;
-		try {
-			populateComponents(canvasCD);
-		} catch (SBOLValidationException e) {
-			JOptionPane.showMessageDialog(panel, "Error loading the new root part: " + e.getMessage());
-			e.printStackTrace();
-		}
+		populateComponents(canvasCD);
 
 		// hasSequence = (canvasCD.getSequences() != null) &&
 		// elements.isEmpty();
@@ -477,7 +504,7 @@ public class SBOLDesign {
 		return true;
 	}
 
-	private boolean confirmEditableRemoved() {
+	private boolean confirmEditableRemoved() throws SBOLValidationException {
 		if (readOnly.contains(ReadOnly.REGISTRY_COMPONENT)) {
 			if (!PartEditDialog.confirmEditing(panel, canvasCD)) {
 				return false;
@@ -542,33 +569,28 @@ public class SBOLDesign {
 		return true;
 	}
 
-	private void addScarsForUncoveredSequences() {
+	private void addScarsForUncoveredSequences() throws SBOLValidationException {
 		Map<Integer, Sequence> uncoveredSequences = findUncoveredSequences();
 		int insertCount = 0;
 		int lastIndex = elements.size();
 		for (Entry<Integer, Sequence> entry : uncoveredSequences.entrySet()) {
 			int index = entry.getKey();
 			Sequence seq = entry.getValue();
-			try {
-				if (index >= 0) {
-					int updateIndex = index + insertCount;
-					DesignElement e = elements.get(updateIndex);
-					e.getCD().clearSequences();
-					e.getCD().addSequence(seq);
-				} else {
-					int insertIndex = -index - 1 + insertCount++;
+			if (index >= 0) {
+				int updateIndex = index + insertCount;
+				DesignElement e = elements.get(updateIndex);
+				e.getCD().clearSequences();
+				e.getCD().addSequence(seq);
+			} else {
+				int insertIndex = -index - 1 + insertCount++;
 
-					addCD(Parts.SCAR, false);
+				addCD(Parts.SCAR, false);
 
-					DesignElement e = elements.get(lastIndex);
-					e.getCD().clearSequences();
-					e.getCD().addSequence(seq);
+				DesignElement e = elements.get(lastIndex);
+				e.getCD().clearSequences();
+				e.getCD().addSequence(seq);
 
-					moveElement(lastIndex++, insertIndex);
-				}
-			} catch (SBOLValidationException e) {
-				JOptionPane.showMessageDialog(panel, "Error in addScarsForUncoveredSequences");
-				e.printStackTrace();
+				moveElement(lastIndex++, insertIndex);
 			}
 		}
 
@@ -927,15 +949,17 @@ public class SBOLDesign {
 		fireSelectionChangedEvent();
 	}
 
-	public void addCD(ComponentDefinition comp) {
+	public void addCD(ComponentDefinition comp) throws SBOLValidationException {
 		addCD(null, comp, Parts.forComponent(comp));
 	}
 
 	/**
 	 * edit is whether or not you want to bring up PartEditDialog when part
 	 * button is pressed.
+	 * 
+	 * @throws SBOLValidationException
 	 */
-	public ComponentDefinition addCD(Part part, boolean edit) {
+	public ComponentDefinition addCD(Part part, boolean edit) throws SBOLValidationException {
 		if (!confirmEditable()) {
 			return null;
 		}
@@ -956,8 +980,11 @@ public class SBOLDesign {
 	/**
 	 * Adds the part to elements. Takes in a component if one already exists,
 	 * the CD, and the part.
+	 * 
+	 * @throws SBOLValidationException
 	 */
-	private void addCD(org.sbolstandard.core2.Component component, ComponentDefinition comp, Part part) {
+	private void addCD(org.sbolstandard.core2.Component component, ComponentDefinition comp, Part part)
+			throws SBOLValidationException {
 		boolean backbone = (part == Parts.ORI);
 		DesignElement e = new DesignElement(component, canvasCD, comp, part);
 		JLabel button = createComponentButton(e);
@@ -1135,7 +1162,7 @@ public class SBOLDesign {
 		fireDesignChangedEvent();
 	}
 
-	public void deleteCD(ComponentDefinition component) {
+	public void deleteCD(ComponentDefinition component) throws SBOLValidationException {
 		if (!confirmEditable()) {
 			return;
 		}
@@ -1146,15 +1173,10 @@ public class SBOLDesign {
 
 			if (e == selectedElement) {
 				setSelectedElement(null);
-				try {
-					SBOLFactory.removeComponentDefinition(e.component.getDefinition());
-					canvasCD.removeSequenceAnnotation(e.seqAnn);
-					canvasCD.clearSequenceConstraints();
-					canvasCD.removeComponent(e.component);
-				} catch (SBOLValidationException e1) {
-					JOptionPane.showMessageDialog(panel, "There was an error deleting the part");
-					e1.printStackTrace();
-				}
+				SBOLFactory.removeComponentDefinition(e.component.getDefinition());
+				canvasCD.removeSequenceAnnotation(e.seqAnn);
+				canvasCD.clearSequenceConstraints();
+				canvasCD.removeComponent(e.component);
 			}
 
 			JLabel button = buttons.remove(e);
@@ -1246,7 +1268,7 @@ public class SBOLDesign {
 		}
 	}
 
-	public void addScars() {
+	public void addScars() throws SBOLValidationException {
 		if (!confirmEditable()) {
 			return;
 		}
@@ -1355,28 +1377,17 @@ public class SBOLDesign {
 		fireDesignChangedEvent();
 	}
 
-	public void findPartForSelectedCD() {
+	public void findPartForSelectedCD() throws SBOLValidationException {
 		Part part = selectedElement.getPart();
 		SBOLDocument selection = null;
-		try {
-			selection = new StackInputDialog(panel.getParent(), part).getInput();
-		} catch (Exception e1) {
-			JOptionPane.showMessageDialog(panel, "Failed to get part");
-			e1.printStackTrace();
-		}
+		selection = new StackInputDialog(panel.getParent(), part).getInput();
 
 		if (selection != null) {
 			SBOLUtils.insertTopLevels(selection);
 			if (!confirmEditable()) {
 				return;
 			}
-
-			try {
-				replaceCD(selectedElement.getCD(), selection.getRootComponentDefinitions().iterator().next());
-			} catch (Exception e) {
-				e.printStackTrace();
-				JOptionPane.showMessageDialog(panel, "There was an error adding the selected part to the design");
-			}
+			replaceCD(selectedElement.getCD(), selection.getRootComponentDefinitions().iterator().next());
 		}
 	}
 
@@ -1400,8 +1411,10 @@ public class SBOLDesign {
 
 	/**
 	 * Creates a document based off of the root CD
+	 * 
+	 * @throws SBOLValidationException
 	 */
-	public SBOLDocument createDocument() {
+	public SBOLDocument createDocument() throws SBOLValidationException {
 		ComponentDefinition rootComp = parentCDs.isEmpty() ? canvasCD : parentCDs.getLast();
 		// updatecanvasCD on every level of the tree
 		while (canvasCD != rootComp) {
@@ -1412,13 +1425,8 @@ public class SBOLDesign {
 		updateCanvasCD();
 
 		SBOLDocument doc = new SBOLDocument();
-		try {
-			doc = SBOLFactory.createRecursiveCopy(rootComp);
-			doc.setDefaultURIprefix(SBOLEditorPreferences.INSTANCE.getUserInfo().getURI().toString());
-		} catch (Exception e) {
-			JOptionPane.showMessageDialog(panel, "Error creating the document");
-			e.printStackTrace();
-		}
+		doc = SBOLFactory.createRecursiveCopy(rootComp);
+		doc.setDefaultURIprefix(SBOLEditorPreferences.INSTANCE.getUserInfo().getURI().toString());
 		return doc;
 	}
 
@@ -1553,37 +1561,35 @@ public class SBOLDesign {
 
 	/**
 	 * Updates all the seqAnns of the DesignElements in elements
+	 * 
+	 * @throws SBOLValidationException
 	 */
-	private void updateSequenceAnnotations() {
-		try {
-			int position = 1;
-			for (DesignElement e : elements) {
-				Location loc = e.seqAnn.getLocations().iterator().next();
+	private void updateSequenceAnnotations() throws SBOLValidationException {
+		int position = 1;
+		for (DesignElement e : elements) {
+			Location loc = e.seqAnn.getLocations().iterator().next();
 
-				// We no longer need this seqAnn
-				canvasCD.removeSequenceAnnotation(e.seqAnn);
+			// We no longer need this seqAnn
+			canvasCD.removeSequenceAnnotation(e.seqAnn);
 
-				e.seqAnn = DesignElement.createSeqAnn(canvasCD);
+			e.seqAnn = DesignElement.createSeqAnn(canvasCD);
 
-				// if a sequence exists, give seqAnn a Range
-				Sequence seq = e.getCD().getSequenceByEncoding(Sequence.IUPAC_DNA);
-				if (seq != null) {
-					String uniqueId = SBOLUtils.getUniqueDisplayId(canvasCD, e.seqAnn.getDisplayId() + "Range", null,
-							"Range");
-					int start = position;
-					int end = seq.getElements().length() + start - 1;
-					position = end + 1;
-					e.seqAnn.addRange(uniqueId, start, end);
-				}
-				// maintain the orientation
-				if (loc.getOrientation() == OrientationType.REVERSECOMPLEMENT) {
-					e.flipOrientation();
-				}
-
-				e.seqAnn.setComponent(e.component.getIdentity());
+			// if a sequence exists, give seqAnn a Range
+			Sequence seq = e.getCD().getSequenceByEncoding(Sequence.IUPAC_DNA);
+			if (seq != null) {
+				String uniqueId = SBOLUtils.getUniqueDisplayId(canvasCD, e.seqAnn.getDisplayId() + "Range", null,
+						"Range");
+				int start = position;
+				int end = seq.getElements().length() + start - 1;
+				position = end + 1;
+				e.seqAnn.addRange(uniqueId, start, end);
 			}
-		} catch (SBOLValidationException e) {
-			e.printStackTrace();
+			// maintain the orientation
+			if (loc.getOrientation() == OrientationType.REVERSECOMPLEMENT) {
+				e.flipOrientation();
+			}
+
+			e.seqAnn.setComponent(e.component.getIdentity());
 		}
 	}
 
@@ -1617,9 +1623,11 @@ public class SBOLDesign {
 		/**
 		 * The component we are making into a design element, the canvas CD, the
 		 * CD refered to by the component, and the part.
+		 * 
+		 * @throws SBOLValidationException
 		 */
 		public DesignElement(org.sbolstandard.core2.Component component, ComponentDefinition parentCD,
-				ComponentDefinition childCD, Part part) {
+				ComponentDefinition childCD, Part part) throws SBOLValidationException {
 			// Only create a new component if one does not already exist
 			if (component == null) {
 				this.component = createComponent(parentCD, childCD);
@@ -1633,11 +1641,7 @@ public class SBOLDesign {
 				// There isn't a SA already, we need to create one
 				this.seqAnn = createSeqAnn(parentCD);
 				// Set seqAnn to refer to this component
-				try {
-					this.seqAnn.setComponent(this.component.getIdentity());
-				} catch (SBOLValidationException e) {
-					e.printStackTrace();
-				}
+				this.seqAnn.setComponent(this.component.getIdentity());
 			} else {
 				this.seqAnn = tempAnn;
 			}
@@ -1662,31 +1666,21 @@ public class SBOLDesign {
 		}
 
 		private static org.sbolstandard.core2.Component createComponent(ComponentDefinition parentCD,
-				ComponentDefinition childCD) {
+				ComponentDefinition childCD) throws SBOLValidationException {
 			// SequenceAnnotation seqAnn =
 			// SublimeSBOLFactory.createSequenceAnnotation();
 			// seqAnn.setURI(SBOLUtils.createURI());
 			// seqAnn.setSubComponent(component);
 			// seqAnn.setOrientation(OrientationType.INLINE);
-			try {
-				String uniqueId = SBOLUtils.getUniqueDisplayId(parentCD, childCD.getDisplayId() + "Component", "",
-						"Component");
-				return parentCD.createComponent(uniqueId, AccessType.PUBLIC, childCD.getIdentity());
-			} catch (SBOLValidationException e) {
-				e.printStackTrace();
-				return null;
-			}
+			String uniqueId = SBOLUtils.getUniqueDisplayId(parentCD, childCD.getDisplayId() + "Component", "",
+					"Component");
+			return parentCD.createComponent(uniqueId, AccessType.PUBLIC, childCD.getIdentity());
 		}
 
-		private static SequenceAnnotation createSeqAnn(ComponentDefinition parentCD) {
-			try {
-				String uniqueId = SBOLUtils.getUniqueDisplayId(parentCD, parentCD.getDisplayId() + "SequenceAnnotation",
-						"", "SequenceAnnotation");
-				return parentCD.createSequenceAnnotation(uniqueId, "GenericLocation", OrientationType.INLINE);
-			} catch (SBOLValidationException e) {
-				e.printStackTrace();
-				return null;
-			}
+		private static SequenceAnnotation createSeqAnn(ComponentDefinition parentCD) throws SBOLValidationException {
+			String uniqueId = SBOLUtils.getUniqueDisplayId(parentCD, parentCD.getDisplayId() + "SequenceAnnotation", "",
+					"SequenceAnnotation");
+			return parentCD.createSequenceAnnotation(uniqueId, "GenericLocation", OrientationType.INLINE);
 		}
 
 		SequenceAnnotation getSeqAnn() {

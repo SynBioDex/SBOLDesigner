@@ -86,14 +86,25 @@ public class SBOLDesigner extends JFrame {
 	private final Supplier<Boolean> CONFIRM_SAVE = new Supplier<Boolean>() {
 		@Override
 		public Boolean get() {
-			return confirmSave();
+			try {
+				return confirmSave();
+			} catch (Exception e) {
+				JOptionPane.showMessageDialog(null, "There was a problem saving this design: " + e.getMessage());
+				e.printStackTrace();
+				return null;
+			}
 		}
 	};
 
 	private final SBOLEditorAction NEW = new SBOLEditorAction("New", "Create a new design", "new.gif") {
 		@Override
 		protected void perform() {
-			newDesign(false);
+			try {
+				newDesign(false);
+			} catch (SBOLValidationException e) {
+				JOptionPane.showMessageDialog(null, "There was a problem creating a this design: " + e.getMessage());
+				e.printStackTrace();
+			}
 		}
 	}.precondition(CONFIRM_SAVE);
 
@@ -105,7 +116,12 @@ public class SBOLDesigner extends JFrame {
 			if (returnVal == JFileChooser.APPROVE_OPTION) {
 				File file = fc.getSelectedFile();
 				Preferences.userRoot().node("path").put("path", file.getPath());
-				openDesign(new FileDocumentIO(false));
+				try {
+					openDesign(new FileDocumentIO(false));
+				} catch (SBOLValidationException | IOException | SBOLConversionException e) {
+					JOptionPane.showMessageDialog(null, "There was a problem opening this design: " + e.getMessage());
+					e.printStackTrace();
+				}
 			}
 		}
 	}.precondition(CONFIRM_SAVE);
@@ -113,7 +129,12 @@ public class SBOLDesigner extends JFrame {
 	private final SBOLEditorAction SAVE = new SBOLEditorAction("Save", "Save your current design", "save.gif") {
 		@Override
 		protected void perform() {
-			save();
+			try {
+				save();
+			} catch (Exception e) {
+				JOptionPane.showMessageDialog(null, "There was a problem saving this design: " + e.getMessage());
+				e.printStackTrace();
+			}
 		}
 	};
 
@@ -122,7 +143,7 @@ public class SBOLDesigner extends JFrame {
 		protected void perform() {
 			try {
 				export();
-			} catch (SBOLConversionException | IOException e) {
+			} catch (SBOLConversionException | IOException | SBOLValidationException e) {
 				JOptionPane.showMessageDialog(null, "There was a problem exporting this design: " + e.getMessage());
 				e.printStackTrace();
 			}
@@ -177,20 +198,20 @@ public class SBOLDesigner extends JFrame {
 	private final SBOLEditorAction CHECKOUT = new SBOLEditorAction("Checkout", "Checks out a version", "checkout.gif") {
 		@Override
 		protected void perform() {
-			CheckoutResult result = new CheckoutDialog(SBOLDesigner.this).getInput();
-			if (result != null) {
-				DocumentIO newIO = result.getDocumentIO();
-				if (result.isInsert()) {
-					try {
+			try {
+				CheckoutResult result = new CheckoutDialog(SBOLDesigner.this).getInput();
+				if (result != null) {
+					DocumentIO newIO = result.getDocumentIO();
+					if (result.isInsert()) {
 						ComponentDefinition newComponent = SBOLUtils.getRootCD(newIO.read());
 						design.addCD(newComponent);
-					} catch (Throwable ex) {
-						ex.printStackTrace();
-						JOptionPane.showMessageDialog(SBOLDesigner.this, "Error checking out: " + ex.getMessage());
+					} else {
+						openDesign(newIO);
 					}
-				} else {
-					openDesign(newIO);
 				}
+			} catch (SBOLValidationException | IOException | SBOLConversionException e) {
+				JOptionPane.showMessageDialog(null, "There was a problem checking out this design: " + e.getMessage());
+				e.printStackTrace();
 			}
 		}
 	}.precondition(CONFIRM_SAVE);
@@ -206,8 +227,12 @@ public class SBOLDesigner extends JFrame {
 				}
 				setCurrentFile(rvtIO);
 			}
-
-			save();
+			try {
+				save();
+			} catch (Exception e) {
+				JOptionPane.showMessageDialog(null, "There was a problem commiting this design: " + e.getMessage());
+				e.printStackTrace();
+			}
 		}
 	};
 
@@ -215,7 +240,6 @@ public class SBOLDesigner extends JFrame {
 			"Commits the current design as a new version", "newBranch.gif") {
 		@Override
 		protected void perform() {
-
 			RVTDocumentIO rvtIO = ((RVTDocumentIO) documentIO);
 			CreateBranchDialog dialog = new CreateBranchDialog(SBOLDesigner.this);
 			String branchName = dialog.getInput();
@@ -230,13 +254,17 @@ public class SBOLDesigner extends JFrame {
 			"merge.gif") {
 		@Override
 		protected void perform() {
-
-			RVTDocumentIO rvtIO = ((RVTDocumentIO) documentIO);
-			MergeBranchDialog dialog = new MergeBranchDialog(SBOLDesigner.this, rvtIO.getBranch());
-			Branch branch = dialog.getInput();
-			if (branch != null) {
-				DocumentIO newIO = rvtIO.mergeBranch(branch, dialog.getMergeMessage());
-				openDesign(newIO);
+			try {
+				RVTDocumentIO rvtIO = ((RVTDocumentIO) documentIO);
+				MergeBranchDialog dialog = new MergeBranchDialog(SBOLDesigner.this, rvtIO.getBranch());
+				Branch branch = dialog.getInput();
+				if (branch != null) {
+					DocumentIO newIO = rvtIO.mergeBranch(branch, dialog.getMergeMessage());
+					openDesign(newIO);
+				}
+			} catch (SBOLValidationException | IOException | SBOLConversionException e) {
+				JOptionPane.showMessageDialog(null, "There was a problem merging this design: " + e.getMessage());
+				e.printStackTrace();
 			}
 		}
 	}.precondition(CONFIRM_SAVE);
@@ -245,12 +273,16 @@ public class SBOLDesigner extends JFrame {
 			"Commits the current design as a new version", "switchBranch.gif") {
 		@Override
 		protected void perform() {
-
-			RVTDocumentIO rvtIO = ((RVTDocumentIO) documentIO);
-			Branch branch = new SwitchBranchDialog(SBOLDesigner.this, rvtIO.getBranch()).getInput();
-			if (branch != null) {
-				DocumentIO newIO = rvtIO.switchBranch(branch);
-				openDesign(newIO);
+			try {
+				RVTDocumentIO rvtIO = ((RVTDocumentIO) documentIO);
+				Branch branch = new SwitchBranchDialog(SBOLDesigner.this, rvtIO.getBranch()).getInput();
+				if (branch != null) {
+					DocumentIO newIO = rvtIO.switchBranch(branch);
+					openDesign(newIO);
+				}
+			} catch (SBOLValidationException | IOException | SBOLConversionException e) {
+				JOptionPane.showMessageDialog(null, "There was a problem switching this design: " + e.getMessage());
+				e.printStackTrace();
 			}
 		}
 	}.precondition(CONFIRM_SAVE);
@@ -277,6 +309,7 @@ public class SBOLDesigner extends JFrame {
 				endpoint.validate(RDFInput.forURL(SBOLUtils.class.getResource("constraints.ttl")),
 						rvtIO.getBranch().getHead().getURI().toString());
 			} catch (Exception e) {
+				JOptionPane.showMessageDialog(null, "There was a problem validating this design: " + e.getMessage());
 				e.printStackTrace();
 			}
 
@@ -295,20 +328,19 @@ public class SBOLDesigner extends JFrame {
 			"Commits the current design as a new version", "history.gif") {
 		@Override
 		protected void perform() {
-			DocumentIO docIO = HistoryDialog.show(SBOLDesigner.this, (RVTDocumentIO) documentIO);
-			if (docIO != null) {
-				if (docIO instanceof ReadOnlyDocumentIO) {
-					try {
+			try {
+				DocumentIO docIO = HistoryDialog.show(SBOLDesigner.this, (RVTDocumentIO) documentIO);
+				if (docIO != null) {
+					if (docIO instanceof ReadOnlyDocumentIO) {
 						SBOLDocument doc = docIO.read();
 						ComponentDefinition comp = SBOLUtils.getRootCD(doc);
 						design.addCD(comp);
-					} catch (Exception e) {
-						JOptionPane.showMessageDialog(null, "ERROR: " + e.getMessage());
-						e.printStackTrace();
+					} else if (confirmSave()) {
+						openDesign(docIO);
 					}
-				} else if (confirmSave()) {
-					openDesign(docIO);
 				}
+			} catch (Exception e) {
+				e.printStackTrace();
 			}
 		}
 	};
@@ -418,8 +450,10 @@ public class SBOLDesigner extends JFrame {
 	/**
 	 * Creates a new design to show on the canvas. Asks the user for a
 	 * defaultURIprefix if askForURIPrefix is true.
+	 * 
+	 * @throws SBOLValidationException
 	 */
-	private void newDesign(boolean askForURIPrefix) {
+	private void newDesign(boolean askForURIPrefix) throws SBOLValidationException {
 		SBOLDocument doc = new SBOLDocument();
 		if (askForURIPrefix) {
 			setURIprefix(doc);
@@ -459,20 +493,16 @@ public class SBOLDesigner extends JFrame {
 		SBOLEditorPreferences.INSTANCE.saveUserInfo(userInfo);
 	}
 
-	private void openDesign(DocumentIO documentIO) {
-		try {
-			SBOLDocument doc = documentIO.read();
-			doc.setDefaultURIprefix(SBOLEditorPreferences.INSTANCE.getUserInfo().getURI().toString());
-			if (!editor.getDesign().load(doc)) {
-				setCurrentFile(documentIO);
-			}
-		} catch (Throwable ex) {
-			ex.printStackTrace();
-			JOptionPane.showMessageDialog(this, "Error loading file: " + ex.getMessage());
+	private void openDesign(DocumentIO documentIO)
+			throws SBOLValidationException, IOException, SBOLConversionException {
+		SBOLDocument doc = documentIO.read();
+		doc.setDefaultURIprefix(SBOLEditorPreferences.INSTANCE.getUserInfo().getURI().toString());
+		if (!editor.getDesign().load(doc)) {
+			setCurrentFile(documentIO);
 		}
 	}
 
-	private void export() throws FileNotFoundException, SBOLConversionException, IOException {
+	private void export() throws FileNotFoundException, SBOLConversionException, IOException, SBOLValidationException {
 		String[] formats = { "SBOL 1.1", "GenBank", "FASTA" };
 		int format = JOptionPane.showOptionDialog(this, "Please select an export format", "Export",
 				JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, formats, "SBOL 1.1");
@@ -520,7 +550,7 @@ public class SBOLDesigner extends JFrame {
 		}
 	}
 
-	private boolean confirmSave() {
+	private boolean confirmSave() throws Exception {
 		if (isModified()) {
 			int confirmation = JOptionPane.showConfirmDialog(this,
 					"Current design has been modified. If you don't save\n"
@@ -537,7 +567,7 @@ public class SBOLDesigner extends JFrame {
 		return true;
 	}
 
-	private boolean save() {
+	private boolean save() throws Exception {
 		if (documentIO == null) {
 			if (!selectCurrentFile()) {
 				return false;
@@ -575,80 +605,66 @@ public class SBOLDesigner extends JFrame {
 		return false;
 	}
 
-	private void saveIntoNewFile() {
-		try {
-			SBOLDocument doc = editor.getDesign().createDocument();
-
-			documentIO.write(doc);
-
-			updateEnabledButtons(false);
-		} catch (Exception ex) {
-			JOptionPane.showMessageDialog(this, "Error saving file: " + ex.getMessage());
-			ex.printStackTrace();
-		}
+	private void saveIntoNewFile()
+			throws FileNotFoundException, SBOLValidationException, SBOLConversionException, IOException {
+		SBOLDocument doc = editor.getDesign().createDocument();
+		documentIO.write(doc);
+		updateEnabledButtons(false);
 	}
 
 	/**
 	 * Save SBOLFactory into an existing SBOL file
 	 */
-	private void saveIntoExistingFile() {
-		// TODO This could be different based on context, like whether the
-		// current design already exists in doc. Also, this could be tied to
-		// the settings as well.
-		try {
-			SBOLDocument doc = documentIO.read();
-			SBOLDocument currentDesign = design.createDocument();
-			ComponentDefinition currentRootCD = SBOLUtils.getRootCD(currentDesign);
-			int selection;
-			if (currentRootCD.getVersion() == null || currentRootCD.getVersion().equals("")) {
-				// can only overwrite
-				selection = 0;
-			} else {
-				String[] options = { "Overwrite", "New Version" };
-				selection = JOptionPane.showOptionDialog(this,
-						"You are saving into an existing SBOL file.  Would you like to overwrite or create new versions of parts that already exist in the design? (The design will be reopened)",
-						"Save Options", JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, options,
-						options[0]);
-			}
+	private void saveIntoExistingFile() throws Exception {
+		SBOLDocument doc = documentIO.read();
+		SBOLDocument currentDesign = design.createDocument();
+		ComponentDefinition currentRootCD = SBOLUtils.getRootCD(currentDesign);
+		int selection;
+		if (currentRootCD.getVersion() == null || currentRootCD.getVersion().equals("")) {
+			// can only overwrite
+			selection = 0;
+		} else {
+			String[] options = { "Overwrite", "New Version" };
+			selection = JOptionPane.showOptionDialog(this,
+					"You are saving into an existing SBOL file.  Would you like to overwrite or create new versions of parts that already exist in the design? (The design will be reopened)",
+					"Save Options", JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, options,
+					options[0]);
+		}
 
-			switch (selection) {
-			case JOptionPane.CLOSED_OPTION:
-				// closed
-				return;
-			case 0:
-				// Overwrite
-				// Remove from doc everything contained within currentDesign
-				// that exists
-				for (TopLevel tl : currentDesign.getTopLevels()) {
-					if (doc.getTopLevel(tl.getIdentity()) != null) {
-						if (tl instanceof ComponentDefinition) {
-							if (!doc.removeComponentDefinition(doc.getComponentDefinition(tl.getIdentity()))) {
-								throw new Exception("ERROR: " + tl.getDisplayId() + " didn't get removed");
-							}
-						} else if (tl instanceof Sequence) {
-							if (!doc.removeSequence(doc.getSequence(tl.getIdentity()))) {
-								throw new Exception("ERROR: " + tl.getDisplayId() + " didn't get removed");
-							}
+		switch (selection) {
+		case JOptionPane.CLOSED_OPTION:
+			// closed
+			return;
+		case 0:
+			// Overwrite
+			// Remove from doc everything contained within currentDesign
+			// that exists
+			for (TopLevel tl : currentDesign.getTopLevels()) {
+				if (doc.getTopLevel(tl.getIdentity()) != null) {
+					if (tl instanceof ComponentDefinition) {
+						if (!doc.removeComponentDefinition(doc.getComponentDefinition(tl.getIdentity()))) {
+							throw new Exception("ERROR: " + tl.getDisplayId() + " didn't get removed");
+						}
+					} else if (tl instanceof Sequence) {
+						if (!doc.removeSequence(doc.getSequence(tl.getIdentity()))) {
+							throw new Exception("ERROR: " + tl.getDisplayId() + " didn't get removed");
 						}
 					}
 				}
-				doc.createCopy(currentDesign);
-				break;
-			case 1:
-				// New Version
-				saveNewVersion(currentRootCD, currentDesign, doc);
-				break;
-			default:
-				throw new IllegalArgumentException();
 			}
-			documentIO.write(doc);
-			SBOLFactory.clear();
-			openDesign(new FileDocumentIO(false));
-			return;
-		} catch (Exception e) {
-			JOptionPane.showMessageDialog(this, "Saving failed: " + e.getMessage());
-			e.printStackTrace();
+			doc.createCopy(currentDesign);
+			break;
+		case 1:
+			// New Version
+			saveNewVersion(currentRootCD, currentDesign, doc);
+			break;
+		default:
+			throw new IllegalArgumentException();
 		}
+		documentIO.write(doc);
+		SBOLFactory.clear();
+		openDesign(new FileDocumentIO(false));
+		return;
 	}
 
 	/**

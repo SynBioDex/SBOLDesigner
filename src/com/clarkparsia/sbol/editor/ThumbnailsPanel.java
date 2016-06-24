@@ -24,9 +24,11 @@ import java.awt.event.MouseEvent;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JComponent;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import org.sbolstandard.core2.ComponentDefinition;
+import org.sbolstandard.core2.SBOLValidationException;
 
 import com.adamtaft.eb.EventHandler;
 import com.clarkparsia.sbol.editor.event.DesignLoadedEvent;
@@ -57,7 +59,8 @@ public class ThumbnailsPanel extends JPanel {
 	private JComponent createButton(final ComponentDefinition comp, final Image image) {
 		final int width = image.getWidth(null);
 		final int height = image.getHeight(null);
-		// JComponent button = Buttons.createButton("", new ImageIcon(Images.scaleImage(img, 0.6))) {
+		// JComponent button = Buttons.createButton("", new
+		// ImageIcon(Images.scaleImage(img, 0.6))) {
 		//
 		// };
 		final JPanel button = new JPanel() {
@@ -65,27 +68,32 @@ public class ThumbnailsPanel extends JPanel {
 			@Override
 			protected void paintComponent(Graphics g) {
 				super.paintComponent(g);
-				
-				double scale = Math.min(0.8, (double)getWidth()/width);
-				g.drawImage(image, 0, 0, (int) (width*scale), (int) (height*scale), this);
-//				g.drawImage(Images.scaleImage(image, scale), 0, 0, null);
+
+				double scale = Math.min(0.8, (double) getWidth() / width);
+				g.drawImage(image, 0, 0, (int) (width * scale), (int) (height * scale), this);
+				// g.drawImage(Images.scaleImage(image, scale), 0, 0, null);
 			}
 
 		};
 		button.setOpaque(false);
 		button.putClientProperty("comp", comp);
-		 
+
 		final ComponentDefinition parentComponent = editor.getDesign().getParentCD();
 		button.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				editor.getDesign().focusOut(parentComponent);
+				try {
+					editor.getDesign().focusOut(parentComponent);
+				} catch (SBOLValidationException e1) {
+					JOptionPane.showMessageDialog(null, "There was an error: " + e1.getMessage());
+					e1.printStackTrace();
+				}
 			}
 		});
 
 		return button;
 	}
-	
+
 	private void addButton(final ComponentDefinition comp, final Image image) {
 		add(createButton(comp, image), count++);
 	}
@@ -110,8 +118,7 @@ public class ThumbnailsPanel extends JPanel {
 			JComponent button = (JComponent) getComponent(count - 1);
 			if (comp != button.getClientProperty("comp")) {
 				remove(--count);
-			}
-			else {
+			} else {
 				break;
 			}
 		}

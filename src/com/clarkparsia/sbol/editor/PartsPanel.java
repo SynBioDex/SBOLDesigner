@@ -21,8 +21,11 @@ import java.util.Map;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
+
+import org.sbolstandard.core2.SBOLValidationException;
 
 import com.adamtaft.eb.EventHandler;
 import com.clarkparsia.sbol.editor.event.DesignChangedEvent;
@@ -34,17 +37,17 @@ import com.google.common.collect.Maps;
  */
 public class PartsPanel extends JPanel {
 	private final SBOLDesign design;
-	private final Map<Part,JButton> buttons = Maps.newHashMap();
-	
+	private final Map<Part, JButton> buttons = Maps.newHashMap();
+
 	public PartsPanel(SBOLEditor editor) {
 		super();
-		
+
 		design = editor.getDesign();
-		
+
 		for (Part part : Parts.all()) {
 			addPartButton(part);
 		}
-		
+
 		editor.getEventBus().subscribe(this);
 	}
 
@@ -66,14 +69,19 @@ public class PartsPanel extends JPanel {
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent event) {
-				design.addCD(part, part == Parts.GENERIC);
+				try {
+					design.addCD(part, part == Parts.GENERIC);
+				} catch (SBOLValidationException e) {
+					JOptionPane.showMessageDialog(null, "There was an error: " + e.getMessage());
+					e.printStackTrace();
+				}
 			}
-		});		
+		});
 		return button;
 	}
-	
+
 	@EventHandler
 	public void designChanged(DesignChangedEvent event) {
-		 buttons.get(Parts.ORI).setEnabled(!event.getDesign().isCircular());
+		buttons.get(Parts.ORI).setEnabled(!event.getDesign().isCircular());
 	}
 }
