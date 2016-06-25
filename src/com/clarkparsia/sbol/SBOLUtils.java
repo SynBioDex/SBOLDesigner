@@ -235,7 +235,8 @@ public class SBOLUtils {
 
 	public static boolean isRegistryComponent(ComponentDefinition comp) {
 		URI uri = comp.getIdentity();
-		return uri != null && uri.toString().startsWith("http://partsregistry");
+		return uri != null
+				&& !uri.toString().startsWith(SBOLEditorPreferences.INSTANCE.getUserInfo().getURI().toString());
 	}
 
 	public static Map<Integer, Sequence> findUncoveredSequences(ComponentDefinition comp,
@@ -286,20 +287,6 @@ public class SBOLUtils {
 		}
 
 		return uncoveredSequences;
-	}
-
-	public static void rename(ComponentDefinition comp) {
-		// renameObj(comp);
-		// renameObj(comp.getSequence());
-		// for (SequenceAnnotation ann : comp.getAnnotations()) {
-		// renameObj(ann);
-		// }
-	}
-
-	private static void renameObj(SBOLObject obj) {
-		// if (obj != null) {
-		// obj.setURI(SBOLUtils.createURI());
-		// }
 	}
 
 	/**

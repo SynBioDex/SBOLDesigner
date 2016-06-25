@@ -47,7 +47,6 @@ import org.sbolstandard.core2.ComponentDefinition;
 import org.sbolstandard.core2.SBOLConversionException;
 import org.sbolstandard.core2.SBOLDocument;
 import org.sbolstandard.core2.SBOLFactory;
-import org.sbolstandard.core2.SBOLReader;
 import org.sbolstandard.core2.SBOLValidationException;
 import org.sbolstandard.core2.SBOLWriter;
 import org.sbolstandard.core2.Sequence;

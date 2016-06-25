@@ -41,14 +41,11 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
-import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.EnumSet;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -70,9 +67,6 @@ import javax.swing.JRadioButton;
 import javax.swing.JTextArea;
 import javax.swing.KeyStroke;
 import javax.swing.SwingConstants;
-import javax.xml.stream.FactoryConfigurationError;
-import javax.xml.stream.XMLStreamException;
-
 import org.sbolstandard.core2.AccessType;
 import org.sbolstandard.core2.ComponentDefinition;
 import org.sbolstandard.core2.Location;
@@ -83,7 +77,6 @@ import org.sbolstandard.core2.SBOLValidationException;
 import org.sbolstandard.core2.SequenceAnnotation;
 import org.sbolstandard.core2.OrientationType;
 import org.sbolstandard.core2.RestrictionType;
-import org.sbolstandard.core2.SBOLConversionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -93,22 +86,18 @@ import com.clarkparsia.sbol.SBOLUtils;
 import com.clarkparsia.sbol.editor.dialog.PartEditDialog;
 import com.clarkparsia.sbol.editor.dialog.RootInputDialog;
 import com.clarkparsia.sbol.editor.dialog.StackInputDialog;
-import com.clarkparsia.sbol.editor.dialog.SelectionDialog;
 import com.clarkparsia.sbol.editor.event.DesignChangedEvent;
 import com.clarkparsia.sbol.editor.event.DesignLoadedEvent;
 import com.clarkparsia.sbol.editor.event.FocusInEvent;
 import com.clarkparsia.sbol.editor.event.FocusOutEvent;
 import com.clarkparsia.sbol.editor.event.PartVisibilityChangedEvent;
 import com.clarkparsia.sbol.editor.event.SelectionChangedEvent;
-import com.clarkparsia.versioning.PersonInfo;
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-
-import uk.ac.ncl.intbio.core.io.CoreIoException;
 
 /**
  * 
@@ -186,8 +175,13 @@ public class SBOLDesign {
 			"Flip the Orientation for the selected part", "flipOrientation.png") {
 		@Override
 		protected void perform() {
-			ComponentDefinition comp = getSelectedCD();
-			flipOrientation(comp);
+			try {
+				ComponentDefinition comp = getSelectedCD();
+				flipOrientation(comp);
+			} catch (SBOLValidationException e) {
+				JOptionPane.showMessageDialog(panel, "There was an error flipping the orientation: " + e.getMessage());
+				e.printStackTrace();
+			}
 		}
 	};
 
@@ -496,75 +490,75 @@ public class SBOLDesign {
 		}
 	}
 
-	/**
-	 * Removed version of confirmEditable
-	 */
-	private boolean confirmEditable() {
-		// TODO removed confirmEditable by renaming to confirmEditableRemoved
-		return true;
-	}
-
-	private boolean confirmEditableRemoved() throws SBOLValidationException {
+	private boolean confirmEditable() throws SBOLValidationException {
 		if (readOnly.contains(ReadOnly.REGISTRY_COMPONENT)) {
-			if (!PartEditDialog.confirmEditing(panel, canvasCD)) {
-				return false;
-			}
-			readOnly.remove(ReadOnly.REGISTRY_COMPONENT);
+			JOptionPane.showMessageDialog(panel, canvasCD.getDisplayId()
+					+ " doesn't belong in your namespace.  Please edit the part \nand choose \"yes\" to creating an editable copy while re-save it.");
+			return false;
 		}
 
-		if (readOnly.contains(ReadOnly.MISSING_START_END)) {
-			int result = JOptionPane.showConfirmDialog(panel,
-					"The component '" + canvasCD.getDisplayId() + "' has a DNA sequence but the\n"
-							+ "subcomponents don't have start or end\n"
-							+ "coordinates. If you edit the design you will\n" + "lose the DNA sequence.\n\n"
-							+ "Do you want to continue with editing?",
-					"Uncovered sequence", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
-
-			if (result == JOptionPane.NO_OPTION) {
-				return false;
-			}
-			readOnly.remove(ReadOnly.REGISTRY_COMPONENT);
-		} else if (readOnly.contains(ReadOnly.UNCOVERED_SEQUENCE)) {
-			String msg = "The sub components do not cover the DNA sequence\n" + "of the component '"
-					+ canvasCD.getDisplayId() + "' completely.\n"
-					+ "You need to add SCAR components to cover the missing\n"
-					+ "parts or you will lose the uncovered DNA sequence.\n\n" + "How do you want to continue?";
-
-			JRadioButton[] buttons = { new JRadioButton("Add SCAR Parts to handle uncovered sequences"),
-					new JRadioButton("Continue with editing and lose the root DNA sequence"),
-					new JRadioButton("Cancel the operation and do not edit the component") };
-
-			JTextArea textArea = new JTextArea(msg);
-			textArea.setEditable(false);
-			textArea.setLineWrap(true);
-			textArea.setOpaque(false);
-			textArea.setBorder(BorderFactory.createEmptyBorder());
-			textArea.setAlignmentX(Component.LEFT_ALIGNMENT);
-
-			Box box = Box.createVerticalBox();
-			box.add(textArea);
-
-			ButtonGroup group = new ButtonGroup();
-			for (JRadioButton button : buttons) {
-				button.setSelected(true);
-				button.setAlignmentX(Component.LEFT_ALIGNMENT);
-				group.add(button);
-				box.add(button);
-			}
-
-			int result = JOptionPane.showConfirmDialog(panel, box, "Uncovered sequence", JOptionPane.OK_CANCEL_OPTION,
-					JOptionPane.QUESTION_MESSAGE);
-
-			if (result == JOptionPane.CANCEL_OPTION || buttons[2].isSelected()) {
-				return false;
-			}
-
-			readOnly.remove(ReadOnly.UNCOVERED_SEQUENCE);
-
-			if (buttons[0].isSelected()) {
-				addScarsForUncoveredSequences();
-			}
-		}
+		// if (readOnly.contains(ReadOnly.MISSING_START_END)) {
+		// int result = JOptionPane.showConfirmDialog(panel,
+		// "The component '" + canvasCD.getDisplayId() + "' has a DNA sequence
+		// but the\n"
+		// + "subcomponents don't have start or end\n"
+		// + "coordinates. If you edit the design you will\n" + "lose the DNA
+		// sequence.\n\n"
+		// + "Do you want to continue with editing?",
+		// "Uncovered sequence", JOptionPane.YES_NO_OPTION,
+		// JOptionPane.QUESTION_MESSAGE);
+		//
+		// if (result == JOptionPane.NO_OPTION) {
+		// return false;
+		// }
+		// readOnly.remove(ReadOnly.REGISTRY_COMPONENT);
+		// } else if (readOnly.contains(ReadOnly.UNCOVERED_SEQUENCE)) {
+		// String msg = "The sub components do not cover the DNA sequence\n" +
+		// "of the component '"
+		// + canvasCD.getDisplayId() + "' completely.\n"
+		// + "You need to add SCAR components to cover the missing\n"
+		// + "parts or you will lose the uncovered DNA sequence.\n\n" + "How do
+		// you want to continue?";
+		//
+		// JRadioButton[] buttons = { new JRadioButton("Add SCAR Parts to handle
+		// uncovered sequences"),
+		// new JRadioButton("Continue with editing and lose the root DNA
+		// sequence"),
+		// new JRadioButton("Cancel the operation and do not edit the
+		// component") };
+		//
+		// JTextArea textArea = new JTextArea(msg);
+		// textArea.setEditable(false);
+		// textArea.setLineWrap(true);
+		// textArea.setOpaque(false);
+		// textArea.setBorder(BorderFactory.createEmptyBorder());
+		// textArea.setAlignmentX(Component.LEFT_ALIGNMENT);
+		//
+		// Box box = Box.createVerticalBox();
+		// box.add(textArea);
+		//
+		// ButtonGroup group = new ButtonGroup();
+		// for (JRadioButton button : buttons) {
+		// button.setSelected(true);
+		// button.setAlignmentX(Component.LEFT_ALIGNMENT);
+		// group.add(button);
+		// box.add(button);
+		// }
+		//
+		// int result = JOptionPane.showConfirmDialog(panel, box, "Uncovered
+		// sequence", JOptionPane.OK_CANCEL_OPTION,
+		// JOptionPane.QUESTION_MESSAGE);
+		//
+		// if (result == JOptionPane.CANCEL_OPTION || buttons[2].isSelected()) {
+		// return false;
+		// }
+		//
+		// readOnly.remove(ReadOnly.UNCOVERED_SEQUENCE);
+		//
+		// if (buttons[0].isSelected()) {
+		// addScarsForUncoveredSequences();
+		// }
+		// }
 
 		return true;
 	}
@@ -1011,7 +1005,7 @@ public class SBOLDesign {
 		}
 	}
 
-	public void moveElement(int source, int target) {
+	public void moveElement(int source, int target) throws SBOLValidationException {
 		if (!confirmEditable()) {
 			return;
 		}
@@ -1147,7 +1141,7 @@ public class SBOLDesign {
 		}
 	}
 
-	public void flipOrientation(ComponentDefinition comp) {
+	public void flipOrientation(ComponentDefinition comp) throws SBOLValidationException {
 		if (!confirmEditable()) {
 			return;
 		}
@@ -1302,7 +1296,7 @@ public class SBOLDesign {
 	}
 
 	public void editCanvasCD() throws SBOLValidationException {
-		if (!confirmEditable()) {
+		if (!canvasCD.equals(SBOLUtils.getRootCD(createDocument())) && !confirmEditable()) {
 			return;
 		}
 
@@ -1387,7 +1381,7 @@ public class SBOLDesign {
 			if (!confirmEditable()) {
 				return;
 			}
-			replaceCD(selectedElement.getCD(), selection.getRootComponentDefinitions().iterator().next());
+			replaceCD(selectedElement.getCD(), SBOLUtils.getRootCD(selection));
 		}
 	}
 
@@ -1450,7 +1444,6 @@ public class SBOLDesign {
 
 			if (nucleotides != null && nucleotides.length() > 0) {
 				if (nucleotides.length() < oldElements.length()) {
-					// TODO buggy
 					// report to the user if the updated sequence is shorter
 					int option = 0;
 					// check preferences

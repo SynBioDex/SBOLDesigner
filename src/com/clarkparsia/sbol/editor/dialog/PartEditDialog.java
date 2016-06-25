@@ -85,7 +85,7 @@ import uk.ac.ncl.intbio.core.io.CoreIoException;
 public class PartEditDialog extends JDialog implements ActionListener, DocumentListener {
 	private static final String TITLE = "Part: ";
 
-	private ComponentDefinition comp;
+	private ComponentDefinition CD;
 
 	private final JComboBox<Part> roleSelection = new JComboBox<Part>(Iterables.toArray(Parts.sorted(), Part.class));
 	private final JComboBox<String> roleRefinement;
@@ -108,7 +108,7 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 			PartEditDialog dialog = new PartEditDialog(parent, part);
 			dialog.saveButton.setEnabled(enableSave);
 			dialog.setVisible(true);
-			return dialog.comp;
+			return dialog.CD;
 		} catch (Exception e) {
 			e.printStackTrace();
 			JOptionPane.showMessageDialog(parent, "Error editing component: " + e.getMessage());
@@ -132,7 +132,7 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 	private PartEditDialog(Component parent, ComponentDefinition comp) {
 		super(JOptionPane.getFrameForComponent(parent), TITLE + title(comp), true);
 
-		this.comp = comp;
+		this.CD = comp;
 
 		cancelButton = new JButton("Cancel");
 		cancelButton.registerKeyboardAction(this, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0),
@@ -241,6 +241,7 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 		return refine;
 	}
 
+	@Override
 	public void actionPerformed(ActionEvent e) {
 		boolean keepVisible = false;
 		if (e.getSource().equals(roleSelection) || e.getSource().equals(roleRefinement)) {
@@ -280,14 +281,13 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 			} else {
 				// Sets comp to null if things don't get edited/cancel is
 				// pressed
-				comp = null;
+				CD = null;
 			}
 		} catch (Exception e1) {
 			JOptionPane.showMessageDialog(getParent(), "What you have entered is invalid. " + e1.getMessage());
 			e1.printStackTrace();
 			keepVisible = true;
 		}
-
 		if (!keepVisible) {
 			setVisible(false);
 		} else {
@@ -309,8 +309,8 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 				JOptionPane.showMessageDialog(getParent(), "There are no parts to import");
 				return false;
 			case 1:
-				comp = CDs[0];
-				SBOLUtils.insertTopLevels(doc.createRecursiveCopy(comp));
+				CD = CDs[0];
+				SBOLUtils.insertTopLevels(doc.createRecursiveCopy(CD));
 				return true;
 			default:
 				Part criteria = roleSelection.getSelectedItem().equals("None") ? PartInputDialog.ALL_PARTS
@@ -321,7 +321,7 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 				if (selection == null) {
 					return false;
 				} else {
-					this.comp = selection.getRootComponentDefinitions().iterator().next();
+					this.CD = selection.getRootComponentDefinitions().iterator().next();
 					// copy the rest of the design into SBOLFactory
 					SBOLUtils.insertTopLevels(selection);
 					return true;
@@ -335,14 +335,23 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 	 * Fills in a CD and Sequence based on this dialog's state.
 	 */
 	private void saveButtonHandler() throws SBOLValidationException {
-		comp = SBOLFactory.getComponentDefinition(displayId.getText(), version.getText());
-		if (comp == null) {
-			String uniqueId = SBOLUtils.getUniqueDisplayId(null, displayId.getText(), version.getText(), "CD");
-			comp = SBOLFactory.createComponentDefinition(uniqueId, version.getText(), ComponentDefinition.DNA);
+		if (SBOLUtils.isRegistryComponent(CD)) {
+			// Rename CD and use that
+			CD = confirmEditing(getParent(), CD);
+			if (CD == null) {
+				return;
+			}
+		} else {
+			// try to get CD if it exists. Otherwise, create it.
+			CD = SBOLFactory.getComponentDefinition(displayId.getText(), version.getText());
+			if (CD == null) {
+				String uniqueId = SBOLUtils.getUniqueDisplayId(null, displayId.getText(), version.getText(), "CD");
+				CD = SBOLFactory.createComponentDefinition(uniqueId, version.getText(), ComponentDefinition.DNA);
+			}
 		}
 
-		comp.setName(name.getText());
-		comp.setDescription(description.getText());
+		CD.setName(name.getText());
+		CD.setDescription(description.getText());
 
 		Part part = (Part) roleSelection.getSelectedItem();
 		if (part != null) {
@@ -362,19 +371,19 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 				}
 				setRoles.add(roleURI);
 			}
-			comp.setRoles(setRoles);
+			CD.setRoles(setRoles);
 		}
 
 		String seq = sequenceField.getText();
 		if (seq == null || seq.isEmpty()) {
-			comp.clearSequences();
-		} else if (comp.getSequences().isEmpty()
-				|| !Objects.equal(comp.getSequences().iterator().next().getElements(), seq)) {
-			comp.clearSequences();
-			String uniqueId = SBOLUtils.getUniqueDisplayId(null, comp.getDisplayId() + "Sequence", comp.getVersion(),
+			CD.clearSequences();
+		} else if (CD.getSequences().isEmpty()
+				|| !Objects.equal(CD.getSequences().iterator().next().getElements(), seq)) {
+			CD.clearSequences();
+			String uniqueId = SBOLUtils.getUniqueDisplayId(null, CD.getDisplayId() + "Sequence", CD.getVersion(),
 					"Sequence");
-			Sequence dnaSeq = SBOLFactory.createSequence(uniqueId, comp.getVersion(), seq, Sequence.IUPAC_DNA);
-			comp.addSequence(dnaSeq);
+			Sequence dnaSeq = SBOLFactory.createSequence(uniqueId, CD.getVersion(), seq, Sequence.IUPAC_DNA);
+			CD.addSequence(dnaSeq);
 		}
 	}
 
@@ -412,20 +421,25 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 		saveButton.setEnabled(true);
 	}
 
-	public static boolean confirmEditing(Component parent, ComponentDefinition comp) {
+	/**
+	 * Returns the renamed CD or null if the user chooses "no".
+	 */
+	public static ComponentDefinition confirmEditing(Component parent, ComponentDefinition comp)
+			throws SBOLValidationException {
+		// TODO bug, the renamed CD duplicates all components for some reason?
 		int result = JOptionPane.showConfirmDialog(parent,
-				"The component '" + comp.getDisplayId() + "' has been added from\n"
-						+ "a parts registry and cannot be edited.\n\n" + "Do you want to create an editable copy of\n"
-						+ "this ComponentDefinition and save your changes?",
+				"The part '" + comp.getDisplayId() + "' doesn't belong to your\n"
+						+ "namespace and cannot be edited.\n\n" + "Do you want to create an editable copy of\n"
+						+ "this part and save your changes?",
 				"Edit registry part", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
 
 		if (result == JOptionPane.NO_OPTION) {
-			return false;
+			return null;
 		}
 
-		SBOLUtils.rename(comp);
-
-		return true;
+		return (ComponentDefinition) SBOLFactory.createCopy(comp,
+				SBOLEditorPreferences.INSTANCE.getUserInfo().getURI().toString(), comp.getDisplayId(),
+				comp.getVersion());
 	}
 
 	/**
