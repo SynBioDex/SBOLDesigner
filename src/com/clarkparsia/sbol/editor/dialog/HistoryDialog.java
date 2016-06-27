@@ -53,11 +53,13 @@ import com.clarkparsia.versioning.ui.HistoryTable.HistoryTableModel;
  * @author Evren Sirin
  */
 public class HistoryDialog {
-	private enum Action { CHECKOUT, CLONE, CLOSE }
+	private enum Action {
+		CHECKOUT, CLONE, CLOSE
+	}
 
 	public static DocumentIO show(Component parent, RVTDocumentIO documentIO) {
 		final AtomicReference<DocumentIO> result = new AtomicReference<DocumentIO>();
-		
+
 		final Revision head = documentIO.getBranch().getHead();
 
 		final JCheckBox showBranches = new JCheckBox("Show branch nodes");
@@ -65,17 +67,17 @@ public class HistoryDialog {
 
 		final HistoryList historyList = new HistoryList(head, showBranches.isSelected());
 		final HistoryTable table = new HistoryTable(new HistoryTableModel(historyList));
-		
-		showBranches.addActionListener(new ActionListener() {			
+
+		showBranches.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent paramActionEvent) {
 				table.setModel(new HistoryTableModel(new HistoryList(head, showBranches.isSelected())));
 			}
-		});			
-		
-		final JDialog dialog = new JDialog(JOptionPane.getFrameForComponent(parent), "History for " + documentIO, true);		
-		
-	    ActionListener actionListener = new ActionListener() {
+		});
+
+		final JDialog dialog = new JDialog(JOptionPane.getFrameForComponent(parent), "History for " + documentIO, true);
+
+		ActionListener actionListener = new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				Action action = Action.valueOf(e.getActionCommand());
 				if (action != Action.CLOSE) {
@@ -85,29 +87,29 @@ public class HistoryDialog {
 						JOptionPane.showMessageDialog(null, "Please select a revision not a branch");
 						return;
 					}
-					
+
 					Revision rev = (Revision) ref;
-					
+
 					if (action == Action.CLONE) {
 						try {
-	                        SBOLDocument doc = RVTDocumentIO.createForRevision(rev).read();
-	                        ComponentDefinition comp = SBOLUtils.getRootCD(doc);
-	                        SBOLUtils.rename(comp);
-	                        result.set(new ReadOnlyDocumentIO(doc));
-                        }
-                        catch (Exception e1) {
-	                        JOptionPane.showMessageDialog(null, "ERROR: " + e1.getMessage());
-                        }
-					}
-					else {
+							SBOLDocument doc = RVTDocumentIO.createForRevision(rev).read();
+							ComponentDefinition comp = SBOLUtils.getRootCD(doc);
+							//
+							doc.createCopy(comp);
+							// SBOLUtils.rename(comp);
+							result.set(new ReadOnlyDocumentIO(doc));
+						} catch (Exception e1) {
+							JOptionPane.showMessageDialog(null, "ERROR: " + e1.getMessage());
+						}
+					} else {
 						result.set(RVTDocumentIO.createForRevision(rev));
 					}
 				}
-				
+
 				dialog.setVisible(false);
 			}
-	    };
-	    
+		};
+
 		JPanel buttonPanel = new JPanel();
 		buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.LINE_AXIS));
 		buttonPanel.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0));
@@ -124,26 +126,27 @@ public class HistoryDialog {
 		cloneButton.setToolTipText("Clone the selected revision and insert into the current design");
 		dialog.getRootPane().setDefaultButton(checkoutButton);
 		buttonPanel.add(cloneButton);
-		
+
 		buttonPanel.add(Box.createHorizontalStrut(200));
 		buttonPanel.add(Box.createHorizontalGlue());
-		
+
 		JButton closeButton = new JButton("Close");
 		closeButton.setActionCommand(Action.CLOSE.toString());
 		closeButton.addActionListener(actionListener);
 		dialog.getRootPane().setDefaultButton(closeButton);
-		closeButton.registerKeyboardAction(actionListener, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_IN_FOCUSED_WINDOW);
+		closeButton.registerKeyboardAction(actionListener, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0),
+				JComponent.WHEN_IN_FOCUSED_WINDOW);
 		buttonPanel.add(closeButton);
-		
+
 		dialog.getContentPane().add(showBranches, BorderLayout.NORTH);
 		dialog.getContentPane().add(new JScrollPane(table), BorderLayout.CENTER);
 		dialog.getContentPane().add(buttonPanel, BorderLayout.SOUTH);
-		
+
 		dialog.pack();
 		dialog.setLocationRelativeTo(parent);
 		dialog.setVisible(true);
-		
+
 		return result.get();
 	}
-	
+
 }

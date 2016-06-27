@@ -343,10 +343,11 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 			}
 		} else {
 			// try to get CD if it exists. Otherwise, create it.
-			CD = SBOLFactory.getComponentDefinition(displayId.getText(), version.getText());
-			if (CD == null) {
+			if (SBOLFactory.getComponentDefinition(displayId.getText(), version.getText()) != null) {
+				CD = SBOLFactory.getComponentDefinition(displayId.getText(), version.getText());
+			} else {
 				String uniqueId = SBOLUtils.getUniqueDisplayId(null, displayId.getText(), version.getText(), "CD");
-				CD = SBOLFactory.createComponentDefinition(uniqueId, version.getText(), ComponentDefinition.DNA);
+				CD = (ComponentDefinition) SBOLFactory.createCopy(CD, uniqueId, version.getText());
 			}
 		}
 

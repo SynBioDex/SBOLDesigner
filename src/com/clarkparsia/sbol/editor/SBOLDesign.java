@@ -1296,39 +1296,34 @@ public class SBOLDesign {
 	}
 
 	public void editCanvasCD() throws SBOLValidationException {
-		if (!canvasCD.equals(SBOLUtils.getRootCD(createDocument())) && !confirmEditable()) {
+		if (!parentCDs.isEmpty() && !confirmEditable()) {
 			return;
 		}
 
 		ComponentDefinition comp = getCanvasCD();
-		URI previousIdentity = comp.getIdentity();
+		URI originalIdentity = comp.getIdentity();
 		updateCanvasCD();
-		List<org.sbolstandard.core2.Component> oldComponents = null;
-		oldComponents = comp.getSortedComponents();
-
 		comp = PartEditDialog.editPart(panel.getParent(), comp, false);
-		boolean edited = comp != null;
-
-		if (edited && comp.getIdentity() != previousIdentity) {
-			// The displayId or version has been changed, so we preserve the
-			// components and their ordering
-			List<org.sbolstandard.core2.Component> newComponents = new ArrayList<org.sbolstandard.core2.Component>();
-			for (int i = 0; i < oldComponents.size(); i++) {
-				org.sbolstandard.core2.Component c = oldComponents.get(i);
-				newComponents.add(DesignElement.createComponent(comp, c.getDefinition()));
-				if (i > 0) {
-					// create a SC based off the ordering of oldComponents
-					String uniqueId = SBOLUtils.getUniqueDisplayId(comp, "SequenceConstraint", null,
-							"SequenceConstraint");
-					comp.createSequenceConstraint(uniqueId, RestrictionType.PRECEDES,
-							newComponents.get(i - 1).getIdentity(), newComponents.get(i).getIdentity());
-				}
+		if (comp != null) {
+			if (!originalIdentity.equals(comp.getIdentity())) {
+				updateComponentReferences(originalIdentity, comp.getIdentity());
 			}
 			load(comp);
-		}
-
-		if (edited) {
 			fireDesignChangedEvent();
+		}
+	}
+
+	/**
+	 * Looks through all the components and updates all references to
+	 * originalIdentity to identity
+	 */
+	private void updateComponentReferences(URI originalIdentity, URI newIdentity) throws SBOLValidationException {
+		for (ComponentDefinition CD : SBOLFactory.getComponentDefinitions()) {
+			for (org.sbolstandard.core2.Component comp : CD.getComponents()) {
+				if (comp.getDefinition().getIdentity().equals(originalIdentity)) {
+					comp.setDefinition(newIdentity);
+				}
+			}
 		}
 	}
 
@@ -1338,35 +1333,12 @@ public class SBOLDesign {
 		}
 
 		ComponentDefinition originalCD = getSelectedCD();
-		URI originalIdentity = originalCD.getIdentity();
 		ComponentDefinition editedCD = PartEditDialog.editPart(panel.getParent(), originalCD, false);
 
-		boolean edited = editedCD != null;
-		if (edited) {
+		if (editedCD != null) {
 			// if the CD type or the displyId has been edited we need to
 			// update the component view so we'll replace it with the new CD
 			replaceCD(originalCD, editedCD);
-
-			if (!originalIdentity.equals(editedCD.getIdentity())) {
-				// Also maintain components and their ordering of the oldCD
-				editedCD.clearSequenceAnnotations();
-				editedCD.clearSequenceConstraints();
-				editedCD.clearComponents();
-				List<org.sbolstandard.core2.Component> oldComponents = null;
-				oldComponents = originalCD.getSortedComponents();
-				List<org.sbolstandard.core2.Component> newComponents = new ArrayList<org.sbolstandard.core2.Component>();
-				for (int i = 0; i < oldComponents.size(); i++) {
-					org.sbolstandard.core2.Component c = oldComponents.get(i);
-					newComponents.add(DesignElement.createComponent(editedCD, c.getDefinition()));
-					if (i > 0) {
-						// create a SC based off the ordering of oldComponents
-						String uniqueId = SBOLUtils.getUniqueDisplayId(editedCD, "SequenceConstraint", null,
-								"SequenceConstraint");
-						editedCD.createSequenceConstraint(uniqueId, RestrictionType.PRECEDES,
-								newComponents.get(i - 1).getIdentity(), newComponents.get(i).getIdentity());
-					}
-				}
-			}
 		}
 		fireDesignChangedEvent();
 	}
