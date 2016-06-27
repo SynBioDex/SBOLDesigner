@@ -85,9 +85,9 @@ import com.google.common.base.Supplier;
 public class SBOLDesignerPlugin extends SBOLDesignerPanel {
 
 	SBOLEditorActions TOOLBAR_ACTIONS = new SBOLEditorActions()// .add(NEW,
-																				// OPEN,
-																				// SAVE,
-																				// DIVIDER)
+																// OPEN,
+																// SAVE,
+																// DIVIDER)
 			// .addIf(SBOLEditorPreferences.INSTANCE.isVersioningEnabled(),
 			// VERSION, DIVIDER)
 			.add(design.EDIT_CANVAS, design.EDIT, design.FIND, design.DELETE, design.FLIP, DIVIDER)
@@ -117,8 +117,9 @@ public class SBOLDesignerPlugin extends SBOLDesignerPanel {
 
 	private String path;
 
-	public SBOLDesignerPlugin(String path, String fileName) throws SBOLValidationException, IOException, SBOLConversionException {
-		super();
+	public SBOLDesignerPlugin(String path, String fileName)
+			throws SBOLValidationException, IOException, SBOLConversionException {
+		super(null);
 		fc = new JFileChooser(SBOLUtils.setupFile());
 		fc.setMultiSelectionEnabled(false);
 		fc.setFileSelectionMode(JFileChooser.FILES_ONLY);

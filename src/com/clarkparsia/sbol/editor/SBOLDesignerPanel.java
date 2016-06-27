@@ -346,7 +346,7 @@ public class SBOLDesignerPanel extends JPanel {
 
 	final SBOLEditor editor = new SBOLEditor(true);
 	final SBOLDesign design = editor.getDesign();
-	
+
 	SBOLEditor getEditor() {
 		return editor;
 	}
@@ -366,7 +366,13 @@ public class SBOLDesignerPanel extends JPanel {
 
 	private DocumentIO documentIO;
 
-	public SBOLDesignerPanel() throws SBOLValidationException {
+	private SBOLDesigner frame = null;
+
+	public SBOLDesignerPanel(SBOLDesigner frame) throws SBOLValidationException {
+		if (frame != null) {
+			this.frame = frame;
+		}
+
 		fc = new JFileChooser(SBOLUtils.setupFile());
 		fc.setMultiSelectionEnabled(false);
 		fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
@@ -494,8 +500,7 @@ public class SBOLDesignerPanel extends JPanel {
 		SBOLEditorPreferences.INSTANCE.saveUserInfo(userInfo);
 	}
 
-	void openDesign(DocumentIO documentIO)
-			throws SBOLValidationException, IOException, SBOLConversionException {
+	void openDesign(DocumentIO documentIO) throws SBOLValidationException, IOException, SBOLConversionException {
 		SBOLDocument doc = documentIO.read();
 		doc.setDefaultURIprefix(SBOLEditorPreferences.INSTANCE.getUserInfo().getURI().toString());
 		if (!editor.getDesign().load(doc)) {
@@ -724,15 +729,16 @@ public class SBOLDesignerPanel extends JPanel {
 		// Something broke
 		return null;
 	}
-	
-	
 
+	/**
+	 * Returns the String title defined by documentIO
+	 */
 	void setCurrentFile(DocumentIO documentIO) {
 		this.documentIO = documentIO;
 
 		String title = SBOLDesignerMetadata.NAME + " v" + SBOLDesignerMetadata.VERSION + " - "
 				+ (documentIO == null ? "New design" : documentIO);
-		//setTitle(title);
+		frame.setTitle(title);
 
 		updateEnabledButtons(false);
 	}

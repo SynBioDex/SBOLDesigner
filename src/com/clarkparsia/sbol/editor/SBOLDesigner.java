@@ -33,25 +33,17 @@ import com.clarkparsia.sbol.editor.io.DocumentIO;
 import com.clarkparsia.sbol.editor.io.FileDocumentIO;
 
 public class SBOLDesigner extends JFrame {
-	
+
 	SBOLDesignerPanel panel = null;
 
 	public SBOLDesigner() throws SBOLValidationException {
-		panel = new SBOLDesignerPanel();
+		// creates the panel with this frame so title can be set
+		panel = new SBOLDesignerPanel(this);
 
 		setContentPane(panel);
 		setLocationRelativeTo(null);
 		setSize(800, 600);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-	}
-
-	private void openDesign(DocumentIO documentIO)
-			throws SBOLValidationException, IOException, SBOLConversionException {
-		SBOLDocument doc = documentIO.read();
-		doc.setDefaultURIprefix(SBOLEditorPreferences.INSTANCE.getUserInfo().getURI().toString());
-		if (!panel.getEditor().getDesign().load(doc)) {
-			panel.setCurrentFile(documentIO);
-		}
 	}
 
 	public static void main(String[] args) throws SBOLValidationException {
@@ -65,7 +57,7 @@ public class SBOLDesigner extends JFrame {
 			try {
 				File file = new File(args[0]);
 				Preferences.userRoot().node("path").put("path", file.getPath());
-				frame.openDesign(new FileDocumentIO(false));
+				frame.panel.openDesign(new FileDocumentIO(false));
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
