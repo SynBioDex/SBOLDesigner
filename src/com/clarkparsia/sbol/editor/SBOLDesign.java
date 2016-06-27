@@ -413,10 +413,7 @@ public class SBOLDesign {
 		case 0:
 			// There isn't a rootCD
 			try {
-				String rootDisplayId = JOptionPane.showInputDialog("What would you like your design to be called?",
-						"NewDesign");
-				String uniqueId = SBOLUtils.getUniqueDisplayId(null, rootDisplayId, "1", "CD");
-				rootCD = SBOLFactory.createComponentDefinition(uniqueId, "1", ComponentDefinition.DNA);
+				rootCD = SBOLFactory.createComponentDefinition("NewDesign", "1", ComponentDefinition.DNA);
 			} catch (SBOLValidationException e) {
 				JOptionPane.showMessageDialog(panel, "Error creating the root part: " + e.getMessage());
 				e.printStackTrace();
@@ -1187,6 +1184,10 @@ public class SBOLDesign {
 	}
 
 	private void replaceCD(ComponentDefinition oldCD, ComponentDefinition newCD) throws SBOLValidationException {
+		// update components
+		// TODO bugs appear
+		// updateComponentReferences(oldCD.getIdentity(), newCD.getIdentity());
+		// update the rest
 		int index = getElementIndex(oldCD);
 		if (index >= 0) {
 			DesignElement e = elements.get(index);
