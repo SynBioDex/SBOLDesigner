@@ -158,10 +158,8 @@ public class SBOLUtils {
 
 		int returnVal = fc.showOpenDialog(null);
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
-			File file = fc.getCurrentDirectory();
+			File file = fc.getSelectedFile();
 			Preferences.userRoot().node("path").put("path", file.getPath());
-
-			file = fc.getSelectedFile();
 			SBOLDocument doc = null;
 			try {
 				SBOLReader.setURIPrefix(SBOLEditorPreferences.INSTANCE.getUserInfo().getURI().toString());

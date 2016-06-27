@@ -412,15 +412,7 @@ public class SBOLDesign {
 		switch (rootCDs.length) {
 		case 0:
 			// There isn't a rootCD
-			try {
-				rootCD = SBOLFactory.createComponentDefinition("NewDesign", "1", ComponentDefinition.DNA);
-			} catch (SBOLValidationException e) {
-				JOptionPane.showMessageDialog(panel, "Error creating the root part: " + e.getMessage());
-				e.printStackTrace();
-			} catch (NullPointerException e) {
-				// User pressed cancel
-				System.exit(0);
-			}
+			rootCD = SBOLFactory.createComponentDefinition("NewDesign", "1", ComponentDefinition.DNA);
 			break;
 		case 1:
 			// There is a single root CD
@@ -434,8 +426,7 @@ public class SBOLDesign {
 			}
 			doc.setDefaultURIprefix(SBOLEditorPreferences.INSTANCE.getUserInfo().getURI().toString());
 			SBOLFactory.setSBOLDocument(doc);
-			rootCD = doc.getRootComponentDefinitions().iterator().next();
-
+			rootCD = SBOLUtils.getRootCD(doc);
 			isPartialDesign = true;
 			break;
 		}
