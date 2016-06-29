@@ -661,8 +661,7 @@ public class SBOLDesignerPanel extends JPanel {
 			throw new IllegalArgumentException();
 		}
 		documentIO.write(doc);
-		SBOLFactory.clear();
-		openDesign(new FileDocumentIO(false));
+		SBOLFactory.setSBOLDocument(currentDesign);
 		return;
 	}
 
@@ -729,9 +728,9 @@ public class SBOLDesignerPanel extends JPanel {
 	void setCurrentFile(DocumentIO documentIO) {
 		this.documentIO = documentIO;
 
-		if (frame!=null) {
+		if (frame != null) {
 			String title = SBOLDesignerMetadata.NAME + " v" + SBOLDesignerMetadata.VERSION + " - "
-				+ (documentIO == null ? "New design" : documentIO);
+					+ (documentIO == null ? "New design" : documentIO);
 			frame.setTitle(title);
 		}
 

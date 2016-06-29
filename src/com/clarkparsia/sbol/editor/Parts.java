@@ -123,7 +123,7 @@ public class Parts {
 				return part;
 			}
 		}
-		return GENERIC;
+		return null;
 	}
 
 	public static Part forComponent(ComponentDefinition comp) {
@@ -135,8 +135,6 @@ public class Parts {
 				if (part != null) {
 					result = part;
 					break;
-				} else if (result == null) {
-					result = generic(role);
 				}
 			}
 		}
