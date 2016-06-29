@@ -98,6 +98,8 @@ public class StackInputDialog extends InputDialog<SBOLDocument> {
 
 	private JCheckBox importSubparts;
 
+	private static StackFrontend stack;
+
 	public StackInputDialog(final Component parent, final Part part) {
 		super(parent, TITLE);
 
@@ -175,7 +177,7 @@ public class StackInputDialog extends InputDialog<SBOLDocument> {
 
 	@Override
 	protected JPanel initMainPanel() {
-		List<ComponentMetadata> components = searchParts(isRoleSelection() ? part : null, url);
+		List<ComponentMetadata> components = searchParts(isRoleSelection() ? part : null, stack);
 		ComponentMetadataTableModel tableModel = new ComponentMetadataTableModel(components);
 
 		JPanel panel = createTablePanel(tableModel, "Matching parts (" + tableModel.getRowCount() + ")");
@@ -187,18 +189,20 @@ public class StackInputDialog extends InputDialog<SBOLDocument> {
 	}
 
 	/**
-	 * Queries the stack url provided for CDs matching the role(s) of the part
+	 * Queries the stack provided for CDs matching the role(s) of the part
 	 */
-	private List<ComponentMetadata> searchParts(Part part, String url) {
+	private List<ComponentMetadata> searchParts(Part part, StackFrontend stack) {
 		try {
-			StackFrontend sf = new StackFrontend(url);
+			if (stack == null) {
+				stack = new StackFrontend(url);
+			}
 			if (part != null) {
 				Set<URI> setRoles = new HashSet<URI>();
 				setRoles.addAll(part.getRoles());
-				ArrayList<ComponentMetadata> l = sf.searchComponentMetadata(null, setRoles, 0, 99);
+				ArrayList<ComponentMetadata> l = stack.searchComponentMetadata(null, setRoles, null, null);
 				return l;
 			} else {
-				ArrayList<ComponentMetadata> l = sf.searchComponentMetadata(null, new HashSet<URI>(), 0, 99);
+				ArrayList<ComponentMetadata> l = stack.searchComponentMetadata(null, new HashSet<URI>(), 0, 99);
 				return l;
 			}
 		} catch (StackException e) {
@@ -213,8 +217,10 @@ public class StackInputDialog extends InputDialog<SBOLDocument> {
 		try {
 			int row = table.convertRowIndexToModel(table.getSelectedRow());
 			ComponentMetadata compMeta = ((ComponentMetadataTableModel) table.getModel()).getElement(row);
-			StackFrontend sf = new StackFrontend(url);
-			ComponentDefinition comp = sf.fetchComponent(URI.create(compMeta.uri));
+			if (stack == null) {
+				stack = new StackFrontend(url);
+			}
+			ComponentDefinition comp = stack.fetchComponent(URI.create(compMeta.uri));
 
 			SBOLDocument doc = new SBOLDocument();
 			if (!importSubparts.isSelected()) {
@@ -231,12 +237,13 @@ public class StackInputDialog extends InputDialog<SBOLDocument> {
 	}
 
 	protected void registryChanged() {
+		stack = new StackFrontend(url);
 		partRoleChanged();
 	}
 
 	public void partRoleChanged() {
 		List<ComponentMetadata> components = searchParts(
-				isRoleSelection() ? (Part) roleSelection.getSelectedItem() : null, url);
+				isRoleSelection() ? (Part) roleSelection.getSelectedItem() : null, stack);
 		((ComponentMetadataTableModel) table.getModel()).setElements(components);
 		tableLabel.setText("Matching parts (" + components.size() + ")");
 	}
