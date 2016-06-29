@@ -79,7 +79,10 @@ import com.google.common.base.Strings;
 import com.google.common.base.Supplier;
 
 /**
+ * The brains behind SBOLDesigner
+ * 
  * @author Evren Sirin
+ * @author Michael Zhang
  */
 public class SBOLDesignerPanel extends JPanel {
 	private final Supplier<Boolean> CONFIRM_SAVE = new Supplier<Boolean>() {
@@ -622,7 +625,9 @@ public class SBOLDesignerPanel extends JPanel {
 	 * Save SBOLFactory into an existing SBOL file
 	 */
 	private void saveIntoExistingFile() throws Exception {
+		// the document we are saving into
 		SBOLDocument doc = documentIO.read();
+		// the document we are saving
 		SBOLDocument currentDesign = design.createDocument();
 		ComponentDefinition currentRootCD = SBOLUtils.getRootCD(currentDesign);
 		int selection;
@@ -645,19 +650,7 @@ public class SBOLDesignerPanel extends JPanel {
 			// Overwrite
 			// Remove from doc everything contained within currentDesign
 			// that exists
-			for (TopLevel tl : currentDesign.getTopLevels()) {
-				if (doc.getTopLevel(tl.getIdentity()) != null) {
-					if (tl instanceof ComponentDefinition) {
-						if (!doc.removeComponentDefinition(doc.getComponentDefinition(tl.getIdentity()))) {
-							throw new Exception("ERROR: " + tl.getDisplayId() + " didn't get removed");
-						}
-					} else if (tl instanceof Sequence) {
-						if (!doc.removeSequence(doc.getSequence(tl.getIdentity()))) {
-							throw new Exception("ERROR: " + tl.getDisplayId() + " didn't get removed");
-						}
-					}
-				}
-			}
+			SBOLUtils.removeTopLevels(currentDesign, doc);
 			doc.createCopy(currentDesign);
 			break;
 		case 1:

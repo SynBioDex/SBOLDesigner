@@ -80,7 +80,10 @@ import com.google.common.base.Strings;
 import com.google.common.base.Supplier;
 
 /**
- * @author Evren Sirin
+ * The plugin instantiation of SBOLDesigner
+ * 
+ * @author Michael Zhang
+ *
  */
 public class SBOLDesignerPlugin extends SBOLDesignerPanel {
 

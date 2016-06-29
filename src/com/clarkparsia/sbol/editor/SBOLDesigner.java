@@ -32,6 +32,12 @@ import org.sbolstandard.core2.SBOLValidationException;
 import com.clarkparsia.sbol.editor.io.DocumentIO;
 import com.clarkparsia.sbol.editor.io.FileDocumentIO;
 
+/**
+ * The JFrame shown for the standalone SBOLDesigner application
+ * 
+ * @author Michael Zhang
+ *
+ */
 public class SBOLDesigner extends JFrame {
 
 	SBOLDesignerPanel panel = null;

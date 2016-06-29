@@ -323,13 +323,29 @@ public class SBOLUtils {
 	 * Inserts all the TopLevels (CDs and Sequences) in doc which aren't already
 	 * in the SBOLFactory.
 	 */
-	public static void insertTopLevels(SBOLDocument doc) {
+	public static void insertTopLevels(SBOLDocument doc) throws SBOLValidationException {
 		for (TopLevel tl : doc.getTopLevels()) {
 			if (!SBOLFactory.getTopLevels().contains(tl)) {
-				try {
-					SBOLFactory.createCopy(tl);
-				} catch (SBOLValidationException e) {
-					JOptionPane.showMessageDialog(null, "There was an error copying over data: " + e.getMessage());
+				SBOLFactory.createCopy(tl);
+			}
+		}
+	}
+
+	/**
+	 * Removes all the TopLevels in toBeRemoved which exist in doc, from doc.
+	 */
+	public static void removeTopLevels(SBOLDocument toBeRemoved, SBOLDocument doc)
+			throws SBOLValidationException, Exception {
+		for (TopLevel tl : toBeRemoved.getTopLevels()) {
+			if (doc.getTopLevel(tl.getIdentity()) != null) {
+				if (tl instanceof ComponentDefinition) {
+					if (!doc.removeComponentDefinition(doc.getComponentDefinition(tl.getIdentity()))) {
+						throw new Exception("ERROR: " + tl.getDisplayId() + " didn't get removed");
+					}
+				} else if (tl instanceof Sequence) {
+					if (!doc.removeSequence(doc.getSequence(tl.getIdentity()))) {
+						throw new Exception("ERROR: " + tl.getDisplayId() + " didn't get removed");
+					}
 				}
 			}
 		}

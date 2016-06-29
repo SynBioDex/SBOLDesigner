@@ -605,6 +605,10 @@ public class SBOLDesign {
 		Iterable<org.sbolstandard.core2.Component> sortedComponents = comp.getSortedComponents();
 		for (org.sbolstandard.core2.Component component : sortedComponents) {
 			ComponentDefinition refered = component.getDefinition();
+			if (refered == null) {
+				// component reference without a connected CD
+				continue;
+			}
 			addCD(component, refered, Parts.forComponent(refered));
 		}
 	}
