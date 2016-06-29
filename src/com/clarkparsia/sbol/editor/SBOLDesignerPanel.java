@@ -729,9 +729,11 @@ public class SBOLDesignerPanel extends JPanel {
 	void setCurrentFile(DocumentIO documentIO) {
 		this.documentIO = documentIO;
 
-		String title = SBOLDesignerMetadata.NAME + " v" + SBOLDesignerMetadata.VERSION + " - "
+		if (frame!=null) {
+			String title = SBOLDesignerMetadata.NAME + " v" + SBOLDesignerMetadata.VERSION + " - "
 				+ (documentIO == null ? "New design" : documentIO);
-		frame.setTitle(title);
+			frame.setTitle(title);
+		}
 
 		updateEnabledButtons(false);
 	}

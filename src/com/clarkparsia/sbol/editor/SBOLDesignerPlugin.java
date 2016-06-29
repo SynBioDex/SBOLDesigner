@@ -18,66 +18,21 @@ package com.clarkparsia.sbol.editor;
 import static com.clarkparsia.sbol.editor.SBOLEditorAction.DIVIDER;
 import static com.clarkparsia.sbol.editor.SBOLEditorAction.SPACER;
 
-import java.awt.BorderLayout;
-import java.awt.Component;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.URI;
-import java.util.logging.LogManager;
-import java.util.logging.Logger;
 import java.util.prefs.Preferences;
 
-import javax.swing.AbstractButton;
-import javax.swing.Box;
 import javax.swing.JFileChooser;
-import javax.swing.JFrame;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
-import javax.swing.JToolBar;
-import javax.swing.UIManager;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
-import org.sbolstandard.core2.ComponentDefinition;
 import org.sbolstandard.core2.SBOLConversionException;
 import org.sbolstandard.core2.SBOLDocument;
 import org.sbolstandard.core2.SBOLFactory;
-import org.sbolstandard.core2.SBOLReader;
 import org.sbolstandard.core2.SBOLValidationException;
-import org.sbolstandard.core2.SBOLWriter;
-import org.sbolstandard.core2.Sequence;
-import org.sbolstandard.core2.TopLevel;
-
-import com.adamtaft.eb.EventHandler;
 import com.clarkparsia.sbol.SBOLUtils;
-import com.clarkparsia.sbol.editor.dialog.AboutDialog;
-import com.clarkparsia.sbol.editor.dialog.CheckoutDialog;
-import com.clarkparsia.sbol.editor.dialog.CheckoutDialog.CheckoutResult;
-import com.clarkparsia.sbol.editor.dialog.CreateBranchDialog;
-import com.clarkparsia.sbol.editor.dialog.CreateTagDialog;
-import com.clarkparsia.sbol.editor.dialog.CreateVersionDialog;
-import com.clarkparsia.sbol.editor.dialog.HistoryDialog;
-import com.clarkparsia.sbol.editor.dialog.MergeBranchDialog;
-import com.clarkparsia.sbol.editor.dialog.PreferencesDialog;
-import com.clarkparsia.sbol.editor.dialog.QueryVersionsDialog;
-import com.clarkparsia.sbol.editor.dialog.SwitchBranchDialog;
-import com.clarkparsia.sbol.editor.event.DesignChangedEvent;
 import com.clarkparsia.sbol.editor.io.DocumentIO;
 import com.clarkparsia.sbol.editor.io.FileDocumentIO;
-import com.clarkparsia.sbol.editor.io.RVTDocumentIO;
-import com.clarkparsia.sbol.editor.io.ReadOnlyDocumentIO;
-import com.clarkparsia.sbol.editor.sparql.RDFInput;
-import com.clarkparsia.sbol.editor.sparql.SPARQLEndpoint;
-import com.clarkparsia.versioning.Branch;
-import com.clarkparsia.versioning.Infos;
-import com.clarkparsia.versioning.PersonInfo;
-import com.google.common.base.Strings;
-import com.google.common.base.Supplier;
 
 /**
  * The plugin instantiation of SBOLDesigner
@@ -142,12 +97,12 @@ public class SBOLDesignerPlugin extends SBOLDesignerPanel {
 		if (fileName.equals("")) {
 			newDesign(SBOLEditorPreferences.INSTANCE.getUserInfo().getURI().toString().equals("http://www.dummy.org"));
 			try {
-				SBOLFactory.write(path + fileName);
+				SBOLFactory.write(path + this.fileName);
 			} catch (IOException | SBOLConversionException e) {
 				e.printStackTrace();
 			}
 		} else {
-			File file = new File(path + fileName);
+			File file = new File(path + this.fileName);
 			Preferences.userRoot().node("path").put("path", file.getPath());
 			openDesign(new FileDocumentIO(false));
 		}
