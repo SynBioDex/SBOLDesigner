@@ -3,11 +3,14 @@ package com.clarkparsia.sbol.editor.dialog;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
@@ -23,6 +26,7 @@ import javax.swing.table.TableRowSorter;
 import org.sbolstandard.core2.ComponentDefinition;
 import org.sbolstandard.core2.SBOLDocument;
 import org.sbolstandard.core2.SBOLValidationException;
+import org.sbolstandard.core2.SBOLWriter;
 
 import com.clarkparsia.sbol.SBOLUtils;
 import com.clarkparsia.sbol.editor.Part;
@@ -44,6 +48,8 @@ public class RootInputDialog extends InputDialog<SBOLDocument> {
 	private JComboBox<Part> roleSelection;
 	private JCheckBox onlyShowRootCDs;
 	private static final Part ALL_PARTS = new Part("All parts", "All");
+
+	private JButton deleteCD;
 
 	private SBOLDocument doc;
 
@@ -87,6 +93,25 @@ public class RootInputDialog extends InputDialog<SBOLDocument> {
 			}
 		});
 		builder.add("", onlyShowRootCDs);
+
+		deleteCD = new JButton("Delete selected ComponentDefinition. (This will resave the file)");
+		deleteCD.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				try {
+					int row = table.convertRowIndexToModel(table.getSelectedRow());
+					ComponentDefinition comp = ((ComponentDefinitionTableModel) table.getModel()).getElement(row);
+					doc.removeComponentDefinition(comp);
+					File file = SBOLUtils.setupFile();
+					SBOLWriter.write(doc, new FileOutputStream(file));
+					updateTable();
+				} catch (Exception e1) {
+					JOptionPane.showMessageDialog(rootPane, "Failed to delete CD: " + e1.getMessage());
+					e1.printStackTrace();
+				}
+			}
+		});
+		builder.add("", deleteCD);
 
 		final JTextField filterSelection = new JTextField();
 		filterSelection.getDocument().addDocumentListener(new DocumentListener() {
