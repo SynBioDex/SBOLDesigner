@@ -96,7 +96,7 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 			return registry == null ? "" : registry.getDescription();
 		}
 	};
-	private boolean isPath;
+	private boolean isMetadata;
 
 	private static final String TITLE = "Select a part from registry";
 
@@ -120,24 +120,23 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 		Registries registries = Registries.get();
 		int selectedRegistry = registries.getVersionRegistryIndex();
 
-		if (registries.size() == 0) {
-			JOptionPane.showMessageDialog(this,
-					"No parts registries are defined.\nPlease click 'Options' and add a parts registry.");
-			location = null;
-			isPath = false;
-		} else {
-			location = registries.get(selectedRegistry).getLocation();
-			isPath = location.startsWith("file:");
-		}
-
 		registrySelection = new JComboBox<Registry>(Iterables.toArray(registries, Registry.class));
 		if (registries.size() > 0) {
 			registrySelection.setSelectedIndex(selectedRegistry);
 		}
 		registrySelection.addActionListener(actionListener);
 		registrySelection.setRenderer(registryRenderer);
-
 		builder.add("Registry", registrySelection);
+
+		if (registries.size() == 0) {
+			JOptionPane.showMessageDialog(this,
+					"No parts registries are defined.\nPlease click 'Options' and add a parts registry.");
+			location = null;
+			isMetadata = false;
+		} else {
+			location = registries.get(selectedRegistry).getLocation();
+			isMetadata = !location.startsWith("file:") && !((Registry) registrySelection.getSelectedItem()).isBuiltin();
+		}
 	}
 
 	@Override
@@ -192,13 +191,13 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 	@Override
 	protected JPanel initMainPanel() {
 		JPanel panel;
-		if (isPath) {
-			List<ComponentDefinition> components = searchParts(isRoleSelection() ? part : null);
-			ComponentDefinitionTableModel tableModel = new ComponentDefinitionTableModel(components);
-			panel = createTablePanel(tableModel, "Matching parts (" + tableModel.getRowCount() + ")");
-		} else {
+		if (isMetadata) {
 			List<ComponentMetadata> components = searchParts(isRoleSelection() ? part : null, stack);
 			ComponentMetadataTableModel tableModel = new ComponentMetadataTableModel(components);
+			panel = createTablePanel(tableModel, "Matching parts (" + tableModel.getRowCount() + ")");
+		} else {
+			List<ComponentDefinition> components = searchParts(isRoleSelection() ? part : null);
+			ComponentDefinitionTableModel tableModel = new ComponentDefinitionTableModel(components);
 			panel = createTablePanel(tableModel, "Matching parts (" + tableModel.getRowCount() + ")");
 		}
 
@@ -214,7 +213,7 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 	 */
 	private List<ComponentDefinition> searchParts(Part part) {
 		try {
-			if (!isPath) {
+			if (isMetadata) {
 				throw new Exception("Incorrect state.  url isn't a path");
 			}
 			if (part.equals(ALL_PARTS)) {
@@ -240,7 +239,7 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 	 */
 	private List<ComponentMetadata> searchParts(Part part, StackFrontend stack) {
 		try {
-			if (isPath) {
+			if (!isMetadata) {
 				throw new Exception("Incorrect state.  url is a path");
 			}
 			if (stack == null) {
@@ -268,14 +267,14 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 			ComponentDefinition comp;
 			int row = table.convertRowIndexToModel(table.getSelectedRow());
 
-			if (isPath) {
-				comp = ((ComponentDefinitionTableModel) table.getModel()).getElement(row);
-			} else {
+			if (isMetadata) {
 				ComponentMetadata compMeta = ((ComponentMetadataTableModel) table.getModel()).getElement(row);
 				if (stack == null) {
 					stack = new StackFrontend(location);
 				}
 				comp = stack.fetchComponent(URI.create(compMeta.uri));
+			} else {
+				comp = ((ComponentDefinitionTableModel) table.getModel()).getElement(row);
 			}
 
 			SBOLDocument doc = new SBOLDocument();
@@ -293,26 +292,26 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 	}
 
 	protected void registryChanged() {
-		isPath = location.startsWith("file:");
-		if (!isPath) {
+		isMetadata = !location.startsWith("file:") && !((Registry) registrySelection.getSelectedItem()).isBuiltin();
+		if (isMetadata) {
 			stack = new StackFrontend(location);
 		}
 		updateTable();
 	}
 
 	public void updateTable() {
-		if (isPath) {
-			List<ComponentDefinition> components = searchParts(
-					isRoleSelection() ? (Part) roleSelection.getSelectedItem() : null);
-			ComponentDefinitionTableModel tableModel = new ComponentDefinitionTableModel(components);
+		if (isMetadata) {
+			List<ComponentMetadata> components = searchParts(
+					isRoleSelection() ? (Part) roleSelection.getSelectedItem() : null, stack);
+			ComponentMetadataTableModel tableModel = new ComponentMetadataTableModel(components);
 			table = new JTable(tableModel);
 			tableLabel.setText("Matching parts (" + components.size() + ")");
 			TableRowSorter<TableModel> sorter = new TableRowSorter<TableModel>(tableModel);
 			table.setRowSorter(sorter);
 		} else {
-			List<ComponentMetadata> components = searchParts(
-					isRoleSelection() ? (Part) roleSelection.getSelectedItem() : null, stack);
-			ComponentMetadataTableModel tableModel = new ComponentMetadataTableModel(components);
+			Part part = isRoleSelection() ? (Part) roleSelection.getSelectedItem() : null;
+			List<ComponentDefinition> components = searchParts(part);
+			ComponentDefinitionTableModel tableModel = new ComponentDefinitionTableModel(components);
 			table = new JTable(tableModel);
 			tableLabel.setText("Matching parts (" + components.size() + ")");
 			TableRowSorter<TableModel> sorter = new TableRowSorter<TableModel>(tableModel);
@@ -329,13 +328,13 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 	}
 
 	private void updateFilter(String filterText) {
-		if (isPath) {
-			TableRowSorter<ComponentDefinitionTableModel> sorter = (TableRowSorter) table.getRowSorter();
+		if (isMetadata) {
+			TableRowSorter<ComponentMetadataTableModel> sorter = (TableRowSorter) table.getRowSorter();
 			if (filterText.length() == 0) {
 				sorter.setRowFilter(null);
 			} else {
 				try {
-					RowFilter<ComponentDefinitionTableModel, Object> rf = RowFilter.regexFilter(filterText, 0, 1);
+					RowFilter<ComponentMetadataTableModel, Object> rf = RowFilter.regexFilter(filterText, 0, 1);
 					sorter.setRowFilter(rf);
 				} catch (java.util.regex.PatternSyntaxException e) {
 					sorter.setRowFilter(null);
@@ -343,12 +342,12 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 			}
 			tableLabel.setText("Matching parts (" + sorter.getViewRowCount() + ")");
 		} else {
-			TableRowSorter<ComponentMetadataTableModel> sorter = (TableRowSorter) table.getRowSorter();
+			TableRowSorter<ComponentDefinitionTableModel> sorter = (TableRowSorter) table.getRowSorter();
 			if (filterText.length() == 0) {
 				sorter.setRowFilter(null);
 			} else {
 				try {
-					RowFilter<ComponentMetadataTableModel, Object> rf = RowFilter.regexFilter(filterText, 0, 1);
+					RowFilter<ComponentDefinitionTableModel, Object> rf = RowFilter.regexFilter(filterText, 0, 1);
 					sorter.setRowFilter(rf);
 				} catch (java.util.regex.PatternSyntaxException e) {
 					sorter.setRowFilter(null);

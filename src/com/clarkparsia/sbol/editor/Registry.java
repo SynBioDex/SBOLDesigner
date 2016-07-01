@@ -32,15 +32,9 @@ public class Registry implements Serializable {
 	 */
 	private final String location;
 
-	// public static final Registry BUILT_IN = new Registry("Built-in parts",
-	// "Built-in registry with minimal set of parts",
-	// Registries.class.getResource("cmyk_parts.rdf").toString());
-
-	// public static final Registry SBPKB = new Registry("SBPkb (Cloud)",
-	// "The Standard Biological Parts knowledgebase (SBPkb) is a Semantic Web
-	// resource which uses SBOL-semantic to represent standard biological parts
-	// from the Registry of Standard Biological Parts at MIT.",
-	// "http://ec2-174-129-47-60.compute-1.amazonaws.com:5822/SBPkb");
+	public static final Registry BUILT_IN = new Registry("Built-in parts",
+			"Built-in registry with minimal set of parts",
+			Registries.class.getResource("GeneticToggle.sbol").toString());
 
 	public static final Registry STACK = new Registry("SBOL Stack", "The Newcastle instance of the SBOL Stack",
 			"http://synbiohub.org:9090");
@@ -88,8 +82,7 @@ public class Registry implements Serializable {
 	}
 
 	public boolean isBuiltin() {
-		// return this.equals(Registry.BUILT_IN);
-		return false;
+		return this.equals(Registry.BUILT_IN);
 	}
 
 	public SPARQLEndpoint createEndpoint() {
