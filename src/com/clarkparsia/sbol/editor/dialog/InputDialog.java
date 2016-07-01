@@ -175,7 +175,7 @@ public abstract class InputDialog<T> extends JDialog {
 	}
 
 	protected JPanel createTablePanel(AbstractListTableModel<?> tableModel, String title) {
-		JTable table = new JTable(tableModel);
+		final JTable table = new JTable(tableModel);
 		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
 			@Override
