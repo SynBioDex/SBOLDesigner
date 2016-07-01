@@ -18,18 +18,31 @@ package com.clarkparsia.sbol.editor;
 import static com.clarkparsia.sbol.editor.SBOLEditorAction.DIVIDER;
 import static com.clarkparsia.sbol.editor.SBOLEditorAction.SPACER;
 
+import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.URI;
 import java.util.prefs.Preferences;
 
+import javax.swing.AbstractButton;
+import javax.swing.Box;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
+import javax.swing.JToolBar;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import org.sbolstandard.core2.SBOLConversionException;
 import org.sbolstandard.core2.SBOLDocument;
-import org.sbolstandard.core2.SBOLFactory;
 import org.sbolstandard.core2.SBOLValidationException;
+import org.sbolstandard.core2.SBOLWriter;
+
 import com.clarkparsia.sbol.SBOLUtils;
 import com.clarkparsia.sbol.editor.io.DocumentIO;
 import com.clarkparsia.sbol.editor.io.FileDocumentIO;
@@ -74,8 +87,12 @@ public class SBOLDesignerPlugin extends SBOLDesignerPanel {
 	}
 
 	private String path;
+	
+	private URI rootURI;
+	
+	private String URIprefix;
 
-	public SBOLDesignerPlugin(String path, String fileName)
+	public SBOLDesignerPlugin(String path, String fileName, URI rootURI,String URIprefix)
 			throws SBOLValidationException, IOException, SBOLConversionException {
 		super(null);
 		fc = new JFileChooser(SBOLUtils.setupFile());
@@ -87,24 +104,69 @@ public class SBOLDesignerPlugin extends SBOLDesignerPanel {
 						"xml", "rdf", "sbol", "gb", "gbk", "fasta"));
 		this.path = path;
 		this.fileName = fileName;
-
+		this.rootURI = rootURI;
+		this.URIprefix = URIprefix;
+		
 		initGUI();
 
 		editor.getEventBus().subscribe(this);
 
-		// Only ask for a URI prefix if the current one is
-		// "http://www.dummy.org"
-		if (fileName.equals("")) {
-			newDesign(SBOLEditorPreferences.INSTANCE.getUserInfo().getURI().toString().equals("http://www.dummy.org"));
-			try {
-				SBOLFactory.write(path + this.fileName);
-			} catch (IOException | SBOLConversionException e) {
-				e.printStackTrace();
+		File file = new File(path + this.fileName);
+		Preferences.userRoot().node("path").put("path", file.getPath());
+		openDesign(new FileDocumentIO(false));
+	}
+	
+	private void initGUI() {
+		Box topPanel = Box.createVerticalBox();
+		topPanel.add(createActionBar());
+		topPanel.add(createFocusBar());
+
+		JPanel panel = new JPanel(new BorderLayout());
+		panel.add(topPanel, BorderLayout.NORTH);
+		panel.add(editor, BorderLayout.CENTER);
+
+		setLayout(new BorderLayout());
+		add(panel, BorderLayout.CENTER);
+	}
+
+	private JToolBar createActionBar() {
+		final JPopupMenu versionMenu = createVersionMenu();
+
+		JToolBar toolbar = new JToolBar();
+		toolbar.setFloatable(false);
+		toolbar.setAlignmentX(LEFT_ALIGNMENT);
+
+		// adds all the actions to the toolbar
+		for (SBOLEditorAction action : TOOLBAR_ACTIONS) {
+			if (action == DIVIDER) {
+				toolbar.addSeparator();
+			} else if (action == SPACER) {
+				toolbar.add(Box.createHorizontalGlue());
+			} else {
+				AbstractButton button = action.createButton();
+				toolbar.add(button);
+				if (action == VERSION) {
+					button.addMouseListener(new MouseAdapter() {
+						public void mousePressed(MouseEvent e) {
+							Component c = e.getComponent();
+							versionMenu.show(c, 0, c.getY() + c.getHeight());
+						}
+					});
+				}
 			}
-		} else {
-			File file = new File(path + this.fileName);
-			Preferences.userRoot().node("path").put("path", file.getPath());
-			openDesign(new FileDocumentIO(false));
+		}
+		// toolbar.add(Box.createHorizontalGlue());
+		return toolbar;
+	}
+	
+	void openDesign(DocumentIO documentIO) throws SBOLValidationException, IOException, SBOLConversionException {
+		SBOLDocument doc = documentIO.read();
+		doc.setDefaultURIprefix(URIprefix);
+		if (rootURI!=null) {
+			doc = doc.createRecursiveCopy(doc.getComponentDefinition(rootURI));
+		}
+		if (!editor.getDesign().load(doc)) {
+			setCurrentFile(documentIO);
 		}
 	}
 
@@ -113,35 +175,90 @@ public class SBOLDesignerPlugin extends SBOLDesignerPanel {
 		updateEnabledButtons(false);
 	}
 
-	public void exportSBOL(String exportFileName) {
-		try {
-			SBOLDocument doc = editor.getDesign().createDocument();
-			File file = new File(exportFileName);
-			Preferences.userRoot().node("path").put("path", file.getPath());
-			DocumentIO exportIO = new FileDocumentIO(false);
-			exportIO.write(doc);
+	private boolean selectCurrentFile() {
+		File file = new File(path + fileName);
+		Preferences.userRoot().node("path").put("path", file.getPath());
+		setCurrentFile(new FileDocumentIO(false));
+		return true;
+	}
 
-			updateEnabledButtons(false);
-		} catch (Exception ex) {
-			JOptionPane.showMessageDialog(this, "Error saving file: " + ex.getMessage());
-			ex.printStackTrace();
+	boolean save() throws Exception {
+		if (documentIO == null) {
+			if (!selectCurrentFile()) {
+				return false;
+			}
+		}
+
+		// save into existing file or into a new file
+		if (!SBOLUtils.setupFile().exists()) {
+			saveIntoNewFile();
+		} else {
+			saveIntoExistingFile();
+		}
+		return true;
+	}
+	
+	public void exportSBOL(String exportFileName) throws FileNotFoundException, SBOLConversionException, IOException, SBOLValidationException {
+		String[] formats = { "SBOL 2.0", "SBOL 1.1", "GenBank", "FASTA", "Cancel" };
+		int format = JOptionPane.showOptionDialog(this, "Please select an export format", "Export",
+				JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, formats, "SBOL 2.0");
+		if (format == JOptionPane.CLOSED_OPTION) {
+			return;
+		}
+		File file = new File(exportFileName);
+		Preferences.userRoot().node("path").put("path", file.getPath());
+		String fileName = file.getName();
+		SBOLDocument doc = editor.getDesign().createDocument();
+		switch (format) {
+		case JOptionPane.CLOSED_OPTION:
+			break;
+		case 0:
+			// SBOL 2.0
+			if (!fileName.contains(".")) {
+				file = new File(file + ".xml");
+			}
+			SBOLWriter.write(doc, new FileOutputStream(file), SBOLDocument.RDF);
+			break;
+		case 1:
+			// SBOL 1.1
+			if (!fileName.contains(".")) {
+				file = new File(file + ".xml");
+			}
+			SBOLWriter.write(doc, new FileOutputStream(file), SBOLDocument.RDFV1);
+			break;
+		case 2:
+			// GenBank
+			if (!fileName.contains(".")) {
+				file = new File(file + ".gb");
+			}
+			SBOLWriter.write(doc, new FileOutputStream(file), SBOLDocument.GENBANK);
+			break;
+		case 3:
+			// FASTA
+			if (!fileName.contains(".")) {
+				file = new File(file + ".fasta");
+			}
+			SBOLWriter.write(doc, new FileOutputStream(file), SBOLDocument.FASTAformat);
+			break;
+		case 4:
+			break;
 		}
 	}
 
-	/**
-	 * Creates a new design to show on the canvas. Asks the user for a
-	 * defaultURIprefix if askForURIPrefix is true.
-	 * 
-	 * @throws SBOLValidationException
-	 */
-	private void newDesign(boolean askForURIPrefix) throws SBOLValidationException {
-		SBOLDocument doc = new SBOLDocument();
-		if (askForURIPrefix) {
-			setURIprefix(doc);
-		}
-		SBOLFactory.setSBOLDocument(doc);
-		editor.getDesign().load(doc);
-		fileName = design.getRootCD().getDisplayId() + ".sbol";
-		setCurrentFile(null);
-	}
+//	/**
+//	 * Creates a new design to show on the canvas. Asks the user for a
+//	 * defaultURIprefix if askForURIPrefix is true.
+//	 * 
+//	 * @throws SBOLValidationException
+//	 */
+//	private void newDesign(boolean askForURIPrefix) throws SBOLValidationException {
+//		SBOLDocument doc = new SBOLDocument();
+//		if (askForURIPrefix) {
+//			setURIprefix(doc);
+//		}
+//		SBOLFactory.setSBOLDocument(doc);
+//		editor.getDesign().load(doc);
+//		fileName = design.getRootCD().getDisplayId() + ".sbol";
+//		setCurrentFile(null);
+//	}
 }

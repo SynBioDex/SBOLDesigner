@@ -367,7 +367,7 @@ public class SBOLDesignerPanel extends JPanel {
 
 	JFileChooser fc;
 
-	private DocumentIO documentIO;
+	DocumentIO documentIO;
 
 	private SBOLDesigner frame = null;
 
@@ -393,7 +393,7 @@ public class SBOLDesignerPanel extends JPanel {
 		newDesign(SBOLEditorPreferences.INSTANCE.getUserInfo().getURI().toString().equals("http://www.dummy.org"));
 	}
 
-	void initGUI() {
+	private void initGUI() {
 		Box topPanel = Box.createVerticalBox();
 		topPanel.add(createActionBar());
 		topPanel.add(createFocusBar());
@@ -406,7 +406,7 @@ public class SBOLDesignerPanel extends JPanel {
 		add(panel, BorderLayout.CENTER);
 	}
 
-	private JToolBar createFocusBar() {
+	JToolBar createFocusBar() {
 		AddressBar focusbar = new AddressBar(editor);
 		focusbar.setFloatable(false);
 		focusbar.setAlignmentX(LEFT_ALIGNMENT);
@@ -512,13 +512,12 @@ public class SBOLDesignerPanel extends JPanel {
 	}
 
 	private void export() throws FileNotFoundException, SBOLConversionException, IOException, SBOLValidationException {
-		String[] formats = { "SBOL 1.1", "GenBank", "FASTA" };
+		String[] formats = { "SBOL 1.1", "GenBank", "FASTA", "Cancel" };
 		int format = JOptionPane.showOptionDialog(this, "Please select an export format", "Export",
 				JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, formats, "SBOL 1.1");
 		if (format == JOptionPane.CLOSED_OPTION) {
 			return;
 		}
-
 		fc.setSelectedFile(SBOLUtils.setupFile());
 		int returnVal = fc.showSaveDialog(this);
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
@@ -537,7 +536,7 @@ public class SBOLDesignerPanel extends JPanel {
 			case 0:
 				// SBOL 1.1
 				if (!fileName.contains(".")) {
-					file = new File(file + ".rdf");
+					file = new File(file + ".xml");
 				}
 				SBOLWriter.write(doc, new FileOutputStream(file), SBOLDocument.RDFV1);
 				break;
@@ -554,6 +553,8 @@ public class SBOLDesignerPanel extends JPanel {
 					file = new File(file + ".fasta");
 				}
 				SBOLWriter.write(doc, new FileOutputStream(file), SBOLDocument.FASTAformat);
+				break;
+			case 3:
 				break;
 			}
 		}
@@ -614,7 +615,7 @@ public class SBOLDesignerPanel extends JPanel {
 		return false;
 	}
 
-	private void saveIntoNewFile()
+	void saveIntoNewFile()
 			throws FileNotFoundException, SBOLValidationException, SBOLConversionException, IOException {
 		SBOLDocument doc = editor.getDesign().createDocument();
 		documentIO.write(doc);
@@ -624,7 +625,7 @@ public class SBOLDesignerPanel extends JPanel {
 	/**
 	 * Save SBOLFactory into an existing SBOL file
 	 */
-	private void saveIntoExistingFile() throws Exception {
+	void saveIntoExistingFile() throws Exception {
 		// the document we are saving into
 		SBOLDocument doc = documentIO.read();
 		// the document we are saving
