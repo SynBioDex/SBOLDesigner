@@ -35,7 +35,7 @@ public class Registry implements Serializable {
 	// public static final Registry BUILT_IN = new Registry("Built-in parts",
 	// "Built-in registry with minimal set of parts",
 	// Registries.class.getResource("cmyk_parts.rdf").toString());
-	//
+
 	// public static final Registry SBPKB = new Registry("SBPkb (Cloud)",
 	// "The Standard Biological Parts knowledgebase (SBPkb) is a Semantic Web
 	// resource which uses SBOL-semantic to represent standard biological parts

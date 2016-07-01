@@ -347,9 +347,15 @@ public class SBOLUtils {
 	 * in the SBOLFactory.
 	 */
 	public static void insertTopLevels(SBOLDocument doc) throws SBOLValidationException {
-		for (TopLevel tl : doc.getTopLevels()) {
-			if (!SBOLFactory.getTopLevels().contains(tl)) {
-				SBOLFactory.createCopy(tl);
+		for (TopLevel docTL : doc.getTopLevels()) {
+			boolean contains = false;
+			for (TopLevel factoryTL : SBOLFactory.getTopLevels()) {
+				if (docTL.getIdentity().equals(factoryTL.getIdentity())) {
+					contains = true;
+				}
+			}
+			if (!contains) {
+				SBOLFactory.createCopy(docTL);
 			}
 		}
 	}

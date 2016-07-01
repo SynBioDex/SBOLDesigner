@@ -30,7 +30,7 @@ public abstract class AbstractListTableModel<T> extends AbstractTableModel {
 		this.columns = columns;
 		this.widths = widths;
 	}
-	
+
 	public double[] getWidths() {
 		return widths;
 	}
@@ -63,11 +63,11 @@ public abstract class AbstractListTableModel<T> extends AbstractTableModel {
 	public boolean isCellEditable(int row, int col) {
 		return false;
 	}
-	
+
 	public Object getValueAt(int row, int col) {
 		T element = getElement(row);
 		return getField(element, col);
 	}
-	
+
 	protected abstract Object getField(T element, int field);
 }

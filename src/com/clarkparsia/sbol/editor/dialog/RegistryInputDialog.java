@@ -36,9 +36,12 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.ListSelectionModel;
 import javax.swing.RowFilter;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 
@@ -149,7 +152,7 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 			roleSelection.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent event) {
-					partRoleChanged();
+					updateTable();
 				}
 			});
 			builder.add("Part role", roleSelection);
@@ -294,27 +297,33 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 		if (!isPath) {
 			stack = new StackFrontend(location);
 		}
-		partRoleChanged();
+		updateTable();
 	}
 
-	public void partRoleChanged() {
+	public void updateTable() {
 		if (isPath) {
 			List<ComponentDefinition> components = searchParts(
 					isRoleSelection() ? (Part) roleSelection.getSelectedItem() : null);
 			ComponentDefinitionTableModel tableModel = new ComponentDefinitionTableModel(components);
 			table = new JTable(tableModel);
+			tableLabel.setText("Matching parts (" + components.size() + ")");
 			TableRowSorter<TableModel> sorter = new TableRowSorter<TableModel>(tableModel);
 			table.setRowSorter(sorter);
-			tableLabel.setText("Matching parts (" + components.size() + ")");
 		} else {
 			List<ComponentMetadata> components = searchParts(
 					isRoleSelection() ? (Part) roleSelection.getSelectedItem() : null, stack);
 			ComponentMetadataTableModel tableModel = new ComponentMetadataTableModel(components);
-			table = new JTable(tableModel);
+			tableLabel.setText("Matching parts (" + components.size() + ")");
 			TableRowSorter<TableModel> sorter = new TableRowSorter<TableModel>(tableModel);
 			table.setRowSorter(sorter);
-			tableLabel.setText("Matching parts (" + components.size() + ")");
 		}
+		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+			@Override
+			public void valueChanged(ListSelectionEvent event) {
+				setSelectAllowed(table.getSelectedRow() >= 0);
+			}
+		});
 		scroller.setViewportView(table);
 	}
 
