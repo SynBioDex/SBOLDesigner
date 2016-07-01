@@ -33,8 +33,7 @@ public class Registry implements Serializable {
 	private final String location;
 
 	public static final Registry BUILT_IN = new Registry("Built-in parts",
-			"Built-in registry with minimal set of parts",
-			Registries.class.getResource("GeneticToggle.sbol").toString());
+			"Built-in registry with minimal set of parts", Registries.class.getResource("BuiltInParts.xml").toString());
 
 	public static final Registry STACK = new Registry("SBOL Stack", "The Newcastle instance of the SBOL Stack",
 			"http://synbiohub.org:9090");
