@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.PatternSyntaxException;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -336,7 +337,7 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 				try {
 					RowFilter<ComponentMetadataTableModel, Object> rf = RowFilter.regexFilter(filterText, 0, 1);
 					sorter.setRowFilter(rf);
-				} catch (java.util.regex.PatternSyntaxException e) {
+				} catch (PatternSyntaxException e) {
 					sorter.setRowFilter(null);
 				}
 			}
@@ -349,7 +350,7 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 				try {
 					RowFilter<ComponentDefinitionTableModel, Object> rf = RowFilter.regexFilter(filterText, 0, 1);
 					sorter.setRowFilter(rf);
-				} catch (java.util.regex.PatternSyntaxException e) {
+				} catch (PatternSyntaxException e) {
 					sorter.setRowFilter(null);
 				}
 			}

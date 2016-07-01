@@ -603,10 +603,6 @@ public class SBOLDesignerPanel extends JPanel {
 
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
 			File file = fc.getSelectedFile();
-			// if (file.exists()) {
-			// saveExistingFile(file);
-			// return false;
-			// }
 			Preferences.userRoot().node("path").put("path", file.getPath());
 			setCurrentFile(new FileDocumentIO(false));
 			return true;
@@ -615,8 +611,7 @@ public class SBOLDesignerPanel extends JPanel {
 		return false;
 	}
 
-	void saveIntoNewFile()
-			throws FileNotFoundException, SBOLValidationException, SBOLConversionException, IOException {
+	void saveIntoNewFile() throws FileNotFoundException, SBOLValidationException, SBOLConversionException, IOException {
 		SBOLDocument doc = editor.getDesign().createDocument();
 		documentIO.write(doc);
 		updateEnabledButtons(false);
@@ -638,7 +633,7 @@ public class SBOLDesignerPanel extends JPanel {
 		} else {
 			String[] options = { "Overwrite", "New Version" };
 			selection = JOptionPane.showOptionDialog(this,
-					"You are saving into an existing SBOL file.  Would you like to overwrite or create new versions of parts that already exist in the design? (The design will be reopened)",
+					"You are saving into an existing SBOL file.  Would you like to overwrite or create new versions of parts that already exist in the design?",
 					"Save Options", JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, options,
 					options[0]);
 		}

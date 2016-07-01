@@ -76,6 +76,7 @@ import org.sbolstandard.core2.SBOLFactory;
 import org.sbolstandard.core2.SBOLValidationException;
 import org.sbolstandard.core2.SequenceAnnotation;
 import org.sbolstandard.core2.OrientationType;
+import org.sbolstandard.core2.Range;
 import org.sbolstandard.core2.RestrictionType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -1179,10 +1180,6 @@ public class SBOLDesign {
 	}
 
 	private void replaceCD(ComponentDefinition oldCD, ComponentDefinition newCD) throws SBOLValidationException {
-		// update components
-		// TODO bugs appear
-		// updateComponentReferences(oldCD.getIdentity(), newCD.getIdentity());
-		// update the rest
 		int index = getElementIndex(oldCD);
 		if (index >= 0) {
 			DesignElement e = elements.get(index);
@@ -1310,7 +1307,7 @@ public class SBOLDesign {
 	}
 
 	/**
-	 * Looks through all the components and updates all references to
+	 * Looks through all the components and updates all references from
 	 * originalIdentity to identity
 	 */
 	private void updateComponentReferences(URI originalIdentity, URI newIdentity) throws SBOLValidationException {
@@ -1373,8 +1370,6 @@ public class SBOLDesign {
 
 	/**
 	 * Creates a document based off of the root CD
-	 * 
-	 * @throws SBOLValidationException
 	 */
 	public SBOLDocument createDocument() throws SBOLValidationException {
 		ComponentDefinition rootComp = parentCDs.isEmpty() ? canvasCD : parentCDs.getLast();
@@ -1469,50 +1464,6 @@ public class SBOLDesign {
 					canvasCD.addSequence(oldSeq);
 				}
 			}
-
-			// canvasCD.getAnnotations().clear();
-			//
-			// StringBuilder rootSequence = new StringBuilder();
-			// int location = 1;
-			// SequenceAnnotation prev = null;
-			// for (DesignElement e : elements) {
-			// DnaComponent comp = e.getComponent();
-			// SequenceAnnotation ann = e.getAnnotation();
-			//
-			// if (location >= 0 && comp.getDnaSequence() != null &&
-			// comp.getDnaSequence().getNucleotides() != null) {
-			// String nucleotides = comp.getDnaSequence().getNucleotides();
-			// rootSequence.append(nucleotides);
-			// ann.setBioStart(location);
-			// location += nucleotides.length();
-			// ann.setBioEnd(location - 1);
-			// }
-			// else {
-			// location = -1;
-			// ann.setBioStart(null);
-			// ann.setBioEnd(null);
-			// }
-			//
-			// if (prev != null) {
-			// prev.getPrecedes().clear();
-			// prev.addPrecede(ann);
-			// }
-			//
-			// canvasCD.addAnnotation(ann);
-			// prev = ann;
-			// }
-			//
-			// if (location > 0 && !elements.isEmpty()) {
-			// DnaSequence seq = SBOLFactory.createDnaSequence();
-			// seq.setURI(SBOLUtils.createURI());
-			// seq.setNucleotides(rootSequence.toString());
-			//
-			// canvasCD.setDnaSequence(seq);
-			// }
-			// else if (!hasSequence) {
-			// canvasCD.setDnaSequence(null);
-			// }
-
 			LOGGER.debug("Updated root:\n{}", canvasCD.toString());
 		} catch (SBOLValidationException e) {
 			JOptionPane.showMessageDialog(panel, "Error in updating root component");
@@ -1522,8 +1473,6 @@ public class SBOLDesign {
 
 	/**
 	 * Updates all the seqAnns of the DesignElements in elements
-	 * 
-	 * @throws SBOLValidationException
 	 */
 	private void updateSequenceAnnotations() throws SBOLValidationException {
 		int position = 1;
@@ -1538,6 +1487,10 @@ public class SBOLDesign {
 			// if a sequence exists, give seqAnn a Range
 			Sequence seq = e.getCD().getSequenceByEncoding(Sequence.IUPAC_DNA);
 			if (seq != null) {
+				// remove all other locations first
+				for (Location toBeRemoved : e.seqAnn.getLocations()) {
+					e.seqAnn.removeLocation(toBeRemoved);
+				}
 				String uniqueId = SBOLUtils.getUniqueDisplayId(canvasCD, e.seqAnn.getDisplayId() + "Range", null,
 						"Range");
 				int start = position;
@@ -1584,8 +1537,6 @@ public class SBOLDesign {
 		/**
 		 * The component we are making into a design element, the canvas CD, the
 		 * CD refered to by the component, and the part.
-		 * 
-		 * @throws SBOLValidationException
 		 */
 		public DesignElement(org.sbolstandard.core2.Component component, ComponentDefinition parentCD,
 				ComponentDefinition childCD, Part part) throws SBOLValidationException {
@@ -1649,7 +1600,6 @@ public class SBOLDesign {
 		}
 
 		void setCD(ComponentDefinition CD) throws SBOLValidationException {
-			// seqAnn.setSubComponent(component);
 			this.component.setDefinition(CD.getIdentity());
 		}
 
@@ -1666,13 +1616,16 @@ public class SBOLDesign {
 		}
 
 		public OrientationType getOrientation() {
+			// returns the first location's orientation
 			return seqAnn.getLocations().iterator().next().getOrientation();
 		}
 
 		void flipOrientation() {
-			OrientationType Orientation = seqAnn.getLocations().iterator().next().getOrientation();
-			seqAnn.getLocations().iterator().next().setOrientation(Orientation == OrientationType.REVERSECOMPLEMENT
-					? OrientationType.INLINE : OrientationType.REVERSECOMPLEMENT);
+			OrientationType orientation = seqAnn.getLocations().iterator().next().getOrientation();
+			for (Location loc : seqAnn.getLocations()) {
+				loc.setOrientation(orientation == OrientationType.INLINE ? OrientationType.REVERSECOMPLEMENT
+						: OrientationType.INLINE);
+			}
 		}
 
 		public String toString() {
