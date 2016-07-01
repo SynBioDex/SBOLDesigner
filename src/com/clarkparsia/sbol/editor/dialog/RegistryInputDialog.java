@@ -313,6 +313,7 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 			List<ComponentMetadata> components = searchParts(
 					isRoleSelection() ? (Part) roleSelection.getSelectedItem() : null, stack);
 			ComponentMetadataTableModel tableModel = new ComponentMetadataTableModel(components);
+			table = new JTable(tableModel);
 			tableLabel.setText("Matching parts (" + components.size() + ")");
 			TableRowSorter<TableModel> sorter = new TableRowSorter<TableModel>(tableModel);
 			table.setRowSorter(sorter);
