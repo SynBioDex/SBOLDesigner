@@ -85,7 +85,7 @@ import com.clarkparsia.sbol.CharSequences;
 import com.clarkparsia.sbol.SBOLUtils;
 import com.clarkparsia.sbol.editor.dialog.PartEditDialog;
 import com.clarkparsia.sbol.editor.dialog.RootInputDialog;
-import com.clarkparsia.sbol.editor.dialog.StackInputDialog;
+import com.clarkparsia.sbol.editor.dialog.RegistryInputDialog;
 import com.clarkparsia.sbol.editor.event.DesignChangedEvent;
 import com.clarkparsia.sbol.editor.event.DesignLoadedEvent;
 import com.clarkparsia.sbol.editor.event.FocusInEvent;
@@ -1342,7 +1342,7 @@ public class SBOLDesign {
 	public void findPartForSelectedCD() throws SBOLValidationException {
 		Part part = selectedElement.getPart();
 		SBOLDocument selection = null;
-		selection = new StackInputDialog(panel.getParent(), part).getInput();
+		selection = new RegistryInputDialog(panel.getParent(), part).getInput();
 
 		if (selection != null) {
 			SBOLUtils.insertTopLevels(selection);

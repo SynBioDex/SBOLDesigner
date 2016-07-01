@@ -16,11 +16,18 @@
 package com.clarkparsia.sbol.editor.dialog;
 
 import java.awt.Component;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.File;
 
+import javax.swing.JButton;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 import javax.swing.text.JTextComponent;
 
+import org.sbolstandard.core2.SBOLDocument;
+
+import com.clarkparsia.sbol.SBOLUtils;
 import com.clarkparsia.sbol.editor.Registry;
 import com.clarkparsia.swing.FormBuilder;
 import com.google.common.base.Strings;
@@ -34,46 +41,65 @@ import com.google.common.base.Strings;
  * 
  * @author Evren Sirin
  */
-public class RegistryAddDialog extends OldInputDialog<Registry> {
+public class RegistryAddDialog extends InputDialog<Registry> {
 	private JTextField nameField;
-	private JTextField urlField;
+	/**
+	 * Can also be a path (starts with file:)
+	 */
+	private JTextField locationField;
 	private JTextComponent description;
 
 	public RegistryAddDialog(Component parent) {
-		super(JOptionPane.getFrameForComponent(parent), "Add new registry", RegistryType.NONE);  
+		super(JOptionPane.getFrameForComponent(parent), "Add new registry");
 	}
-	
-	@Override
-    protected void initFormPanel(FormBuilder builder) {
-		nameField = builder.addTextField("Name", "");	
-		urlField = builder.addTextField( "URL", "http://");
-		description = builder.addTextField("Description", "");
-    }
 
 	@Override
-    protected void initFinished() {
+	protected void initFormPanel(FormBuilder builder) {
+		nameField = builder.addTextField("Name", "");
+		// starts with either file: or http://
+		locationField = builder.addTextField("URL or Path", "");
+		JButton browse = new JButton("Browse local registries");
+		browse.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				File file = SBOLUtils.importFile();
+				if (file != null) {
+					locationField.setText("file:" + file.getPath());
+				}
+
+			}
+		});
+		builder.add(null, browse);
+		description = builder.addTextField("Description", "");
+	}
+
+	@Override
+	protected void initFinished() {
 		setSelectAllowed(true);
 	}
 
-	@Override
-    protected boolean validateInput() {
+	protected boolean validateInput() {
 		String name = nameField.getText();
-		String url = urlField.getText();
+		String location = locationField.getText();
 		if (Strings.isNullOrEmpty(name)) {
 			JOptionPane.showMessageDialog(getParent(), "Please enter a name", "Error", JOptionPane.ERROR_MESSAGE);
 			return false;
 		}
-		
-		if (Strings.isNullOrEmpty(url) || "http://".equals(url)) {
-			JOptionPane.showMessageDialog(getParent(), "Please enter a valid URL", "Error", JOptionPane.ERROR_MESSAGE);
+
+		if (Strings.isNullOrEmpty(location) || "http://".equals(location) || "file:".equals(location)) {
+			JOptionPane.showMessageDialog(getParent(), "Please enter a valid URL/Path", "Error",
+					JOptionPane.ERROR_MESSAGE);
 			return false;
 		}
-		
+
 		return true;
-    }
+	}
 
 	@Override
-    protected Registry getSelection() {
-	    return new Registry(nameField.getText(), description.getText(), urlField.getText());
-    }
+	protected Registry getSelection() {
+		if (validateInput()) {
+			return new Registry(nameField.getText(), description.getText(), locationField.getText());
+		}
+		return null;
+	}
 }

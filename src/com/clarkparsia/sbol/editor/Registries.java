@@ -42,18 +42,23 @@ public class Registries implements Iterable<Registry> {
 	private Registries() {
 		registries = Lists.newArrayList();
 		Preferences prefs = Preferences.userNodeForPackage(Registries.class).node("registries");
+		// try {
+		// prefs.clear();
+		// } catch (BackingStoreException e) {
+		// e.printStackTrace();
+		// }
 		int registryCount = prefs.getInt("size", 0);
 		for (int i = 0; i < registryCount; i++) {
 			Preferences child = prefs.node("registry" + i);
 			String name = child.get("name", null);
 			String desc = child.get("description", null);
-			String url = child.get("url", null);
+			String location = child.get("location", null);
 			// try {
 			// if (url.startsWith("jar:") || url.startsWith("file:")) {
 			// registries.add(Registry.BUILT_IN);
 			// }
 			// else {
-			registries.add(new Registry(name, desc, url));
+			registries.add(new Registry(name, desc, location));
 			// }
 			// }
 			// catch (Exception e) {
@@ -109,7 +114,7 @@ public class Registries implements Iterable<Registry> {
 			Preferences child = prefs.node("registry" + i);
 			child.put("name", registry.getName());
 			child.put("description", registry.getDescription());
-			child.put("url", registry.getURL());
+			child.put("location", registry.getLocation());
 		}
 	}
 

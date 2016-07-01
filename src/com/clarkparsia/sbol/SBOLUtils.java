@@ -39,6 +39,7 @@ import org.sbolstandard.core2.SBOLFactory;
 import org.sbolstandard.core2.SBOLReader;
 import org.sbolstandard.core2.SBOLValidationException;
 import org.sbolstandard.core2.SequenceAnnotation;
+import org.sbolstandard.core2.SequenceOntology;
 import org.sbolstandard.core2.TopLevel;
 
 import com.clarkparsia.sbol.editor.Part;
@@ -175,6 +176,25 @@ public class SBOLUtils {
 	}
 
 	/**
+	 * Prompts the user to choose a file and returns it. Returns null otherwise.
+	 */
+	public static File importFile() {
+		JFileChooser fc = new JFileChooser(SBOLUtils.setupFile());
+		fc.setMultiSelectionEnabled(false);
+		fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
+		fc.setAcceptAllFileFilterUsed(true);
+		fc.setFileFilter(
+				new FileNameExtensionFilter("SBOL file (*.xml, *.rdf, *.sbol), GenBank (*.gb, *.gbk), FASTA (*.fasta)",
+						"xml", "rdf", "sbol", "gb", "gbk", "fasta"));
+
+		int returnVal = fc.showOpenDialog(null);
+		if (returnVal == JFileChooser.APPROVE_OPTION) {
+			return fc.getSelectedFile();
+		}
+		return null;
+	}
+
+	/**
 	 * Gets the path from Preferences and returns a File
 	 */
 	public static File setupFile() {
@@ -302,7 +322,7 @@ public class SBOLUtils {
 	public static List<ComponentDefinition> getCDOfRole(Set<ComponentDefinition> setCD, Part part) {
 		List<ComponentDefinition> list = new ArrayList<ComponentDefinition>();
 
-		if (part.getRoles() == null || part.getRoles().isEmpty()) {
+		if (part == null || part.getRoles() == null || part.getRoles().isEmpty()) {
 			// roles don't exist
 			for (ComponentDefinition cd : setCD) {
 				list.add(cd);
@@ -310,9 +330,12 @@ public class SBOLUtils {
 		} else {
 			// roles exist
 			for (ComponentDefinition cd : setCD) {
-				// TODO should use SequenceOntology for better role selecting
-				if (cd.getRoles().contains(part.getRole())) {
-					list.add(cd);
+				SequenceOntology so = new SequenceOntology();
+				for (URI role : cd.getRoles()) {
+					if (so.isDescendantOf(role, part.getRole()) || role.equals(part.getRole())) {
+						list.add(cd);
+						break;
+					}
 				}
 			}
 		}

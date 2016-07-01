@@ -16,6 +16,8 @@
 package com.clarkparsia.sbol.editor;
 
 import java.io.Serializable;
+import java.util.prefs.BackingStoreException;
+import java.util.prefs.Preferences;
 
 import com.clarkparsia.sbol.editor.sparql.LocalEndpoint;
 import com.clarkparsia.sbol.editor.sparql.SPARQLEndpoint;
@@ -25,7 +27,10 @@ import com.google.common.base.Preconditions;
 public class Registry implements Serializable {
 	private final String name;
 	private final String description;
-	private final String url;
+	/**
+	 * Can also be a path (starts with file:)
+	 */
+	private final String location;
 
 	// public static final Registry BUILT_IN = new Registry("Built-in parts",
 	// "Built-in registry with minimal set of parts",
@@ -37,16 +42,15 @@ public class Registry implements Serializable {
 	// from the Registry of Standard Biological Parts at MIT.",
 	// "http://ec2-174-129-47-60.compute-1.amazonaws.com:5822/SBPkb");
 
-	// TODO Try out with actual Stack instance
 	public static final Registry STACK = new Registry("SBOL Stack", "The Newcastle instance of the SBOL Stack",
 			"http://synbiohub.org:9090");
 
-	public Registry(String name, String description, String url) {
+	public Registry(String name, String description, String location) {
 		Preconditions.checkNotNull(name, "Name cannot be null");
-		Preconditions.checkNotNull(url, "URL cannot be null");
+		Preconditions.checkNotNull(location, "URL/Path cannot be null");
 		this.name = name;
 		this.description = description;
-		this.url = url;
+		this.location = location;
 	}
 
 	public String getName() {
@@ -57,8 +61,12 @@ public class Registry implements Serializable {
 		return description;
 	}
 
-	public String getURL() {
-		return url;
+	public String getLocation() {
+		return location;
+	}
+
+	public boolean isPath() {
+		return location.startsWith("file:");
 	}
 
 	@Override
@@ -68,14 +76,14 @@ public class Registry implements Serializable {
 		if (!(obj instanceof Registry))
 			return false;
 		Registry that = (Registry) obj;
-		return this.url.equals(that.url);
+		return this.location.equals(that.location);
 	}
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((url == null) ? 0 : url.hashCode());
+		result = prime * result + ((location == null) ? 0 : location.hashCode());
 		return result;
 	}
 
@@ -85,11 +93,11 @@ public class Registry implements Serializable {
 	}
 
 	public SPARQLEndpoint createEndpoint() {
-		return isBuiltin() ? new LocalEndpoint(url) : new StardogEndpoint(url);
+		return isBuiltin() ? new LocalEndpoint(location) : new StardogEndpoint(location);
 	}
 
 	@Override
 	public String toString() {
-		return isBuiltin() ? name : name + " (" + url + ")";
+		return isBuiltin() ? name : name + " (" + location + ")";
 	}
 }

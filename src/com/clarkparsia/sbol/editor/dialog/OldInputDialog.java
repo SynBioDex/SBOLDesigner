@@ -71,7 +71,7 @@ public abstract class OldInputDialog<T> extends JDialog {
 				sb.append(registry.getName());
 				if (!registry.isBuiltin()) {
 					sb.append(" (");
-					sb.append(CharSequences.shorten(registry.getURL(), 30));
+					sb.append(CharSequences.shorten(registry.getLocation(), 30));
 					sb.append(")");
 				}
 			}

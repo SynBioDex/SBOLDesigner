@@ -53,7 +53,10 @@ public abstract class InputDialog<T> extends JDialog {
 
 	protected JComboBox<Registry> registrySelection = null;
 	private JButton cancelButton, selectButton, optionsButton;
-	protected String url;
+	/**
+	 * The location (either url(http://) or path(file:)) of the registry
+	 */
+	protected String location;
 
 	protected FormBuilder builder = new FormBuilder();
 
@@ -145,14 +148,10 @@ public abstract class InputDialog<T> extends JDialog {
 		setLocationRelativeTo(getOwner());
 	}
 
-	protected boolean validateInput() {
-		return true;
-	}
-
 	protected abstract T getSelection();
 
 	/**
-	 * Returns an SBOLDocument containing whatever data is selected
+	 * Returns T, containing whatever data is selected
 	 */
 	public T getInput() {
 		initGUI();
@@ -176,7 +175,7 @@ public abstract class InputDialog<T> extends JDialog {
 	}
 
 	protected JPanel createTablePanel(AbstractListTableModel<?> tableModel, String title) {
-		final JTable table = new JTable(tableModel);
+		JTable table = new JTable(tableModel);
 		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
 			@Override
@@ -213,6 +212,7 @@ public abstract class InputDialog<T> extends JDialog {
 		tablePane.add(tableScroller);
 
 		tablePane.putClientProperty("table", table);
+		tablePane.putClientProperty("scroller", tableScroller);
 		tablePane.putClientProperty("label", tableLabel);
 
 		return tablePane;
@@ -234,7 +234,7 @@ public abstract class InputDialog<T> extends JDialog {
 			if (source == registrySelection) {
 				final Registry registry = (Registry) registrySelection.getSelectedItem();
 				if (registry == null) {
-					url = null;
+					location = null;
 				} else {
 					int selectedIndex = registrySelection.getSelectedIndex();
 					// if (registryType != RegistryType.PART) {
@@ -242,7 +242,7 @@ public abstract class InputDialog<T> extends JDialog {
 					// } else {
 					Registries.get().setVersionRegistryIndex(selectedIndex);
 					// }
-					url = registry.getURL();
+					location = registry.getLocation();
 				}
 				SwingUtilities.invokeLater(new Runnable() {
 					@Override

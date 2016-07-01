@@ -66,33 +66,36 @@ public enum RegistryPreferencesTab implements PreferencesTab {
 		final RegistryTableModel tableModel = new RegistryTableModel();
 		final JTable table = new JTable(tableModel);
 		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		
+
 		ActionListener listener = new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				RegistryTableModel model = (RegistryTableModel) table.getModel();
 				Action action = Action.valueOf(e.getActionCommand());
 				switch (action) {
-					case ADD:
-						Registry registry = new RegistryAddDialog(table).getInput();
-						if (registry != null) {
-							model.add(registry);
-						}
-						break;
-					case REMOVE:
-						int row = table.convertRowIndexToModel(table.getSelectedRow());
-						model.remove(row);
-						break;
-					case RESTORE:
-						model.restoreDefaults();
-						break;
+				case ADD:
+					Registry registry = new RegistryAddDialog(table).getInput();
+					if (registry != null) {
+						model.add(registry);
+						Registries.get().save();
+					}
+					break;
+				case REMOVE:
+					int row = table.convertRowIndexToModel(table.getSelectedRow());
+					model.remove(row);
+					Registries.get().save();
+					break;
+				case RESTORE:
+					model.restoreDefaults();
+					Registries.get().save();
+					break;
 				}
 			}
 		};
-		
+
 		final JButton addButton = new JButton("Add");
 		addButton.setActionCommand(Action.ADD.toString());
 		addButton.addActionListener(listener);
-		
+
 		final JButton removeButton = new JButton("Remove");
 		removeButton.setActionCommand(Action.REMOVE.toString());
 		removeButton.addActionListener(listener);
@@ -102,7 +105,7 @@ public enum RegistryPreferencesTab implements PreferencesTab {
 		restoreButton.setActionCommand(Action.RESTORE.toString());
 		restoreButton.addActionListener(listener);
 		restoreButton.setEnabled(true);
-		
+
 		table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
 			@Override
 			public void valueChanged(ListSelectionEvent event) {
@@ -143,24 +146,26 @@ public enum RegistryPreferencesTab implements PreferencesTab {
 	}
 
 	@Override
-	public void save() {		
+	public void save() {
 	}
 
 	@Override
 	public boolean requiresRestart() {
 		return false;
 	}
-	
-	private static enum Action { ADD, REMOVE, RESTORE }
+
+	private static enum Action {
+		ADD, REMOVE, RESTORE
+	}
 
 	private static class RegistryTableModel extends AbstractTableModel {
-		private static final String[] COLUMNS = { "Name", "URL", "Description" };
+		private static final String[] COLUMNS = { "Name", "URL/Path", "Description" };
 		private Registries registries;
 
 		public RegistryTableModel() {
 			this.registries = Registries.get();
 		}
-		
+
 		public void restoreDefaults() {
 			registries.restoreDefaults();
 			fireTableDataChanged();
@@ -174,7 +179,7 @@ public enum RegistryPreferencesTab implements PreferencesTab {
 		public void remove(int row) {
 			registries.remove(row);
 			fireTableDataChanged();
-        }
+		}
 
 		public int getColumnCount() {
 			return COLUMNS.length;
@@ -195,14 +200,14 @@ public enum RegistryPreferencesTab implements PreferencesTab {
 		public Object getValueAt(int row, int col) {
 			Registry registry = getComponent(row);
 			switch (col) {
-				case 0:
-					return registry.getName();
-				case 1:
-					return registry.isBuiltin() ? "N/A" : registry.getURL();
-				case 2:
-					return registry.getDescription();
-				default:
-					throw new IndexOutOfBoundsException();
+			case 0:
+				return registry.getName();
+			case 1:
+				return registry.isBuiltin() ? "N/A" : registry.getLocation();
+			case 2:
+				return registry.getDescription();
+			default:
+				throw new IndexOutOfBoundsException();
 			}
 		}
 

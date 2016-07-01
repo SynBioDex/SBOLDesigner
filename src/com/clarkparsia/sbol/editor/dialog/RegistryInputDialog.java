@@ -18,6 +18,9 @@ package com.clarkparsia.sbol.editor.dialog;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -30,16 +33,19 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.RowFilter;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 
 import org.sbolstandard.core2.ComponentDefinition;
 import org.sbolstandard.core2.SBOLDocument;
 import org.sbolstandard.core2.SBOLFactory;
+import org.sbolstandard.core2.SBOLReader;
 import org.sbolstandard.core2.SBOLValidationException;
 import org.sbolstack.*;
 import org.sbolstack.frontend.ComponentMetadata;
@@ -52,6 +58,7 @@ import com.clarkparsia.sbol.editor.Part;
 import com.clarkparsia.sbol.editor.Parts;
 import com.clarkparsia.sbol.editor.Registries;
 import com.clarkparsia.sbol.editor.Registry;
+import com.clarkparsia.sbol.editor.SBOLEditorPreferences;
 import com.clarkparsia.sbol.editor.SPARQLUtilities;
 import com.clarkparsia.swing.ComboBoxRenderer;
 import com.clarkparsia.swing.FormBuilder;
@@ -64,7 +71,7 @@ import javassist.NotFoundException;
  * 
  * @author Evren Sirin
  */
-public class StackInputDialog extends InputDialog<SBOLDocument> {
+public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 
 	private final ComboBoxRenderer<Registry> registryRenderer = new ComboBoxRenderer<Registry>() {
 		@Override
@@ -74,7 +81,7 @@ public class StackInputDialog extends InputDialog<SBOLDocument> {
 				sb.append(registry.getName());
 				if (!registry.isBuiltin()) {
 					sb.append(" (");
-					sb.append(CharSequences.shorten(registry.getURL(), 30));
+					sb.append(CharSequences.shorten(registry.getLocation(), 30));
 					sb.append(")");
 				}
 			}
@@ -86,6 +93,7 @@ public class StackInputDialog extends InputDialog<SBOLDocument> {
 			return registry == null ? "" : registry.getDescription();
 		}
 	};
+	private boolean isPath;
 
 	private static final String TITLE = "Select a part from registry";
 
@@ -95,12 +103,13 @@ public class StackInputDialog extends InputDialog<SBOLDocument> {
 
 	private JTable table;
 	private JLabel tableLabel;
+	private JScrollPane scroller;
 
 	private JCheckBox importSubparts;
 
 	private static StackFrontend stack;
 
-	public StackInputDialog(final Component parent, final Part part) {
+	public RegistryInputDialog(final Component parent, final Part part) {
 		super(parent, TITLE);
 
 		this.part = part;
@@ -111,9 +120,11 @@ public class StackInputDialog extends InputDialog<SBOLDocument> {
 		if (registries.size() == 0) {
 			JOptionPane.showMessageDialog(this,
 					"No parts registries are defined.\nPlease click 'Options' and add a parts registry.");
-			url = null;
+			location = null;
+			isPath = false;
 		} else {
-			url = registries.get(selectedRegistry).getURL();
+			location = registries.get(selectedRegistry).getLocation();
+			isPath = location.startsWith("file:");
 		}
 
 		registrySelection = new JComboBox<Registry>(Iterables.toArray(registries, Registry.class));
@@ -177,15 +188,48 @@ public class StackInputDialog extends InputDialog<SBOLDocument> {
 
 	@Override
 	protected JPanel initMainPanel() {
-		List<ComponentMetadata> components = searchParts(isRoleSelection() ? part : null, stack);
-		ComponentMetadataTableModel tableModel = new ComponentMetadataTableModel(components);
-
-		JPanel panel = createTablePanel(tableModel, "Matching parts (" + tableModel.getRowCount() + ")");
+		JPanel panel;
+		if (isPath) {
+			List<ComponentDefinition> components = searchParts(isRoleSelection() ? part : null);
+			ComponentDefinitionTableModel tableModel = new ComponentDefinitionTableModel(components);
+			panel = createTablePanel(tableModel, "Matching parts (" + tableModel.getRowCount() + ")");
+		} else {
+			List<ComponentMetadata> components = searchParts(isRoleSelection() ? part : null, stack);
+			ComponentMetadataTableModel tableModel = new ComponentMetadataTableModel(components);
+			panel = createTablePanel(tableModel, "Matching parts (" + tableModel.getRowCount() + ")");
+		}
 
 		table = (JTable) panel.getClientProperty("table");
 		tableLabel = (JLabel) panel.getClientProperty("label");
+		scroller = (JScrollPane) panel.getClientProperty("scroller");
 
 		return panel;
+	}
+
+	/**
+	 * Gets the SBOLDocument from the path(url) and returns all its CDs.
+	 */
+	private List<ComponentDefinition> searchParts(Part part) {
+		try {
+			if (!isPath) {
+				throw new Exception("Incorrect state.  url isn't a path");
+			}
+			if (part.equals(ALL_PARTS)) {
+				part = null;
+			}
+			File path = new File(location.substring(5));
+			SBOLReader.setURIPrefix(SBOLEditorPreferences.INSTANCE.getUserInfo().getURI().toString());
+			SBOLReader.setCompliant(true);
+			FileInputStream stream = new FileInputStream(path);
+			SBOLDocument doc = SBOLReader.read(stream);
+			stream.close();
+			doc.setDefaultURIprefix(SBOLEditorPreferences.INSTANCE.getUserInfo().getURI().toString());
+			return SBOLUtils.getCDOfRole(doc, part);
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog(null, "Getting the SBOLDocument from path failed: " + e.getMessage());
+			e.printStackTrace();
+			return null;
+		}
 	}
 
 	/**
@@ -193,8 +237,11 @@ public class StackInputDialog extends InputDialog<SBOLDocument> {
 	 */
 	private List<ComponentMetadata> searchParts(Part part, StackFrontend stack) {
 		try {
+			if (isPath) {
+				throw new Exception("Incorrect state.  url is a path");
+			}
 			if (stack == null) {
-				stack = new StackFrontend(url);
+				stack = new StackFrontend(location);
 			}
 			if (part != null) {
 				Set<URI> setRoles = new HashSet<URI>();
@@ -205,7 +252,7 @@ public class StackInputDialog extends InputDialog<SBOLDocument> {
 				ArrayList<ComponentMetadata> l = stack.searchComponentMetadata(null, new HashSet<URI>(), 0, 99);
 				return l;
 			}
-		} catch (StackException e) {
+		} catch (Exception e) {
 			JOptionPane.showMessageDialog(null, "Querying this repository failed: " + e.getMessage());
 			e.printStackTrace();
 			return null;
@@ -215,12 +262,18 @@ public class StackInputDialog extends InputDialog<SBOLDocument> {
 	@Override
 	protected SBOLDocument getSelection() {
 		try {
+			ComponentDefinition comp;
 			int row = table.convertRowIndexToModel(table.getSelectedRow());
-			ComponentMetadata compMeta = ((ComponentMetadataTableModel) table.getModel()).getElement(row);
-			if (stack == null) {
-				stack = new StackFrontend(url);
+
+			if (isPath) {
+				comp = ((ComponentDefinitionTableModel) table.getModel()).getElement(row);
+			} else {
+				ComponentMetadata compMeta = ((ComponentMetadataTableModel) table.getModel()).getElement(row);
+				if (stack == null) {
+					stack = new StackFrontend(location);
+				}
+				comp = stack.fetchComponent(URI.create(compMeta.uri));
 			}
-			ComponentDefinition comp = stack.fetchComponent(URI.create(compMeta.uri));
 
 			SBOLDocument doc = new SBOLDocument();
 			if (!importSubparts.isSelected()) {
@@ -237,31 +290,61 @@ public class StackInputDialog extends InputDialog<SBOLDocument> {
 	}
 
 	protected void registryChanged() {
-		stack = new StackFrontend(url);
+		isPath = location.startsWith("file:");
+		if (!isPath) {
+			stack = new StackFrontend(location);
+		}
 		partRoleChanged();
 	}
 
 	public void partRoleChanged() {
-		List<ComponentMetadata> components = searchParts(
-				isRoleSelection() ? (Part) roleSelection.getSelectedItem() : null, stack);
-		((ComponentMetadataTableModel) table.getModel()).setElements(components);
-		tableLabel.setText("Matching parts (" + components.size() + ")");
+		if (isPath) {
+			List<ComponentDefinition> components = searchParts(
+					isRoleSelection() ? (Part) roleSelection.getSelectedItem() : null);
+			ComponentDefinitionTableModel tableModel = new ComponentDefinitionTableModel(components);
+			table = new JTable(tableModel);
+			TableRowSorter<TableModel> sorter = new TableRowSorter<TableModel>(tableModel);
+			table.setRowSorter(sorter);
+			tableLabel.setText("Matching parts (" + components.size() + ")");
+		} else {
+			List<ComponentMetadata> components = searchParts(
+					isRoleSelection() ? (Part) roleSelection.getSelectedItem() : null, stack);
+			ComponentMetadataTableModel tableModel = new ComponentMetadataTableModel(components);
+			table = new JTable(tableModel);
+			TableRowSorter<TableModel> sorter = new TableRowSorter<TableModel>(tableModel);
+			table.setRowSorter(sorter);
+			tableLabel.setText("Matching parts (" + components.size() + ")");
+		}
+		scroller.setViewportView(table);
 	}
 
 	private void updateFilter(String filterText) {
-		@SuppressWarnings({ "rawtypes", "unchecked" })
-		TableRowSorter<ComponentMetadataTableModel> sorter = (TableRowSorter) table.getRowSorter();
-		if (filterText.length() == 0) {
-			sorter.setRowFilter(null);
-		} else {
-			try {
-				RowFilter<ComponentMetadataTableModel, Object> rf = RowFilter.regexFilter(filterText, 0, 1);
-				sorter.setRowFilter(rf);
-			} catch (java.util.regex.PatternSyntaxException e) {
+		if (isPath) {
+			TableRowSorter<ComponentDefinitionTableModel> sorter = (TableRowSorter) table.getRowSorter();
+			if (filterText.length() == 0) {
 				sorter.setRowFilter(null);
+			} else {
+				try {
+					RowFilter<ComponentDefinitionTableModel, Object> rf = RowFilter.regexFilter(filterText, 0, 1);
+					sorter.setRowFilter(rf);
+				} catch (java.util.regex.PatternSyntaxException e) {
+					sorter.setRowFilter(null);
+				}
 			}
+			tableLabel.setText("Matching parts (" + sorter.getViewRowCount() + ")");
+		} else {
+			TableRowSorter<ComponentMetadataTableModel> sorter = (TableRowSorter) table.getRowSorter();
+			if (filterText.length() == 0) {
+				sorter.setRowFilter(null);
+			} else {
+				try {
+					RowFilter<ComponentMetadataTableModel, Object> rf = RowFilter.regexFilter(filterText, 0, 1);
+					sorter.setRowFilter(rf);
+				} catch (java.util.regex.PatternSyntaxException e) {
+					sorter.setRowFilter(null);
+				}
+			}
+			tableLabel.setText("Matching parts (" + sorter.getViewRowCount() + ")");
 		}
-
-		tableLabel.setText("Matching parts (" + sorter.getViewRowCount() + ")");
 	}
 }
