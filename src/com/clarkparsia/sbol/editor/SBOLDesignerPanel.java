@@ -660,7 +660,6 @@ public class SBOLDesignerPanel extends JPanel {
 			throw new IllegalArgumentException();
 		}
 		documentIO.write(doc);
-		SBOLFactory.setSBOLDocument(currentDesign);
 		return;
 	}
 
