@@ -43,9 +43,6 @@ import com.google.common.base.Strings;
  */
 public class RegistryAddDialog extends InputDialog<Registry> {
 	private JTextField nameField;
-	/**
-	 * Can also be a path (starts with file:)
-	 */
 	private JTextField locationField;
 	private JTextComponent description;
 
@@ -56,7 +53,6 @@ public class RegistryAddDialog extends InputDialog<Registry> {
 	@Override
 	protected void initFormPanel(FormBuilder builder) {
 		nameField = builder.addTextField("Name", "");
-		// starts with either file: or http://
 		locationField = builder.addTextField("URL or Path", "");
 		JButton browse = new JButton("Browse local registries");
 		browse.addActionListener(new ActionListener() {
@@ -64,7 +60,7 @@ public class RegistryAddDialog extends InputDialog<Registry> {
 			public void actionPerformed(ActionEvent arg0) {
 				File file = SBOLUtils.importFile();
 				if (file != null) {
-					locationField.setText("file:" + file.getPath());
+					locationField.setText(file.getPath());
 				}
 			}
 		});
@@ -85,7 +81,7 @@ public class RegistryAddDialog extends InputDialog<Registry> {
 			return false;
 		}
 
-		if (Strings.isNullOrEmpty(location) || "http://".equals(location) || "file:".equals(location)) {
+		if (Strings.isNullOrEmpty(location) || "http://".equals(location)) {
 			JOptionPane.showMessageDialog(getParent(), "Please enter a valid URL/Path", "Error",
 					JOptionPane.ERROR_MESSAGE);
 			return false;

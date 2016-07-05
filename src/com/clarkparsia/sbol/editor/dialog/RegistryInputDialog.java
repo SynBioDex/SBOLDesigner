@@ -214,8 +214,7 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 	 * ComponentMetadata.
 	 */
 	private boolean isMetadata() {
-		return !(location.startsWith("file:") || location.startsWith("jar:"))
-				&& !((Registry) registrySelection.getSelectedItem()).isBuiltin();
+		return location.startsWith("http://");
 	}
 
 	/**
@@ -229,16 +228,18 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 			if (part.equals(ALL_PARTS)) {
 				part = null;
 			}
-			String path = location;
-			path = path.replaceAll("file:", "");
-			path = path.replaceAll("jar:", "");
+
 			SBOLReader.setURIPrefix(SBOLEditorPreferences.INSTANCE.getUserInfo().getURI().toString());
 			SBOLReader.setCompliant(true);
-			FileInputStream stream = new FileInputStream(path);
-			SBOLDocument doc = SBOLReader.read(stream);
-			stream.close();
-			doc.setDefaultURIprefix(SBOLEditorPreferences.INSTANCE.getUserInfo().getURI().toString());
-			return SBOLUtils.getCDOfRole(doc, part);
+			if (registrySelection.getSelectedItem().equals(Registry.BUILT_IN)) {
+				SBOLDocument doc = SBOLReader.read(Registry.class.getResourceAsStream("BuiltInParts.xml"));
+				doc.setDefaultURIprefix(SBOLEditorPreferences.INSTANCE.getUserInfo().getURI().toString());
+				return SBOLUtils.getCDOfRole(doc, part);
+			} else {
+				SBOLDocument doc = SBOLReader.read(location);
+				doc.setDefaultURIprefix(SBOLEditorPreferences.INSTANCE.getUserInfo().getURI().toString());
+				return SBOLUtils.getCDOfRole(doc, part);
+			}
 		} catch (Exception e) {
 			JOptionPane.showMessageDialog(null, "Getting the SBOLDocument from path failed: " + e.getMessage());
 			e.printStackTrace();

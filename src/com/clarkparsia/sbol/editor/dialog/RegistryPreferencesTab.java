@@ -203,7 +203,7 @@ public enum RegistryPreferencesTab implements PreferencesTab {
 			case 0:
 				return registry.getName();
 			case 1:
-				return registry.isBuiltin() ? "N/A" : registry.getLocation();
+				return registry.getLocation();
 			case 2:
 				return registry.getDescription();
 			default:

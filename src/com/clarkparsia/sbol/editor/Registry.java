@@ -27,13 +27,10 @@ import com.google.common.base.Preconditions;
 public class Registry implements Serializable {
 	private final String name;
 	private final String description;
-	/**
-	 * Can also be a path (starts with file:)
-	 */
 	private final String location;
 
 	public static final Registry BUILT_IN = new Registry("Built-in parts",
-			"Built-in registry with minimal set of parts", Registries.class.getResource("BuiltInParts.xml").toString());
+			"Built-in registry with minimal set of parts", "N/A");
 
 	public static final Registry STACK = new Registry("SBOL Stack", "The Newcastle instance of the SBOL Stack",
 			"http://synbiohub.org:9090");
@@ -59,7 +56,7 @@ public class Registry implements Serializable {
 	}
 
 	public boolean isPath() {
-		return location.startsWith("file:");
+		return !location.startsWith("http://");
 	}
 
 	@Override
@@ -90,6 +87,6 @@ public class Registry implements Serializable {
 
 	@Override
 	public String toString() {
-		return isBuiltin() ? name : name + " (" + location + ")";
+		return name + " (" + location + ")";
 	}
 }
