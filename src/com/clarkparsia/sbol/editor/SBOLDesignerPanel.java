@@ -497,6 +497,9 @@ public class SBOLDesignerPanel extends JPanel {
 		String uri;
 		do {
 			uri = JOptionPane.showInputDialog("Please enter a valid URI", oldUserInfo.getURI());
+			if (uri == null) {
+				System.exit(0);
+			}
 		} while (Strings.isNullOrEmpty(uri));
 
 		PersonInfo userInfo = Infos.forPerson(uri, oldUserInfo.getName(), oldUserInfo.getEmail().toString());
