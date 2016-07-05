@@ -100,7 +100,6 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 			return registry == null ? "" : registry.getDescription();
 		}
 	};
-	private boolean isMetadata;
 
 	private static final String TITLE = "Select a part from registry";
 
@@ -136,10 +135,8 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 			JOptionPane.showMessageDialog(this,
 					"No parts registries are defined.\nPlease click 'Options' and add a parts registry.");
 			location = null;
-			isMetadata = false;
 		} else {
 			location = registries.get(selectedRegistry).getLocation();
-			isMetadata = !location.startsWith("file:") && !((Registry) registrySelection.getSelectedItem()).isBuiltin();
 		}
 	}
 
@@ -195,7 +192,7 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 	@Override
 	protected JPanel initMainPanel() {
 		JPanel panel;
-		if (isMetadata) {
+		if (isMetadata()) {
 			List<ComponentMetadata> components = searchParts(isRoleSelection() ? part : null, stack);
 			ComponentMetadataTableModel tableModel = new ComponentMetadataTableModel(components);
 			panel = createTablePanel(tableModel, "Matching parts (" + tableModel.getRowCount() + ")");
@@ -213,17 +210,28 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 	}
 
 	/**
+	 * Checks to see if the registry we are working on is represented by
+	 * ComponentMetadata.
+	 */
+	private boolean isMetadata() {
+		return !(location.startsWith("file:") || location.startsWith("jar:"))
+				&& !((Registry) registrySelection.getSelectedItem()).isBuiltin();
+	}
+
+	/**
 	 * Gets the SBOLDocument from the path(url) and returns all its CDs.
 	 */
 	private List<ComponentDefinition> searchParts(Part part) {
 		try {
-			if (isMetadata) {
+			if (isMetadata()) {
 				throw new Exception("Incorrect state.  url isn't a path");
 			}
 			if (part.equals(ALL_PARTS)) {
 				part = null;
 			}
-			File path = new File(location.substring(5));
+			String path = location;
+			path = path.replaceAll("file:", "");
+			path = path.replaceAll("jar:", "");
 			SBOLReader.setURIPrefix(SBOLEditorPreferences.INSTANCE.getUserInfo().getURI().toString());
 			SBOLReader.setCompliant(true);
 			FileInputStream stream = new FileInputStream(path);
@@ -243,7 +251,7 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 	 */
 	private List<ComponentMetadata> searchParts(Part part, StackFrontend stack) {
 		try {
-			if (!isMetadata) {
+			if (!isMetadata()) {
 				throw new Exception("Incorrect state.  url is a path");
 			}
 			if (stack == null) {
@@ -271,7 +279,7 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 			ComponentDefinition comp;
 			int row = table.convertRowIndexToModel(table.getSelectedRow());
 
-			if (isMetadata) {
+			if (isMetadata()) {
 				ComponentMetadata compMeta = ((ComponentMetadataTableModel) table.getModel()).getElement(row);
 				if (stack == null) {
 					stack = new StackFrontend(location);
@@ -296,15 +304,14 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 	}
 
 	protected void registryChanged() {
-		isMetadata = !location.startsWith("file:") && !((Registry) registrySelection.getSelectedItem()).isBuiltin();
-		if (isMetadata) {
+		if (isMetadata()) {
 			stack = new StackFrontend(location);
 		}
 		updateTable();
 	}
 
 	public void updateTable() {
-		if (isMetadata) {
+		if (isMetadata()) {
 			List<ComponentMetadata> components = searchParts(
 					isRoleSelection() ? (Part) roleSelection.getSelectedItem() : null, stack);
 			ComponentMetadataTableModel tableModel = new ComponentMetadataTableModel(components);
@@ -342,7 +349,7 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 	}
 
 	private void updateFilter(String filterText) {
-		if (isMetadata) {
+		if (isMetadata()) {
 			TableRowSorter<ComponentMetadataTableModel> sorter = (TableRowSorter) table.getRowSorter();
 			if (filterText.length() == 0) {
 				sorter.setRowFilter(null);
