@@ -66,7 +66,6 @@ public class RegistryAddDialog extends InputDialog<Registry> {
 				if (file != null) {
 					locationField.setText("file:" + file.getPath());
 				}
-
 			}
 		});
 		builder.add(null, browse);

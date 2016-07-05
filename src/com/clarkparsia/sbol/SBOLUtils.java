@@ -147,9 +147,12 @@ public class SBOLUtils {
 	 * Prompts the user to choose a file and reads it, returning the output
 	 * SBOLDocument. If the user cancels or the file in unable to be imported,
 	 * returns null.
+	 * 
+	 * importPath is different from path
 	 */
 	public static SBOLDocument importDoc() {
-		JFileChooser fc = new JFileChooser(SBOLUtils.setupFile());
+		String path = Preferences.userRoot().node("path").get("importPath", setupFile().getPath());
+		JFileChooser fc = new JFileChooser(new File(path));
 		fc.setMultiSelectionEnabled(false);
 		fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
 		fc.setAcceptAllFileFilterUsed(true);
@@ -159,13 +162,13 @@ public class SBOLUtils {
 
 		int returnVal = fc.showOpenDialog(null);
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
-			File file = fc.getSelectedFile();
-			// Preferences.userRoot().node("path").put("path", file.getPath());
+			File directory = fc.getCurrentDirectory();
+			Preferences.userRoot().node("path").put("importPath", directory.getPath());
 			SBOLDocument doc = null;
 			try {
 				SBOLReader.setURIPrefix(SBOLEditorPreferences.INSTANCE.getUserInfo().getURI().toString());
 				SBOLReader.setCompliant(true);
-				doc = SBOLReader.read(file);
+				doc = SBOLReader.read(fc.getSelectedFile());
 			} catch (Exception e1) {
 				JOptionPane.showMessageDialog(null, "This file is unable to be imported: " + e1.getMessage());
 				e1.printStackTrace();
@@ -177,9 +180,12 @@ public class SBOLUtils {
 
 	/**
 	 * Prompts the user to choose a file and returns it. Returns null otherwise.
+	 * 
+	 * importPath is different from path
 	 */
 	public static File importFile() {
-		JFileChooser fc = new JFileChooser(SBOLUtils.setupFile());
+		String path = Preferences.userRoot().node("path").get("importPath", setupFile().getPath());
+		JFileChooser fc = new JFileChooser(new File(path));
 		fc.setMultiSelectionEnabled(false);
 		fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
 		fc.setAcceptAllFileFilterUsed(true);
@@ -189,6 +195,8 @@ public class SBOLUtils {
 
 		int returnVal = fc.showOpenDialog(null);
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
+			File directory = fc.getCurrentDirectory();
+			Preferences.userRoot().node("path").put("importPath", directory.getPath());
 			return fc.getSelectedFile();
 		}
 		return null;
@@ -196,6 +204,8 @@ public class SBOLUtils {
 
 	/**
 	 * Gets the path from Preferences and returns a File
+	 * 
+	 * importPath is different from path
 	 */
 	public static File setupFile() {
 		String path = Preferences.userRoot().node("path").get("path", "");
