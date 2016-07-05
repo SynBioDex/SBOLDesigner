@@ -356,7 +356,7 @@ public class SBOLDesignerPanel extends JPanel {
 
 	SBOLEditorActions TOOLBAR_ACTIONS = new SBOLEditorActions().add(NEW, OPEN, SAVE, EXPORT, DIVIDER)
 			.addIf(SBOLEditorPreferences.INSTANCE.isVersioningEnabled(), VERSION, DIVIDER)
-			.add(design.EDIT_CANVAS, design.EDIT, design.FIND, design.DELETE, design.FLIP, DIVIDER)
+			.add(design.EDIT_CANVAS, design.EDIT, design.FIND, design.UPLOAD, design.DELETE, design.FLIP, DIVIDER)
 			.add(design.HIDE_SCARS, design.ADD_SCARS, DIVIDER).add(design.FOCUS_IN, design.FOCUS_OUT, DIVIDER, SNAPSHOT)
 			.add(PREFERENCES).add(SPACER, INFO);
 

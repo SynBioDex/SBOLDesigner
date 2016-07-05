@@ -67,6 +67,9 @@ import javax.swing.JRadioButton;
 import javax.swing.JTextArea;
 import javax.swing.KeyStroke;
 import javax.swing.SwingConstants;
+
+import org.sbolstack.frontend.StackException;
+import org.sbolstack.frontend.StackFrontend;
 import org.sbolstandard.core2.AccessType;
 import org.sbolstandard.core2.ComponentDefinition;
 import org.sbolstandard.core2.Location;
@@ -141,6 +144,19 @@ public class SBOLDesign {
 				findPartForSelectedCD();
 			} catch (SBOLValidationException e) {
 				JOptionPane.showMessageDialog(panel, "There was a problem finding a part: " + e.getMessage());
+				e.printStackTrace();
+			}
+		}
+	};
+
+	public final SBOLEditorAction UPLOAD = new SBOLEditorAction("Upload design",
+			"Upload the current desgin into an SBOL Stack instance", "upload.png") {
+		@Override
+		protected void perform() {
+			try {
+				uploadDesign();
+			} catch (SBOLValidationException | StackException e) {
+				JOptionPane.showMessageDialog(panel, "There was a problem uploading the design: " + e.getMessage());
 				e.printStackTrace();
 			}
 		}
@@ -1350,6 +1366,24 @@ public class SBOLDesign {
 		}
 	}
 
+	public void uploadDesign() throws StackException, SBOLValidationException {
+		ArrayList<Registry> list = new ArrayList<Registry>();
+		for (Registry r : Registries.get()) {
+			if (r.getLocation().startsWith("http://")) {
+				list.add(r);
+			}
+		}
+		Object[] options = list.toArray();
+		Registry registry = (Registry) JOptionPane.showInputDialog(panel,
+				"Please enter the url of the SBOL Stack instance you want to upload the current desgin to.", "Upload",
+				JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
+		if (registry == null) {
+			return;
+		}
+		StackFrontend stack = new StackFrontend(registry.getLocation());
+		stack.upload(createDocument());
+	}
+
 	public BufferedImage getSnapshot() {
 		BufferedImage image = Images.createImage(panel);
 
@@ -1487,16 +1521,18 @@ public class SBOLDesign {
 			// if a sequence exists, give seqAnn a Range
 			Sequence seq = e.getCD().getSequenceByEncoding(Sequence.IUPAC_DNA);
 			if (seq != null) {
-				// remove all other locations first
-				for (Location toBeRemoved : e.seqAnn.getLocations()) {
-					e.seqAnn.removeLocation(toBeRemoved);
-				}
 				String uniqueId = SBOLUtils.getUniqueDisplayId(canvasCD, e.seqAnn.getDisplayId() + "Range", null,
 						"Range");
 				int start = position;
 				int end = seq.getElements().length() + start - 1;
 				position = end + 1;
-				e.seqAnn.addRange(uniqueId, start, end);
+				Range range = e.seqAnn.addRange(uniqueId, start, end);
+				// remove all other locations
+				for (Location toBeRemoved : e.seqAnn.getLocations()) {
+					if (!toBeRemoved.equals(range)) {
+						e.seqAnn.removeLocation(toBeRemoved);
+					}
+				}
 			}
 			// maintain the orientation
 			if (loc.getOrientation() == OrientationType.REVERSECOMPLEMENT) {
