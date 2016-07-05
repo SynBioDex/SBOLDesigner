@@ -18,6 +18,8 @@ package com.clarkparsia.sbol.editor.dialog;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -64,6 +66,7 @@ import com.clarkparsia.sbol.editor.Registries;
 import com.clarkparsia.sbol.editor.Registry;
 import com.clarkparsia.sbol.editor.SBOLEditorPreferences;
 import com.clarkparsia.sbol.editor.SPARQLUtilities;
+import com.clarkparsia.swing.AbstractListTableModel;
 import com.clarkparsia.swing.ComboBoxRenderer;
 import com.clarkparsia.swing.FormBuilder;
 import com.google.common.collect.Iterables;
@@ -286,7 +289,7 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 			}
 			return doc;
 		} catch (Exception e) {
-			JOptionPane.showMessageDialog(null, "Getting this selection failed");
+			JOptionPane.showMessageDialog(null, "Getting this selection failed: " + e.getMessage());
 			e.printStackTrace();
 			return null;
 		}
@@ -309,6 +312,7 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 			tableLabel.setText("Matching parts (" + components.size() + ")");
 			TableRowSorter<TableModel> sorter = new TableRowSorter<TableModel>(tableModel);
 			table.setRowSorter(sorter);
+			setWidthAsPercentages(table, tableModel.getWidths());
 		} else {
 			Part part = isRoleSelection() ? (Part) roleSelection.getSelectedItem() : null;
 			List<ComponentDefinition> components = searchParts(part);
@@ -317,12 +321,21 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 			tableLabel.setText("Matching parts (" + components.size() + ")");
 			TableRowSorter<TableModel> sorter = new TableRowSorter<TableModel>(tableModel);
 			table.setRowSorter(sorter);
+			setWidthAsPercentages(table, tableModel.getWidths());
 		}
 		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
 			@Override
 			public void valueChanged(ListSelectionEvent event) {
 				setSelectAllowed(table.getSelectedRow() >= 0);
+			}
+		});
+		table.addMouseListener(new MouseAdapter() {
+			public void mouseClicked(MouseEvent e) {
+				if (e.getClickCount() == 2 && table.getSelectedRow() >= 0) {
+					canceled = false;
+					setVisible(false);
+				}
 			}
 		});
 		scroller.setViewportView(table);
