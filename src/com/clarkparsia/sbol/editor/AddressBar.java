@@ -68,12 +68,12 @@ public class AddressBar extends JToolBar {
 
 		add(Box.createHorizontalGlue());
 
-		final JToggleButton button = Buttons.createToggleButton("Thumbnails",
+		final JToggleButton button = Buttons.createToggleButton("Overview",
 				new ImageIcon(Images.getActionImage("down.png")));
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent event) {
-				editor.setThumbnailsVisible(button.isSelected());
+				editor.setOverviewVisible(button.isSelected());
 			}
 		});
 		add(button);
@@ -84,7 +84,7 @@ public class AddressBar extends JToolBar {
 	private JButton createButton(final ComponentDefinition comp) {
 		JButton button = new JButton(comp.getDisplayId(), ICON) {
 			public JToolTip createToolTip() {
-				Image image = (Image) getClientProperty("thumbnail");
+				Image image = (Image) getClientProperty("overview");
 				JToolTipWithIcon tip = new JToolTipWithIcon(new ImageIcon(image));
 				tip.setComponent(this);
 				return tip;
@@ -154,7 +154,7 @@ public class AddressBar extends JToolBar {
 
 	private void setToolTip(BufferedImage image) {
 		JComponent comp = (JComponent) getComponent(count);
-		comp.putClientProperty("thumbnail", Images.scaleImage(image, 0.5));
+		comp.putClientProperty("overview", Images.scaleImage(image, 0.5));
 		comp.setToolTipText(image == null ? null : "");
 	}
 

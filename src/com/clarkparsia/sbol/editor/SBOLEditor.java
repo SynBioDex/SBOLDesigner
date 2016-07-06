@@ -45,7 +45,7 @@ public class SBOLEditor extends JPanel {
 	private final EventBus eventBus;
 	private final SBOLDesign design;
 	private final PartsPanel toolbar;
-	private final ThumbnailsPanel thumbnails;
+	private final OverviewPanel thumbnails;
 	private final InvisibleSplitPane top;
 	private final boolean editable;
 	private JFileChooser snapshotFileChooser;
@@ -57,7 +57,7 @@ public class SBOLEditor extends JPanel {
 		eventBus = new BasicEventBus();
 		design = new SBOLDesign(eventBus);
 		toolbar = new PartsPanel(this);
-		thumbnails = new ThumbnailsPanel(this);
+		thumbnails = new OverviewPanel(this);
 
 		eventBus.subscribe(this);
 
@@ -81,7 +81,7 @@ public class SBOLEditor extends JPanel {
 		top.setDividerVisible(false);
 	}
 
-	public void setThumbnailsVisible(boolean isVisible) {
+	public void setOverviewVisible(boolean isVisible) {
 		Component thumnailsPanel = top.getRightComponent();
 		if (thumnailsPanel.isVisible() != isVisible) {
 			thumnailsPanel.setVisible(isVisible);
@@ -117,7 +117,7 @@ public class SBOLEditor extends JPanel {
 		return design;
 	}
 
-	public ThumbnailsPanel getThumbnails() {
+	public OverviewPanel getThumbnails() {
 		return thumbnails;
 	}
 

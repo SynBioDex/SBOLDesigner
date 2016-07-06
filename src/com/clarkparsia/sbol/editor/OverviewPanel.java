@@ -39,13 +39,13 @@ import com.clarkparsia.sbol.editor.event.FocusOutEvent;
  * 
  * @author Evren Sirin
  */
-public class ThumbnailsPanel extends JPanel {
+public class OverviewPanel extends JPanel {
 	private int WIDTH = 150;
 	private final SBOLEditor editor;
 
 	private int count = 0;
 
-	public ThumbnailsPanel(SBOLEditor editor) {
+	public OverviewPanel(SBOLEditor editor) {
 		this.editor = editor;
 
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));

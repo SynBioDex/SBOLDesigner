@@ -518,7 +518,7 @@ public class SBOLDesignerPanel extends JPanel {
 		String[] formats = { "SBOL 1.1", "GenBank", "FASTA", "Cancel" };
 		int format = JOptionPane.showOptionDialog(this, "Please select an export format", "Export",
 				JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, formats, "SBOL 1.1");
-		if (format == JOptionPane.CLOSED_OPTION) {
+		if (format == JOptionPane.CLOSED_OPTION || format == 3) {
 			return;
 		}
 		fc.setSelectedFile(SBOLUtils.setupFile());
@@ -526,7 +526,7 @@ public class SBOLDesignerPanel extends JPanel {
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
 			File file = fc.getSelectedFile();
 			if (file.exists()) {
-				JOptionPane.showMessageDialog(this, "You cannot select this file");
+				JOptionPane.showMessageDialog(this, "You cannot select this file, it already exists.");
 				return;
 			}
 			Preferences.userRoot().node("path").put("path", file.getPath());
