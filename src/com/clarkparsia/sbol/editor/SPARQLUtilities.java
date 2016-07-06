@@ -75,7 +75,7 @@ public class SPARQLUtilities {
 
 		final List<ComponentDefinition> parts = Lists.newArrayList();
 		try {
-			// TODO This hangs, which causes find registry part to not work
+			// This hangs, which causes find registry part to not work
 			endpoint.executeSelectQuery(query, new TupleQueryResultHandlerBase() {
 				@Override
 				public void handleSolution(BindingSet binding) throws TupleQueryResultHandlerException {

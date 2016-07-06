@@ -427,7 +427,6 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 	 */
 	public static ComponentDefinition confirmEditing(Component parent, ComponentDefinition comp)
 			throws SBOLValidationException {
-		// TODO bug, the renamed CD duplicates all components for some reason?
 		int result = JOptionPane.showConfirmDialog(parent,
 				"The part '" + comp.getDisplayId() + "' doesn't belong to your\n"
 						+ "namespace and cannot be edited.\n\n" + "Do you want to create an editable copy of\n"
