@@ -86,6 +86,7 @@ public class SBOLDesignerPlugin extends SBOLDesignerPanel {
 	}
 
 	public String getRootDisplayId() {
+		if (design==null || design.getRootCD()==null) return null;
 		return design.getRootCD().getDisplayId();
 	}
 
