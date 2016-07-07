@@ -1392,14 +1392,15 @@ public class SBOLDesign {
 		 */
 		public OrientationType getOrientation() {
 			// returns the first location's orientation
-			return seqAnn.getLocations().iterator().next().getOrientation();
-		}
-
-		void flipOrientation() {
 			OrientationType orientation = seqAnn.getLocations().iterator().next().getOrientation();
 			if (orientation == null) {
 				orientation = OrientationType.INLINE;
 			}
+			return orientation;
+		}
+
+		void flipOrientation() {
+			OrientationType orientation = this.getOrientation();
 			for (Location loc : seqAnn.getLocations()) {
 				loc.setOrientation(orientation == OrientationType.INLINE ? OrientationType.REVERSECOMPLEMENT
 						: OrientationType.INLINE);
