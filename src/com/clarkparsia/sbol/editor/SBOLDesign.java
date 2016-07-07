@@ -400,7 +400,7 @@ public class SBOLDesign {
 		updateCanvasCD();
 
 		ComponentDefinition parentComponent = parentCDs.pop();
-		while (parentComponent != comp) {
+		while (!parentComponent.equals(comp)) {
 			parentComponent = parentCDs.pop();
 		}
 
@@ -412,8 +412,6 @@ public class SBOLDesign {
 	/**
 	 * Loads the given SBOLDocument. Returns true if only a partial design is
 	 * loaded (due to multiple root CDs). Otherwise, returns false.
-	 * 
-	 * @throws SBOLValidationException
 	 */
 	public boolean load(SBOLDocument doc) throws SBOLValidationException {
 		boolean isPartialDesign = false;
@@ -499,7 +497,7 @@ public class SBOLDesign {
 	private boolean confirmEditable() throws SBOLValidationException {
 		if (readOnly.contains(ReadOnly.REGISTRY_COMPONENT)) {
 			JOptionPane.showMessageDialog(panel, canvasCD.getDisplayId()
-					+ " doesn't belong in your namespace.  Please edit the part \nand choose \"yes\" to creating an editable copy while re-save it.");
+					+ " doesn't belong in your namespace.  Please edit it and/or its parents \nand choose \"yes\" to creating an editable copy while re-saving it.");
 			return false;
 		}
 
@@ -1399,6 +1397,9 @@ public class SBOLDesign {
 
 		void flipOrientation() {
 			OrientationType orientation = seqAnn.getLocations().iterator().next().getOrientation();
+			if (orientation == null) {
+				orientation = OrientationType.INLINE;
+			}
 			for (Location loc : seqAnn.getLocations()) {
 				loc.setOrientation(orientation == OrientationType.INLINE ? OrientationType.REVERSECOMPLEMENT
 						: OrientationType.INLINE);
