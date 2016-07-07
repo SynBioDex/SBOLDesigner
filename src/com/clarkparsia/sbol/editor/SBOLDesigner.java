@@ -45,6 +45,10 @@ public class SBOLDesigner extends JFrame {
 	public SBOLDesigner() throws SBOLValidationException {
 		// creates the panel with this frame so title can be set
 		panel = new SBOLDesignerPanel(this);
+		// Only ask for a URI prefix if the current one is
+		// "http://www.dummy.org"
+		panel.newDesign(SBOLEditorPreferences.INSTANCE.getUserInfo().getURI().toString().equals("http://www.dummy.org"));
+
 
 		setContentPane(panel);
 		setLocationRelativeTo(null);

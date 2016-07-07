@@ -387,10 +387,6 @@ public class SBOLDesignerPanel extends JPanel {
 		initGUI();
 
 		editor.getEventBus().subscribe(this);
-
-		// Only ask for a URI prefix if the current one is
-		// "http://www.dummy.org"
-		newDesign(SBOLEditorPreferences.INSTANCE.getUserInfo().getURI().toString().equals("http://www.dummy.org"));
 	}
 
 	private void initGUI() {
@@ -463,7 +459,7 @@ public class SBOLDesignerPanel extends JPanel {
 	 * 
 	 * @throws SBOLValidationException
 	 */
-	private void newDesign(boolean askForURIPrefix) throws SBOLValidationException {
+	void newDesign(boolean askForURIPrefix) throws SBOLValidationException {
 		SBOLDocument doc = new SBOLDocument();
 		if (askForURIPrefix) {
 			setURIprefix(doc);

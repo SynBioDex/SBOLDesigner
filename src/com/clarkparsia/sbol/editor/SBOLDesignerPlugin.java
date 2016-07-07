@@ -46,6 +46,9 @@ import org.sbolstandard.core2.SBOLWriter;
 import com.clarkparsia.sbol.SBOLUtils;
 import com.clarkparsia.sbol.editor.io.DocumentIO;
 import com.clarkparsia.sbol.editor.io.FileDocumentIO;
+import com.clarkparsia.versioning.Infos;
+import com.clarkparsia.versioning.PersonInfo;
+import com.google.common.base.Strings;
 
 /**
  * The plugin instantiation of SBOLDesigner
@@ -106,6 +109,7 @@ public class SBOLDesignerPlugin extends SBOLDesignerPanel {
 		this.fileName = fileName;
 		this.rootURI = rootURI;
 		this.URIprefix = URIprefix;
+		setURIprefix();
 
 		initGUI();
 
@@ -114,6 +118,12 @@ public class SBOLDesignerPlugin extends SBOLDesignerPanel {
 		File file = new File(path + this.fileName);
 		Preferences.userRoot().node("path").put("path", file.getPath());
 		openDesign(new FileDocumentIO(false));
+	}
+	
+	private void setURIprefix() {
+		PersonInfo oldUserInfo = SBOLEditorPreferences.INSTANCE.getUserInfo();
+		PersonInfo userInfo = Infos.forPerson(URIprefix, oldUserInfo.getName(), oldUserInfo.getEmail().toString());
+		SBOLEditorPreferences.INSTANCE.saveUserInfo(userInfo);
 	}
 
 	private void initGUI() {
