@@ -91,17 +91,19 @@ public class AddressBar extends JToolBar {
 			}
 		};
 		button.putClientProperty("comp", comp);
-		button.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent event) {
-				try {
-					design.focusOut(comp);
-				} catch (SBOLValidationException e) {
-					JOptionPane.showMessageDialog(null, "There was an error: " + e.getMessage());
-					e.printStackTrace();
-				}
-			}
-		});
+		// TODO this is broken
+		// button.addActionListener(new ActionListener() {
+		// @Override
+		// public void actionPerformed(ActionEvent event) {
+		// try {
+		// design.focusOut(comp);
+		// } catch (SBOLValidationException e) {
+		// JOptionPane.showMessageDialog(null, "There was an error: " +
+		// e.getMessage());
+		// e.printStackTrace();
+		// }
+		// }
+		// });
 		Buttons.setStyle(button);
 		return button;
 	}
