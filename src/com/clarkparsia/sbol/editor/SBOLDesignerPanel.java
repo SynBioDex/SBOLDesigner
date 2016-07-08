@@ -369,9 +369,9 @@ public class SBOLDesignerPanel extends JPanel {
 
 	DocumentIO documentIO;
 
-	private SBOLDesignerFrame frame = null;
+	private SBOLDesignerStandalone frame = null;
 
-	public SBOLDesignerPanel(SBOLDesignerFrame frame) throws SBOLValidationException {
+	public SBOLDesignerPanel(SBOLDesignerStandalone frame) throws SBOLValidationException {
 		if (frame != null) {
 			this.frame = frame;
 		}
@@ -511,9 +511,9 @@ public class SBOLDesignerPanel extends JPanel {
 	}
 
 	private void export() throws FileNotFoundException, SBOLConversionException, IOException, SBOLValidationException {
-		String[] formats = { "SBOL 1.1", "GenBank", "FASTA", "Cancel" };
+		String[] formats = { "GenBank", "FASTA", "SBOL 1.1", "Cancel" };
 		int format = JOptionPane.showOptionDialog(this, "Please select an export format", "Export",
-				JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, formats, "SBOL 1.1");
+				JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, formats, "GenBank");
 		if (format == JOptionPane.CLOSED_OPTION || format == 3) {
 			return;
 		}
@@ -533,25 +533,25 @@ public class SBOLDesignerPanel extends JPanel {
 			case JOptionPane.CLOSED_OPTION:
 				break;
 			case 0:
-				// SBOL 1.1
-				if (!fileName.contains(".")) {
-					file = new File(file + ".xml");
-				}
-				SBOLWriter.write(doc, new FileOutputStream(file), SBOLDocument.RDFV1);
-				break;
-			case 1:
 				// GenBank
 				if (!fileName.contains(".")) {
 					file = new File(file + ".gb");
 				}
 				SBOLWriter.write(doc, new FileOutputStream(file), SBOLDocument.GENBANK);
 				break;
-			case 2:
+			case 1:
 				// FASTA
 				if (!fileName.contains(".")) {
 					file = new File(file + ".fasta");
 				}
 				SBOLWriter.write(doc, new FileOutputStream(file), SBOLDocument.FASTAformat);
+				break;
+			case 2:
+				// SBOL 1.1
+				if (!fileName.contains(".")) {
+					file = new File(file + ".xml");
+				}
+				SBOLWriter.write(doc, new FileOutputStream(file), SBOLDocument.RDFV1);
 				break;
 			case 3:
 				break;

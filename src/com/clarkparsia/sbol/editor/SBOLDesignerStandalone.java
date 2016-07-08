@@ -38,11 +38,11 @@ import com.clarkparsia.sbol.editor.io.FileDocumentIO;
  * @author Michael Zhang
  *
  */
-public class SBOLDesignerFrame extends JFrame {
+public class SBOLDesignerStandalone extends JFrame {
 
 	SBOLDesignerPanel panel = null;
 
-	public SBOLDesignerFrame() throws SBOLValidationException {
+	public SBOLDesignerStandalone() throws SBOLValidationException {
 		// creates the panel with this frame so title can be set
 		panel = new SBOLDesignerPanel(this);
 		// Only ask for a URI prefix if the current one is
@@ -59,7 +59,7 @@ public class SBOLDesignerFrame extends JFrame {
 	public static void main(String[] args) throws SBOLValidationException {
 		setup();
 
-		final SBOLDesignerFrame frame = new SBOLDesignerFrame();
+		final SBOLDesignerStandalone frame = new SBOLDesignerStandalone();
 		frame.setVisible(true);
 		frame.setLocationRelativeTo(null);
 
@@ -88,7 +88,7 @@ public class SBOLDesignerFrame extends JFrame {
 	}
 
 	private static void setupLogging() {
-		final InputStream inputStream = SBOLDesignerFrame.class.getResourceAsStream("/logging.properties");
+		final InputStream inputStream = SBOLDesignerStandalone.class.getResourceAsStream("/logging.properties");
 		try {
 			LogManager.getLogManager().readConfiguration(inputStream);
 		} catch (final Exception e) {
