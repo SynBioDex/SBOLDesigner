@@ -48,8 +48,8 @@ public class AboutDialog {
                         + "<br><br>"
                         + "See <a href='" + SBOLDesignerMetadata.HOME_PAGE + "'>" + SBOLDesignerMetadata.HOME_PAGE + "</a> for more info.<br><br>"
                         + "Send your questions and comments to <a href='mailto:" + SBOLDesignerMetadata.EMAIL + "'>" + SBOLDesignerMetadata.EMAIL + "</a>."
-                        + "<br><br>" + "Alternatively, you can reports bugs and feature requests to the <a href=\"https://github.com/SynBioDex/SBOLDesigner/issues\">issue tracker</a>"
-                        + "<br><br>" + "This project is made possible by " + SBOLDesignerMetadata.AUTHORS.replace("&", "&amp;") 
+                        + "<br><br>" + "Alternatively, you can reports bugs and feature requests to the <a href=\"https://github.com/SynBioDex/SBOLDesigner/issues\">issue tracker</a>."
+                        + "<br><br>" + "This project is made possible by " + SBOLDesignerMetadata.AUTHORS.replace("&", "&amp;") + "." 
                         + "<br><br>" + "Developers:"
                         + "<ul>"
                         + "<li>Michael Zhang</li>"

@@ -54,7 +54,7 @@ public class RegistryAddDialog extends InputDialog<Registry> {
 	protected void initFormPanel(FormBuilder builder) {
 		nameField = builder.addTextField("Name", "");
 		locationField = builder.addTextField("URL or Path", "");
-		JButton browse = new JButton("Browse local registries");
+		JButton browse = new JButton("Browse local repositories (This can be any SBOL file)");
 		browse.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {

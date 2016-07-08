@@ -30,7 +30,7 @@ public class Registry implements Serializable {
 	private final String location;
 
 	public static final Registry BUILT_IN = new Registry("Built-in parts",
-			"Built-in registry with minimal set of parts", "N/A");
+			"Built-in registry containing all the iGEM parts", "N/A");
 
 	public static final Registry STACK = new Registry("SBOL Stack", "The Newcastle instance of the SBOL Stack",
 			"http://synbiohub.org:9090");

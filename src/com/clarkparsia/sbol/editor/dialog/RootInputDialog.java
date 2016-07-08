@@ -40,7 +40,7 @@ import com.google.common.collect.Lists;
  * @author Michael Zhang
  */
 public class RootInputDialog extends InputDialog<SBOLDocument> {
-	private static final String TITLE = "Select a root ComponentDefinition to open";
+	private static final String TITLE = "Select a root design to open";
 
 	private JTable table;
 	private JLabel tableLabel;
@@ -65,7 +65,7 @@ public class RootInputDialog extends InputDialog<SBOLDocument> {
 
 	@Override
 	protected String initMessage() {
-		return "There are multiple root ComponentDefinitions.  Which would you like to load?  (You will be editing a new partial design)";
+		return "There are multiple designs.  Which would you like to load?  (You will be editing a new partial design)";
 	}
 
 	@Override
@@ -94,7 +94,7 @@ public class RootInputDialog extends InputDialog<SBOLDocument> {
 		});
 		builder.add("", onlyShowRootCDs);
 
-		deleteCD = new JButton("Delete selected ComponentDefinition. (This will resave the file)");
+		deleteCD = new JButton("Delete selected part. (This will resave the file)");
 		deleteCD.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
