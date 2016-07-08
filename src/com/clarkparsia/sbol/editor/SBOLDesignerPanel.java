@@ -369,9 +369,9 @@ public class SBOLDesignerPanel extends JPanel {
 
 	DocumentIO documentIO;
 
-	private SBOLDesigner frame = null;
+	private SBOLDesignerFrame frame = null;
 
-	public SBOLDesignerPanel(SBOLDesigner frame) throws SBOLValidationException {
+	public SBOLDesignerPanel(SBOLDesignerFrame frame) throws SBOLValidationException {
 		if (frame != null) {
 			this.frame = frame;
 		}
@@ -628,7 +628,15 @@ public class SBOLDesignerPanel extends JPanel {
 		int selection;
 		if (currentRootCD.getVersion() == null || currentRootCD.getVersion().equals("")) {
 			// can only overwrite
-			selection = 0;
+			int answer = JOptionPane.showConfirmDialog(this,
+					"This design doesn't have a version, so the previous design will be overwritten.  Would you still like to save?",
+					"Overwrite", JOptionPane.YES_NO_OPTION);
+			if (answer == JOptionPane.NO_OPTION || answer == JOptionPane.CLOSED_OPTION) {
+				updateEnabledButtons(true);
+				return;
+			} else {
+				selection = 0;
+			}
 		} else {
 			String[] options = { "Overwrite", "New Version" };
 			selection = JOptionPane.showOptionDialog(this,
@@ -640,6 +648,7 @@ public class SBOLDesignerPanel extends JPanel {
 		switch (selection) {
 		case JOptionPane.CLOSED_OPTION:
 			// closed
+			// updateEnabledButtons(true);
 			return;
 		case 0:
 			// Overwrite
@@ -656,6 +665,7 @@ public class SBOLDesignerPanel extends JPanel {
 			throw new IllegalArgumentException();
 		}
 		documentIO.write(doc);
+		updateEnabledButtons(false);
 		return;
 	}
 
