@@ -239,6 +239,15 @@ public class SBOLUtils {
 		// return
 		// Iterators.getOnlyElement(Iterators.filter(doc.getContents().iterator(),
 		// ComponentDefinition.class), null);
+		System.out.println("START");
+		for (ComponentDefinition cd : doc.getComponentDefinitions()) {
+			System.out.println(cd.getIdentity());
+		}
+		System.out.println("MIDDLE");
+		for (ComponentDefinition cd : doc.getRootComponentDefinitions()) {
+			System.out.println(cd.getIdentity());
+		}
+		System.out.println("END");
 		return Iterators.getOnlyElement(
 				Iterators.filter(doc.getRootComponentDefinitions().iterator(), ComponentDefinition.class), null);
 	}

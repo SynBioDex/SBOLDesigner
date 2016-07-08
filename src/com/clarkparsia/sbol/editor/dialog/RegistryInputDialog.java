@@ -292,6 +292,7 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 
 			SBOLDocument doc = new SBOLDocument();
 			if (!importSubparts.isSelected()) {
+				// TODO sequence
 				doc.createCopy(comp);
 			} else {
 				doc = doc.createRecursiveCopy(comp);
