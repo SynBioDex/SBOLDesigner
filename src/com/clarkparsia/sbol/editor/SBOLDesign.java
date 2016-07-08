@@ -410,14 +410,13 @@ public class SBOLDesign {
 	}
 
 	/**
-	 * Loads the given SBOLDocument. Returns true if only a partial design is
-	 * loaded (due to multiple root CDs). Otherwise, returns false.
+	 * Loads the given SBOLDocument. Returns true if the design was successfully
+	 * loaded.
 	 */
 	public boolean load(SBOLDocument doc) throws SBOLValidationException {
-		boolean isPartialDesign = false;
 		if (doc == null) {
 			JOptionPane.showMessageDialog(panel, "No document to load.", "Load error", JOptionPane.ERROR_MESSAGE);
-			return isPartialDesign;
+			return false;
 		}
 		doc.setDefaultURIprefix(SBOLEditorPreferences.INSTANCE.getUserInfo().getURI().toString());
 		SBOLFactory.setSBOLDocument(doc);
@@ -443,7 +442,6 @@ public class SBOLDesign {
 			doc.setDefaultURIprefix(SBOLEditorPreferences.INSTANCE.getUserInfo().getURI().toString());
 			SBOLFactory.setSBOLDocument(doc);
 			rootCD = SBOLUtils.getRootCD(doc);
-			isPartialDesign = true;
 			break;
 		}
 
@@ -451,7 +449,7 @@ public class SBOLDesign {
 		load(rootCD);
 
 		eventBus.publish(new DesignLoadedEvent(this));
-		return isPartialDesign;
+		return true;
 	}
 
 	private void load(ComponentDefinition newRoot) throws SBOLValidationException {

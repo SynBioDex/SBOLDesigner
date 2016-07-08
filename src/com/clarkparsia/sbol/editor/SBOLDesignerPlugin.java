@@ -176,7 +176,7 @@ public class SBOLDesignerPlugin extends SBOLDesignerPanel {
 		if (rootURI != null) {
 			doc = doc.createRecursiveCopy(doc.getComponentDefinition(rootURI));
 		}
-		if (!editor.getDesign().load(doc)) {
+		if (editor.getDesign().load(doc)) {
 			setCurrentFile(documentIO);
 		}
 	}

@@ -505,7 +505,7 @@ public class SBOLDesignerPanel extends JPanel {
 	void openDesign(DocumentIO documentIO) throws SBOLValidationException, IOException, SBOLConversionException {
 		SBOLDocument doc = documentIO.read();
 		doc.setDefaultURIprefix(SBOLEditorPreferences.INSTANCE.getUserInfo().getURI().toString());
-		if (!editor.getDesign().load(doc)) {
+		if (editor.getDesign().load(doc)) {
 			setCurrentFile(documentIO);
 		}
 	}
