@@ -239,15 +239,6 @@ public class SBOLUtils {
 		// return
 		// Iterators.getOnlyElement(Iterators.filter(doc.getContents().iterator(),
 		// ComponentDefinition.class), null);
-		System.out.println("START");
-		for (ComponentDefinition cd : doc.getComponentDefinitions()) {
-			System.out.println(cd.getIdentity());
-		}
-		System.out.println("MIDDLE");
-		for (ComponentDefinition cd : doc.getRootComponentDefinitions()) {
-			System.out.println(cd.getIdentity());
-		}
-		System.out.println("END");
 		return Iterators.getOnlyElement(
 				Iterators.filter(doc.getRootComponentDefinitions().iterator(), ComponentDefinition.class), null);
 	}
@@ -367,13 +358,7 @@ public class SBOLUtils {
 	 */
 	public static void insertTopLevels(SBOLDocument doc) throws SBOLValidationException {
 		for (TopLevel docTL : doc.getTopLevels()) {
-			boolean contains = false;
-			for (TopLevel factoryTL : SBOLFactory.getTopLevels()) {
-				if (docTL.getIdentity().equals(factoryTL.getIdentity())) {
-					contains = true;
-				}
-			}
-			if (!contains) {
+			if (SBOLFactory.getTopLevel(docTL.getIdentity()) == null) {
 				SBOLFactory.createCopy(docTL);
 			}
 		}
