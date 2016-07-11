@@ -32,7 +32,6 @@ import java.util.prefs.Preferences;
 import javax.swing.AbstractButton;
 import javax.swing.Box;
 import javax.swing.JFileChooser;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JToolBar;
@@ -48,7 +47,6 @@ import com.clarkparsia.sbol.editor.io.DocumentIO;
 import com.clarkparsia.sbol.editor.io.FileDocumentIO;
 import com.clarkparsia.versioning.Infos;
 import com.clarkparsia.versioning.PersonInfo;
-import com.google.common.base.Strings;
 
 /**
  * The plugin instantiation of SBOLDesigner
@@ -209,50 +207,48 @@ public class SBOLDesignerPlugin extends SBOLDesignerPanel {
 		return true;
 	}
 
-	public void exportSBOL(String exportFileName)
+	public void exportSBOL(String exportFileName,String fileType)
 			throws FileNotFoundException, SBOLConversionException, IOException, SBOLValidationException {
-		String[] formats = { "SBOL 2.0", "SBOL 1.1", "GenBank", "FASTA", "Cancel" };
-		int format = JOptionPane.showOptionDialog(this, "Please select an export format", "Export",
-				JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, formats, "SBOL 2.0");
-		if (format == JOptionPane.CLOSED_OPTION) {
-			return;
-		}
+//		String[] formats = { "SBOL 2.0", "SBOL 1.1", "GenBank", "FASTA", "Cancel" };
+//		int format = JOptionPane.showOptionDialog(this, "Please select an export format", "Export",
+//				JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, formats, "SBOL 2.0");
+//		if (format == JOptionPane.CLOSED_OPTION) {
+//			return;
+//		}
 		File file = new File(exportFileName);
 		Preferences.userRoot().node("path").put("path", file.getPath());
 		String fileName = file.getName();
 		SBOLDocument doc = editor.getDesign().createDocument();
-		switch (format) {
-		case JOptionPane.CLOSED_OPTION:
-			break;
-		case 0:
+		switch (fileType) {
+//		case JOptionPane.CLOSED_OPTION:
+//			break;
+		case "SBOL":
 			// SBOL 2.0
 			if (!fileName.contains(".")) {
 				file = new File(file + ".xml");
 			}
 			SBOLWriter.write(doc, new FileOutputStream(file), SBOLDocument.RDF);
 			break;
-		case 1:
+		case "SBOL1":
 			// SBOL 1.1
 			if (!fileName.contains(".")) {
 				file = new File(file + ".xml");
 			}
 			SBOLWriter.write(doc, new FileOutputStream(file), SBOLDocument.RDFV1);
 			break;
-		case 2:
+		case "GenBank":
 			// GenBank
 			if (!fileName.contains(".")) {
 				file = new File(file + ".gb");
 			}
 			SBOLWriter.write(doc, new FileOutputStream(file), SBOLDocument.GENBANK);
 			break;
-		case 3:
+		case "Fasta":
 			// FASTA
 			if (!fileName.contains(".")) {
 				file = new File(file + ".fasta");
 			}
 			SBOLWriter.write(doc, new FileOutputStream(file), SBOLDocument.FASTAformat);
-			break;
-		case 4:
 			break;
 		}
 	}
