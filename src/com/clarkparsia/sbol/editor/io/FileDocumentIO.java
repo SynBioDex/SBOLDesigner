@@ -81,7 +81,7 @@ public class FileDocumentIO implements DocumentIO {
 		File file = SBOLUtils.setupFile();
 		String fileName = file.getName();
 		if (!fileName.contains(".")) {
-			file = new File(file + ".rdf");
+			file = new File(file + ".xml");
 		}
 		SBOLWriter.write(doc, new FileOutputStream(file));
 	}

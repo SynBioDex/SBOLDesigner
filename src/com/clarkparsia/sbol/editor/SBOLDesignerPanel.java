@@ -511,10 +511,10 @@ public class SBOLDesignerPanel extends JPanel {
 	}
 
 	private void export() throws FileNotFoundException, SBOLConversionException, IOException, SBOLValidationException {
-		String[] formats = { "GenBank", "FASTA", "SBOL 1.1", "Cancel" };
+		String[] formats = { "GenBank", "FASTA", "SBOL 1.1", "SBOL 2.0", "Cancel" };
 		int format = JOptionPane.showOptionDialog(this, "Please select an export format", "Export",
 				JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, formats, "GenBank");
-		if (format == JOptionPane.CLOSED_OPTION || format == 3) {
+		if (format == JOptionPane.CLOSED_OPTION || format == 4) {
 			return;
 		}
 		fc.setSelectedFile(SBOLUtils.setupFile());
@@ -554,6 +554,16 @@ public class SBOLDesignerPanel extends JPanel {
 				SBOLWriter.write(doc, new FileOutputStream(file), SBOLDocument.RDFV1);
 				break;
 			case 3:
+				// SBOL 2.0
+				if (!fileName.contains(".")) {
+					file = new File(file + ".xml");
+				}
+				SBOLWriter.write(doc, new FileOutputStream(file));
+				break;
+			case 4:
+				// Cancel
+				break;
+			default:
 				break;
 			}
 		}
