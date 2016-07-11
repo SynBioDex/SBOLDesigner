@@ -53,6 +53,7 @@ import org.sbolstandard.core2.SBOLDocument;
 import org.sbolstandard.core2.SBOLFactory;
 import org.sbolstandard.core2.SBOLReader;
 import org.sbolstandard.core2.SBOLValidationException;
+import org.sbolstandard.core2.Sequence;
 import org.sbolstack.*;
 import org.sbolstack.frontend.ComponentMetadata;
 import org.sbolstack.frontend.StackException;
@@ -292,8 +293,14 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 
 			SBOLDocument doc = new SBOLDocument();
 			if (!importSubparts.isSelected()) {
-				// TODO sequence
+				// remove all dependencies
+				comp.clearSequenceConstraints();
+				comp.clearSequenceAnnotations();
+				comp.clearComponents();
 				doc.createCopy(comp);
+				if (comp.getSequenceByEncoding(Sequence.IUPAC_DNA) != null) {
+					doc.createCopy(comp.getSequenceByEncoding(Sequence.IUPAC_DNA));
+				}
 			} else {
 				doc = doc.createRecursiveCopy(comp);
 			}
