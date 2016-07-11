@@ -25,7 +25,7 @@ import java.util.Set;
 
 import org.sbolstandard.core2.ComponentDefinition;
 import org.sbolstandard.core2.OrientationType;
-import org.sbolstandard.core2.SBOLFactory;
+import org.sbolstandard.core2.SBOLDocument;
 import org.sbolstandard.core2.SBOLValidationException;
 import org.sbolstandard.core2.SequenceOntology;
 
@@ -122,7 +122,10 @@ public class Part {
 		return smallImage;
 	}
 
-	public ComponentDefinition createComponentDefinition() {
+	/**
+	 * Creates a CD in design using roles.
+	 */
+	public ComponentDefinition createComponentDefinition(SBOLDocument design) {
 		// change list of roles to set of roles
 		Set<URI> setRoles = new HashSet<URI>();
 		for (URI element : roles) {
@@ -130,8 +133,8 @@ public class Part {
 		}
 		// create ComponentDefinition using the following parameters
 		try {
-			String uniqueId = SBOLUtils.getUniqueDisplayId(null, getDisplayId(), "1", "CD");
-			ComponentDefinition comp = SBOLFactory.createComponentDefinition(uniqueId, "1", ComponentDefinition.DNA);
+			String uniqueId = SBOLUtils.getUniqueDisplayId(null, getDisplayId(), "1", "CD", design);
+			ComponentDefinition comp = design.createComponentDefinition(uniqueId, "1", ComponentDefinition.DNA);
 			comp.setRoles(setRoles);
 			return comp;
 		} catch (SBOLValidationException e) {

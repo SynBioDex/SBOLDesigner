@@ -22,22 +22,15 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.prefs.Preferences;
 
-import javax.swing.JOptionPane;
-import javax.xml.stream.FactoryConfigurationError;
-import javax.xml.stream.XMLStreamException;
-
 import org.openrdf.rio.RDFFormat;
 import org.sbolstandard.core2.SBOLConversionException;
 import org.sbolstandard.core2.SBOLDocument;
-import org.sbolstandard.core2.SBOLFactory;
 import org.sbolstandard.core2.SBOLReader;
 import org.sbolstandard.core2.SBOLValidationException;
 import org.sbolstandard.core2.SBOLWriter;
 
 import com.clarkparsia.sbol.SBOLUtils;
 import com.clarkparsia.sbol.editor.SBOLEditorPreferences;
-
-import uk.ac.ncl.intbio.core.io.CoreIoException;
 
 /**
  * 

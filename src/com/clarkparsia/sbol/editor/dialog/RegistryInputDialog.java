@@ -20,9 +20,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -30,7 +27,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.regex.PatternSyntaxException;
 
-import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
@@ -50,13 +46,9 @@ import javax.swing.table.TableRowSorter;
 
 import org.sbolstandard.core2.ComponentDefinition;
 import org.sbolstandard.core2.SBOLDocument;
-import org.sbolstandard.core2.SBOLFactory;
 import org.sbolstandard.core2.SBOLReader;
-import org.sbolstandard.core2.SBOLValidationException;
 import org.sbolstandard.core2.Sequence;
-import org.sbolstack.*;
 import org.sbolstack.frontend.ComponentMetadata;
-import org.sbolstack.frontend.StackException;
 import org.sbolstack.frontend.StackFrontend;
 
 import com.clarkparsia.sbol.CharSequences;
@@ -66,14 +58,10 @@ import com.clarkparsia.sbol.editor.Parts;
 import com.clarkparsia.sbol.editor.Registries;
 import com.clarkparsia.sbol.editor.Registry;
 import com.clarkparsia.sbol.editor.SBOLEditorPreferences;
-import com.clarkparsia.sbol.editor.SPARQLUtilities;
-import com.clarkparsia.swing.AbstractListTableModel;
 import com.clarkparsia.swing.ComboBoxRenderer;
 import com.clarkparsia.swing.FormBuilder;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-
-import javassist.NotFoundException;
 
 /**
  * 

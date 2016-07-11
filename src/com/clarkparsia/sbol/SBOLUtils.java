@@ -35,7 +35,6 @@ import org.sbolstandard.core2.Location;
 import org.sbolstandard.core2.Range;
 import org.sbolstandard.core2.Sequence;
 import org.sbolstandard.core2.SBOLDocument;
-import org.sbolstandard.core2.SBOLFactory;
 import org.sbolstandard.core2.SBOLReader;
 import org.sbolstandard.core2.SBOLValidationException;
 import org.sbolstandard.core2.SequenceAnnotation;
@@ -73,18 +72,19 @@ public class SBOLUtils {
 	/**
 	 * Returns an int which guarantees a unique URI. Pass in the parent CD (if
 	 * dataType isn't a TopLevel), the displayId you want, the version (if
-	 * dataType is a TopLevel), and the type of object.
+	 * dataType is a TopLevel), the type of object, and the SBOLDocument
+	 * containing the design.
 	 */
-	public static String getUniqueDisplayId(ComponentDefinition comp, String displayId, String version,
-			String dataType) {
+	public static String getUniqueDisplayId(ComponentDefinition comp, String displayId, String version, String dataType,
+			SBOLDocument design) {
 		// if can get using some displayId, then try the next number
 		switch (dataType) {
 		case "CD":
 			for (int i = 1; true; i++) {
-				if (i == 1 && SBOLFactory.getComponentDefinition(displayId, version) == null) {
+				if (i == 1 && design.getComponentDefinition(displayId, version) == null) {
 					return displayId;
 				}
-				if (SBOLFactory.getComponentDefinition(displayId + i, version) == null) {
+				if (design.getComponentDefinition(displayId + i, version) == null) {
 					return displayId + i;
 				}
 			}
@@ -117,10 +117,10 @@ public class SBOLUtils {
 			}
 		case "Sequence":
 			for (int i = 1; true; i++) {
-				if (i == 1 && SBOLFactory.getSequence(displayId, version) == null) {
+				if (i == 1 && design.getSequence(displayId, version) == null) {
 					return displayId;
 				}
-				if (SBOLFactory.getSequence(displayId + i, version) == null) {
+				if (design.getSequence(displayId + i, version) == null) {
 					return displayId + i;
 				}
 			}
@@ -251,10 +251,14 @@ public class SBOLUtils {
 	// ComponentDefinition.class);
 	// }
 
-	private static Sequence createSequence(String nucleotides) {
+	/**
+	 * Pass in the nucleotides and the SBOLDocument you want to create the
+	 * Sequence in.
+	 */
+	private static Sequence createSequence(String nucleotides, SBOLDocument design) {
 		try {
-			String uniqueId = SBOLUtils.getUniqueDisplayId(null, "Sequence", "1", "Sequence");
-			return SBOLFactory.createSequence(uniqueId, "1", nucleotides, Sequence.IUPAC_DNA);
+			String uniqueId = SBOLUtils.getUniqueDisplayId(null, "Sequence", "1", "Sequence", design);
+			return design.createSequence(uniqueId, "1", nucleotides, Sequence.IUPAC_DNA);
 		} catch (SBOLValidationException e) {
 			e.printStackTrace();
 			return null;
@@ -267,8 +271,12 @@ public class SBOLUtils {
 				&& !uri.toString().startsWith(SBOLEditorPreferences.INSTANCE.getUserInfo().getURI().toString());
 	}
 
+	/**
+	 * Finds the UncoveredSequences of comp using SAs. This is all inside of
+	 * design.
+	 */
 	public static Map<Integer, Sequence> findUncoveredSequences(ComponentDefinition comp,
-			List<SequenceAnnotation> annotations) {
+			List<SequenceAnnotation> annotations, SBOLDocument design) {
 		String sequence = SBOLUtils.getNucleotides(comp);
 		if (sequence == null) {
 			return ImmutableMap.of();
@@ -297,12 +305,12 @@ public class SBOLUtils {
 			}
 
 			if (start > location) {
-				Sequence seq = SBOLUtils.createSequence(sequence.substring(location - 1, start - 1));
+				Sequence seq = SBOLUtils.createSequence(sequence.substring(location - 1, start - 1), design);
 				uncoveredSequences.put(-i - 1, seq);
 			}
 
 			if (SBOLUtils.getNucleotides(ann.getComponentDefinition()) == null) {
-				Sequence seq = SBOLUtils.createSequence(sequence.substring(start - 1, end));
+				Sequence seq = SBOLUtils.createSequence(sequence.substring(start - 1, end), design);
 				uncoveredSequences.put(i, seq);
 			}
 
@@ -310,7 +318,7 @@ public class SBOLUtils {
 		}
 
 		if (location < sequence.length()) {
-			Sequence seq = SBOLUtils.createSequence(sequence.substring(location - 1, sequence.length()));
+			Sequence seq = SBOLUtils.createSequence(sequence.substring(location - 1, sequence.length()), design);
 			uncoveredSequences.put(-size - 1, seq);
 		}
 
@@ -354,12 +362,12 @@ public class SBOLUtils {
 
 	/**
 	 * Inserts all the TopLevels (CDs and Sequences) in doc which aren't already
-	 * in the SBOLFactory.
+	 * in the design.
 	 */
-	public static void insertTopLevels(SBOLDocument doc) throws SBOLValidationException {
+	public static void insertTopLevels(SBOLDocument doc, SBOLDocument design) throws SBOLValidationException {
 		for (TopLevel docTL : doc.getTopLevels()) {
-			if (SBOLFactory.getTopLevel(docTL.getIdentity()) == null) {
-				SBOLFactory.createCopy(docTL);
+			if (design.getTopLevel(docTL.getIdentity()) == null) {
+				design.createCopy(docTL);
 			}
 		}
 	}

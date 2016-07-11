@@ -55,7 +55,6 @@ import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
-import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
@@ -63,8 +62,6 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
-import javax.swing.JRadioButton;
-import javax.swing.JTextArea;
 import javax.swing.KeyStroke;
 import javax.swing.SwingConstants;
 
@@ -75,13 +72,11 @@ import org.sbolstandard.core2.ComponentDefinition;
 import org.sbolstandard.core2.Location;
 import org.sbolstandard.core2.Sequence;
 import org.sbolstandard.core2.SBOLDocument;
-import org.sbolstandard.core2.SBOLFactory;
 import org.sbolstandard.core2.SBOLValidationException;
 import org.sbolstandard.core2.SequenceAnnotation;
 import org.sbolstandard.core2.OrientationType;
 import org.sbolstandard.core2.Range;
 import org.sbolstandard.core2.RestrictionType;
-import org.sbolstandard.core2.SBOLConversionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -275,6 +270,11 @@ public class SBOLDesign {
 	private final JPopupMenu noSelectionPopupMenu = createPopupMenu(EDIT_CANVAS, FOCUS_OUT);
 
 	/**
+	 * The SBOLDocument containing our design.
+	 */
+	private SBOLDocument design;
+
+	/**
 	 * The current CD displayed in the canvas.
 	 */
 	private ComponentDefinition canvasCD;
@@ -352,6 +352,10 @@ public class SBOLDesign {
 		panel.registerKeyboardAction(deleteAction, backspaceKey, JComponent.WHEN_IN_FOCUSED_WINDOW);
 	}
 
+	public SBOLDocument getDesign() {
+		return design;
+	}
+
 	private static JPopupMenu createPopupMenu(SBOLEditorAction... actions) {
 		final JPopupMenu popup = new JPopupMenu();
 
@@ -419,7 +423,7 @@ public class SBOLDesign {
 			return false;
 		}
 		doc.setDefaultURIprefix(SBOLEditorPreferences.INSTANCE.getUserInfo().getURI().toString());
-		SBOLFactory.setSBOLDocument(doc);
+		design = doc;
 
 		ComponentDefinition[] rootCDs = doc.getRootComponentDefinitions().toArray(new ComponentDefinition[0]);
 		ComponentDefinition rootCD = null;
@@ -427,7 +431,7 @@ public class SBOLDesign {
 		switch (rootCDs.length) {
 		case 0:
 			// There isn't a rootCD
-			rootCD = SBOLFactory.createComponentDefinition("NewDesign", "1", ComponentDefinition.DNA);
+			rootCD = design.createComponentDefinition("NewDesign", "1", ComponentDefinition.DNA);
 			break;
 		case 1:
 			// There is a single root CD
@@ -440,7 +444,7 @@ public class SBOLDesign {
 				return false;
 			}
 			doc.setDefaultURIprefix(SBOLEditorPreferences.INSTANCE.getUserInfo().getURI().toString());
-			SBOLFactory.setSBOLDocument(doc);
+			design = doc;
 			rootCD = SBOLUtils.getRootCD(doc);
 			break;
 		}
@@ -600,7 +604,7 @@ public class SBOLDesign {
 					public SequenceAnnotation apply(DesignElement e) {
 						return e.getSeqAnn();
 					}
-				}));
+				}), design);
 	}
 
 	/**
@@ -706,9 +710,9 @@ public class SBOLDesign {
 			return null;
 		}
 
-		ComponentDefinition comp = part.createComponentDefinition();
+		ComponentDefinition comp = part.createComponentDefinition(design);
 		if (edit) {
-			comp = PartEditDialog.editPart(panel.getParent(), comp, edit);
+			comp = PartEditDialog.editPart(panel.getParent(), comp, edit, design);
 			if (comp == null) {
 				return null;
 			}
@@ -728,7 +732,7 @@ public class SBOLDesign {
 	private void addCD(org.sbolstandard.core2.Component component, ComponentDefinition comp, Part part)
 			throws SBOLValidationException {
 		boolean backbone = (part == Parts.ORI);
-		DesignElement e = new DesignElement(component, canvasCD, comp, part);
+		DesignElement e = new DesignElement(component, canvasCD, comp, part, design);
 		JLabel button = createComponentButton(e);
 
 		if (backbone) {
@@ -915,7 +919,7 @@ public class SBOLDesign {
 
 			if (e == selectedElement) {
 				setSelectedElement(null);
-				SBOLFactory.removeComponentDefinition(e.component.getDefinition());
+				design.removeComponentDefinition(e.component.getDefinition());
 				canvasCD.removeSequenceAnnotation(e.seqAnn);
 				canvasCD.clearSequenceConstraints();
 				canvasCD.removeComponent(e.component);
@@ -1023,8 +1027,8 @@ public class SBOLDesign {
 			DesignElement next = elements.get(i + 1);
 
 			if (curr.getPart() != Parts.SCAR && next.getPart() != Parts.SCAR) {
-				DesignElement scar = new DesignElement(null, canvasCD, Parts.SCAR.createComponentDefinition(),
-						Parts.SCAR);
+				DesignElement scar = new DesignElement(null, canvasCD, Parts.SCAR.createComponentDefinition(design),
+						Parts.SCAR, design);
 				JLabel button = createComponentButton(scar);
 
 				elements.add(i + 1, scar);
@@ -1051,7 +1055,7 @@ public class SBOLDesign {
 		ComponentDefinition comp = getCanvasCD();
 		URI originalIdentity = comp.getIdentity();
 		updateCanvasCD();
-		comp = PartEditDialog.editPart(panel.getParent(), comp, false);
+		comp = PartEditDialog.editPart(panel.getParent(), comp, false, design);
 		if (comp != null) {
 			if (!originalIdentity.equals(comp.getIdentity())) {
 				updateComponentReferences(originalIdentity, comp.getIdentity());
@@ -1066,7 +1070,7 @@ public class SBOLDesign {
 	 * originalIdentity to identity
 	 */
 	private void updateComponentReferences(URI originalIdentity, URI newIdentity) throws SBOLValidationException {
-		for (ComponentDefinition CD : SBOLFactory.getComponentDefinitions()) {
+		for (ComponentDefinition CD : design.getComponentDefinitions()) {
 			for (org.sbolstandard.core2.Component comp : CD.getComponents()) {
 				if (comp.getDefinition().getIdentity().equals(originalIdentity)) {
 					comp.setDefinition(newIdentity);
@@ -1081,7 +1085,7 @@ public class SBOLDesign {
 		}
 
 		ComponentDefinition originalCD = getSelectedCD();
-		ComponentDefinition editedCD = PartEditDialog.editPart(panel.getParent(), originalCD, false);
+		ComponentDefinition editedCD = PartEditDialog.editPart(panel.getParent(), originalCD, false, design);
 
 		if (editedCD != null) {
 			// if the CD type or the displyId has been edited we need to
@@ -1097,7 +1101,7 @@ public class SBOLDesign {
 		selection = new RegistryInputDialog(panel.getParent(), part).getInput();
 
 		if (selection != null) {
-			SBOLUtils.insertTopLevels(selection);
+			SBOLUtils.insertTopLevels(selection, design);
 			if (!confirmEditable()) {
 				return;
 			}
@@ -1155,7 +1159,7 @@ public class SBOLDesign {
 		updateCanvasCD();
 
 		SBOLDocument doc = new SBOLDocument();
-		doc = SBOLFactory.createRecursiveCopy(rootComp);
+		doc = design.createRecursiveCopy(rootComp);
 		doc.setDefaultURIprefix(SBOLEditorPreferences.INSTANCE.getUserInfo().getURI().toString());
 		return doc;
 	}
@@ -1174,7 +1178,7 @@ public class SBOLDesign {
 			// remove all current Sequences
 			for (Sequence s : canvasCD.getSequences()) {
 				canvasCD.removeSequence(s.getIdentity());
-				SBOLFactory.removeSequence(s);
+				design.removeSequence(s);
 			}
 			String nucleotides = canvasCD.getImpliedNucleicAcidSequence();
 
@@ -1211,8 +1215,8 @@ public class SBOLDesign {
 						// use the old sequence provided it was there
 						if (oldSeq != null) {
 							String uniqueId = SBOLUtils.getUniqueDisplayId(null, canvasCD.getDisplayId() + "Sequence",
-									canvasCD.getVersion(), "Sequence");
-							oldSeq = SBOLFactory.createSequence(uniqueId, canvasCD.getVersion(), oldSeq.getElements(),
+									canvasCD.getVersion(), "Sequence", design);
+							oldSeq = design.createSequence(uniqueId, canvasCD.getVersion(), oldSeq.getElements(),
 									Sequence.IUPAC_DNA);
 							canvasCD.addSequence(oldSeq);
 						}
@@ -1221,17 +1225,17 @@ public class SBOLDesign {
 				}
 				// use the implied sequence
 				String uniqueId = SBOLUtils.getUniqueDisplayId(null, canvasCD.getDisplayId() + "Sequence", "1",
-						"Sequence");
-				Sequence newSequence = SBOLFactory.createSequence(uniqueId, "1", nucleotides, Sequence.IUPAC_DNA);
+						"Sequence", design);
+				Sequence newSequence = design.createSequence(uniqueId, "1", nucleotides, Sequence.IUPAC_DNA);
 				canvasCD.addSequence(newSequence);
 			} else {
 				// use the old sequence provided it was there
 				if (oldSeq != null) {
-					// only recreate it if it isn't in SBOLFactory
-					if (!SBOLFactory.getSequences().contains(oldSeq)) {
+					// only recreate it if it isn't in design
+					if (!design.getSequences().contains(oldSeq)) {
 						String uniqueId = SBOLUtils.getUniqueDisplayId(null, canvasCD.getDisplayId() + "Sequence",
-								canvasCD.getVersion(), "Sequence");
-						oldSeq = SBOLFactory.createSequence(uniqueId, canvasCD.getVersion(), oldSeq.getElements(),
+								canvasCD.getVersion(), "Sequence", design);
+						oldSeq = design.createSequence(uniqueId, canvasCD.getVersion(), oldSeq.getElements(),
 								Sequence.IUPAC_DNA);
 					}
 					canvasCD.addSequence(oldSeq);
@@ -1255,13 +1259,13 @@ public class SBOLDesign {
 			// We no longer need this seqAnn
 			canvasCD.removeSequenceAnnotation(e.seqAnn);
 
-			e.seqAnn = DesignElement.createSeqAnn(canvasCD);
+			e.seqAnn = DesignElement.createSeqAnn(canvasCD, design);
 
 			// if a sequence exists, give seqAnn a Range
 			Sequence seq = e.getCD().getSequenceByEncoding(Sequence.IUPAC_DNA);
 			if (seq != null) {
 				String uniqueId = SBOLUtils.getUniqueDisplayId(canvasCD, e.seqAnn.getDisplayId() + "Range", null,
-						"Range");
+						"Range", design);
 				int start = position;
 				int end = seq.getElements().length() + start - 1;
 				position = end + 1;
@@ -1298,7 +1302,8 @@ public class SBOLDesign {
 			org.sbolstandard.core2.Component subject = elements.get(i).component;
 			org.sbolstandard.core2.Component object = elements.get((i + 1)).component;
 
-			String uniqueId = SBOLUtils.getUniqueDisplayId(canvasCD, "SequenceConstraint", null, "SequenceConstraint");
+			String uniqueId = SBOLUtils.getUniqueDisplayId(canvasCD, "SequenceConstraint", null, "SequenceConstraint",
+					design);
 			canvasCD.createSequenceConstraint(uniqueId, RestrictionType.PRECEDES, subject.getIdentity(),
 					object.getIdentity());
 		}
@@ -1314,10 +1319,10 @@ public class SBOLDesign {
 		 * CD refered to by the component, and the part.
 		 */
 		public DesignElement(org.sbolstandard.core2.Component component, ComponentDefinition parentCD,
-				ComponentDefinition childCD, Part part) throws SBOLValidationException {
+				ComponentDefinition childCD, Part part, SBOLDocument design) throws SBOLValidationException {
 			// Only create a new component if one does not already exist
 			if (component == null) {
-				this.component = createComponent(parentCD, childCD);
+				this.component = createComponent(parentCD, childCD, design);
 			} else {
 				this.component = component;
 			}
@@ -1326,7 +1331,7 @@ public class SBOLDesign {
 			SequenceAnnotation tempAnn = seqAnnRefersToComponent(this.component, parentCD);
 			if (tempAnn == null) {
 				// There isn't a SA already, we need to create one
-				this.seqAnn = createSeqAnn(parentCD);
+				this.seqAnn = createSeqAnn(parentCD, design);
 				// Set seqAnn to refer to this component
 				this.seqAnn.setComponent(this.component.getIdentity());
 			} else {
@@ -1353,15 +1358,16 @@ public class SBOLDesign {
 		}
 
 		private static org.sbolstandard.core2.Component createComponent(ComponentDefinition parentCD,
-				ComponentDefinition childCD) throws SBOLValidationException {
+				ComponentDefinition childCD, SBOLDocument design) throws SBOLValidationException {
 			String uniqueId = SBOLUtils.getUniqueDisplayId(parentCD, childCD.getDisplayId() + "Component", "",
-					"Component");
+					"Component", design);
 			return parentCD.createComponent(uniqueId, AccessType.PUBLIC, childCD.getIdentity());
 		}
 
-		private static SequenceAnnotation createSeqAnn(ComponentDefinition parentCD) throws SBOLValidationException {
+		private static SequenceAnnotation createSeqAnn(ComponentDefinition parentCD, SBOLDocument design)
+				throws SBOLValidationException {
 			String uniqueId = SBOLUtils.getUniqueDisplayId(parentCD, parentCD.getDisplayId() + "SequenceAnnotation", "",
-					"SequenceAnnotation");
+					"SequenceAnnotation", design);
 			return parentCD.createSequenceAnnotation(uniqueId, "GenericLocation", OrientationType.INLINE);
 		}
 

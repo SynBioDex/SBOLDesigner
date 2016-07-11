@@ -59,7 +59,6 @@ import javax.xml.stream.XMLStreamException;
 import org.sbolstandard.core2.ComponentDefinition;
 import org.sbolstandard.core2.SBOLConversionException;
 import org.sbolstandard.core2.SBOLDocument;
-import org.sbolstandard.core2.SBOLFactory;
 import org.sbolstandard.core2.SBOLReader;
 import org.sbolstandard.core2.SBOLValidationException;
 import org.sbolstandard.core2.Sequence;
@@ -87,6 +86,8 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 
 	private ComponentDefinition CD;
 
+	private SBOLDocument design;
+
 	private final JComboBox<Part> roleSelection = new JComboBox<Part>(Iterables.toArray(Parts.sorted(), Part.class));
 	private final JComboBox<String> roleRefinement;
 	private final JButton saveButton;
@@ -101,11 +102,12 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 
 	/**
 	 * Returns the ComponentDefinition edited by PartEditDialog. Null if the
-	 * dialog throws an exception.
+	 * dialog throws an exception. Also pass in the design.
 	 */
-	public static ComponentDefinition editPart(Component parent, ComponentDefinition part, boolean enableSave) {
+	public static ComponentDefinition editPart(Component parent, ComponentDefinition part, boolean enableSave,
+			SBOLDocument design) {
 		try {
-			PartEditDialog dialog = new PartEditDialog(parent, part);
+			PartEditDialog dialog = new PartEditDialog(parent, part, design);
 			dialog.saveButton.setEnabled(enableSave);
 			dialog.setVisible(true);
 			return dialog.CD;
@@ -129,10 +131,11 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 		return (title == null) ? "" : CharSequences.shorten(title, 20).toString();
 	}
 
-	private PartEditDialog(Component parent, ComponentDefinition comp) {
+	private PartEditDialog(Component parent, ComponentDefinition comp, SBOLDocument design) {
 		super(JOptionPane.getFrameForComponent(parent), TITLE + title(comp), true);
 
 		this.CD = comp;
+		this.design = design;
 
 		cancelButton = new JButton("Cancel");
 		cancelButton.registerKeyboardAction(this, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0),
@@ -310,7 +313,7 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 				return false;
 			case 1:
 				CD = CDs[0];
-				SBOLUtils.insertTopLevels(doc.createRecursiveCopy(CD));
+				SBOLUtils.insertTopLevels(doc.createRecursiveCopy(CD), design);
 				return true;
 			default:
 				Part criteria = roleSelection.getSelectedItem().equals("None") ? PartInputDialog.ALL_PARTS
@@ -323,7 +326,7 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 				} else {
 					this.CD = selection.getRootComponentDefinitions().iterator().next();
 					// copy the rest of the design into SBOLFactory
-					SBOLUtils.insertTopLevels(selection);
+					SBOLUtils.insertTopLevels(selection, design);
 					return true;
 				}
 			}
@@ -337,17 +340,18 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 	private void saveButtonHandler() throws SBOLValidationException {
 		if (SBOLUtils.isRegistryComponent(CD)) {
 			// Rename CD and use that
-			CD = confirmEditing(getParent(), CD);
+			CD = confirmEditing(getParent(), CD, design);
 			if (CD == null) {
 				return;
 			}
 		} else {
 			// try to get CD if it exists. Otherwise, create it.
-			if (SBOLFactory.getComponentDefinition(displayId.getText(), version.getText()) != null) {
-				CD = SBOLFactory.getComponentDefinition(displayId.getText(), version.getText());
+			if (design.getComponentDefinition(displayId.getText(), version.getText()) != null) {
+				CD = design.getComponentDefinition(displayId.getText(), version.getText());
 			} else {
-				String uniqueId = SBOLUtils.getUniqueDisplayId(null, displayId.getText(), version.getText(), "CD");
-				CD = (ComponentDefinition) SBOLFactory.createCopy(CD, uniqueId, version.getText());
+				String uniqueId = SBOLUtils.getUniqueDisplayId(null, displayId.getText(), version.getText(), "CD",
+						design);
+				CD = (ComponentDefinition) design.createCopy(CD, uniqueId, version.getText());
 			}
 		}
 
@@ -382,8 +386,8 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 				|| !Objects.equal(CD.getSequences().iterator().next().getElements(), seq)) {
 			CD.clearSequences();
 			String uniqueId = SBOLUtils.getUniqueDisplayId(null, CD.getDisplayId() + "Sequence", CD.getVersion(),
-					"Sequence");
-			Sequence dnaSeq = SBOLFactory.createSequence(uniqueId, CD.getVersion(), seq, Sequence.IUPAC_DNA);
+					"Sequence", design);
+			Sequence dnaSeq = design.createSequence(uniqueId, CD.getVersion(), seq, Sequence.IUPAC_DNA);
 			CD.addSequence(dnaSeq);
 		}
 	}
@@ -423,9 +427,10 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 	}
 
 	/**
-	 * Returns the renamed CD or null if the user chooses "no".
+	 * Returns the renamed CD or null if the user chooses "no". Also pass in the
+	 * SBOLDocument containing the design.
 	 */
-	public static ComponentDefinition confirmEditing(Component parent, ComponentDefinition comp)
+	public static ComponentDefinition confirmEditing(Component parent, ComponentDefinition comp, SBOLDocument design)
 			throws SBOLValidationException {
 		int result = JOptionPane.showConfirmDialog(parent,
 				"The part '" + comp.getDisplayId() + "' doesn't belong to your\n"
@@ -437,7 +442,7 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 			return null;
 		}
 
-		return (ComponentDefinition) SBOLFactory.createCopy(comp,
+		return (ComponentDefinition) design.createCopy(comp,
 				SBOLEditorPreferences.INSTANCE.getUserInfo().getURI().toString(), comp.getDisplayId(),
 				comp.getVersion());
 	}

@@ -35,7 +35,6 @@ import java.util.prefs.Preferences;
 import javax.swing.AbstractButton;
 import javax.swing.Box;
 import javax.swing.JFileChooser;
-import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
@@ -46,7 +45,6 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import org.sbolstandard.core2.ComponentDefinition;
 import org.sbolstandard.core2.SBOLConversionException;
 import org.sbolstandard.core2.SBOLDocument;
-import org.sbolstandard.core2.SBOLFactory;
 import org.sbolstandard.core2.SBOLValidationException;
 import org.sbolstandard.core2.SBOLWriter;
 import org.sbolstandard.core2.Sequence;
@@ -180,7 +178,7 @@ public class SBOLDesignerPanel extends JPanel {
 		protected void perform() {
 			// TODO debugging
 			try {
-				SBOLFactory.write(System.out);
+				design.getDesign().write(System.out);
 			} catch (SBOLConversionException e) {
 			}
 			AboutDialog.show(SBOLDesignerPanel.this);
@@ -456,15 +454,12 @@ public class SBOLDesignerPanel extends JPanel {
 	/**
 	 * Creates a new design to show on the canvas. Asks the user for a
 	 * defaultURIprefix if askForURIPrefix is true.
-	 * 
-	 * @throws SBOLValidationException
 	 */
 	void newDesign(boolean askForURIPrefix) throws SBOLValidationException {
 		SBOLDocument doc = new SBOLDocument();
 		if (askForURIPrefix) {
 			setURIprefix(doc);
 		}
-		SBOLFactory.setSBOLDocument(doc);
 		editor.getDesign().load(doc);
 		setCurrentFile(null);
 	}
@@ -627,7 +622,7 @@ public class SBOLDesignerPanel extends JPanel {
 	}
 
 	/**
-	 * Save SBOLFactory into an existing SBOL file
+	 * Save design into an existing SBOL file
 	 */
 	void saveIntoExistingFile() throws Exception {
 		// the document we are saving into
