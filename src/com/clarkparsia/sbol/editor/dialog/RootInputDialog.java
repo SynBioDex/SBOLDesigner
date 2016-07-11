@@ -18,6 +18,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.ListSelectionModel;
 import javax.swing.RowFilter;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -94,14 +95,17 @@ public class RootInputDialog extends InputDialog<SBOLDocument> {
 		});
 		builder.add("", onlyShowRootCDs);
 
-		deleteCD = new JButton("Delete selected part. (This will resave the file)");
+		deleteCD = new JButton("Delete selected part(s). (This will resave the file)");
 		deleteCD.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				try {
-					int row = table.convertRowIndexToModel(table.getSelectedRow());
-					ComponentDefinition comp = ((ComponentDefinitionTableModel) table.getModel()).getElement(row);
-					doc.removeComponentDefinition(comp);
+					int[] rows = table.getSelectedRows();
+					for (int row : rows) {
+						row = table.convertRowIndexToModel(row);
+						ComponentDefinition comp = ((ComponentDefinitionTableModel) table.getModel()).getElement(row);
+						doc.removeComponentDefinition(comp);
+					}
 					File file = SBOLUtils.setupFile();
 					SBOLWriter.write(doc, new FileOutputStream(file));
 					updateTable();
@@ -146,6 +150,7 @@ public class RootInputDialog extends InputDialog<SBOLDocument> {
 		ComponentDefinitionTableModel tableModel = new ComponentDefinitionTableModel(components);
 		JPanel panel = createTablePanel(tableModel, "Matching parts (" + tableModel.getRowCount() + ")");
 		table = (JTable) panel.getClientProperty("table");
+		table.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 		tableLabel = (JLabel) panel.getClientProperty("label");
 
 		return panel;
