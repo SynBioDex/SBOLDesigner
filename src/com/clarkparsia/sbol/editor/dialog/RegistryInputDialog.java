@@ -48,6 +48,7 @@ import org.sbolstandard.core2.ComponentDefinition;
 import org.sbolstandard.core2.SBOLDocument;
 import org.sbolstandard.core2.SBOLReader;
 import org.sbolstandard.core2.Sequence;
+import org.sbolstandard.core2.SequenceOntology;
 import org.sbolstack.frontend.ComponentMetadata;
 import org.sbolstack.frontend.StackFrontend;
 
@@ -95,6 +96,7 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 	private static final Part ALL_PARTS = new Part("All parts", "All");
 	private Part part;
 	private JComboBox<Part> roleSelection;
+	private JComboBox<String> roleRefinement;
 
 	private JTable table;
 	private JLabel tableLabel;
@@ -131,23 +133,30 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 
 	@Override
 	public void initFormPanel(FormBuilder builder) {
-		if (part != null) {
-			List<Part> parts = Lists.newArrayList(Parts.sorted());
-			parts.add(0, ALL_PARTS);
+		List<Part> parts = Lists.newArrayList(Parts.sorted());
+		parts.add(0, ALL_PARTS);
+		roleSelection = new JComboBox<Part>(parts.toArray(new Part[0]));
+		roleSelection.setRenderer(new PartCellRenderer());
+		roleSelection.setSelectedItem(part);
+		roleSelection.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent event) {
+				updateRoleRefinement();
+				updateTable();
+			}
+		});
+		builder.add("Part role", roleSelection);
 
-			roleSelection = new JComboBox<Part>(parts.toArray(new Part[0]));
-			roleSelection.setRenderer(new PartCellRenderer());
-			roleSelection.setSelectedItem(part);
-			roleSelection.addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent event) {
-					updateTable();
-				}
-			});
-			builder.add("Part role", roleSelection);
-		} else {
-			roleSelection = null;
-		}
+		// set up the JComboBox for role refinement
+		roleRefinement = new JComboBox<String>();
+		updateRoleRefinement();
+		roleRefinement.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent event) {
+				updateTable();
+			}
+		});
+		builder.add("Role refinement", roleRefinement);
 
 		importSubparts = new JCheckBox("Import with subcomponents");
 		importSubparts.setSelected(true);
@@ -253,11 +262,13 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 				ArrayList<ComponentMetadata> l = stack.searchComponentMetadata(null, setRoles, null, null);
 				return l;
 			} else {
+				// TODO James needs to fix
 				ArrayList<ComponentMetadata> l = stack.searchComponentMetadata(null, new HashSet<URI>(), 0, 99);
 				return l;
 			}
 		} catch (Exception e) {
-			JOptionPane.showMessageDialog(null, "Querying this repository failed: " + e.getMessage());
+			JOptionPane.showMessageDialog(null, "Querying this repository failed: " + e.getMessage()
+					+ " (Internet connection is required for importing from the SBOL Stack.");
 			e.printStackTrace();
 			return null;
 		}
@@ -307,10 +318,27 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 		updateTable();
 	}
 
+	private void updateRoleRefinement() {
+		roleRefinement.removeAllItems();
+		for (String s : SBOLUtils.createRefinements((Part) roleSelection.getSelectedItem())) {
+			roleRefinement.addItem(s);
+		}
+	}
+
 	public void updateTable() {
+		// create the part criteria
+		Part part;
+		String roleName = (String) roleRefinement.getSelectedItem();
+		if (roleName == null || roleName.equals("None")) {
+			part = isRoleSelection() ? (Part) roleSelection.getSelectedItem() : ALL_PARTS;
+		} else {
+			SequenceOntology so = new SequenceOntology();
+			URI role = so.getURIbyName(roleName);
+			part = new Part(role, null, null);
+		}
+
 		if (isMetadata()) {
-			List<ComponentMetadata> components = searchParts(
-					isRoleSelection() ? (Part) roleSelection.getSelectedItem() : null, stack);
+			List<ComponentMetadata> components = searchParts(part, stack);
 			ComponentMetadataTableModel tableModel = new ComponentMetadataTableModel(components);
 			table = new JTable(tableModel);
 			tableLabel.setText("Matching parts (" + components.size() + ")");
@@ -318,7 +346,6 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 			table.setRowSorter(sorter);
 			setWidthAsPercentages(table, tableModel.getWidths());
 		} else {
-			Part part = isRoleSelection() ? (Part) roleSelection.getSelectedItem() : null;
 			List<ComponentDefinition> components = searchParts(part);
 			ComponentDefinitionTableModel tableModel = new ComponentDefinitionTableModel(components);
 			table = new JTable(tableModel);

@@ -138,7 +138,7 @@ public class SBOLDesign {
 		protected void perform() {
 			try {
 				findPartForSelectedCD();
-			} catch (SBOLValidationException e) {
+			} catch (Exception e) {
 				JOptionPane.showMessageDialog(panel, "There was a problem finding a part: " + e.getMessage());
 				e.printStackTrace();
 			}
@@ -1095,7 +1095,7 @@ public class SBOLDesign {
 		fireDesignChangedEvent();
 	}
 
-	public void findPartForSelectedCD() throws SBOLValidationException {
+	public void findPartForSelectedCD() throws Exception {
 		Part part = selectedElement.getPart();
 		SBOLDocument selection = null;
 		selection = new RegistryInputDialog(panel.getParent(), part).getInput();

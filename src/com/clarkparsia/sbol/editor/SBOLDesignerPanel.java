@@ -659,8 +659,7 @@ public class SBOLDesignerPanel extends JPanel {
 			// Overwrite
 			// Remove from doc everything contained within currentDesign
 			// that exists
-			SBOLUtils.removeTopLevels(currentDesign, doc);
-			doc.createCopy(currentDesign);
+			SBOLUtils.insertTopLevels(currentDesign, doc);
 			break;
 		case 1:
 			// New Version

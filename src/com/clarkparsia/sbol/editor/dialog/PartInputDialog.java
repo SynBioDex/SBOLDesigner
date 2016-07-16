@@ -3,6 +3,7 @@ package com.clarkparsia.sbol.editor.dialog;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.net.URI;
 import java.util.List;
 
 import javax.swing.JCheckBox;
@@ -21,6 +22,7 @@ import org.sbolstandard.core2.ComponentDefinition;
 import org.sbolstandard.core2.SBOLDocument;
 import org.sbolstandard.core2.SBOLValidationException;
 import org.sbolstandard.core2.Sequence;
+import org.sbolstandard.core2.SequenceOntology;
 
 import com.clarkparsia.sbol.SBOLUtils;
 import com.clarkparsia.sbol.editor.Part;
@@ -39,6 +41,7 @@ public class PartInputDialog extends InputDialog<SBOLDocument> {
 
 	private Part part;
 	private JComboBox<Part> roleSelection;
+	private JComboBox<String> roleRefinement;
 	public static final Part ALL_PARTS = new Part("All parts", "All");
 
 	private JTable table;
@@ -57,23 +60,31 @@ public class PartInputDialog extends InputDialog<SBOLDocument> {
 
 	@Override
 	public void initFormPanel(FormBuilder builder) {
-		if (part != null) {
-			List<Part> parts = Lists.newArrayList(Parts.sorted());
-			parts.add(0, ALL_PARTS);
+		List<Part> parts = Lists.newArrayList(Parts.sorted());
+		parts.add(0, ALL_PARTS);
 
-			roleSelection = new JComboBox<Part>(parts.toArray(new Part[0]));
-			roleSelection.setRenderer(new PartCellRenderer());
-			roleSelection.setSelectedItem(part);
-			roleSelection.addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent event) {
-					partRoleChanged();
-				}
-			});
-			builder.add("Part role", roleSelection);
-		} else {
-			roleSelection = null;
-		}
+		roleSelection = new JComboBox<Part>(parts.toArray(new Part[0]));
+		roleSelection.setRenderer(new PartCellRenderer());
+		roleSelection.setSelectedItem(part);
+		roleSelection.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent event) {
+				updateRoleRefinement();
+				updateTable();
+			}
+		});
+		builder.add("Part role", roleSelection);
+
+		// set up the JComboBox for role refinement
+		roleRefinement = new JComboBox<String>();
+		updateRoleRefinement();
+		roleRefinement.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent event) {
+				updateTable();
+			}
+		});
+		builder.add("Role refinement", roleRefinement);
 
 		importSubparts = new JCheckBox("Import with subcomponents");
 		importSubparts.setSelected(true);
@@ -145,8 +156,24 @@ public class PartInputDialog extends InputDialog<SBOLDocument> {
 		}
 	}
 
-	public void partRoleChanged() {
-		Part part = isRoleSelection() ? (Part) roleSelection.getSelectedItem() : ALL_PARTS;
+	private void updateRoleRefinement() {
+		roleRefinement.removeAllItems();
+		for (String s : SBOLUtils.createRefinements((Part) roleSelection.getSelectedItem())) {
+			roleRefinement.addItem(s);
+		}
+	}
+
+	public void updateTable() {
+		Part part;
+		String roleName = (String) roleRefinement.getSelectedItem();
+		if (roleName == null || roleName.equals("None")) {
+			part = isRoleSelection() ? (Part) roleSelection.getSelectedItem() : ALL_PARTS;
+		} else {
+			SequenceOntology so = new SequenceOntology();
+			URI role = so.getURIbyName(roleName);
+			part = new Part(role, null, null);
+		}
+
 		List<ComponentDefinition> components = SBOLUtils.getCDOfRole(doc, part);
 		((ComponentDefinitionTableModel) table.getModel()).setElements(components);
 		tableLabel.setText("Matching parts (" + components.size() + ")");

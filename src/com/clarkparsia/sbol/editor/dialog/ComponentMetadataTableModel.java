@@ -20,7 +20,7 @@ class ComponentMetadataTableModel extends AbstractListTableModel<ComponentMetada
 		case 1:
 			return component.name;
 		case 2:
-			return component.uri;
+			return component.version;
 		case 3:
 			return component.description;
 		default:

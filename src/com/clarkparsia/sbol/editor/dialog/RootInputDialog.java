@@ -5,6 +5,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -28,6 +29,7 @@ import org.sbolstandard.core2.ComponentDefinition;
 import org.sbolstandard.core2.SBOLDocument;
 import org.sbolstandard.core2.SBOLValidationException;
 import org.sbolstandard.core2.SBOLWriter;
+import org.sbolstandard.core2.SequenceOntology;
 
 import com.clarkparsia.sbol.SBOLUtils;
 import com.clarkparsia.sbol.editor.Part;
@@ -47,6 +49,7 @@ public class RootInputDialog extends InputDialog<SBOLDocument> {
 	private JLabel tableLabel;
 
 	private JComboBox<Part> roleSelection;
+	private JComboBox<String> roleRefinement;
 	private JCheckBox onlyShowRootCDs;
 	private static final Part ALL_PARTS = new Part("All parts", "All");
 
@@ -73,17 +76,28 @@ public class RootInputDialog extends InputDialog<SBOLDocument> {
 	public void initFormPanel(FormBuilder builder) {
 		List<Part> parts = Lists.newArrayList(Parts.sorted());
 		parts.add(0, ALL_PARTS);
-
 		roleSelection = new JComboBox<Part>(parts.toArray(new Part[0]));
 		roleSelection.setRenderer(new PartCellRenderer());
 		roleSelection.setSelectedItem(ALL_PARTS);
 		roleSelection.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent event) {
+				updateRoleRefinement();
 				updateTable();
 			}
 		});
 		builder.add("Part role", roleSelection);
+
+		// set up the JComboBox for role refinement
+		roleRefinement = new JComboBox<String>();
+		updateRoleRefinement();
+		roleRefinement.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent event) {
+				updateTable();
+			}
+		});
+		builder.add("Role refinement", roleRefinement);
 
 		onlyShowRootCDs = new JCheckBox("Only show root ComponentDefinitions");
 		onlyShowRootCDs.setSelected(true);
@@ -169,8 +183,24 @@ public class RootInputDialog extends InputDialog<SBOLDocument> {
 		}
 	}
 
-	public void updateTable() {
-		Part part = isRoleSelection() ? (Part) roleSelection.getSelectedItem() : ALL_PARTS;
+	private void updateRoleRefinement() {
+		roleRefinement.removeAllItems();
+		for (String s : SBOLUtils.createRefinements((Part) roleSelection.getSelectedItem())) {
+			roleRefinement.addItem(s);
+		}
+	}
+
+	private void updateTable() {
+		Part part;
+		String roleName = (String) roleRefinement.getSelectedItem();
+		if (roleName == null || roleName.equals("None")) {
+			part = isRoleSelection() ? (Part) roleSelection.getSelectedItem() : ALL_PARTS;
+		} else {
+			SequenceOntology so = new SequenceOntology();
+			URI role = so.getURIbyName(roleName);
+			part = new Part(role, null, null);
+		}
+
 		Set<ComponentDefinition> CDsToDisplay;
 		if (onlyShowRootCDs.isSelected()) {
 			CDsToDisplay = doc.getRootComponentDefinitions();

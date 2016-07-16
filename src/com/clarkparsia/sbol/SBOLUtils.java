@@ -144,6 +144,42 @@ public class SBOLUtils {
 	}
 
 	/**
+	 * Creates an String[] representing SO names of descendant roles based on
+	 * the passed in part's role.
+	 */
+	public static String[] createRefinements(Part part) {
+		SequenceOntology so = new SequenceOntology();
+		String[] refinements;
+		if (part.getRole() != null) {
+			refinements = so.getDescendantsOf(part.getRole()).toArray(new String[0]);
+		} else {
+			refinements = new String[0];
+		}
+		String[] refine = new String[refinements.length + 1];
+		refine[0] = "None";
+		for (int i = 1; i < refinements.length + 1; i++) {
+			refine[i] = so.getName(refinements[i - 1]);
+		}
+		return refine;
+	}
+
+	/**
+	 * Returns a list of all roles of a CD that are descendants of the part's
+	 * role.
+	 */
+	public static List<URI> getRefinementRoles(ComponentDefinition comp, Part part) {
+		ArrayList<URI> list = new ArrayList<URI>();
+		SequenceOntology so = new SequenceOntology();
+		for (URI r : comp.getRoles()) {
+			// assumes the part role is always the first role in the list
+			if (so.isDescendantOf(r, part.getRole())) {
+				list.add(r);
+			}
+		}
+		return list;
+	}
+
+	/**
 	 * Prompts the user to choose a file and reads it, returning the output
 	 * SBOLDocument. If the user cancels or the file in unable to be imported,
 	 * returns null.
@@ -361,35 +397,24 @@ public class SBOLUtils {
 	}
 
 	/**
-	 * Inserts all the TopLevels (CDs and Sequences) in doc which aren't already
-	 * in the design.
+	 * Inserts all the TopLevels (CDs and Sequences) in doc into design. If a
+	 * TopLevel already exists, it will be overwritten.
 	 */
-	public static void insertTopLevels(SBOLDocument doc, SBOLDocument design) throws SBOLValidationException {
-		for (TopLevel docTL : doc.getTopLevels()) {
-			if (design.getTopLevel(docTL.getIdentity()) == null) {
-				design.createCopy(docTL);
-			}
-		}
-	}
-
-	/**
-	 * Removes all the TopLevels in toBeRemoved which exist in doc, from doc.
-	 */
-	public static void removeTopLevels(SBOLDocument toBeRemoved, SBOLDocument doc)
-			throws SBOLValidationException, Exception {
-		for (TopLevel tl : toBeRemoved.getTopLevels()) {
-			if (doc.getTopLevel(tl.getIdentity()) != null) {
+	public static void insertTopLevels(SBOLDocument doc, SBOLDocument design) throws Exception {
+		for (TopLevel tl : doc.getTopLevels()) {
+			if (design.getTopLevel(tl.getIdentity()) != null) {
 				if (tl instanceof ComponentDefinition) {
-					if (!doc.removeComponentDefinition(doc.getComponentDefinition(tl.getIdentity()))) {
+					if (!design.removeComponentDefinition(design.getComponentDefinition(tl.getIdentity()))) {
 						throw new Exception("ERROR: " + tl.getDisplayId() + " didn't get removed");
 					}
 				} else if (tl instanceof Sequence) {
-					if (!doc.removeSequence(doc.getSequence(tl.getIdentity()))) {
+					if (!design.removeSequence(design.getSequence(tl.getIdentity()))) {
 						throw new Exception("ERROR: " + tl.getDisplayId() + " didn't get removed");
 					}
 				}
 			}
 		}
+		design.createCopy(doc);
 	}
 
 	/**
