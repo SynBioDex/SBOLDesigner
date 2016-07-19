@@ -34,6 +34,7 @@ public class SequenceInputDialog extends InputDialog<String> {
 	private JLabel tableLabel;
 
 	public SequenceInputDialog(final Component parent, Set<Sequence> sequences) {
+		// TODO add role/type selection here too?
 		super(parent, TITLE);
 
 		ArrayList<Sequence> list = new ArrayList<Sequence>();
