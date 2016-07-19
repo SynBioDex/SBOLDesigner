@@ -279,8 +279,11 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 				return l;
 			}
 		} catch (Exception e) {
-			JOptionPane.showMessageDialog(null, "Querying this repository failed: " + e.getMessage()
-					+ " (Internet connection is required for importing from the SBOL Stack.");
+			JOptionPane.showMessageDialog(null, "Querying this repository failed: " + e.getMessage() + "\n"
+					+ " Internet connection is required for importing from the SBOL Stack. Setting default registry to built-in parts, which doesn't require an internet connection.");
+			Registries registries = Registries.get();
+			registries.setVersionRegistryIndex(0);
+			registries.save();
 			e.printStackTrace();
 			return null;
 		}

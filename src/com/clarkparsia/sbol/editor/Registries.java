@@ -54,15 +54,14 @@ public class Registries implements Iterable<Registry> {
 			String desc = child.get("description", null);
 			String location = child.get("location", null);
 			try {
-			// if (url.startsWith("jar:") || url.startsWith("file:")) {
-			// registries.add(Registry.BUILT_IN);
-			// }
-			// else {
+				// if (url.startsWith("jar:") || url.startsWith("file:")) {
+				// registries.add(Registry.BUILT_IN);
+				// }
+				// else {
 				registries.add(new Registry(name, desc, location));
-			// }
-			}
-			catch (Exception e) {
-				//e.printStackTrace();
+				// }
+			} catch (Exception e) {
+				// e.printStackTrace();
 			}
 		}
 
