@@ -43,6 +43,7 @@ import org.sbolstandard.core2.TopLevel;
 
 import com.clarkparsia.sbol.editor.Part;
 import com.clarkparsia.sbol.editor.SBOLEditorPreferences;
+import com.clarkparsia.sbol.editor.dialog.RootInputDialog;
 import com.clarkparsia.sbol.editor.io.FileDocumentIO;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterators;
@@ -359,6 +360,51 @@ public class SBOLUtils {
 		}
 
 		return uncoveredSequences;
+	}
+
+	public enum Types {
+		All_types, DNA, Complex, Effector, Protein, RNA, Small_molecule;
+	}
+
+	/**
+	 * Returns a list with all the CDs in list which contain type (URI).
+	 */
+	public static List<ComponentDefinition> getCDOfType(List<ComponentDefinition> list, Types type) {
+		URI uri = null;
+		switch (type) {
+		case All_types:
+			// return everything in the list
+			return list;
+		case DNA:
+			uri = ComponentDefinition.DNA;
+			break;
+		case Complex:
+			uri = ComponentDefinition.COMPLEX;
+			break;
+		case Effector:
+			uri = ComponentDefinition.EFFECTOR;
+			break;
+		case Protein:
+			uri = ComponentDefinition.PROTEIN;
+			break;
+		case RNA:
+			uri = ComponentDefinition.RNA;
+			break;
+		case Small_molecule:
+			uri = ComponentDefinition.SMALL_MOLECULE;
+			break;
+		default:
+			System.out.println("Invalid type");
+			return list;
+		}
+
+		List<ComponentDefinition> result = new ArrayList<ComponentDefinition>();
+		for (ComponentDefinition CD : list) {
+			if (CD.getTypes().contains(uri)) {
+				result.add(CD);
+			}
+		}
+		return result;
 	}
 
 	/**

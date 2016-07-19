@@ -32,6 +32,7 @@ import org.sbolstandard.core2.SBOLWriter;
 import org.sbolstandard.core2.SequenceOntology;
 
 import com.clarkparsia.sbol.SBOLUtils;
+import com.clarkparsia.sbol.SBOLUtils.Types;
 import com.clarkparsia.sbol.editor.Part;
 import com.clarkparsia.sbol.editor.Parts;
 import com.clarkparsia.swing.FormBuilder;
@@ -50,10 +51,10 @@ public class RootInputDialog extends InputDialog<SBOLDocument> {
 
 	private JComboBox<Part> roleSelection;
 	private JComboBox<String> roleRefinement;
+	private JComboBox<Types> typeSelection;
 	private JCheckBox onlyShowRootCDs;
-	private static final Part ALL_PARTS = new Part("All parts", "All");
-
 	private JButton deleteCD;
+	private static final Part ALL_PARTS = new Part("All parts", "All");
 
 	private SBOLDocument doc;
 
@@ -74,6 +75,16 @@ public class RootInputDialog extends InputDialog<SBOLDocument> {
 
 	@Override
 	public void initFormPanel(FormBuilder builder) {
+		typeSelection = new JComboBox<Types>(Types.values());
+		typeSelection.setSelectedItem(Types.DNA);
+		typeSelection.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				updateTable();
+			}
+		});
+		builder.add("Part type", typeSelection);
+
 		List<Part> parts = Lists.newArrayList(Parts.sorted());
 		parts.add(0, ALL_PARTS);
 		roleSelection = new JComboBox<Part>(parts.toArray(new Part[0]));
@@ -209,6 +220,7 @@ public class RootInputDialog extends InputDialog<SBOLDocument> {
 		}
 
 		List<ComponentDefinition> components = SBOLUtils.getCDOfRole(CDsToDisplay, part);
+		components = SBOLUtils.getCDOfType(components, (Types) typeSelection.getSelectedItem());
 		((ComponentDefinitionTableModel) table.getModel()).setElements(components);
 		tableLabel.setText("Matching parts (" + components.size() + ")");
 	}
