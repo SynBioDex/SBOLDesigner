@@ -32,6 +32,9 @@ public class Registry implements Serializable {
 	public static final Registry BUILT_IN = new Registry("Built-in parts",
 			"Built-in registry containing all the iGEM parts", "N/A");
 
+	public static final Registry WORKING_DOCUMENT = new Registry("Working document",
+			"The current file you are working in", "N/A");
+
 	public static final Registry STACK = new Registry("SBOL Stack", "The Newcastle instance of the SBOL Stack",
 			"http://synbiohub.org:9090");
 
@@ -66,7 +69,7 @@ public class Registry implements Serializable {
 		if (!(obj instanceof Registry))
 			return false;
 		Registry that = (Registry) obj;
-		return this.location.equals(that.location);
+		return this.location.equals(that.location) && this.name.equals(that.name);
 	}
 
 	@Override
@@ -77,12 +80,8 @@ public class Registry implements Serializable {
 		return result;
 	}
 
-	public boolean isBuiltin() {
-		return this.equals(Registry.BUILT_IN);
-	}
-
 	public SPARQLEndpoint createEndpoint() {
-		return isBuiltin() ? new LocalEndpoint(location) : new StardogEndpoint(location);
+		return this.getLocation().equals("N/A") ? new LocalEndpoint(location) : new StardogEndpoint(location);
 	}
 
 	@Override

@@ -61,84 +61,87 @@ import com.google.common.collect.Iterables;
  * @author Evren Sirin
  */
 public abstract class OldInputDialog<T> extends JDialog {
-	protected enum RegistryType { PART, VERSION, NONE }
-	
-	private final ComboBoxRenderer<Registry> registryRenderer = new ComboBoxRenderer<Registry>() {	
+	protected enum RegistryType {
+		PART, VERSION, NONE
+	}
+
+	private final ComboBoxRenderer<Registry> registryRenderer = new ComboBoxRenderer<Registry>() {
 		@Override
-        protected String getLabel(Registry registry) {
+		protected String getLabel(Registry registry) {
 			StringBuilder sb = new StringBuilder();
 			if (registry != null) {
 				sb.append(registry.getName());
-				if (!registry.isBuiltin()) {
+				if (!registry.equals(Registry.BUILT_IN) && !registry.equals(Registry.WORKING_DOCUMENT)) {
 					sb.append(" (");
 					sb.append(CharSequences.shorten(registry.getLocation(), 30));
 					sb.append(")");
 				}
 			}
 			return sb.toString();
-        }
+		}
 
 		@Override
-        protected String getToolTip(Registry registry) {
-	        return registry == null ? "" : registry.getDescription();
-        }
+		protected String getToolTip(Registry registry) {
+			return registry == null ? "" : registry.getDescription();
+		}
 	};
-	
+
 	private final ActionListener actionListener = new DialogActionListener();
 
 	private RegistryType registryType;
 	private JComboBox registrySelection;
-	
+
 	private JButton cancelButton, selectButton, optionsButton;
-					
+
 	private FormBuilder builder = new FormBuilder();
 
 	protected SPARQLEndpoint endpoint;
-	
+
 	protected boolean canceled = true;
 
 	protected OldInputDialog(final Component parent, String title, RegistryType registryType) {
 		super(JOptionPane.getFrameForComponent(parent), title, true);
 
 		this.registryType = registryType;
-		
+
 		if (registryType != RegistryType.NONE) {
-			Registries registries = Registries.get();  
-			int selectedRegistry = (registryType != RegistryType.PART) ? registries.getPartRegistryIndex() : registries.getVersionRegistryIndex();
-			
+			Registries registries = Registries.get();
+			int selectedRegistry = (registryType != RegistryType.PART) ? registries.getPartRegistryIndex()
+					: registries.getVersionRegistryIndex();
+
 			if (registries.size() == 0) {
-				JOptionPane.showMessageDialog(this, "No parts registries are defined.\nPlease click 'Options' and add a parts registry.");
+				JOptionPane.showMessageDialog(this,
+						"No parts registries are defined.\nPlease click 'Options' and add a parts registry.");
 				endpoint = null;
-			}
-			else {
+			} else {
 				endpoint = registries.get(selectedRegistry).createEndpoint();
 			}
-			
+
 			registrySelection = new JComboBox(Iterables.toArray(registries, Registry.class));
 			if (registries.size() > 0) {
 				registrySelection.setSelectedIndex(selectedRegistry);
 			}
-			registrySelection.addActionListener(actionListener);		
+			registrySelection.addActionListener(actionListener);
 			registrySelection.setRenderer(registryRenderer);
-		
+
 			builder.add("Registry", registrySelection);
 		}
 	}
-	
+
 	protected String initMessage() {
 		return null;
 	}
-	
+
 	protected JComponent initMainPanel() {
 		return null;
 	}
-	
+
 	protected void initFormPanel(FormBuilder builder) {
 	}
-	
+
 	protected void initFinished() {
 	}
-	
+
 	private void initGUI() {
 		JPanel buttonPanel = new JPanel();
 		buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.LINE_AXIS));
@@ -152,10 +155,11 @@ public abstract class OldInputDialog<T> extends JDialog {
 
 		buttonPanel.add(Box.createHorizontalStrut(200));
 		buttonPanel.add(Box.createHorizontalGlue());
-		
+
 		cancelButton = new JButton("Cancel");
 		cancelButton.addActionListener(actionListener);
-		cancelButton.registerKeyboardAction(actionListener, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_IN_FOCUSED_WINDOW);
+		cancelButton.registerKeyboardAction(actionListener, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0),
+				JComponent.WHEN_IN_FOCUSED_WINDOW);
 		buttonPanel.add(cancelButton);
 
 		selectButton = new JButton("OK");
@@ -163,17 +167,18 @@ public abstract class OldInputDialog<T> extends JDialog {
 		selectButton.setEnabled(false);
 		getRootPane().setDefaultButton(selectButton);
 		buttonPanel.add(selectButton);
-		
+
 		initFormPanel(builder);
-		
-		JComponent formPanel = builder.build();		
+
+		JComponent formPanel = builder.build();
 		formPanel.setAlignmentX(LEFT_ALIGNMENT);
 
 		Box topPanel = Box.createVerticalBox();
 		String message = initMessage();
 		if (message != null) {
 			JPanel messageArea = new JPanel();
-			messageArea.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createEmptyBorder(6, 6, 6, 6), BorderFactory.createEtchedBorder()));
+			messageArea.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createEmptyBorder(6, 6, 6, 6),
+					BorderFactory.createEtchedBorder()));
 			messageArea.setAlignmentX(LEFT_ALIGNMENT);
 			messageArea.add(new JLabel("<html>" + message.replace("\n", "<br>") + "</html>"));
 			topPanel.add(messageArea);
@@ -181,7 +186,6 @@ public abstract class OldInputDialog<T> extends JDialog {
 		topPanel.add(formPanel);
 
 		JComponent mainPanel = initMainPanel();
-		
 
 		JPanel contentPane = new JPanel(new BorderLayout());
 		contentPane.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
@@ -192,48 +196,48 @@ public abstract class OldInputDialog<T> extends JDialog {
 		contentPane.add(buttonPanel, BorderLayout.SOUTH);
 
 		setContentPane(contentPane);
-		
+
 		initFinished();
-		
+
 		if (registrySelection != null) {
 			registryChanged();
 		}
-			
+
 		pack();
 		setLocationRelativeTo(getOwner());
 	}
-	
+
 	protected boolean validateInput() {
 		return true;
 	}
 
-    protected abstract T getSelection();
-    
-    public T getInput() {
-    	initGUI();
+	protected abstract T getSelection();
+
+	public T getInput() {
+		initGUI();
 		try {
 			setVisible(true);
 			if (canceled) {
 				return null;
 			}
 			Registries.get().save();
-			return getSelection();			
-		}
-		catch (Exception e) {
+			return getSelection();
+		} catch (Exception e) {
 			e.printStackTrace();
-			JOptionPane.showMessageDialog(getParent(), Throwables.getRootCause(e).getMessage(), "ERROR", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(getParent(), Throwables.getRootCause(e).getMessage(), "ERROR",
+					JOptionPane.ERROR_MESSAGE);
 			return null;
 		}
 	}
-	
-	protected void registryChanged() {		
+
+	protected void registryChanged() {
 	}
-	
+
 	protected void setSelectAllowed(boolean allow) {
 		selectButton.setEnabled(allow);
 	}
-	
-	protected JPanel createTablePanel(AbstractListTableModel<?> tableModel, String title) {		
+
+	protected JPanel createTablePanel(AbstractListTableModel<?> tableModel, String title) {
 		final JTable table = new JTable(tableModel);
 		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
@@ -263,19 +267,19 @@ public abstract class OldInputDialog<T> extends JDialog {
 
 		JLabel tableLabel = new JLabel(title);
 		tableLabel.setLabelFor(table);
-		
+
 		JPanel tablePane = new JPanel();
-		tablePane.setLayout(new BoxLayout(tablePane, BoxLayout.PAGE_AXIS));		
+		tablePane.setLayout(new BoxLayout(tablePane, BoxLayout.PAGE_AXIS));
 		tablePane.add(tableLabel);
 		tablePane.add(Box.createRigidArea(new Dimension(0, 5)));
 		tablePane.add(tableScroller);
-		
+
 		tablePane.putClientProperty("table", table);
 		tablePane.putClientProperty("label", tableLabel);
-		
+
 		return tablePane;
 	}
-	
+
 	protected static void setWidthAsPercentages(JTable table, double... percentages) {
 		final double factor = 10000;
 
@@ -285,48 +289,43 @@ public abstract class OldInputDialog<T> extends JDialog {
 			column.setPreferredWidth((int) (percentages[columnIndex] * factor));
 		}
 	}
-	
-    private class DialogActionListener implements ActionListener {
+
+	private class DialogActionListener implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
 			Object source = e.getSource();
 			if (source == registrySelection) {
 				final Registry registry = (Registry) registrySelection.getSelectedItem();
 				if (registry == null) {
 					endpoint = null;
-				}
-				else {
+				} else {
 					int selectedIndex = registrySelection.getSelectedIndex();
 					if (registryType != RegistryType.PART) {
 						Registries.get().setPartRegistryIndex(selectedIndex);
-					}
-					else {
+					} else {
 						Registries.get().setVersionRegistryIndex(selectedIndex);
 					}
 					endpoint = registry.createEndpoint();
 				}
-				SwingUtilities.invokeLater(new Runnable() {					
+				SwingUtilities.invokeLater(new Runnable() {
 					@Override
 					public void run() {
 						registryChanged();
 					}
 				});
-			}
-			else if (source == optionsButton) {
+			} else if (source == optionsButton) {
 				PreferencesDialog.showPreferences(OldInputDialog.this, RegistryPreferencesTab.INSTANCE.getTitle());
 				registrySelection.removeAllItems();
 				for (Registry r : Registries.get()) {
 					registrySelection.addItem(r);
 				}
 				registrySelection.setSelectedIndex(Registries.get().getPartRegistryIndex());
-			}
-			else if (source == cancelButton) {
+			} else if (source == cancelButton) {
 				canceled = true;
 				setVisible(false);
-			}
-			else if (source == selectButton) {
+			} else if (source == selectButton) {
 				canceled = false;
 				setVisible(false);
 			}
 		}
-    }
+	}
 }

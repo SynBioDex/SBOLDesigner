@@ -110,7 +110,7 @@ public enum RegistryPreferencesTab implements PreferencesTab {
 			@Override
 			public void valueChanged(ListSelectionEvent event) {
 				// Everything can be removed except Built-In parts.
-				removeButton.setEnabled(table.getSelectedRow() > 0);
+				removeButton.setEnabled(table.getSelectedRow() >= 2);
 			}
 		});
 

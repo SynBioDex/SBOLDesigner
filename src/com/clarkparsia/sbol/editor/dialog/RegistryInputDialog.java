@@ -77,7 +77,7 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 			StringBuilder sb = new StringBuilder();
 			if (registry != null) {
 				sb.append(registry.getName());
-				if (!registry.isBuiltin()) {
+				if (!registry.getLocation().equals("N/A")) {
 					sb.append(" (");
 					sb.append(CharSequences.shorten(registry.getLocation(), 30));
 					sb.append(")");
@@ -241,17 +241,22 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 
 			SBOLReader.setURIPrefix(SBOLEditorPreferences.INSTANCE.getUserInfo().getURI().toString());
 			SBOLReader.setCompliant(true);
-			if (registrySelection.getSelectedItem().equals(Registry.BUILT_IN)) {
-				SBOLDocument doc = SBOLReader.read(Registry.class.getResourceAsStream("BuiltInParts.xml"));
-				doc.setDefaultURIprefix(SBOLEditorPreferences.INSTANCE.getUserInfo().getURI().toString());
-				return SBOLUtils.getCDOfRole(doc, part);
+			SBOLDocument doc;
+			Registry registry = (Registry) registrySelection.getSelectedItem();
+			if (registry.equals(Registry.BUILT_IN)) {
+				doc = SBOLReader.read(Registry.class.getResourceAsStream("BuiltInParts.xml"));
+			} else if (registry.equals(Registry.WORKING_DOCUMENT)) {
+				doc = SBOLReader.read(SBOLUtils.setupFile());
 			} else {
-				SBOLDocument doc = SBOLReader.read(location);
-				doc.setDefaultURIprefix(SBOLEditorPreferences.INSTANCE.getUserInfo().getURI().toString());
-				return SBOLUtils.getCDOfRole(doc, part);
+				doc = SBOLReader.read(location);
 			}
+			doc.setDefaultURIprefix(SBOLEditorPreferences.INSTANCE.getUserInfo().getURI().toString());
+			return SBOLUtils.getCDOfRole(doc, part);
 		} catch (Exception e) {
 			JOptionPane.showMessageDialog(null, "Getting the SBOLDocument from path failed: " + e.getMessage());
+			Registries registries = Registries.get();
+			registries.setVersionRegistryIndex(0);
+			registries.save();
 			e.printStackTrace();
 			return null;
 		}
@@ -274,7 +279,6 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 				ArrayList<ComponentMetadata> l = stack.searchComponentMetadata(null, setRoles, null, null);
 				return l;
 			} else {
-				// TODO James needs to fix
 				ArrayList<ComponentMetadata> l = stack.searchComponentMetadata(null, new HashSet<URI>(), 0, 99);
 				return l;
 			}
