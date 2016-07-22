@@ -334,15 +334,14 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 			if (CD == null) {
 				return;
 			}
+		}
+
+		// try to get CD if it exists. Otherwise, create it.
+		if (design.getComponentDefinition(displayId.getText(), version.getText()) != null) {
+			CD = design.getComponentDefinition(displayId.getText(), version.getText());
 		} else {
-			// try to get CD if it exists. Otherwise, create it.
-			if (design.getComponentDefinition(displayId.getText(), version.getText()) != null) {
-				CD = design.getComponentDefinition(displayId.getText(), version.getText());
-			} else {
-				String uniqueId = SBOLUtils.getUniqueDisplayId(null, displayId.getText(), version.getText(), "CD",
-						design);
-				CD = (ComponentDefinition) design.createCopy(CD, uniqueId, version.getText());
-			}
+			String uniqueId = SBOLUtils.getUniqueDisplayId(null, displayId.getText(), version.getText(), "CD", design);
+			CD = (ComponentDefinition) design.createCopy(CD, uniqueId, version.getText());
 		}
 
 		CD.setName(name.getText());
