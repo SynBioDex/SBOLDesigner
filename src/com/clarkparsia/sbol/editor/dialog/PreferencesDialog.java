@@ -53,7 +53,11 @@ public class PreferencesDialog extends JDialog implements ActionListener {
 	private static final String TITLE = "Preferences";
 
 	private static final PreferencesTab[] TABS = { UserInfoTab.INSTANCE, RegistryPreferencesTab.INSTANCE,
-			SettingsTab.INSTANCE, SOMappingTab.INSTANCE, VersioningPreferencesTab.INSTANCE };
+			SettingsTab.INSTANCE, /**
+									 * SOMappingTab.INSTANCE,
+									 * VersioningPreferencesTab.INSTANCE
+									 **/
+	};
 
 	public static void showPreferences(Component parent) {
 		showPreferences(parent, null);
