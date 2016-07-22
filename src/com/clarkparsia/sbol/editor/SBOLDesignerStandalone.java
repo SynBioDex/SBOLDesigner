@@ -15,6 +15,8 @@
 
 package com.clarkparsia.sbol.editor;
 
+import java.awt.Image;
+import java.awt.Toolkit;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -22,6 +24,8 @@ import java.util.logging.LogManager;
 import java.util.logging.Logger;
 import java.util.prefs.Preferences;
 
+import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.UIManager;
 
@@ -42,7 +46,7 @@ public class SBOLDesignerStandalone extends JFrame {
 
 	SBOLDesignerPanel panel = null;
 
-	public SBOLDesignerStandalone() throws SBOLValidationException {
+	public SBOLDesignerStandalone() throws SBOLValidationException, IOException {
 		// creates the panel with this frame so title can be set
 		panel = new SBOLDesignerPanel(this);
 		// Only ask for a URI prefix if the current one is
@@ -53,10 +57,11 @@ public class SBOLDesignerStandalone extends JFrame {
 		setContentPane(panel);
 		setLocationRelativeTo(null);
 		setSize(800, 600);
+		setIconImage(ImageIO.read(new File("src/com/clarkparsia/sbol/editor/images/icon0.png")));
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	}
 
-	public static void main(String[] args) throws SBOLValidationException {
+	public static void main(String[] args) throws SBOLValidationException, IOException {
 		setup();
 
 		final SBOLDesignerStandalone frame = new SBOLDesignerStandalone();
