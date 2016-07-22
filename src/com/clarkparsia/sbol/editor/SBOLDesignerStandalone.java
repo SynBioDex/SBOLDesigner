@@ -57,7 +57,7 @@ public class SBOLDesignerStandalone extends JFrame {
 		setContentPane(panel);
 		setLocationRelativeTo(null);
 		setSize(800, 600);
-		setIconImage(ImageIO.read(new File("src/com/clarkparsia/sbol/editor/images/icon0.png")));
+		setIconImage(ImageIO.read(getClass().getResourceAsStream("/com/clarkparsia/sbol/editor/images/icon0.png")));
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	}
 
