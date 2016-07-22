@@ -27,7 +27,7 @@ public class SBOLDesignerMetadata {
 
 	public static final String AUTHORS = "the University of Utah, the University of Washington, and Clark & Parsia, LLC";
 
-	public static final String HOME_PAGE = "https://github.com/SynBioDex/SBOLDesigner";
+	public static final String HOME_PAGE = "http://www.async.ece.utah.edu/SBOLDesigner";
 
 	public static final String EMAIL = "michael13162@gmail.com";
 
