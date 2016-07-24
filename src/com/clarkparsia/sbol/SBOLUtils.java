@@ -18,6 +18,7 @@ package com.clarkparsia.sbol;
 import java.io.File;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -150,16 +151,16 @@ public class SBOLUtils {
 	 */
 	public static String[] createRefinements(Part part) {
 		SequenceOntology so = new SequenceOntology();
-		String[] refinements;
+		String[] descendantNames;
 		if (part.getRole() != null) {
-			refinements = so.getDescendantsOf(part.getRole()).toArray(new String[0]);
+			descendantNames = so.getDescendantNamesOf(part.getRole()).toArray(new String[0]);
 		} else {
-			refinements = new String[0];
+			descendantNames = new String[0];
 		}
-		String[] refine = new String[refinements.length + 1];
+		String[] refine = new String[descendantNames.length + 1];
 		refine[0] = "None";
-		for (int i = 1; i < refinements.length + 1; i++) {
-			refine[i] = so.getName(refinements[i - 1]);
+		for (int i = 1; i < descendantNames.length + 1; i++) {
+			refine[i] = descendantNames[i - 1];
 		}
 		return refine;
 	}
