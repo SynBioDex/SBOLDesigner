@@ -20,6 +20,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.File;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -228,7 +229,8 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 	}
 
 	/**
-	 * Gets the SBOLDocument from the path(url) and returns all its CDs.
+	 * Gets the SBOLDocument from the path (file on disk) and returns all its
+	 * CDs.
 	 */
 	private List<ComponentDefinition> searchParts(Part part) {
 		try {
@@ -244,10 +246,20 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 			SBOLDocument doc;
 			Registry registry = (Registry) registrySelection.getSelectedItem();
 			if (registry.equals(Registry.BUILT_IN)) {
+				// read from BuiltInParts.xml
 				doc = SBOLReader.read(Registry.class.getResourceAsStream("BuiltInParts.xml"));
 			} else if (registry.equals(Registry.WORKING_DOCUMENT)) {
-				doc = SBOLReader.read(SBOLUtils.setupFile());
+				// read from SBOLUtils.setupFile()
+				File file = SBOLUtils.setupFile();
+				if (file.exists()) {
+					doc = SBOLReader.read(SBOLUtils.setupFile());
+				} else {
+					JOptionPane.showMessageDialog(null,
+							"The working document could not be found on disk.  Try opening the file again.");
+					return new ArrayList<ComponentDefinition>();
+				}
 			} else {
+				// read from the location (path)
 				doc = SBOLReader.read(location);
 			}
 			doc.setDefaultURIprefix(SBOLEditorPreferences.INSTANCE.getUserInfo().getURI().toString());
