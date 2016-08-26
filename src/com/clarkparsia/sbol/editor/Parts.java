@@ -68,9 +68,9 @@ public class Parts {
 			"SO:0001956");
 	public static final Part BRS = createPart("Blunt Restriction Site", "BRS", "blunt-restriction-site.png",
 			ImageType.CENTERED_ON_BASELINE, "SO:0001691");
-	public static final Part FIVEOH = createPart("5' Overhang", "5'OH", "five-prime-overhang.png",
+	public static final Part FIVEOH = createPart("5' Overhang", "_5OH", "five-prime-overhang.png",
 			ImageType.CENTERED_ON_BASELINE, "SO:0001933");
-	public static final Part THREEOH = createPart("3' Overhang", "3'OH", "three-prime-overhang.png",
+	public static final Part THREEOH = createPart("3' Overhang", "_3OH", "three-prime-overhang.png",
 			ImageType.CENTERED_ON_BASELINE, "SO:0001932");
 
 	private static Iterable<Part> SORTED_PARTS;
