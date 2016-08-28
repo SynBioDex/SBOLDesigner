@@ -63,7 +63,7 @@ public class Parts {
 	public static final Part PSE = createPart("Protein Stability Element", "PSE", "protein-stability-element.png",
 			ImageType.SHORT_OVER_BASELINE, "SO:0001955");
 	public static final Part RS = createPart("Ribonuclease Site", "RS", "ribonuclease-site.png",
-			ImageType.SHORT_OVER_BASELINE, GENERIC.getRole());
+			ImageType.SHORT_OVER_BASELINE, "SO:0001977");
 	public static final Part PS = createPart("Protease Site", "PS", "protease-site.png", ImageType.SHORT_OVER_BASELINE,
 			"SO:0001956");
 	public static final Part BRS = createPart("Blunt Restriction Site", "BRS", "blunt-restriction-site.png",
