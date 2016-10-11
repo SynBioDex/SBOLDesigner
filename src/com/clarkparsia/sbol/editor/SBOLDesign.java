@@ -712,7 +712,7 @@ public class SBOLDesign {
 
 		ComponentDefinition comp = part.createComponentDefinition(design);
 		if (edit) {
-			comp = PartEditDialog.editPart(panel.getParent(), comp, edit, design);
+			comp = PartEditDialog.editPart(panel.getParent(), comp, edit, true, design);
 			if (comp == null) {
 				return null;
 			}
@@ -1049,13 +1049,16 @@ public class SBOLDesign {
 
 	public void editCanvasCD() throws SBOLValidationException {
 		if (!parentCDs.isEmpty() && !confirmEditable()) {
+			// read-only
+			ComponentDefinition originalCD = getSelectedCD();
+			PartEditDialog.editPart(panel.getParent(), originalCD, false, false, design);
 			return;
 		}
 
 		ComponentDefinition comp = getCanvasCD();
 		URI originalIdentity = comp.getIdentity();
 		updateCanvasCD();
-		comp = PartEditDialog.editPart(panel.getParent(), comp, false, design);
+		comp = PartEditDialog.editPart(panel.getParent(), comp, false, true, design);
 		if (comp != null) {
 			if (!originalIdentity.equals(comp.getIdentity())) {
 				updateComponentReferences(originalIdentity, comp.getIdentity());
@@ -1081,11 +1084,14 @@ public class SBOLDesign {
 
 	public void editSelectedCD() throws SBOLValidationException {
 		if (!confirmEditable()) {
+			// read-only
+			ComponentDefinition originalCD = getSelectedCD();
+			PartEditDialog.editPart(panel.getParent(), originalCD, false, false, design);
 			return;
 		}
 
 		ComponentDefinition originalCD = getSelectedCD();
-		ComponentDefinition editedCD = PartEditDialog.editPart(panel.getParent(), originalCD, false, design);
+		ComponentDefinition editedCD = PartEditDialog.editPart(panel.getParent(), originalCD, false, true, design);
 
 		if (editedCD != null) {
 			// if the CD type or the displyId has been edited we need to

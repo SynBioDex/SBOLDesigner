@@ -85,6 +85,7 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 	private static final String TITLE = "Part: ";
 
 	private ComponentDefinition CD;
+	private boolean canEdit;
 
 	private SBOLDocument design;
 
@@ -105,9 +106,9 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 	 * dialog throws an exception. Also pass in the design.
 	 */
 	public static ComponentDefinition editPart(Component parent, ComponentDefinition CD, boolean enableSave,
-			SBOLDocument design) {
+			boolean canEdit, SBOLDocument design) {
 		try {
-			PartEditDialog dialog = new PartEditDialog(parent, CD, design);
+			PartEditDialog dialog = new PartEditDialog(parent, CD, canEdit, design);
 			dialog.saveButton.setEnabled(enableSave);
 			dialog.setVisible(true);
 			return dialog.CD;
@@ -131,11 +132,12 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 		return (title == null) ? "" : CharSequences.shorten(title, 20).toString();
 	}
 
-	private PartEditDialog(Component parent, ComponentDefinition CD, SBOLDocument design) {
+	private PartEditDialog(Component parent, ComponentDefinition CD, boolean canEdit, SBOLDocument design) {
 		super(JOptionPane.getFrameForComponent(parent), TITLE + title(CD), true);
 
 		this.CD = CD;
 		this.design = design;
+		this.canEdit = canEdit;
 
 		cancelButton = new JButton("Cancel");
 		cancelButton.registerKeyboardAction(this, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0),
@@ -233,7 +235,9 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 	public void actionPerformed(ActionEvent e) {
 		boolean keepVisible = false;
 		if (e.getSource().equals(roleSelection) || e.getSource().equals(roleRefinement)) {
-			saveButton.setEnabled(true);
+			if (canEdit) {
+				saveButton.setEnabled(true);
+			}
 			if (e.getSource().equals(roleSelection)) {
 				updateRoleRefinement();
 			}
@@ -399,17 +403,23 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 
 	@Override
 	public void removeUpdate(DocumentEvent paramDocumentEvent) {
-		saveButton.setEnabled(true);
+		if (canEdit) {
+			saveButton.setEnabled(true);
+		}
 	}
 
 	@Override
 	public void insertUpdate(DocumentEvent paramDocumentEvent) {
-		saveButton.setEnabled(true);
+		if (canEdit) {
+			saveButton.setEnabled(true);
+		}
 	}
 
 	@Override
 	public void changedUpdate(DocumentEvent paramDocumentEvent) {
-		saveButton.setEnabled(true);
+		if (canEdit) {
+			saveButton.setEnabled(true);
+		}
 	}
 
 	/**
