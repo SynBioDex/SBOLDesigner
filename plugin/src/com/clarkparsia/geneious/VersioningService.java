@@ -21,8 +21,8 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
-import org.sbolstandard.core.SBOLDocument;
-import org.sbolstandard.core.SBOLValidationException;
+import org.sbolstandard.core2.SBOLDocument;
+import org.sbolstandard.core2.SBOLValidationException;
 
 import com.biomatters.geneious.publicapi.databaseservice.AdvancedSearchQueryTerm;
 import com.biomatters.geneious.publicapi.databaseservice.BasicSearchQuery;

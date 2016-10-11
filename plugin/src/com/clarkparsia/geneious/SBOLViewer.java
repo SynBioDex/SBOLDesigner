@@ -22,7 +22,8 @@ import java.util.List;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 
-import org.sbolstandard.core.SBOLDocument;
+import org.sbolstandard.core2.SBOLDocument;
+import org.sbolstandard.core2.SBOLValidationException;
 
 import com.adamtaft.eb.EventHandler;
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
@@ -56,7 +57,7 @@ public class SBOLViewer extends DocumentViewer {
 
 		public String getHelp() {
 			return getDescription()
-			                + ".<p>For more information, see <a href='http://www.sbolstandard.org/specification/extensions/visual'>SBOL visual</a>.";
+					+ ".<p>For more information, see <a href='http://www.sbolstandard.org/specification/extensions/visual'>SBOL visual</a>.";
 		}
 
 		public String getDescription() {
@@ -68,20 +69,26 @@ public class SBOLViewer extends DocumentViewer {
 		}
 
 		public DocumentViewer createViewer(AnnotatedPluginDocument[] annotatedDocuments) {
-			return new SBOLViewer(annotatedDocuments[0]);
+			try {
+				return new SBOLViewer(annotatedDocuments[0]);
+			} catch (SBOLValidationException e) {
+				e.printStackTrace();
+				return null;
+			}
 		}
 	}
-	
+
 	private final JPanel viewer;
-	
+
 	private final SBOLEditor editor;
 
-	private final GeneiousAction saveAction, editAction, findAction, deleteAction, flipAction, scarAddAction, focusInAction, focusOutAction, snapshotAction;
+	private final GeneiousAction saveAction, editAction, findAction, deleteAction, flipAction, scarAddAction,
+			focusInAction, focusOutAction, snapshotAction;
 	private final GeneiousAction.ToggleAction scarHideAction;
-	
-	private static boolean scarVisible = true;	
 
-	private SBOLViewer(final AnnotatedPluginDocument annotatedDoc) {
+	private static boolean scarVisible = true;
+
+	private SBOLViewer(final AnnotatedPluginDocument annotatedDoc) throws SBOLValidationException {
 		final SequenceDocument sequenceDoc = (SequenceDocument) annotatedDoc.getDocumentOrCrash();
 
 		boolean isEditable = (sequenceDoc instanceof EditableSequenceDocument);
@@ -92,19 +99,25 @@ public class SBOLViewer extends DocumentViewer {
 		AddressBar focusbar = new AddressBar(editor);
 		focusbar.setFloatable(false);
 		focusbar.setAlignmentX(JComponent.LEFT_ALIGNMENT);
-		
+
 		viewer = new JPanel(new BorderLayout());
 		viewer.add(focusbar, BorderLayout.NORTH);
 		viewer.add(editor, BorderLayout.CENTER);
-		
-		saveAction = new GeneiousAction(new GeneiousActionOptions("Save", "Save your SBOL design",
-		                IconUtilities.getIcons("save16.png"))) {
+
+		saveAction = new GeneiousAction(
+				new GeneiousActionOptions("Save", "Save your SBOL design", IconUtilities.getIcons("save16.png"))) {
+
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				SBOLDesign design = editor.getDesign();
 				EditableSequenceDocument editableDoc = (EditableSequenceDocument) sequenceDoc;
 				editableDoc.setCircular(design.isCircular());
 				SBOLImporter.Visitor importer = new SBOLImporter.Visitor();
-				importer.importContents(design.createDocument(), editableDoc);
+				try {
+					importer.importContents(design.createDocument(), editableDoc);
+				} catch (SBOLValidationException e1) {
+					e1.printStackTrace();
+				}
 				annotatedDoc.saveDocument();
 				setEnabled(false);
 			}
@@ -119,8 +132,8 @@ public class SBOLViewer extends DocumentViewer {
 
 		flipAction = GeneiousActions.action(editor.getDesign().FLIP);
 
-		scarHideAction = new GeneiousAction.ToggleAction(GeneiousActions.options("Hide Scars",
-		                "Hide Scars in your SBOL design", "hideScars.png")) {
+		scarHideAction = new GeneiousAction.ToggleAction(
+				GeneiousActions.options("Hide Scars", "Hide Scars in your SBOL design", "hideScars.png")) {
 			@Override
 			public void actionToggled(ActionEvent e, boolean isSelected) {
 				boolean isVisible = editor.getDesign().isPartVisible(Parts.SCAR);
@@ -131,13 +144,13 @@ public class SBOLViewer extends DocumentViewer {
 		scarHideAction.setSelected(!scarVisible);
 
 		scarAddAction = GeneiousActions.action(editor.getDesign().ADD_SCARS);
-		
+
 		focusInAction = GeneiousActions.action(editor.getDesign().FOCUS_IN);
-		
+
 		focusOutAction = GeneiousActions.action(editor.getDesign().FOCUS_OUT);
 
 		snapshotAction = new GeneiousAction(GeneiousActions.options("Snapshot",
-		                "Takes a snapshot of the design and copies to the clipboard", "snapshot.png")) {
+				"Takes a snapshot of the design and copies to the clipboard", "snapshot.png")) {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				editor.takeSnapshot();
@@ -145,11 +158,11 @@ public class SBOLViewer extends DocumentViewer {
 		};
 
 		editor.getEventBus().subscribe(this);
-		
+
 		editor.getDesign().load(sbolDoc);
 		editor.getDesign().setPartVisible(Parts.SCAR, scarVisible);
 	}
-	
+
 	@Override
 	public JComponent getComponent() {
 		return viewer;
@@ -166,10 +179,9 @@ public class SBOLViewer extends DocumentViewer {
 			@Override
 			public List<GeneiousAction> getOtherActions() {
 				return Lists.newArrayList(findAction, editAction, deleteAction, flipAction,
-				                new GeneiousAction.Divider(), scarHideAction, scarAddAction,
-				                new GeneiousAction.Divider(), focusInAction, focusOutAction,
-				                new GeneiousAction.Divider(), snapshotAction,
-				                new GeneiousAction.Divider());
+						new GeneiousAction.Divider(), scarHideAction, scarAddAction, new GeneiousAction.Divider(),
+						focusInAction, focusOutAction, new GeneiousAction.Divider(), snapshotAction,
+						new GeneiousAction.Divider());
 			}
 		};
 	}

@@ -33,82 +33,80 @@ import com.google.common.collect.Lists;
  * @author Evren Sirin
  */
 public class SBOLDesignerPlugin extends GeneiousPlugin {
-    public String getName() {
-        return SBOLDesignerMetadata.AUTHORS;
-    }
+	public String getName() {
+		return SBOLDesignerMetadata.AUTHORS;
+	}
 
-    public String getHelp() {
-        return getDescription();
-    }
+	public String getHelp() {
+		return getDescription();
+	}
 
-    public String getDescription() {
-        return  "This plugin provides functionality to import SBOL files into Geneious, export Geneious sequences " +
-        		"as SBOL files, edit designs using SBOL visual icons, import DNA components from an SBOL parts registry, " +
-        		"and create sequence verification annotations.\n" +
-        		"\n" +
-        		"See <a href='" + SBOLDesignerMetadata.HOME_PAGE + "'>" + SBOLDesignerMetadata.HOME_PAGE + "</a> for more info.\n\n" +
-        		"Send your questions and comments to <a href='mailto:" + SBOLDesignerMetadata.EMAIL + "'>" + SBOLDesignerMetadata.EMAIL + "</a>.\n";
-    }
+	public String getDescription() {
+		return "This plugin provides functionality to import SBOL files into Geneious, export Geneious sequences "
+				+ "as SBOL files, edit designs using SBOL visual icons, import DNA components from an SBOL parts registry, "
+				+ "and create sequence verification annotations.\n" + "\n" + "See <a href='"
+				+ SBOLDesignerMetadata.HOME_PAGE + "'>" + SBOLDesignerMetadata.HOME_PAGE + "</a> for more info.\n\n"
+				+ "Send your questions and comments to <a href='mailto:" + SBOLDesignerMetadata.EMAIL + "'>"
+				+ SBOLDesignerMetadata.EMAIL + "</a>.\n";
+	}
 
-    public String getAuthors() {
-        return SBOLDesignerMetadata.AUTHORS;
-    }
+	public String getAuthors() {
+		return SBOLDesignerMetadata.AUTHORS;
+	}
 
-    public String getVersion() {
-        return SBOLDesignerMetadata.VERSION;
-    }
+	public String getVersion() {
+		return SBOLDesignerMetadata.VERSION;
+	}
 
-    public String getMinimumApiVersion() {
-        return "4.1";
-    }
+	public String getMinimumApiVersion() {
+		return "4.1";
+	}
 
-    public int getMaximumApiVersion() {
-        return 4;
-    }
-    
-    public String getEmailAddressForCrashes() {
-    	return SBOLDesignerMetadata.EMAIL;
-    }
+	public int getMaximumApiVersion() {
+		return 4;
+	}
 
-    @Override
-    public DocumentFileImporter[] getDocumentFileImporters() {
-        return new DocumentFileImporter[]{new SBOLImporter()};
-    }
+	public String getEmailAddressForCrashes() {
+		return SBOLDesignerMetadata.EMAIL;
+	}
 
-    @Override
-    public DocumentFileExporter[] getDocumentFileExporters() {
-        return new DocumentFileExporter[]{new SBOLExporter()};
-    }
-    
-    @Override
-    public SequenceAnnotationGenerator[] getSequenceAnnotationGenerators() {
-        return new SequenceAnnotationGenerator[] {
-                new SequenceVerificationAnnotationGenerator(),
-                new SequenceVerificationAnnotationCopyClipboard(),
-                new SOFAAnnotationGenerator()
-        };
-    }
-    
-    @Override
+	@Override
+	public DocumentFileImporter[] getDocumentFileImporters() {
+		return new DocumentFileImporter[] { new SBOLImporter() };
+	}
+
+	@Override
+	public DocumentFileExporter[] getDocumentFileExporters() {
+		return new DocumentFileExporter[] { new SBOLExporter() };
+	}
+
+	@Override
+	public SequenceAnnotationGenerator[] getSequenceAnnotationGenerators() {
+		return new SequenceAnnotationGenerator[] { new SequenceVerificationAnnotationGenerator(),
+				new SequenceVerificationAnnotationCopyClipboard(), new SOFAAnnotationGenerator() };
+	}
+
+	@Override
 	public DocumentViewerFactory[] getDocumentViewerFactories() {
 		return new DocumentViewerFactory[] { new SBOLViewer.Factory() };
 	}
-    
-    @Override
-    public DocumentOperation[] getDocumentOperations() {
-    	return new DocumentOperation[] { new SBOLCheckout(), new SBOLCommit() };
-    }
-    
-    @Override
-    public GeneiousService[] getServices() {
-    	List<GeneiousService> services = Lists.newArrayList();
-    	try {
-	        services.add(new VersioningService("http://localhost:5822/rvt"));
-	        services.add(new VersioningService("http://ec2-174-129-47-60.compute-1.amazonaws.com:8080/demo"));
-        }
-        catch (Exception e) {
-	        e.printStackTrace();
-        }
-        return Iterables.toArray(services, GeneiousService.class);
-    }
+
+	// TODO unsupported for now
+	// @Override
+	// public DocumentOperation[] getDocumentOperations() {
+	// return new DocumentOperation[] { new SBOLCheckout(), new SBOLCommit() };
+	// }
+	//
+	// @Override
+	// public GeneiousService[] getServices() {
+	// List<GeneiousService> services = Lists.newArrayList();
+	// try {
+	// services.add(new VersioningService("http://localhost:5822/rvt"));
+	// services.add(new
+	// VersioningService("http://ec2-174-129-47-60.compute-1.amazonaws.com:8080/demo"));
+	// } catch (Exception e) {
+	// e.printStackTrace();
+	// }
+	// return Iterables.toArray(services, GeneiousService.class);
+	// }
 }

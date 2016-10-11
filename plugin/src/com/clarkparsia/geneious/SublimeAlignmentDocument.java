@@ -18,6 +18,7 @@ package com.clarkparsia.geneious;
 import java.net.URI;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,19 +33,20 @@ import com.clarkparsia.sbol.SBOLUtils;
 import com.google.common.collect.Lists;
 
 /**
- * A convenience class that wraps a Geneious alignment document and makes it easier to process its contents.
+ * A convenience class that wraps a Geneious alignment document and makes it
+ * easier to process its contents.
  * 
  * @author Evren Sirin
  */
 public class SublimeAlignmentDocument {
 	private static Logger LOGGER = LoggerFactory.getLogger(SublimeAlignmentDocument.class.getName());
-	
+
 	private final SequenceAlignmentDocument originalDoc;
-	
+
 	private final URI alignmentURI;
-	
+
 	/**
-	 * The design document used in the alignment. 
+	 * The design document used in the alignment.
 	 */
 	private SequenceDocument designDoc;
 	/**
@@ -52,7 +54,8 @@ public class SublimeAlignmentDocument {
 	 */
 	private List<SequenceDocument> sequencingDataDocs;
 	/**
-	 * The sequence of the design document in the alignment. This sequence will include 
+	 * The sequence of the design document in the alignment. This sequence will
+	 * include
 	 */
 	private SequenceCharSequence sequence;
 	/**
@@ -62,51 +65,51 @@ public class SublimeAlignmentDocument {
 
 	public SublimeAlignmentDocument(SequenceAlignmentDocument alignmentDoc) throws IllegalArgumentException {
 		originalDoc = alignmentDoc;
-		
-		alignmentURI = SBOLUtils.createURI();
-		
-		LOGGER.debug("Sequences: {}",  alignmentDoc.getSequences());
-		
-		sequencingDataDocs = Lists.newArrayList(alignmentDoc.getSequences());
-		
-		LOGGER.debug("Sequencing data: {}",  sequencingDataDocs);
-    	
-    	int designDocumentIndex = findDesignDocumentIndex(sequencingDataDocs); 
-    	
-    	LOGGER.debug("Design doc index: {}",  designDocumentIndex);
 
-    	designDoc = sequencingDataDocs.remove(designDocumentIndex);
-    	
-    	LOGGER.debug("Design doc: {}",  designDoc);
-    	
-    	sequence = designDoc.getCharSequence();    	
-    	
-    	annotations = alignmentDoc.getAnnotationsOnConsensus();
+		alignmentURI = URI.create("http://" + UUID.randomUUID());
+
+		LOGGER.debug("Sequences: {}", alignmentDoc.getSequences());
+
+		sequencingDataDocs = Lists.newArrayList(alignmentDoc.getSequences());
+
+		LOGGER.debug("Sequencing data: {}", sequencingDataDocs);
+
+		int designDocumentIndex = findDesignDocumentIndex(sequencingDataDocs);
+
+		LOGGER.debug("Design doc index: {}", designDocumentIndex);
+
+		designDoc = sequencingDataDocs.remove(designDocumentIndex);
+
+		LOGGER.debug("Design doc: {}", designDoc);
+
+		sequence = designDoc.getCharSequence();
+
+		annotations = alignmentDoc.getAnnotationsOnConsensus();
 	}
-	
+
 	public URI getURI() {
 		return alignmentURI;
 	}
-	
+
 	public Date getCreationDate() {
 		return originalDoc.getCreationDate();
 	}
 
 	public SequenceDocument getDesign() {
-    	return designDoc;
-    }
+		return designDoc;
+	}
 
 	public List<SequenceDocument> getSequencingData() {
-    	return sequencingDataDocs;
-    }
+		return sequencingDataDocs;
+	}
 
 	public List<SequenceAnnotation> getAnnotations() {
-    	return annotations;
-    }
+		return annotations;
+	}
 
 	public SequenceCharSequence getCharSequence() {
-	    return sequence;
-    }
+		return sequence;
+	}
 
 	public SequenceAnnotationInterval originalInterval(SequenceAnnotationInterval interval) {
 		int start = originalPosition(interval.getFrom());
@@ -126,17 +129,17 @@ public class SublimeAlignmentDocument {
 			SequenceDocument sequenceDocument = sequences.get(i);
 			if (!(sequenceDocument instanceof NucleotideGraphSequenceDocument)) {
 				if (index != -1) {
-					throw new IllegalArgumentException("Multiple design sequences found: [" + sequences.get(index).getName() + ", " + sequenceDocument.getName() + "]");
+					throw new IllegalArgumentException("Multiple design sequences found: ["
+							+ sequences.get(index).getName() + ", " + sequenceDocument.getName() + "]");
 				}
 				index = i;
 			}
 		}
-		
+
 		if (index == -1) {
 			throw new IllegalArgumentException("No design sequence document found");
 		}
-		
+
 		return index;
 	}
 }
-

@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry excluding="com/clarkparsia/sbol/SBOLObjectFinder.java|com/clarkparsia/sbol/SBOLPredicates.java|com/clarkparsia/sbol/SBOLTextWriter.java|com/clarkparsia/sbol/SublimeSBOLBaseVisitor.java|com/clarkparsia/sbol/SublimeSBOLObjectImpl.java|com/clarkparsia/sbol/SublimeSBOLVisitor.java|com/clarkparsia/sbol/SublimeSequenceAnalysis.java|com/clarkparsia/sbol/SublimeSequenceVariant.java|com/clarkparsia/sbol/SublimeSequencingData.java|com/clarkparsia/sbol/SBOLAbstractWriter.java|com/clarkparsia/sbol/SBOLRDFReader.java|com/clarkparsia/sbol/SBOLRDFWriter.java|com/clarkparsia/sbol/SublimeSBOLFactory.java|com/clarkparsia/sbol/SBOLSPARQLWriter.java|com/clarkparsia/sbol/editor/io/SPARQLDocumentIO.java|com/clarkparsia/sbol/SBOLSPARQLReader.java" kind="src" path="src"/>
+	<classpathentry excluding="com/clarkparsia/sbol/SublimeSBOLObjectImpl.java|com/clarkparsia/sbol/SublimeSBOLVisitor.java|com/clarkparsia/sbol/SBOLAbstractWriter.java|com/clarkparsia/sbol/SBOLRDFReader.java|com/clarkparsia/sbol/SBOLRDFWriter.java|com/clarkparsia/sbol/SBOLSPARQLWriter.java|com/clarkparsia/sbol/editor/io/SPARQLDocumentIO.java|com/clarkparsia/sbol/SBOLSPARQLReader.java" kind="src" path="src"/>
 	<classpathentry kind="src" path="versioning/src"/>
 	<classpathentry kind="src" path="versioning/cli"/>
 	<classpathentry kind="src" path="servlet/src"/>
 	<classpathentry kind="src" path="versioning/test"/>
+	<classpathentry excluding="com/clarkparsia/geneious/SBOLCheckout.java|com/clarkparsia/geneious/SBOLCommit.java|com/clarkparsia/geneious/VersioningService.java" kind="src" path="plugin/src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="lib/opencsv-2.0.jar"/>
 	<classpathentry kind="lib" path="lib/simpleeventbus-1.2.jar"/>
@@ -31,6 +32,8 @@
 	<classpathentry kind="lib" path="lib/httpcore-4.4.4.jar"/>
 	<classpathentry kind="lib" path="lib/httpmime-4.5.2.jar"/>
 	<classpathentry kind="lib" path="lib/gson-2.3.1.jar"/>
+	<classpathentry kind="lib" path="lib/GeneiousPublicAPI.jar"/>
+	<classpathentry kind="lib" path="lib/jebl-0.4.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
