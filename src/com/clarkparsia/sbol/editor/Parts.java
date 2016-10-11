@@ -103,7 +103,8 @@ public class Parts {
 
 	public static Iterable<Part> sorted() {
 		if (SORTED_PARTS == null) {
-			SORTED_PARTS = Ordering.usingToString().sortedCopy(all());
+			// SORTED_PARTS = Ordering.usingToString().sortedCopy(all());
+			SORTED_PARTS = PARTS_LIST;
 		}
 
 		return SORTED_PARTS;
