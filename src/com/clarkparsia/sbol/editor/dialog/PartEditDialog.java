@@ -350,10 +350,7 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 		Part part = (Part) roleSelection.getSelectedItem();
 		if (part != null) {
 			// change parts list of roles to set of roles
-			Set<URI> setRoles = new HashSet<URI>();
-			for (URI role : part.getRoles()) {
-				setRoles.add(role);
-			}
+			Set<URI> setRoles = new HashSet<URI>(part.getRoles());
 			// use the role from roleRefinement if not "None"
 			if (!roleRefinement.getSelectedItem().equals("None")) {
 				SequenceOntology so = new SequenceOntology();

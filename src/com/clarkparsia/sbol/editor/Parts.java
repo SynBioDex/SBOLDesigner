@@ -120,6 +120,12 @@ public class Parts {
 
 		SequenceOntology so = new SequenceOntology();
 		for (Part part : PARTS.values()) {
+			if (part == GENERIC) {
+				// GENERIC has role SequenceFeature, which all other roles
+				// inherit from. Must therefore skip and let forComponent return
+				// GENERIC if nothing else matches.
+				continue;
+			}
 			if (so.isDescendantOf(role, part.getRole())) {
 				return part;
 			}
