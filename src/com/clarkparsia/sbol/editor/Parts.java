@@ -37,7 +37,7 @@ public class Parts {
 	private static final List<Part> PARTS_LIST = Lists.newArrayList();
 
 	public static final Part GENERIC = createPart("Generic", "Gen", "generic.png", ImageType.SHORT_OVER_BASELINE,
-			SequenceOntology.ENGINEERED_REGION);
+			SequenceOntology.SEQUENCE_FEATURE);
 	public static final Part PROMOTER = createPart("Promoter", "Pro", "promoter.png", ImageType.TALL_OVER_BASELINE,
 			SequenceOntology.PROMOTER);
 	public static final Part RBS = createPart("Ribosome Binding Site", "RBS", "translational-start-site.png",

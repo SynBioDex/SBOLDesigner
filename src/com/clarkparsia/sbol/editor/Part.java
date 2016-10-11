@@ -127,23 +127,23 @@ public class Part {
 	 */
 	public ComponentDefinition createComponentDefinition(SBOLDocument design) {
 		// change list of roles to set of roles
-		Set<URI> setRoles = new HashSet<URI>();
-		for (URI element : roles) {
-			setRoles.add(element);
-		}
+		Set<URI> setRoles = new HashSet<URI>(roles);
 		// create ComponentDefinition using the following parameters
 		try {
 			String uniqueId = SBOLUtils.getUniqueDisplayId(null, getDisplayId(), "1", "CD", design);
 			ComponentDefinition comp = design.createComponentDefinition(uniqueId, "1", ComponentDefinition.DNA);
+			// if a CD is being created by a sequence feature part, replace
+			// sequence feature with engineered region
+			if (setRoles.contains(SequenceOntology.SEQUENCE_FEATURE)) {
+				setRoles.clear();
+				setRoles.add(SequenceOntology.ENGINEERED_REGION);
+			}
 			comp.setRoles(setRoles);
 			return comp;
 		} catch (SBOLValidationException e) {
 			e.printStackTrace();
 			return null;
 		}
-		// comp.setURI(SBOLUtils.createURI());
-		// comp.setDisplayId(getDisplayId());
-		// comp.addType(getType());
 	}
 
 	public String toString() {
