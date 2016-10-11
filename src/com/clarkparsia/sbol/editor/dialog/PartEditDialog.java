@@ -181,7 +181,7 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 		JPanel controlsPane = builder.build();
 
 		JScrollPane tableScroller = new JScrollPane(sequenceField);
-		tableScroller.setPreferredSize(new Dimension(450, 200));
+		tableScroller.setPreferredSize(new Dimension(550, 200));
 		tableScroller.setAlignmentX(LEFT_ALIGNMENT);
 
 		JPanel tablePane = new JPanel();

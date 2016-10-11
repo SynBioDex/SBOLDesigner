@@ -18,6 +18,7 @@ package com.clarkparsia.sbol;
 import java.io.File;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -146,7 +147,7 @@ public class SBOLUtils {
 	}
 
 	/**
-	 * Creates an String[] representing SO names of descendant roles based on
+	 * Creates an alphabetized String[] representing SO names of descendant roles based on
 	 * the passed in part's role.
 	 */
 	public static String[] createRefinements(Part part) {
@@ -154,6 +155,7 @@ public class SBOLUtils {
 		String[] descendantNames;
 		if (part.getRole() != null) {
 			descendantNames = so.getDescendantNamesOf(part.getRole()).toArray(new String[0]);
+			Arrays.sort(descendantNames);
 		} else {
 			descendantNames = new String[0];
 		}
