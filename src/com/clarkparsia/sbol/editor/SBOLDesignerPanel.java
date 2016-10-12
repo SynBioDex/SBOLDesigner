@@ -564,7 +564,10 @@ public class SBOLDesignerPanel extends JPanel {
 		}
 	}
 
-	private boolean confirmSave() throws Exception {
+	/**
+	 * returns true if it is now safe to throw away the current design
+	 */
+	boolean confirmSave() throws Exception {
 		if (isModified()) {
 			int confirmation = JOptionPane.showConfirmDialog(this,
 					"Current design has been modified. If you don't save\n"
@@ -574,13 +577,15 @@ public class SBOLDesignerPanel extends JPanel {
 			if (confirmation == JOptionPane.CANCEL_OPTION) {
 				return false;
 			} else if (confirmation == JOptionPane.OK_OPTION) {
-				save();
+				return save();
 			}
 		}
-
 		return true;
 	}
 
+	/**
+	 * returns true if the design was successfully saved
+	 */
 	boolean save() throws Exception {
 		if (documentIO == null) {
 			if (!selectCurrentFile()) {
@@ -597,6 +602,9 @@ public class SBOLDesignerPanel extends JPanel {
 		return true;
 	}
 
+	/**
+	 * returns true if a file got selected
+	 */
 	private boolean selectCurrentFile() {
 		String name = design.getRootCD().getDisplayId();
 		if (!Strings.isNullOrEmpty(name)) {

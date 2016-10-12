@@ -17,6 +17,8 @@ package com.clarkparsia.sbol.editor;
 
 import java.awt.Image;
 import java.awt.Toolkit;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -58,7 +60,20 @@ public class SBOLDesignerStandalone extends JFrame {
 		setLocationRelativeTo(null);
 		setSize(800, 600);
 		setIconImage(ImageIO.read(getClass().getResourceAsStream("/com/clarkparsia/sbol/editor/images/icon0.png")));
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+		// set behavior for close operation
+		addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosing(WindowEvent e) {
+				try {
+					if (panel.confirmSave()) {
+						System.exit(0);
+					}
+				} catch (Exception e1) {
+					e1.printStackTrace();
+				}
+			}
+		});
 	}
 
 	public static void main(String[] args) throws SBOLValidationException, IOException {
