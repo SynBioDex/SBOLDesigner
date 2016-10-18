@@ -18,11 +18,15 @@ package com.clarkparsia.sbol.editor.dialog;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Container;
+import java.awt.Cursor;
+import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -99,6 +103,7 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 	private final JTextField name = new JTextField();
 	private final JTextField version = new JTextField();
 	private final JTextField description = new JTextField();
+	private final JLabel derivedFrom = new JLabel();
 	private final JTextArea sequenceField = new JTextArea(10, 80);
 
 	/**
@@ -177,8 +182,26 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 		builder.add("Role refinement", roleRefinement);
 		builder.add("Display ID", displayId, CD.getDisplayId());
 		builder.add("Name", name, CD.getName());
-		version.setEditable(false);
-		builder.add("Version", version, CD.getVersion());
+		// optional fields are optional
+		if (CD.isSetVersion()) {
+			version.setEditable(false);
+			builder.add("Version", version, CD.getVersion());
+		}
+		if (CD.isSetWasDerivedFrom()) {
+			derivedFrom.setText(CD.getWasDerivedFrom().toString());
+			derivedFrom.setCursor(new Cursor(Cursor.HAND_CURSOR));
+			derivedFrom.addMouseListener(new MouseAdapter() {
+				@Override
+				public void mouseClicked(MouseEvent e) {
+					try {
+						Desktop.getDesktop().browse(CD.getWasDerivedFrom());
+					} catch (IOException e1) {
+						JOptionPane.showMessageDialog(parent, "The URI could not be opened: " + e1.getMessage());
+					}
+				}
+			});
+			builder.add("DerivedFrom", derivedFrom);
+		}
 		builder.add("Description", description, CD.getDescription());
 		JPanel controlsPane = builder.build();
 
