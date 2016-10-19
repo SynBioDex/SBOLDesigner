@@ -121,8 +121,10 @@ public class SBOLDesignerPlugin extends SBOLDesignerPanel {
 	
 	private void setURIprefix() {
 		PersonInfo oldUserInfo = SBOLEditorPreferences.INSTANCE.getUserInfo();
-		PersonInfo userInfo = Infos.forPerson(URIprefix, oldUserInfo.getName(), oldUserInfo.getEmail().toString());
-		SBOLEditorPreferences.INSTANCE.saveUserInfo(userInfo);
+		if (oldUserInfo!=null) {
+			PersonInfo userInfo = Infos.forPerson(URIprefix, oldUserInfo.getName(), oldUserInfo.getEmail().toString());
+			SBOLEditorPreferences.INSTANCE.saveUserInfo(userInfo);
+		}
 	}
 
 	private void initGUI() {
