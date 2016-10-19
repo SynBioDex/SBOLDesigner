@@ -45,15 +45,29 @@ public class RegistryAddDialog extends InputDialog<Registry> {
 	private JTextField nameField;
 	private JTextField locationField;
 	private JTextComponent description;
+	private Registry oldRegistry = null;
 
-	public RegistryAddDialog(Component parent) {
+	/**
+	 * Prepopulates fields with oldRegistry if oldRegistry isn't null
+	 */
+	public RegistryAddDialog(Component parent, Registry oldRegistry) {
 		super(JOptionPane.getFrameForComponent(parent), "Add new registry");
+		this.oldRegistry = oldRegistry;
 	}
 
 	@Override
 	protected void initFormPanel(FormBuilder builder) {
-		nameField = builder.addTextField("Name", "");
-		locationField = builder.addTextField("URL or Path", "");
+		String oldName = "";
+		String oldLocation = "";
+		String oldDescription = "";
+		if (oldRegistry != null) {
+			oldName = oldRegistry.getName();
+			oldLocation = oldRegistry.getLocation();
+			oldDescription = oldRegistry.getDescription();
+		}
+		nameField = builder.addTextField("Name", oldName);
+		locationField = builder.addTextField("URL or Path", oldLocation);
+		description = builder.addTextField("Description", oldDescription);
 		JButton browse = new JButton("Browse local repositories (This can be any SBOL file)");
 		browse.addActionListener(new ActionListener() {
 			@Override
@@ -65,7 +79,6 @@ public class RegistryAddDialog extends InputDialog<Registry> {
 			}
 		});
 		builder.add(null, browse);
-		description = builder.addTextField("Description", "");
 	}
 
 	@Override

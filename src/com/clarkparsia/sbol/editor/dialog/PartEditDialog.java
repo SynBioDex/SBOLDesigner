@@ -137,7 +137,7 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 		return (title == null) ? "" : CharSequences.shorten(title, 20).toString();
 	}
 
-	private PartEditDialog(Component parent, ComponentDefinition CD, boolean canEdit, SBOLDocument design) {
+	private PartEditDialog(final Component parent, final ComponentDefinition CD, boolean canEdit, SBOLDocument design) {
 		super(JOptionPane.getFrameForComponent(parent), TITLE + title(CD), true);
 
 		this.CD = CD;

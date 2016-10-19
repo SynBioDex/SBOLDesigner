@@ -73,7 +73,7 @@ public enum RegistryPreferencesTab implements PreferencesTab {
 				Action action = Action.valueOf(e.getActionCommand());
 				switch (action) {
 				case ADD:
-					Registry registry = new RegistryAddDialog(table).getInput();
+					Registry registry = new RegistryAddDialog(table, null).getInput();
 					if (registry != null) {
 						model.add(registry);
 						Registries.get().save();
@@ -88,6 +88,20 @@ public enum RegistryPreferencesTab implements PreferencesTab {
 					model.restoreDefaults();
 					Registries.get().save();
 					break;
+				case EDIT:
+					row = table.convertRowIndexToModel(table.getSelectedRow());
+					if (row > model.getRowCount()) {
+						return;
+					} else {
+						Registry oldRegistry = model.getComponent(row);
+						registry = new RegistryAddDialog(table, oldRegistry).getInput();
+						if (registry != null) {
+							model.remove(row);
+							model.add(registry);
+							Registries.get().save();
+						}
+					}
+					break;
 				}
 			}
 		};
@@ -95,6 +109,11 @@ public enum RegistryPreferencesTab implements PreferencesTab {
 		final JButton addButton = new JButton("Add");
 		addButton.setActionCommand(Action.ADD.toString());
 		addButton.addActionListener(listener);
+
+		final JButton editButton = new JButton("Edit");
+		editButton.setActionCommand(Action.EDIT.toString());
+		editButton.addActionListener(listener);
+		editButton.setEnabled(false);
 
 		final JButton removeButton = new JButton("Remove");
 		removeButton.setActionCommand(Action.REMOVE.toString());
@@ -109,8 +128,9 @@ public enum RegistryPreferencesTab implements PreferencesTab {
 		table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
 			@Override
 			public void valueChanged(ListSelectionEvent event) {
-				// Everything can be removed except Built-In parts.
+				// Everything can be removed/edited except Built-In parts.
 				removeButton.setEnabled(table.getSelectedRow() >= 2);
+				editButton.setEnabled(table.getSelectedRow() >= 2);
 			}
 		});
 
@@ -136,6 +156,7 @@ public enum RegistryPreferencesTab implements PreferencesTab {
 		buttonPane.setLayout(new BoxLayout(buttonPane, BoxLayout.LINE_AXIS));
 		buttonPane.setBorder(BorderFactory.createEmptyBorder(0, 10, 10, 10));
 		buttonPane.add(addButton);
+		buttonPane.add(editButton);
 		buttonPane.add(removeButton);
 		buttonPane.add(Box.createHorizontalGlue());
 		buttonPane.add(restoreButton);
@@ -156,7 +177,7 @@ public enum RegistryPreferencesTab implements PreferencesTab {
 	}
 
 	private static enum Action {
-		ADD, REMOVE, RESTORE
+		ADD, REMOVE, RESTORE, EDIT
 	}
 
 	private static class RegistryTableModel extends AbstractTableModel {
