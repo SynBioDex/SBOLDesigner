@@ -24,7 +24,7 @@ import com.clarkparsia.versioning.PersonInfo;
 public enum SBOLEditorPreferences {
 	INSTANCE;
 
-	private PersonInfo userInfo;
+	private PersonInfo userInfo = null;
 
 	public PersonInfo getUserInfo() {
 		if (userInfo == null) {

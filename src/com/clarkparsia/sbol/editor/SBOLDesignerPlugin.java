@@ -42,7 +42,9 @@ import org.sbolstandard.core2.SBOLDocument;
 import org.sbolstandard.core2.SBOLValidationException;
 import org.sbolstandard.core2.SBOLWriter;
 
+import com.adamtaft.eb.EventHandler;
 import com.clarkparsia.sbol.SBOLUtils;
+import com.clarkparsia.sbol.editor.event.DesignChangedEvent;
 import com.clarkparsia.sbol.editor.io.DocumentIO;
 import com.clarkparsia.sbol.editor.io.FileDocumentIO;
 import com.clarkparsia.versioning.Infos;
@@ -108,7 +110,7 @@ public class SBOLDesignerPlugin extends SBOLDesignerPanel {
 		this.fileName = fileName;
 		this.rootURI = rootURI;
 		this.URIprefix = URIprefix;
-		setURIprefix();
+		saveURIprefix();
 
 		initGUI();
 
@@ -119,12 +121,10 @@ public class SBOLDesignerPlugin extends SBOLDesignerPanel {
 		openDesign(new FileDocumentIO(false));
 	}
 	
-	private void setURIprefix() {
+	private void saveURIprefix() {
 		PersonInfo oldUserInfo = SBOLEditorPreferences.INSTANCE.getUserInfo();
-		if (oldUserInfo!=null) {
-			PersonInfo userInfo = Infos.forPerson(URIprefix, oldUserInfo.getName(), oldUserInfo.getEmail().toString());
-			SBOLEditorPreferences.INSTANCE.saveUserInfo(userInfo);
-		}
+		PersonInfo userInfo = Infos.forPerson(URIprefix, oldUserInfo.getName(), oldUserInfo.getEmail().toString());
+		SBOLEditorPreferences.INSTANCE.saveUserInfo(userInfo);
 	}
 
 	private void initGUI() {
@@ -253,6 +253,11 @@ public class SBOLDesignerPlugin extends SBOLDesignerPanel {
 			SBOLWriter.write(doc, new FileOutputStream(file), SBOLDocument.FASTAformat);
 			break;
 		}
+	}
+	
+	@EventHandler
+	public void designChanged(DesignChangedEvent e) {
+		updateEnabledButtons(true);
 	}
 
 	// /**
