@@ -200,7 +200,7 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 					}
 				}
 			});
-			builder.add("DerivedFrom", derivedFrom);
+			builder.add("Derived from", derivedFrom);
 		}
 		builder.add("Description", description, CD.getDescription());
 		JPanel controlsPane = builder.build();
