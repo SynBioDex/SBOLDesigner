@@ -10,7 +10,7 @@ SBOL Designer can be used as a standalone program or as a [Geneious](http://www.
 Running SBOL Designer stand-alone
 =================================
 
-SBOL designer requires Java 6 or later to be installed on your computer. To run SBOL designer, 
+SBOL designer requires Java 8 or later to be installed on your computer. To run SBOL designer, 
 simply double click the jar file. If your OS does not support running Java applications by
 double clicking, you can run the designer from command-line by using the `java -jar <jarFileName>`
 command at a terminal where `jarFileName` will be the name of the SBOL Designer jar file you
