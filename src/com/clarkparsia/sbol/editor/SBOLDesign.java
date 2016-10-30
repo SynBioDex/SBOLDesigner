@@ -133,7 +133,7 @@ public class SBOLDesign {
 	};
 
 	public final SBOLEditorAction FIND = new SBOLEditorAction("Find parts", "Find parts in the part registry",
-			"find.gif") {
+			"find.png") {
 		@Override
 		protected void perform() {
 			try {

@@ -286,8 +286,7 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 				stack = new StackFrontend(location);
 			}
 			if (part != null) {
-				Set<URI> setRoles = new HashSet<URI>();
-				setRoles.addAll(part.getRoles());
+				Set<URI> setRoles = new HashSet<URI>(part.getRoles());
 				ArrayList<ComponentMetadata> l = stack.searchComponentMetadata(null, setRoles, null, null);
 				return l;
 			} else {
