@@ -405,6 +405,7 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 	}
 
 	private void updateFilter(String filterText) {
+		filterText = "(?i)" + filterText;
 		if (isMetadata()) {
 			TableRowSorter<ComponentMetadataTableModel> sorter = (TableRowSorter) table.getRowSorter();
 			if (filterText.length() == 0) {

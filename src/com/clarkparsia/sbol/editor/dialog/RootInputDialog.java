@@ -230,6 +230,7 @@ public class RootInputDialog extends InputDialog<SBOLDocument> {
 	}
 
 	private void updateFilter(String filterText) {
+		filterText = "(?i)" + filterText;
 		@SuppressWarnings({ "rawtypes", "unchecked" })
 		TableRowSorter<ComponentDefinitionTableModel> sorter = (TableRowSorter) table.getRowSorter();
 		if (filterText.length() == 0) {

@@ -86,6 +86,7 @@ public class SequenceInputDialog extends InputDialog<String> {
 	}
 
 	private void updateFilter(String filterText) {
+		filterText = "(?i)" + filterText;
 		@SuppressWarnings({ "rawtypes", "unchecked" })
 		TableRowSorter<SequenceTableModel> sorter = (TableRowSorter) table.getRowSorter();
 		if (filterText.length() == 0) {
