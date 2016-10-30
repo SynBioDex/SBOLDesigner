@@ -72,6 +72,7 @@ import com.clarkparsia.sbol.CharSequences;
 import com.clarkparsia.sbol.SBOLUtils;
 import com.clarkparsia.sbol.editor.Part;
 import com.clarkparsia.sbol.editor.Parts;
+import com.clarkparsia.sbol.editor.SBOLDesign;
 import com.clarkparsia.sbol.editor.SBOLEditorPreferences;
 import com.clarkparsia.sbol.editor.io.FileDocumentIO;
 import com.clarkparsia.sbol.terms.SO;
@@ -99,6 +100,7 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 	private final JButton cancelButton;
 	private final JButton importSequence;
 	private final JButton importCD;
+	private final JButton importFromRegistry;
 	private final JTextField displayId = new JTextField();
 	private final JTextField name = new JTextField();
 	private final JTextField version = new JTextField();
@@ -154,6 +156,8 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 		saveButton.setEnabled(false);
 		getRootPane().setDefaultButton(saveButton);
 
+		importFromRegistry = new JButton("Import registry part");
+		importFromRegistry.addActionListener(this);
 		importSequence = new JButton("Import sequence");
 		importSequence.addActionListener(this);
 		importCD = new JButton("Import part");
@@ -229,6 +233,7 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 		JPanel buttonPane = new JPanel();
 		buttonPane.setLayout(new BoxLayout(buttonPane, BoxLayout.LINE_AXIS));
 		buttonPane.setBorder(BorderFactory.createEmptyBorder(0, 10, 10, 10));
+		buttonPane.add(importFromRegistry);
 		buttonPane.add(importCD);
 		buttonPane.add(importSequence);
 		buttonPane.add(Box.createHorizontalStrut(100));
@@ -286,6 +291,20 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 			return;
 		}
 
+		if (e.getSource() == importFromRegistry) {
+			boolean isImported = false;
+			try {
+				isImported = importFromRegistryHandler();
+			} catch (Exception e1) {
+				JOptionPane.showMessageDialog(null, "This part cannot be imported: " + e1.getMessage());
+				e1.printStackTrace();
+			}
+			if (isImported) {
+				setVisible(false);
+			}
+			return;
+		}
+
 		try {
 			if (e.getSource().equals(saveButton)) {
 				saveButtonHandler();
@@ -314,10 +333,28 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 	}
 
 	/**
+	 * Handles importing of a CD and all its dependencies from a registry.
+	 * Returns true if something was imported. False otherwise.
+	 */
+	private boolean importFromRegistryHandler() throws Exception {
+		Part criteria = roleSelection.getSelectedItem().equals("None") ? PartInputDialog.ALL_PARTS
+				: (Part) roleSelection.getSelectedItem();
+
+		// User selects the CD
+		SBOLDocument selection = new RegistryInputDialog(this.getParent(), criteria).getInput();
+		if (selection == null) {
+			return false;
+		} else {
+			this.CD = selection.getRootComponentDefinitions().iterator().next();
+			// copy the rest of the design into design
+			SBOLUtils.insertTopLevels(selection, design);
+			return true;
+		}
+	}
+
+	/**
 	 * Handles importing of a CD and all its dependencies. Returns true if
 	 * something was imported. False otherwise.
-	 * 
-	 * @throws Exception
 	 */
 	private boolean importCDHandler() throws Exception {
 		SBOLDocument doc = SBOLUtils.importDoc();
