@@ -15,6 +15,7 @@
 
 package com.clarkparsia.sbol.editor.dialog;
 
+import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -28,11 +29,14 @@ import java.util.List;
 import java.util.Set;
 import java.util.regex.PatternSyntaxException;
 
+import javax.swing.BorderFactory;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
@@ -287,8 +291,11 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 			}
 			if (part != null) {
 				Set<URI> setRoles = new HashSet<URI>(part.getRoles());
-				ArrayList<ComponentMetadata> l = stack.searchComponentMetadata(null, setRoles, null, null);
-				return l;
+				SBOLStackQuery query = new SBOLStackQuery(stack, setRoles);
+				Thread thread = new Thread(query);
+				thread.start();
+				thread.join();
+				return query.getResult();
 			} else {
 				ArrayList<ComponentMetadata> l = stack.searchComponentMetadata(null, new HashSet<URI>(), 0, 99);
 				return l;
