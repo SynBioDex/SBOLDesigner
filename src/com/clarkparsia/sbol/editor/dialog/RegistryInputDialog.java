@@ -15,9 +15,7 @@
 
 package com.clarkparsia.sbol.editor.dialog;
 
-import java.awt.BorderLayout;
 import java.awt.Component;
-import java.awt.Cursor;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -28,17 +26,13 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 import java.util.regex.PatternSyntaxException;
 
-import javax.swing.BorderFactory;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
@@ -71,8 +65,6 @@ import com.clarkparsia.swing.ComboBoxRenderer;
 import com.clarkparsia.swing.FormBuilder;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-
-import javafx.concurrent.Task;
 
 /**
  * 
