@@ -423,6 +423,10 @@ public class SBOLDesign {
 			return false;
 		}
 		doc.setDefaultURIprefix(SBOLEditorPreferences.INSTANCE.getUserInfo().getURI().toString());
+		if (!doc.isCompliant()) {
+			JOptionPane.showMessageDialog(panel,
+					"Beware, this file is valid, but not compliant.  Some features might not work.");
+		}
 		design = doc;
 
 		ComponentDefinition[] rootCDs = doc.getRootComponentDefinitions().toArray(new ComponentDefinition[0]);
