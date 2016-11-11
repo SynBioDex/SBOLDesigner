@@ -1,6 +1,8 @@
 package com.clarkparsia.sbol.editor.dialog;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
+import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -19,24 +21,34 @@ import org.sbolstack.frontend.StackException;
 import org.sbolstack.frontend.StackFrontend;
 
 import com.clarkparsia.sbol.editor.Images;
+import com.clarkparsia.sbol.editor.dialog.RegistryInputDialog.TableUpdater;
 
-public class SBOLStackQuery extends SwingWorker<ArrayList<ComponentMetadata>, Object> {
+public class SBOLStackQuery extends SwingWorker<Object, Object> {
 
 	StackFrontend stack;
 	Set<URI> roles;
-	LoadingDialog loadingFrame;
+	TableUpdater tableUpdater;
+	ArrayList<ComponentMetadata> components;
+	LoadingDialog loading;
 
-	public SBOLStackQuery(StackFrontend stack, Set<URI> roles) {
+	public SBOLStackQuery(StackFrontend stack, Set<URI> roles, TableUpdater tableUpdater, Component parent)
+			throws IOException {
 		this.stack = stack;
 		this.roles = roles;
-		// TODO not showing up properly
-		// loadingFrame = new LoadingDialog();
+		this.tableUpdater = tableUpdater;
+		this.loading = new LoadingDialog(parent);
 	}
 
 	@Override
 	protected ArrayList<ComponentMetadata> doInBackground() throws Exception {
-		ArrayList<ComponentMetadata> result = stack.searchComponentMetadata(null, roles, null, null);
-		// loadingFrame.setVisible(false);
-		return result;
+		loading.start();
+		this.components = stack.searchComponentMetadata(null, roles, null, null);
+		return components;
+	}
+
+	@Override
+	protected void done() {
+		tableUpdater.updateTable(components);
+		loading.stop();
 	}
 }

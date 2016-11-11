@@ -294,13 +294,11 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 				stack = new StackFrontend(location);
 			}
 			if (part != null) {
-				setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 				Set<URI> setRoles = new HashSet<URI>(part.getRoles());
-				SBOLStackQuery query = new SBOLStackQuery(stack, setRoles);
+				SBOLStackQuery query = new SBOLStackQuery(stack, setRoles, new TableUpdater(), this);
+				// non-blocking: will update using the TableUpdater
 				query.execute();
-				ArrayList<ComponentMetadata> result = query.get();
-				setCursor(Cursor.getDefaultCursor());
-				return result;
+				return new ArrayList<ComponentMetadata>();
 			} else {
 				ArrayList<ComponentMetadata> l = stack.searchComponentMetadata(null, new HashSet<URI>(), 0, 99);
 				return l;
@@ -444,6 +442,37 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 				}
 			}
 			tableLabel.setText("Matching parts (" + sorter.getViewRowCount() + ")");
+		}
+	}
+
+	/**
+	 * Updates the table using the provided components. This lets the
+	 * SBOLStackQuery thread update the table.
+	 */
+	public class TableUpdater {
+		public void updateTable(ArrayList<ComponentMetadata> components) {
+			ComponentMetadataTableModel tableModel = new ComponentMetadataTableModel(components);
+			table = new JTable(tableModel);
+			tableLabel.setText("Matching parts (" + components.size() + ")");
+			TableRowSorter<TableModel> sorter = new TableRowSorter<TableModel>(tableModel);
+			table.setRowSorter(sorter);
+			setWidthAsPercentages(table, tableModel.getWidths());
+			table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+			table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+				@Override
+				public void valueChanged(ListSelectionEvent event) {
+					setSelectAllowed(table.getSelectedRow() >= 0);
+				}
+			});
+			table.addMouseListener(new MouseAdapter() {
+				public void mouseClicked(MouseEvent e) {
+					if (e.getClickCount() == 2 && table.getSelectedRow() >= 0) {
+						canceled = false;
+						setVisible(false);
+					}
+				}
+			});
+			scroller.setViewportView(table);
 		}
 	}
 }
