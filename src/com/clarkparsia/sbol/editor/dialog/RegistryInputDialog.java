@@ -17,6 +17,7 @@ package com.clarkparsia.sbol.editor.dialog;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.Cursor;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -27,6 +28,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.PatternSyntaxException;
 
 import javax.swing.BorderFactory;
@@ -69,6 +71,8 @@ import com.clarkparsia.swing.ComboBoxRenderer;
 import com.clarkparsia.swing.FormBuilder;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+
+import javafx.concurrent.Task;
 
 /**
  * 
@@ -290,12 +294,13 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 				stack = new StackFrontend(location);
 			}
 			if (part != null) {
+				setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 				Set<URI> setRoles = new HashSet<URI>(part.getRoles());
 				SBOLStackQuery query = new SBOLStackQuery(stack, setRoles);
-				Thread thread = new Thread(query);
-				thread.start();
-				thread.join();
-				return query.getResult();
+				query.execute();
+				ArrayList<ComponentMetadata> result = query.get();
+				setCursor(Cursor.getDefaultCursor());
+				return result;
 			} else {
 				ArrayList<ComponentMetadata> l = stack.searchComponentMetadata(null, new HashSet<URI>(), 0, 99);
 				return l;
