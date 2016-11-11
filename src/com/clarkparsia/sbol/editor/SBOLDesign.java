@@ -72,6 +72,7 @@ import org.sbolstandard.core2.ComponentDefinition;
 import org.sbolstandard.core2.Location;
 import org.sbolstandard.core2.Sequence;
 import org.sbolstandard.core2.SBOLDocument;
+import org.sbolstandard.core2.SBOLValidate;
 import org.sbolstandard.core2.SBOLValidationException;
 import org.sbolstandard.core2.SequenceAnnotation;
 import org.sbolstandard.core2.OrientationType;
@@ -423,9 +424,11 @@ public class SBOLDesign {
 			return false;
 		}
 		doc.setDefaultURIprefix(SBOLEditorPreferences.INSTANCE.getUserInfo().getURI().toString());
-		if (!doc.isCompliant()) {
+		SBOLValidate.validateSBOL(doc, false, false, true);
+		List<String> errors = SBOLValidate.getErrors();
+		if (!errors.isEmpty()) {
 			JOptionPane.showMessageDialog(panel,
-					"Beware, this file is valid, but not compliant.  Some features might not work.");
+					"Beware, this file isn't following best practice: " + errors.toString());
 		}
 		design = doc;
 
@@ -631,7 +634,7 @@ public class SBOLDesign {
 				// component reference without a connected CD
 				continue;
 			}
-			addCD(component, refered, Parts.forComponent(refered));
+			addCD(component, refered, Parts.forCD(refered));
 		}
 	}
 
@@ -700,7 +703,7 @@ public class SBOLDesign {
 	}
 
 	public void addCD(ComponentDefinition comp) throws SBOLValidationException {
-		addCD(null, comp, Parts.forComponent(comp));
+		addCD(null, comp, Parts.forCD(comp));
 	}
 
 	/**
@@ -721,7 +724,7 @@ public class SBOLDesign {
 				return null;
 			}
 		}
-		part = Parts.forComponent(comp);
+		part = Parts.forCD(comp);
 		addCD(null, comp, part);
 
 		return comp;
@@ -949,7 +952,7 @@ public class SBOLDesign {
 			JLabel button = buttons.get(e);
 			e.setCD(newCD);
 			if (!newCD.getRoles().contains(e.getPart().getRole())) {
-				Part newPart = Parts.forComponent(newCD);
+				Part newPart = Parts.forCD(newCD);
 				if (newPart == null) {
 					newCD.addRole(e.getPart().getRole());
 				} else {

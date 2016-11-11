@@ -133,7 +133,7 @@ public class Parts {
 		return null;
 	}
 
-	public static Part forComponent(ComponentDefinition comp) {
+	public static Part forCD(ComponentDefinition comp) {
 		Part result = null;
 		Collection<URI> roles = comp.getRoles();
 		if (!roles.isEmpty()) {
