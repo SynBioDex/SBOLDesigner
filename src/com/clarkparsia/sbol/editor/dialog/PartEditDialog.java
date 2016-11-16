@@ -341,7 +341,7 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 				: (Part) roleSelection.getSelectedItem();
 
 		// User selects the CD
-		SBOLDocument selection = new RegistryInputDialog(this.getParent(), criteria).getInput();
+		SBOLDocument selection = new RegistryInputDialog(this.getParent(), criteria, design).getInput();
 		if (selection == null) {
 			return false;
 		} else {

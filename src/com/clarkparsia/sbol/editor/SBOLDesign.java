@@ -1111,7 +1111,7 @@ public class SBOLDesign {
 	public void findPartForSelectedCD() throws Exception {
 		Part part = selectedElement.getPart();
 		SBOLDocument selection = null;
-		selection = new RegistryInputDialog(panel.getParent(), part).getInput();
+		selection = new RegistryInputDialog(panel.getParent(), part, design).getInput();
 
 		if (selection != null) {
 			SBOLUtils.insertTopLevels(selection, design);
