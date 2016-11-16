@@ -42,6 +42,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
@@ -50,6 +51,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.swing.Action;
 import javax.swing.BorderFactory;
@@ -626,6 +629,10 @@ public class SBOLDesign {
 			}
 			return;
 		}
+
+		// TODO this breaks when sequences overlap
+		// keeps track of the base pairs we've seen already
+		//String parentSeq = comp.getSequenceByEncoding(Sequence.IUPAC_DNA).getElements();
 		// get sortedComponents and add them in order
 		Iterable<org.sbolstandard.core2.Component> sortedComponents = comp.getSortedComponents();
 		for (org.sbolstandard.core2.Component component : sortedComponents) {
@@ -634,7 +641,65 @@ public class SBOLDesign {
 				// component reference without a connected CD
 				continue;
 			}
+
+//			// potentially add extra backbone
+//			String uncoveredSeq = backboneElements(parentSeq,
+//					refered.getSequenceByEncoding(Sequence.IUPAC_DNA).getElements());
+//			if (uncoveredSeq.length() > 0) {
+//				addCD(createBackboneCD(uncoveredSeq));
+//				parentSeq = parentSeq.substring(uncoveredSeq.length());
+//			}
+
 			addCD(component, refered, Parts.forCD(refered));
+//			String referedSeq = refered.getSequenceByEncoding(Sequence.IUPAC_DNA).getElements();
+//			if (referedSeq.length() < parentSeq.length()) {
+//				parentSeq = parentSeq.substring(referedSeq.length());
+//			}
+		}
+//		if (parentSeq.length() > 0) {
+//			// the end might be uncovered
+//			addCD(createBackboneCD(parentSeq));
+//		}
+	}
+
+	/**
+	 * Returns a plain backbone CD with a Sequence containing the provided
+	 * elements.
+	 */
+	private ComponentDefinition createBackboneCD(String elements) throws SBOLValidationException {
+		try {
+			String CDID = SBOLUtils.getUniqueDisplayId(null, "backboneCD", "1", "CD", design);
+			String seqID = SBOLUtils.getUniqueDisplayId(null, "backboneSequence", "1", "Sequence", design);
+			ComponentDefinition CD;
+			CD = design.createComponentDefinition(CDID, "1", new URI("SO:0000001"));
+			CD.addSequence(design.createSequence(seqID, "1", elements, Sequence.IUPAC_DNA));
+			return CD;
+		} catch (URISyntaxException e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+
+	/**
+	 * Returns the elements in parentSeq that occur before elements
+	 */
+	private String backboneElements(String parentSeq, String elements) {
+		Pattern pattern = Pattern.compile(elements);
+		Matcher matcher = pattern.matcher(parentSeq);
+		if (matcher.find()) {
+			int start = matcher.start();
+			// TODO test this
+			System.out.print("Start index: " + matcher.start());
+			System.out.print(" End index: " + matcher.end());
+			System.out.println(" Found: " + matcher.group());
+			if (start != 0) {
+				return parentSeq.substring(0, start);
+			} else {
+				return "";
+			}
+		} else {
+			// can't find any occurrences of elements
+			return parentSeq;
 		}
 	}
 
@@ -709,8 +774,6 @@ public class SBOLDesign {
 	/**
 	 * edit is whether or not you want to bring up PartEditDialog when part
 	 * button is pressed.
-	 * 
-	 * @throws SBOLValidationException
 	 */
 	public ComponentDefinition addCD(Part part, boolean edit) throws SBOLValidationException {
 		if (!confirmEditable()) {
