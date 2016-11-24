@@ -43,6 +43,7 @@ import org.sbolstandard.core2.SequenceAnnotation;
 import org.sbolstandard.core2.SequenceOntology;
 import org.sbolstandard.core2.TopLevel;
 
+import com.clarkparsia.sbol.SBOLUtils.Types;
 import com.clarkparsia.sbol.editor.Part;
 import com.clarkparsia.sbol.editor.SBOLEditorPreferences;
 import com.clarkparsia.sbol.editor.dialog.RootInputDialog;
@@ -147,8 +148,8 @@ public class SBOLUtils {
 	}
 
 	/**
-	 * Creates an alphabetized String[] representing SO names of descendant roles based on
-	 * the passed in part's role.
+	 * Creates an alphabetized String[] representing SO names of descendant
+	 * roles based on the passed in part's role.
 	 */
 	public static String[] createRefinements(Part part) {
 		SequenceOntology so = new SequenceOntology();
@@ -367,6 +368,41 @@ public class SBOLUtils {
 
 	public enum Types {
 		All_types, DNA, Complex, Effector, Protein, RNA, Small_molecule;
+	}
+
+	/**
+	 * Turns the type specified in types to a HashSet<URI> of types
+	 */
+	public static Set<URI> convertTypesToSet(Types types) {
+		URI uri;
+		switch (types) {
+		case All_types:
+			return new HashSet<URI>();
+		case DNA:
+			uri = ComponentDefinition.DNA;
+			break;
+		case Complex:
+			uri = ComponentDefinition.COMPLEX;
+			break;
+		case Effector:
+			uri = ComponentDefinition.EFFECTOR;
+			break;
+		case Protein:
+			uri = ComponentDefinition.PROTEIN;
+			break;
+		case RNA:
+			uri = ComponentDefinition.RNA;
+			break;
+		case Small_molecule:
+			uri = ComponentDefinition.SMALL_MOLECULE;
+			break;
+		default:
+			System.out.println("Invalid type");
+			return new HashSet<URI>();
+		}
+		HashSet<URI> set = new HashSet<URI>();
+		set.add(uri);
+		return set;
 	}
 
 	/**

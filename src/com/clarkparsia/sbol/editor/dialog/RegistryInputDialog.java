@@ -50,7 +50,7 @@ import org.sbolstandard.core2.SBOLDocument;
 import org.sbolstandard.core2.SBOLReader;
 import org.sbolstandard.core2.Sequence;
 import org.sbolstandard.core2.SequenceOntology;
-import org.sbolstack.frontend.ComponentMetadata;
+import org.sbolstack.frontend.IdentifiedMetadata;
 import org.sbolstack.frontend.StackFrontend;
 
 import com.clarkparsia.sbol.CharSequences;
@@ -206,7 +206,8 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 	protected JPanel initMainPanel() {
 		JPanel panel;
 		if (isMetadata()) {
-			List<ComponentMetadata> components = searchParts(isRoleSelection() ? part : null, stack);
+			Types types = (Types) typeSelection.getSelectedItem();
+			List<IdentifiedMetadata> components = searchParts(isRoleSelection() ? part : null, types, stack);
 			ComponentMetadataTableModel tableModel = new ComponentMetadataTableModel(components);
 			panel = createTablePanel(tableModel, "Matching parts (" + tableModel.getRowCount() + ")");
 		} else {
@@ -224,7 +225,7 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 
 	/**
 	 * Checks to see if the registry we are working on is represented by
-	 * ComponentMetadata.
+	 * IdentifiedMetadata.
 	 */
 	private boolean isMetadata() {
 		return location.startsWith("http://");
@@ -279,7 +280,7 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 	/**
 	 * Queries the stack provided for CDs matching the role(s) of the part
 	 */
-	private List<ComponentMetadata> searchParts(Part part, StackFrontend stack) {
+	private List<IdentifiedMetadata> searchParts(Part part, Types types, StackFrontend stack) {
 		try {
 			if (!isMetadata()) {
 				throw new Exception("Incorrect state.  url is a path");
@@ -289,12 +290,14 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 			}
 			if (part != null) {
 				Set<URI> setRoles = new HashSet<URI>(part.getRoles());
-				SBOLStackQuery query = new SBOLStackQuery(stack, setRoles, new TableUpdater(), this);
+				Set<URI> setTypes = SBOLUtils.convertTypesToSet(types);
+				SBOLStackQuery query = new SBOLStackQuery(stack, setRoles, setTypes, new TableUpdater(), this);
 				// non-blocking: will update using the TableUpdater
 				query.execute();
-				return new ArrayList<ComponentMetadata>();
+				return new ArrayList<IdentifiedMetadata>();
 			} else {
-				ArrayList<ComponentMetadata> l = stack.searchComponentMetadata(null, new HashSet<URI>(), 0, 99);
+				ArrayList<IdentifiedMetadata> l = stack.searchComponentMetadata(null, new HashSet<URI>(),
+						new HashSet<URI>(), new HashSet<URI>(), 0, 99);
 				return l;
 			}
 		} catch (Exception e) {
@@ -315,7 +318,7 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 			int row = table.convertRowIndexToModel(table.getSelectedRow());
 
 			if (isMetadata()) {
-				ComponentMetadata compMeta = ((ComponentMetadataTableModel) table.getModel()).getElement(row);
+				IdentifiedMetadata compMeta = ((ComponentMetadataTableModel) table.getModel()).getElement(row);
 				if (stack == null) {
 					stack = new StackFrontend(location);
 				}
@@ -372,8 +375,8 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 		}
 
 		if (isMetadata()) {
-			List<ComponentMetadata> components = searchParts(part, stack);
-			// TODO no ability to search by type in Stack API
+			Types types = (Types) typeSelection.getSelectedItem();
+			List<IdentifiedMetadata> components = searchParts(part, types, stack);
 			ComponentMetadataTableModel tableModel = new ComponentMetadataTableModel(components);
 			table = new JTable(tableModel);
 			tableLabel.setText("Matching parts (" + components.size() + ")");
@@ -444,7 +447,7 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 	 * SBOLStackQuery thread update the table.
 	 */
 	public class TableUpdater {
-		public void updateTable(ArrayList<ComponentMetadata> components) {
+		public void updateTable(ArrayList<IdentifiedMetadata> components) {
 			ComponentMetadataTableModel tableModel = new ComponentMetadataTableModel(components);
 			table = new JTable(tableModel);
 			tableLabel.setText("Matching parts (" + components.size() + ")");

@@ -2,18 +2,18 @@ package com.clarkparsia.sbol.editor.dialog;
 
 import java.util.List;
 
-import org.sbolstack.frontend.ComponentMetadata;
+import org.sbolstack.frontend.IdentifiedMetadata;
 import com.clarkparsia.swing.AbstractListTableModel;
 
-class ComponentMetadataTableModel extends AbstractListTableModel<ComponentMetadata> {
+class ComponentMetadataTableModel extends AbstractListTableModel<IdentifiedMetadata> {
 	private static final String[] COLUMNS = { "Display Id", "Name", "Version", "Description" };
 	private static final double[] WIDTHS = { 0.2, 0.2, 0.1, 0.5 };
 
-	public ComponentMetadataTableModel(List<ComponentMetadata> components) {
+	public ComponentMetadataTableModel(List<IdentifiedMetadata> components) {
 		super(components, COLUMNS, WIDTHS);
 	}
 
-	public Object getField(ComponentMetadata component, int col) {
+	public Object getField(IdentifiedMetadata component, int col) {
 		switch (col) {
 		case 0:
 			return component.displayId;

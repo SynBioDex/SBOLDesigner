@@ -16,7 +16,7 @@ import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.SwingWorker;
 
-import org.sbolstack.frontend.ComponentMetadata;
+import org.sbolstack.frontend.IdentifiedMetadata;
 import org.sbolstack.frontend.StackException;
 import org.sbolstack.frontend.StackFrontend;
 
@@ -27,22 +27,24 @@ public class SBOLStackQuery extends SwingWorker<Object, Object> {
 
 	StackFrontend stack;
 	Set<URI> roles;
+	Set<URI> types;
 	TableUpdater tableUpdater;
-	ArrayList<ComponentMetadata> components;
+	ArrayList<IdentifiedMetadata> components;
 	LoadingDialog loading;
 
-	public SBOLStackQuery(StackFrontend stack, Set<URI> roles, TableUpdater tableUpdater, Component parent)
-			throws IOException {
+	public SBOLStackQuery(StackFrontend stack, Set<URI> roles, Set<URI> types, TableUpdater tableUpdater,
+			Component parent) throws IOException {
 		this.stack = stack;
 		this.roles = roles;
+		this.types = types;
 		this.tableUpdater = tableUpdater;
 		this.loading = new LoadingDialog(parent);
 	}
 
 	@Override
-	protected ArrayList<ComponentMetadata> doInBackground() throws Exception {
+	protected ArrayList<IdentifiedMetadata> doInBackground() throws Exception {
 		loading.start();
-		this.components = stack.searchComponentMetadata(null, roles, null, null);
+		this.components = stack.searchComponentMetadata(null, roles, types, new HashSet<URI>(), null, null);
 		return components;
 	}
 
