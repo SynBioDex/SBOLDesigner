@@ -23,6 +23,7 @@ import java.awt.event.MouseEvent;
 import java.io.File;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -51,6 +52,7 @@ import org.sbolstandard.core2.SBOLReader;
 import org.sbolstandard.core2.Sequence;
 import org.sbolstandard.core2.SequenceOntology;
 import org.sbolstack.frontend.IdentifiedMetadata;
+import org.sbolstack.frontend.StackException;
 import org.sbolstack.frontend.StackFrontend;
 
 import com.clarkparsia.sbol.CharSequences;
@@ -100,6 +102,7 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 	private JComboBox<Part> roleSelection;
 	private JComboBox<String> roleRefinement;
 	private JComboBox<Types> typeSelection;
+	private JComboBox<IdentifiedMetadata> collectionSelection;
 
 	private JTable table;
 	private JLabel tableLabel;
@@ -138,6 +141,7 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 
 	@Override
 	public void initFormPanel(FormBuilder builder) {
+		// set up type selection
 		typeSelection = new JComboBox<Types>(Types.values());
 		typeSelection.setSelectedItem(Types.DNA);
 		typeSelection.addActionListener(new ActionListener() {
@@ -148,6 +152,33 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 		});
 		builder.add("Part type", typeSelection);
 
+		// set up collection selection
+		if (stack == null) {
+			stack = new StackFrontend(location);
+		}
+		List<IdentifiedMetadata> collections;
+		try {
+			collections = stack.fetchRootCollectionMetadata();
+		} catch (StackException e1) {
+			e1.printStackTrace();
+			JOptionPane.showMessageDialog(null,
+					"There was an error populating the collections from this stack instance: " + stack.getBackendUrl());
+			return;
+		}
+		IdentifiedMetadata allCollections = new IdentifiedMetadata();
+		allCollections.name = "All Collections";
+		collections.add(0, allCollections);
+		collectionSelection = new JComboBox<IdentifiedMetadata>(collections.toArray(new IdentifiedMetadata[0]));
+		collectionSelection.setSelectedItem(allCollections);
+		collectionSelection.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				updateCollectionSelection();
+			}
+		});
+		builder.add("Collection", collectionSelection);
+
+		// set up role selection
 		List<Part> parts = Lists.newArrayList(Parts.sorted());
 		parts.add(0, ALL_PARTS);
 		roleSelection = new JComboBox<Part>(parts.toArray(new Part[0]));
@@ -173,10 +204,12 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 		});
 		builder.add("Role refinement", roleRefinement);
 
+		// set up the import subparts checkbox
 		importSubparts = new JCheckBox("Import with subcomponents");
 		importSubparts.setSelected(true);
 		builder.add("", importSubparts);
 
+		// set up the filter
 		final JTextField filterSelection = new JTextField();
 		filterSelection.getDocument().addDocumentListener(new DocumentListener() {
 			@Override
@@ -194,7 +227,6 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 				updateFilter(filterSelection.getText());
 			}
 		});
-
 		builder.add("Filter parts", filterSelection);
 	}
 
@@ -353,6 +385,10 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 			stack = new StackFrontend(location);
 		}
 		updateTable();
+	}
+
+	private void updateCollectionSelection() {
+		// TODO
 	}
 
 	private void updateRoleRefinement() {
