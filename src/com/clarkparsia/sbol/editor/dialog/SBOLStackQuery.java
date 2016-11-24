@@ -28,15 +28,23 @@ public class SBOLStackQuery extends SwingWorker<Object, Object> {
 	StackFrontend stack;
 	Set<URI> roles;
 	Set<URI> types;
+	Set<URI> collections;
 	TableUpdater tableUpdater;
 	ArrayList<IdentifiedMetadata> components;
 	LoadingDialog loading;
 
-	public SBOLStackQuery(StackFrontend stack, Set<URI> roles, Set<URI> types, TableUpdater tableUpdater,
-			Component parent) throws IOException {
+	public SBOLStackQuery(StackFrontend stack, Set<URI> roles, Set<URI> types, Set<URI> collections,
+			TableUpdater tableUpdater, Component parent) throws IOException {
 		this.stack = stack;
 		this.roles = roles;
 		this.types = types;
+		for (URI uri : collections) {
+			if (uri.toString().equals("")) {
+				// a uri of "" means "all collections"
+				collections = new HashSet<URI>();
+			}
+		}
+		this.collections = collections;
 		this.tableUpdater = tableUpdater;
 		this.loading = new LoadingDialog(parent);
 	}
@@ -44,7 +52,7 @@ public class SBOLStackQuery extends SwingWorker<Object, Object> {
 	@Override
 	protected ArrayList<IdentifiedMetadata> doInBackground() throws Exception {
 		loading.start();
-		this.components = stack.searchComponentMetadata(null, roles, types, new HashSet<URI>(), null, null);
+		this.components = stack.searchComponentMetadata(null, roles, types, collections, null, null);
 		return components;
 	}
 

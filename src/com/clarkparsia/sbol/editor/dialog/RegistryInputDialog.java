@@ -23,6 +23,7 @@ import java.awt.event.MouseEvent;
 import java.io.File;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -99,7 +100,7 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 		@Override
 		protected String getLabel(IdentifiedMetadata collection) {
 			if (collection != null) {
-				return collection.name + " " + collection.uri;
+				return collection.name;
 			} else {
 				return "Unknown";
 			}
@@ -143,12 +144,6 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 			registrySelection.setSelectedIndex(selectedRegistry);
 		}
 		registrySelection.addActionListener(actionListener);
-		// registrySelection.addActionListener(new ActionListener() {
-		// @Override
-		// public void actionPerformed(ActionEvent e) {
-		// update
-		// }
-		// });
 		registrySelection.setRenderer(registryRenderer);
 		builder.add("Registry", registrySelection);
 
@@ -175,29 +170,15 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 		builder.add("Part type", typeSelection);
 
 		// set up collection selection
-		if (stack == null) {
-			stack = new StackFrontend(location);
-		}
-		List<IdentifiedMetadata> collections;
-		try {
-			collections = stack.fetchRootCollectionMetadata();
-		} catch (StackException e1) {
-			e1.printStackTrace();
-			JOptionPane.showMessageDialog(null,
-					"There was an error populating the collections from this stack instance: " + stack.getBackendUrl());
-			return;
-		}
-		IdentifiedMetadata allCollections = new IdentifiedMetadata();
-		allCollections.name = "All Collections";
-		allCollections.uri = "";
-		collections.add(0, allCollections);
-		collectionSelection = new JComboBox<IdentifiedMetadata>(collections.toArray(new IdentifiedMetadata[0]));
+		collectionSelection = new JComboBox<IdentifiedMetadata>();
 		collectionSelection.setRenderer(collectionsRenderer);
-		collectionSelection.setSelectedItem(allCollections);
+		updateCollectionSelection(true);
+		collectionSelection.setSelectedItem(collectionSelection.getItemAt(0));
 		collectionSelection.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				updateCollectionSelection();
+				updateCollectionSelection(false);
+				updateTable();
 			}
 		});
 		builder.add("Collection", collectionSelection);
@@ -262,8 +243,7 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 	protected JPanel initMainPanel() {
 		JPanel panel;
 		if (isMetadata()) {
-			Types types = (Types) typeSelection.getSelectedItem();
-			List<IdentifiedMetadata> components = searchParts(isRoleSelection() ? part : null, types, stack);
+			List<IdentifiedMetadata> components = searchParts(isRoleSelection() ? part : null, stack);
 			ComponentMetadataTableModel tableModel = new ComponentMetadataTableModel(components);
 			panel = createTablePanel(tableModel, "Matching parts (" + tableModel.getRowCount() + ")");
 		} else {
@@ -336,7 +316,7 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 	/**
 	 * Queries the stack provided for CDs matching the role(s) of the part
 	 */
-	private List<IdentifiedMetadata> searchParts(Part part, Types types, StackFrontend stack) {
+	private List<IdentifiedMetadata> searchParts(Part part, StackFrontend stack) {
 		try {
 			if (!isMetadata()) {
 				throw new Exception("Incorrect state.  url is a path");
@@ -345,9 +325,16 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 				stack = new StackFrontend(location);
 			}
 			if (part != null) {
+				// create the query
+				IdentifiedMetadata selectedCollection = (IdentifiedMetadata) collectionSelection.getSelectedItem();
+				if (selectedCollection == null || selectedCollection.uri == null) {
+					return new ArrayList<IdentifiedMetadata>();
+				}
+				Set<URI> setCollections = new HashSet<URI>(Arrays.asList(URI.create(selectedCollection.uri)));
 				Set<URI> setRoles = new HashSet<URI>(part.getRoles());
-				Set<URI> setTypes = SBOLUtils.convertTypesToSet(types);
-				SBOLStackQuery query = new SBOLStackQuery(stack, setRoles, setTypes, new TableUpdater(), this);
+				Set<URI> setTypes = SBOLUtils.convertTypesToSet((Types) typeSelection.getSelectedItem());
+				SBOLStackQuery query = new SBOLStackQuery(stack, setRoles, setTypes, setCollections, new TableUpdater(),
+						this);
 				// non-blocking: will update using the TableUpdater
 				query.execute();
 				return new ArrayList<IdentifiedMetadata>();
@@ -409,12 +396,51 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 		if (isMetadata()) {
 			stack = new StackFrontend(location);
 		}
+		updateCollectionSelection(true);
 		updateTable();
-		updateCollectionSelection();
 	}
 
-	private void updateCollectionSelection() {
-		// TODO
+	private void updateCollectionSelection(boolean registryChanged) {
+		collectionSelection.setEnabled(isMetadata());
+		if (!isMetadata()) {
+			return;
+		}
+		if (stack == null) {
+			stack = new StackFrontend(location);
+		}
+
+		List<IdentifiedMetadata> newCollections = null;
+		try {
+			if (registryChanged) {
+				// registry changed, refetch the root collections
+				newCollections = stack.fetchRootCollectionMetadata();
+				// add allCollections
+				IdentifiedMetadata allCollections = new IdentifiedMetadata();
+				allCollections.name = "All Collections";
+				allCollections.uri = "";
+				newCollections.add(0, allCollections);
+			} else {
+				// a sub collection was selected
+				IdentifiedMetadata selectedCollection = (IdentifiedMetadata) collectionSelection.getSelectedItem();
+				if (selectedCollection == null || selectedCollection.uri == null || selectedCollection.uri.equals("")) {
+					return;
+				}
+				newCollections = stack.fetchSubCollectionMetadata(URI.create(selectedCollection.uri));
+				newCollections.add(0, selectedCollection);
+			}
+		} catch (StackException e1) {
+			e1.printStackTrace();
+			JOptionPane.showMessageDialog(null,
+					"There was an error populating the collections from this stack instance: " + stack.getBackendUrl());
+			return;
+		}
+
+		// refresh the combo box
+		collectionSelection.removeAllItems();
+		for (IdentifiedMetadata collection : newCollections) {
+			collectionSelection.addItem(collection);
+		}
+		collectionSelection.setSelectedIndex(0);
 	}
 
 	private void updateRoleRefinement() {
@@ -437,8 +463,7 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 		}
 
 		if (isMetadata()) {
-			Types types = (Types) typeSelection.getSelectedItem();
-			List<IdentifiedMetadata> components = searchParts(part, types, stack);
+			List<IdentifiedMetadata> components = searchParts(part, stack);
 			ComponentMetadataTableModel tableModel = new ComponentMetadataTableModel(components);
 			table = new JTable(tableModel);
 			tableLabel.setText("Matching parts (" + components.size() + ")");
