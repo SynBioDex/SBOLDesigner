@@ -95,6 +95,22 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 		}
 	};
 
+	private final ComboBoxRenderer<IdentifiedMetadata> collectionsRenderer = new ComboBoxRenderer<IdentifiedMetadata>() {
+		@Override
+		protected String getLabel(IdentifiedMetadata collection) {
+			if (collection != null) {
+				return collection.name + " " + collection.uri;
+			} else {
+				return "Unknown";
+			}
+		}
+
+		@Override
+		protected String getToolTip(IdentifiedMetadata collection) {
+			return collection == null ? "" : collection.description;
+		}
+	};
+
 	private static final String TITLE = "Select a part from registry";
 
 	private static final Part ALL_PARTS = new Part("All parts", "All");
@@ -127,6 +143,12 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 			registrySelection.setSelectedIndex(selectedRegistry);
 		}
 		registrySelection.addActionListener(actionListener);
+		// registrySelection.addActionListener(new ActionListener() {
+		// @Override
+		// public void actionPerformed(ActionEvent e) {
+		// update
+		// }
+		// });
 		registrySelection.setRenderer(registryRenderer);
 		builder.add("Registry", registrySelection);
 
@@ -167,8 +189,10 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 		}
 		IdentifiedMetadata allCollections = new IdentifiedMetadata();
 		allCollections.name = "All Collections";
+		allCollections.uri = "";
 		collections.add(0, allCollections);
 		collectionSelection = new JComboBox<IdentifiedMetadata>(collections.toArray(new IdentifiedMetadata[0]));
+		collectionSelection.setRenderer(collectionsRenderer);
 		collectionSelection.setSelectedItem(allCollections);
 		collectionSelection.addActionListener(new ActionListener() {
 			@Override
@@ -380,11 +404,13 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 		}
 	}
 
+	@Override
 	protected void registryChanged() {
 		if (isMetadata()) {
 			stack = new StackFrontend(location);
 		}
 		updateTable();
+		updateCollectionSelection();
 	}
 
 	private void updateCollectionSelection() {
