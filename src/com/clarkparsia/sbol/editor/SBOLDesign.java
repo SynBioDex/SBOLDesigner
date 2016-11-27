@@ -1126,6 +1126,7 @@ public class SBOLDesign {
 	}
 
 	private void fireDesignChangedEvent() {
+		updateCanvasCD();
 		refreshUI();
 		eventBus.publish(new DesignChangedEvent(this));
 	}
@@ -1339,8 +1340,8 @@ public class SBOLDesign {
 	 */
 	private void updateCanvasCD() {
 		try {
-			updateSequenceConstraints();
 			updateSequenceAnnotations();
+			updateSequenceConstraints();
 
 			Sequence oldSeq = canvasCD.getSequenceByEncoding(Sequence.IUPAC_DNA);
 			String oldElements = oldSeq == null ? "" : oldSeq.getElements();
@@ -1453,6 +1454,8 @@ public class SBOLDesign {
 			}
 
 			e.seqAnn.setComponent(e.component.getIdentity());
+			JLabel button = buttons.get(e);
+			button.setToolTipText(getTooltipText(e));
 		}
 	}
 
