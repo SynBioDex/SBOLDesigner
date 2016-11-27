@@ -32,7 +32,9 @@ import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import org.sbolstandard.core.SBOLObject;
+import org.sbolstandard.core2.Component;
 import org.sbolstandard.core2.ComponentDefinition;
+import org.sbolstandard.core2.Identified;
 import org.sbolstandard.core2.Location;
 import org.sbolstandard.core2.Range;
 import org.sbolstandard.core2.Sequence;
@@ -172,10 +174,20 @@ public class SBOLUtils {
 	 * Returns a list of all roles of a CD that are descendants of the part's
 	 * role.
 	 */
-	public static List<URI> getRefinementRoles(ComponentDefinition comp, Part part) {
+	public static List<URI> getRefinementRoles(Identified comp, Part part) {
 		ArrayList<URI> list = new ArrayList<URI>();
 		SequenceOntology so = new SequenceOntology();
-		for (URI r : comp.getRoles()) {
+		Set<URI> roles;
+		if (comp instanceof ComponentDefinition) {
+			roles = ((ComponentDefinition)comp).getRoles();
+		} else if (comp instanceof Component) {
+			roles = ((Component)comp).getRoles();
+		} else if (comp instanceof SequenceAnnotation) {
+			roles = ((SequenceAnnotation)comp).getRoles();
+		} else {
+			return list;
+		}
+		for (URI r : roles) {
 			// assumes the part role is always the first role in the list
 			if (so.isDescendantOf(r, part.getRole())) {
 				list.add(r);

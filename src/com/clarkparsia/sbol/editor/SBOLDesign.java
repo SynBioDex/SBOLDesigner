@@ -1211,8 +1211,9 @@ public class SBOLDesign {
 	public void editCanvasCD() throws SBOLValidationException {
 		if (!parentCDs.isEmpty() && !confirmEditable()) {
 			// read-only
-			ComponentDefinition originalCD = getSelectedCD();
-			PartEditDialog.editPart(panel.getParent(), originalCD, false, false, design);
+			// TODO: not sure why this was using originalCD and not canvas CD
+			//ComponentDefinition originalCD = getSelectedCD();
+			PartEditDialog.editPart(panel.getParent(), getCanvasCD(), false, false, design);
 			return;
 		}
 
@@ -1247,6 +1248,7 @@ public class SBOLDesign {
 		ComponentDefinition originalCD = getSelectedCD();
 		if (originalCD==null) {
 			// TODO: should open sequenceAnnotation editor/viewer
+			PartEditDialog.editPart(panel.getParent(), getCanvasCD(), selectedElement.getSeqAnn(), false, false, design);
 			return;
 		}
 		if (!confirmEditable()) {
