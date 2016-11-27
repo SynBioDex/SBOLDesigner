@@ -72,6 +72,7 @@ import org.sbolstack.frontend.StackException;
 import org.sbolstack.frontend.StackFrontend;
 import org.sbolstandard.core2.AccessType;
 import org.sbolstandard.core2.ComponentDefinition;
+import org.sbolstandard.core2.Cut;
 import org.sbolstandard.core2.Location;
 import org.sbolstandard.core2.Sequence;
 import org.sbolstandard.core2.SBOLDocument;
@@ -877,6 +878,22 @@ public class SBOLDesign {
 		button.setIcon(new ImageIcon(image));
 		button.setDisabledIcon(new ImageIcon(selectedImage));
 	}
+	
+	private String getButtonText(final DesignElement e) {
+		if (e.getCD()!=null) {
+			if (e.getCD().isSetName()) {
+				return e.getCD().getName();
+			} else {
+				return e.getCD().getDisplayId();
+			}
+		} else {
+			if (e.getSeqAnn().isSetName()) {
+				return e.getSeqAnn().getName();
+			} else {
+				return e.getSeqAnn().getDisplayId();
+			}
+		}		
+	}
 
 	private JLabel createComponentButton(final DesignElement e) {
 		final JLabel button = new JLabel();
@@ -884,11 +901,7 @@ public class SBOLDesign {
 		button.setVerticalAlignment(JLabel.TOP);
 		button.setVerticalTextPosition(JLabel.TOP);
 		button.setIconTextGap(2);
-		if (e.getCD()!=null) {
-			button.setText(e.getCD().getDisplayId());
-		} else {
-			button.setText(e.getSeqAnn().getDisplayId());
-		}
+		button.setText(getButtonText(e));
 		button.setVerticalTextPosition(SwingConstants.BOTTOM);
 		button.setHorizontalTextPosition(SwingConstants.CENTER);
 		button.setToolTipText(getTooltipText(e));
@@ -959,16 +972,27 @@ public class SBOLDesign {
 	}
 
 	private String getTooltipText(DesignElement e) {
+		SequenceOntology so = new SequenceOntology();
 		StringBuilder sb = new StringBuilder();
 		sb.append("<html>");
 		final ComponentDefinition comp = e.getCD();
+		SequenceAnnotation sa = e.getSeqAnn();
 		if (comp!=null) {
 			sb.append("<b>Display ID:</b> ").append(comp.getDisplayId()).append("<br>");
 			sb.append("<b>Name:</b> ").append(Strings.nullToEmpty(comp.getName())).append("<br>");
 			sb.append("<b>Description:</b> ").append(Strings.nullToEmpty(comp.getDescription())).append("<br>");
+			for (URI role : comp.getRoles()) {
+				String roleStr = so.getName(role);
+				if (roleStr!=null)
+					sb.append("<b>Role:</b> ").append(roleStr).append("<br>");
+			}
+			/*
 			if (e.getOrientation() != null) {
 				sb.append("<b>Orientation:</b> ").append(e.getOrientation()).append("<br>");
 			}
+			*/
+			// Not sure sequence very useful on tooltip - CJM
+			/*
 			if (!comp.getSequences().isEmpty() && comp.getSequences().iterator().next().getElements() != null) {
 				// String sequence = comp.getSequence().getNucleotides();
 				String sequence = comp.getSequences().iterator().next().getElements();
@@ -976,11 +1000,37 @@ public class SBOLDesign {
 				sb.append("<b>Sequence:</b> ").append(CharSequences.shorten(sequence, 25));
 				sb.append("<br>");
 			}
+			*/
 		} else {
-			SequenceAnnotation sa = e.getSeqAnn();
 			sb.append("<b>Display ID:</b> ").append(sa.getDisplayId()).append("<br>");
 			sb.append("<b>Name:</b> ").append(Strings.nullToEmpty(sa.getName())).append("<br>");
 			sb.append("<b>Description:</b> ").append(Strings.nullToEmpty(sa.getDescription())).append("<br>");
+			for (URI role : sa.getRoles()) {
+				String roleStr = so.getName(role);
+				if (roleStr!=null)
+					sb.append("<b>Role:</b> ").append(roleStr).append("<br>");
+			}
+		}
+		if (sa != null) {
+			for (Location location : sa.getLocations()) {
+				if (location instanceof Range) {
+					Range range = (Range)location;
+					if (range.isSetOrientation()) {
+						sb.append("<b>Orientation:</b> ").append(range.getOrientation().toString()).append("<br>");
+					}
+					sb.append(range.getStart()+".."+range.getEnd()+"<br>");
+				} else if (location instanceof Cut) {
+					Cut cut = (Cut)location;
+					if (cut.isSetOrientation()) {
+						sb.append("<b>Orientation:</b> ").append(cut.getOrientation().toString()).append("<br>");
+					}
+					sb.append(cut.getAt()+"^"+cut.getAt()+"<br>");					
+				} else {
+					if (location.isSetOrientation()) {
+						sb.append("<b>Orientation:</b> ").append(location.getOrientation().toString()).append("<br>");
+					}
+				}
+			}
 		}
 		sb.append("</html>");
 		return sb.toString();
@@ -1063,7 +1113,7 @@ public class SBOLDesign {
 					setupIcons(button, e);
 				}
 			}
-			button.setText(newCD.getDisplayId());
+			button.setText(getButtonText(e));
 			button.setToolTipText(getTooltipText(e));
 
 			fireDesignChangedEvent();
@@ -1389,7 +1439,7 @@ public class SBOLDesign {
 				int start = position;
 				int end = seq.getElements().length() + start - 1;
 				position = end + 1;
-				Range range = e.seqAnn.addRange(uniqueId, start, end);
+				Range range = e.seqAnn.addRange(uniqueId, start, end, OrientationType.INLINE);
 				// remove all other locations
 				for (Location toBeRemoved : e.seqAnn.getLocations()) {
 					if (!toBeRemoved.equals(range)) {
