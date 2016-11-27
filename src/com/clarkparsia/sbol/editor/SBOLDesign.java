@@ -1193,14 +1193,17 @@ public class SBOLDesign {
 	}
 
 	public void editSelectedCD() throws SBOLValidationException {
+		ComponentDefinition originalCD = getSelectedCD();
+		if (originalCD==null) {
+			// TODO: should open sequenceAnnotation editor/viewer
+			return;
+		}
 		if (!confirmEditable()) {
 			// read-only
-			ComponentDefinition originalCD = getSelectedCD();
 			PartEditDialog.editPart(panel.getParent(), originalCD, false, false, design);
 			return;
 		}
 
-		ComponentDefinition originalCD = getSelectedCD();
 		ComponentDefinition editedCD = PartEditDialog.editPart(panel.getParent(), originalCD, false, true, design);
 
 		if (editedCD != null) {
