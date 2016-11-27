@@ -20,7 +20,10 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import org.sbolstandard.core2.Component;
 import org.sbolstandard.core2.ComponentDefinition;
+import org.sbolstandard.core2.Identified;
+import org.sbolstandard.core2.SequenceAnnotation;
 import org.sbolstandard.core2.SequenceOntology;
 
 import com.clarkparsia.sbol.editor.Part.ImageType;
@@ -135,9 +138,18 @@ public class Parts {
 		return null;
 	}
 
-	public static Part forCD(ComponentDefinition comp) {
+	public static Part forIdentified(Identified identified) {
 		Part result = null;
-		Collection<URI> roles = comp.getRoles();
+		Collection<URI> roles;
+		if (identified instanceof ComponentDefinition) {
+			roles = ((ComponentDefinition)identified).getRoles();
+		} else if (identified instanceof Component) {
+			roles = ((Component)identified).getRoles();
+		} else if (identified instanceof SequenceAnnotation) {
+			roles = ((SequenceAnnotation)identified).getRoles();
+		} else {
+			return GENERIC;
+		}
 		if (!roles.isEmpty()) {
 			for (URI role : roles) {
 				Part part = Parts.forRole(role);

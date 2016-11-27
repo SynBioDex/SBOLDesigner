@@ -163,7 +163,7 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 		importCD = new JButton("Import part");
 		importCD.addActionListener(this);
 
-		roleSelection.setSelectedItem(Parts.forCD(CD));
+		roleSelection.setSelectedItem(Parts.forIdentified(CD));
 		roleSelection.setRenderer(new PartCellRenderer());
 		roleSelection.addActionListener(this);
 

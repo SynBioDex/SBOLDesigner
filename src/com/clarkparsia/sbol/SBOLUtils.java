@@ -350,9 +350,11 @@ public class SBOLUtils {
 				uncoveredSequences.put(-i - 1, seq);
 			}
 
-			if (SBOLUtils.getNucleotides(ann.getComponentDefinition()) == null) {
-				Sequence seq = SBOLUtils.createSequence(sequence.substring(start - 1, end), design);
-				uncoveredSequences.put(i, seq);
+			if (ann.isSetComponent()) {
+				if (SBOLUtils.getNucleotides(ann.getComponentDefinition()) == null) {
+					Sequence seq = SBOLUtils.createSequence(sequence.substring(start - 1, end), design);
+					uncoveredSequences.put(i, seq);
+				}
 			}
 
 			location = end + 1;

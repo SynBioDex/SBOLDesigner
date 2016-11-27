@@ -78,6 +78,7 @@ import org.sbolstandard.core2.SBOLDocument;
 import org.sbolstandard.core2.SBOLValidate;
 import org.sbolstandard.core2.SBOLValidationException;
 import org.sbolstandard.core2.SequenceAnnotation;
+import org.sbolstandard.core2.SequenceOntology;
 import org.sbolstandard.core2.OrientationType;
 import org.sbolstandard.core2.Range;
 import org.sbolstandard.core2.RestrictionType;
@@ -442,6 +443,7 @@ public class SBOLDesign {
 		case 0:
 			// There isn't a rootCD
 			rootCD = design.createComponentDefinition("NewDesign", "1", ComponentDefinition.DNA);
+			rootCD.addRole(SequenceOntology.ENGINEERED_REGION);
 			break;
 		case 1:
 			// There is a single root CD
@@ -627,6 +629,10 @@ public class SBOLDesign {
 			if (canvasCD != comp) {
 				addCD(comp);
 			}
+			Iterable<SequenceAnnotation> sortedSAs = comp.getSortedSequenceAnnotations();
+			for (SequenceAnnotation sequenceAnnotation : sortedSAs) {
+				addSA(sequenceAnnotation, Parts.forIdentified(sequenceAnnotation));
+			}
 			return;
 		}
 
@@ -642,21 +648,25 @@ public class SBOLDesign {
 				continue;
 			}
 
-//			// potentially add extra backbone
-//			String uncoveredSeq = backboneElements(parentSeq,
-//					refered.getSequenceByEncoding(Sequence.IUPAC_DNA).getElements());
-//			if (uncoveredSeq.length() > 0) {
-//				addCD(createBackboneCD(uncoveredSeq));
-//				parentSeq = parentSeq.substring(uncoveredSeq.length());
-//			}
-
-			addCD(component, refered, Parts.forCD(refered));
-//			String referedSeq = refered.getSequenceByEncoding(Sequence.IUPAC_DNA).getElements();
-//			if (referedSeq.length() < parentSeq.length()) {
-//				parentSeq = parentSeq.substring(referedSeq.length());
-//			}
+			//			// potentially add extra backbone
+			//			String uncoveredSeq = backboneElements(parentSeq,
+			//					refered.getSequenceByEncoding(Sequence.IUPAC_DNA).getElements());
+			//			if (uncoveredSeq.length() > 0) {
+			//				addCD(createBackboneCD(uncoveredSeq));
+			//				parentSeq = parentSeq.substring(uncoveredSeq.length());
+			//			}
+			if (component.getRoles().isEmpty()) {
+				addCD(component, refered, Parts.forIdentified(refered));
+			} else {
+				// If component has roles, then these should be used
+				addCD(component, refered, Parts.forIdentified(component));
+			}
+			//			String referedSeq = refered.getSequenceByEncoding(Sequence.IUPAC_DNA).getElements();
+			//			if (referedSeq.length() < parentSeq.length()) {
+			//				parentSeq = parentSeq.substring(referedSeq.length());
+			//			}
 		}
-//		if (parentSeq.length() > 0) {
+		//		if (parentSeq.length() > 0) {
 //			// the end might be uncovered
 //			addCD(createBackboneCD(parentSeq));
 //		}
@@ -768,7 +778,7 @@ public class SBOLDesign {
 	}
 
 	public void addCD(ComponentDefinition comp) throws SBOLValidationException {
-		addCD(null, comp, Parts.forCD(comp));
+		addCD(null, comp, Parts.forIdentified(comp));
 	}
 
 	/**
@@ -787,7 +797,7 @@ public class SBOLDesign {
 				return null;
 			}
 		}
-		part = Parts.forCD(comp);
+		part = Parts.forIdentified(comp);
 		addCD(null, comp, part);
 
 		return comp;
@@ -826,6 +836,25 @@ public class SBOLDesign {
 			fireDesignChangedEvent();
 		}
 	}
+	
+	private void addSA(SequenceAnnotation sequenceAnnotation, Part part)
+			throws SBOLValidationException {
+		DesignElement e = new DesignElement(sequenceAnnotation, canvasCD, part, design);
+		JLabel button = createComponentButton(e);
+
+		elements.add(e);
+		elementBox.add(button);
+		buttons.put(e, button);
+
+		if (!isPartVisible(part)) {
+			setPartVisible(part, true);
+		}
+
+		if (!loading) {
+			fireDesignChangedEvent();
+		}
+	}
+
 
 	public void moveElement(int source, int target) throws SBOLValidationException {
 		if (!confirmEditable()) {
@@ -855,7 +884,11 @@ public class SBOLDesign {
 		button.setVerticalAlignment(JLabel.TOP);
 		button.setVerticalTextPosition(JLabel.TOP);
 		button.setIconTextGap(2);
-		button.setText(e.getCD().getDisplayId());
+		if (e.getCD()!=null) {
+			button.setText(e.getCD().getDisplayId());
+		} else {
+			button.setText(e.getSeqAnn().getDisplayId());
+		}
 		button.setVerticalTextPosition(SwingConstants.BOTTOM);
 		button.setHorizontalTextPosition(SwingConstants.CENTER);
 		button.setToolTipText(getTooltipText(e));
@@ -926,21 +959,28 @@ public class SBOLDesign {
 	}
 
 	private String getTooltipText(DesignElement e) {
-		final ComponentDefinition comp = e.getCD();
 		StringBuilder sb = new StringBuilder();
 		sb.append("<html>");
-		sb.append("<b>Display ID:</b> ").append(comp.getDisplayId()).append("<br>");
-		sb.append("<b>Name:</b> ").append(Strings.nullToEmpty(comp.getName())).append("<br>");
-		sb.append("<b>Description:</b> ").append(Strings.nullToEmpty(comp.getDescription())).append("<br>");
-		if (e.getOrientation() != null) {
-			sb.append("<b>Orientation:</b> ").append(e.getOrientation()).append("<br>");
-		}
-		if (!comp.getSequences().isEmpty() && comp.getSequences().iterator().next().getElements() != null) {
-			// String sequence = comp.getSequence().getNucleotides();
-			String sequence = comp.getSequences().iterator().next().getElements();
-			sb.append("<b>Sequence Length:</b> ").append(sequence.length()).append("<br>");
-			sb.append("<b>Sequence:</b> ").append(CharSequences.shorten(sequence, 25));
-			sb.append("<br>");
+		final ComponentDefinition comp = e.getCD();
+		if (comp!=null) {
+			sb.append("<b>Display ID:</b> ").append(comp.getDisplayId()).append("<br>");
+			sb.append("<b>Name:</b> ").append(Strings.nullToEmpty(comp.getName())).append("<br>");
+			sb.append("<b>Description:</b> ").append(Strings.nullToEmpty(comp.getDescription())).append("<br>");
+			if (e.getOrientation() != null) {
+				sb.append("<b>Orientation:</b> ").append(e.getOrientation()).append("<br>");
+			}
+			if (!comp.getSequences().isEmpty() && comp.getSequences().iterator().next().getElements() != null) {
+				// String sequence = comp.getSequence().getNucleotides();
+				String sequence = comp.getSequences().iterator().next().getElements();
+				sb.append("<b>Sequence Length:</b> ").append(sequence.length()).append("<br>");
+				sb.append("<b>Sequence:</b> ").append(CharSequences.shorten(sequence, 25));
+				sb.append("<br>");
+			}
+		} else {
+			SequenceAnnotation sa = e.getSeqAnn();
+			sb.append("<b>Display ID:</b> ").append(sa.getDisplayId()).append("<br>");
+			sb.append("<b>Name:</b> ").append(Strings.nullToEmpty(sa.getName())).append("<br>");
+			sb.append("<b>Description:</b> ").append(Strings.nullToEmpty(sa.getDescription())).append("<br>");
 		}
 		sb.append("</html>");
 		return sb.toString();
@@ -1015,7 +1055,7 @@ public class SBOLDesign {
 			JLabel button = buttons.get(e);
 			e.setCD(newCD);
 			if (!newCD.getRoles().contains(e.getPart().getRole())) {
-				Part newPart = Parts.forCD(newCD);
+				Part newPart = Parts.forIdentified(newCD);
 				if (newPart == null) {
 					newCD.addRole(e.getPart().getRole());
 				} else {
@@ -1330,6 +1370,7 @@ public class SBOLDesign {
 	private void updateSequenceAnnotations() throws SBOLValidationException {
 		int position = 1;
 		for (DesignElement e : elements) {
+			if (e.getCD()==null) continue;
 			Location loc = e.seqAnn.getLocations().iterator().next();
 
 			// We no longer need this seqAnn
@@ -1378,6 +1419,7 @@ public class SBOLDesign {
 			org.sbolstandard.core2.Component subject = elements.get(i).component;
 			org.sbolstandard.core2.Component object = elements.get((i + 1)).component;
 
+			if (subject==null || object==null) continue;
 			String uniqueId = SBOLUtils.getUniqueDisplayId(canvasCD, "SequenceConstraint", null, "SequenceConstraint",
 					design);
 			canvasCD.createSequenceConstraint(uniqueId, RestrictionType.PRECEDES, subject.getIdentity(),
@@ -1414,6 +1456,13 @@ public class SBOLDesign {
 				this.seqAnn = tempAnn;
 			}
 
+			this.part = part;
+		}
+		
+		public DesignElement(SequenceAnnotation sequenceAnnotation, ComponentDefinition parentCD,
+				Part part, SBOLDocument design) throws SBOLValidationException {
+
+			this.seqAnn = sequenceAnnotation;
 			this.part = part;
 		}
 
@@ -1456,6 +1505,7 @@ public class SBOLDesign {
 		}
 
 		ComponentDefinition getCD() {
+			if (component==null) return null;
 			return component.getDefinition();
 		}
 
