@@ -507,7 +507,7 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 				sorter.setRowFilter(null);
 			} else {
 				try {
-					RowFilter<IdentifiedMetadataTableModel, Object> rf = RowFilter.regexFilter(filterText, 0, 1);
+					RowFilter<IdentifiedMetadataTableModel, Object> rf = RowFilter.regexFilter(filterText, 0, 1, 3);
 					sorter.setRowFilter(rf);
 				} catch (PatternSyntaxException e) {
 					sorter.setRowFilter(null);
@@ -520,7 +520,7 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 				sorter.setRowFilter(null);
 			} else {
 				try {
-					RowFilter<ComponentDefinitionTableModel, Object> rf = RowFilter.regexFilter(filterText, 0, 1);
+					RowFilter<ComponentDefinitionTableModel, Object> rf = RowFilter.regexFilter(filterText, 0, 1, 3);
 					sorter.setRowFilter(rf);
 				} catch (PatternSyntaxException e) {
 					sorter.setRowFilter(null);
