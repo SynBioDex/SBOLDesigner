@@ -23,16 +23,6 @@ public class LoadingDialog {
 		ImageIcon loading = new ImageIcon(getClass().getResource("/com/clarkparsia/sbol/editor/images/loading.gif"));
 		JLabel label = new JLabel(loading);
 		dialog.add(label, BorderLayout.CENTER);
-		// uses a JProgressBar instead of the gif
-		// final JProgressBar progressBar = new JProgressBar();
-		// progressBar.setIndeterminate(true);
-		// final JPanel contentPane = new JPanel();
-		// contentPane.setBorder(BorderFactory.createEmptyBorder(10, 10, 10,
-		// 10));
-		// contentPane.setLayout(new BorderLayout());
-		// contentPane.add(new JLabel("Loading..."), BorderLayout.NORTH);
-		// contentPane.add(progressBar, BorderLayout.CENTER);
-		// dialog.setContentPane(contentPane);
 		dialog.setUndecorated(true);
 		dialog.setAlwaysOnTop(true);
 		dialog.pack();

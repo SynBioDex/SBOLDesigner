@@ -16,10 +16,12 @@
 package com.clarkparsia.sbol.editor.dialog;
 
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.io.File;
 import java.net.URI;
 import java.util.ArrayList;
@@ -30,6 +32,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.regex.PatternSyntaxException;
 
+import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
@@ -64,6 +68,7 @@ import com.clarkparsia.sbol.editor.Parts;
 import com.clarkparsia.sbol.editor.Registries;
 import com.clarkparsia.sbol.editor.Registry;
 import com.clarkparsia.sbol.editor.SBOLEditorPreferences;
+import com.clarkparsia.swing.AbstractListTableModel;
 import com.clarkparsia.swing.ComboBoxRenderer;
 import com.clarkparsia.swing.FormBuilder;
 import com.google.common.collect.Iterables;
@@ -118,8 +123,21 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 	private Part part;
 	private JComboBox<Part> roleSelection;
 	private JComboBox<String> roleRefinement;
+	private ActionListener roleRefinementListener = new ActionListener() {
+		@Override
+		public void actionPerformed(ActionEvent event) {
+			updateTable();
+		}
+	};
 	private JComboBox<Types> typeSelection;
 	private JComboBox<IdentifiedMetadata> collectionSelection;
+	private ActionListener collectionSelectionListener = new ActionListener() {
+		@Override
+		public void actionPerformed(ActionEvent event) {
+			updateCollectionSelection(false, null);
+			updateTable();
+		}
+	};
 
 	private JTable table;
 	private JLabel tableLabel;
@@ -172,15 +190,8 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 		// set up collection selection
 		collectionSelection = new JComboBox<IdentifiedMetadata>();
 		collectionSelection.setRenderer(collectionsRenderer);
-		updateCollectionSelection(true);
-		collectionSelection.setSelectedItem(collectionSelection.getItemAt(0));
-		collectionSelection.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				updateCollectionSelection(false);
-				updateTable();
-			}
-		});
+		updateCollectionSelection(true, null);
+		collectionSelection.addActionListener(collectionSelectionListener);
 		builder.add("Collection", collectionSelection);
 
 		// set up role selection
@@ -201,12 +212,7 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 		// set up the JComboBox for role refinement
 		roleRefinement = new JComboBox<String>();
 		updateRoleRefinement();
-		roleRefinement.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent event) {
-				updateTable();
-			}
-		});
+		roleRefinement.addActionListener(roleRefinementListener);
 		builder.add("Role refinement", roleRefinement);
 
 		// set up the import subparts checkbox
@@ -243,8 +249,9 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 	protected JPanel initMainPanel() {
 		JPanel panel;
 		if (isMetadata()) {
-			List<IdentifiedMetadata> components = searchParts(isRoleSelection() ? part : null, stack);
-			ComponentMetadataTableModel tableModel = new ComponentMetadataTableModel(components);
+			searchParts(isRoleSelection() ? part : null, stack);
+			IdentifiedMetadataTableModel tableModel = new IdentifiedMetadataTableModel(
+					new ArrayList<IdentifiedMetadata>());
 			panel = createTablePanel(tableModel, "Matching parts (" + tableModel.getRowCount() + ")");
 		} else {
 			List<ComponentDefinition> components = searchParts(isRoleSelection() ? part : null);
@@ -316,7 +323,7 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 	/**
 	 * Queries the stack provided for CDs matching the role(s) of the part
 	 */
-	private List<IdentifiedMetadata> searchParts(Part part, StackFrontend stack) {
+	private void searchParts(Part part, StackFrontend stack) {
 		try {
 			if (!isMetadata()) {
 				throw new Exception("Incorrect state.  url is a path");
@@ -328,7 +335,7 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 				// create the query
 				IdentifiedMetadata selectedCollection = (IdentifiedMetadata) collectionSelection.getSelectedItem();
 				if (selectedCollection == null || selectedCollection.uri == null) {
-					return new ArrayList<IdentifiedMetadata>();
+					return;
 				}
 				Set<URI> setCollections = new HashSet<URI>(Arrays.asList(URI.create(selectedCollection.uri)));
 				Set<URI> setRoles = new HashSet<URI>(part.getRoles());
@@ -337,11 +344,6 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 						this);
 				// non-blocking: will update using the TableUpdater
 				query.execute();
-				return new ArrayList<IdentifiedMetadata>();
-			} else {
-				ArrayList<IdentifiedMetadata> l = stack.searchComponentMetadata(null, new HashSet<URI>(),
-						new HashSet<URI>(), new HashSet<URI>(), 0, 99);
-				return l;
 			}
 		} catch (Exception e) {
 			JOptionPane.showMessageDialog(null, "Querying this repository failed: " + e.getMessage() + "\n"
@@ -350,7 +352,6 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 			registries.setVersionRegistryIndex(0);
 			registries.save();
 			e.printStackTrace();
-			return null;
 		}
 	}
 
@@ -361,7 +362,7 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 			int row = table.convertRowIndexToModel(table.getSelectedRow());
 
 			if (isMetadata()) {
-				IdentifiedMetadata compMeta = ((ComponentMetadataTableModel) table.getModel()).getElement(row);
+				IdentifiedMetadata compMeta = ((IdentifiedMetadataTableModel) table.getModel()).getElement(row);
 				if (stack == null) {
 					stack = new StackFrontend(location);
 				}
@@ -396,58 +397,47 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 		if (isMetadata()) {
 			stack = new StackFrontend(location);
 		}
-		updateCollectionSelection(true);
+		updateCollectionSelection(true, null);
 		updateTable();
 	}
 
-	private void updateCollectionSelection(boolean registryChanged) {
+	private void updateCollectionSelection(boolean registryChanged, IdentifiedMetadata newCollection) {
+		collectionSelection.removeActionListener(collectionSelectionListener);
 		collectionSelection.setEnabled(isMetadata());
 		if (!isMetadata()) {
+			collectionSelection.addActionListener(collectionSelectionListener);
 			return;
 		}
 		if (stack == null) {
 			stack = new StackFrontend(location);
 		}
 
-		List<IdentifiedMetadata> newCollections = null;
-		try {
-			if (registryChanged) {
-				// registry changed, refetch the root collections
-				newCollections = stack.fetchRootCollectionMetadata();
-				// add allCollections
-				IdentifiedMetadata allCollections = new IdentifiedMetadata();
-				allCollections.name = "All Collections";
-				allCollections.uri = "";
-				newCollections.add(0, allCollections);
-			} else {
-				// a sub collection was selected
-				IdentifiedMetadata selectedCollection = (IdentifiedMetadata) collectionSelection.getSelectedItem();
-				if (selectedCollection == null || selectedCollection.uri == null || selectedCollection.uri.equals("")) {
-					return;
-				}
-				newCollections = stack.fetchSubCollectionMetadata(URI.create(selectedCollection.uri));
-				newCollections.add(0, selectedCollection);
-			}
-		} catch (StackException e1) {
-			e1.printStackTrace();
-			JOptionPane.showMessageDialog(null,
-					"There was an error populating the collections from this stack instance: " + stack.getBackendUrl());
+		if (registryChanged) {
+			// display only "allCollections"
+			IdentifiedMetadata allCollections = new IdentifiedMetadata();
+			allCollections.name = "All Collections";
+			allCollections.uri = "";
+			collectionSelection.removeAllItems();
+			collectionSelection.addItem(allCollections);
+			collectionSelection.setSelectedItem(allCollections);
+			collectionSelection.addActionListener(collectionSelectionListener);
 			return;
 		}
 
-		// refresh the combo box
-		collectionSelection.removeAllItems();
-		for (IdentifiedMetadata collection : newCollections) {
-			collectionSelection.addItem(collection);
+		if (newCollection != null) {
+			collectionSelection.addItem(newCollection);
+			collectionSelection.setSelectedItem(newCollection);
 		}
-		collectionSelection.setSelectedIndex(0);
+		collectionSelection.addActionListener(collectionSelectionListener);
 	}
 
 	private void updateRoleRefinement() {
+		roleRefinement.removeActionListener(roleRefinementListener);
 		roleRefinement.removeAllItems();
 		for (String s : SBOLUtils.createRefinements((Part) roleSelection.getSelectedItem())) {
 			roleRefinement.addItem(s);
 		}
+		roleRefinement.addActionListener(roleRefinementListener);
 	}
 
 	public void updateTable() {
@@ -463,13 +453,7 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 		}
 
 		if (isMetadata()) {
-			List<IdentifiedMetadata> components = searchParts(part, stack);
-			ComponentMetadataTableModel tableModel = new ComponentMetadataTableModel(components);
-			table = new JTable(tableModel);
-			tableLabel.setText("Matching parts (" + components.size() + ")");
-			TableRowSorter<TableModel> sorter = new TableRowSorter<TableModel>(tableModel);
-			table.setRowSorter(sorter);
-			setWidthAsPercentages(table, tableModel.getWidths());
+			searchParts(part, stack);
 		} else {
 			List<ComponentDefinition> components = searchParts(part);
 			components = SBOLUtils.getCDOfType(components, (Types) typeSelection.getSelectedItem());
@@ -490,23 +474,40 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 		table.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(MouseEvent e) {
 				if (e.getClickCount() == 2 && table.getSelectedRow() >= 0) {
-					canceled = false;
-					setVisible(false);
+					handleTableSelection();
 				}
 			}
 		});
 		scroller.setViewportView(table);
 	}
 
+	@Override
+	protected void handleTableSelection() {
+		// handle collection selected
+		if (isMetadata()) {
+			int row = table.convertRowIndexToModel(table.getSelectedRow());
+			IdentifiedMetadata meta = ((IdentifiedMetadataTableModel) table.getModel()).getElement(row);
+			try {
+				stack.fetchComponent(URI.create(meta.uri));
+			} catch (StackException e1) {
+				updateCollectionSelection(false, meta);
+				updateTable();
+				return;
+			}
+		}
+		canceled = false;
+		setVisible(false);
+	}
+
 	private void updateFilter(String filterText) {
 		filterText = "(?i)" + filterText;
 		if (isMetadata()) {
-			TableRowSorter<ComponentMetadataTableModel> sorter = (TableRowSorter) table.getRowSorter();
+			TableRowSorter<IdentifiedMetadataTableModel> sorter = (TableRowSorter) table.getRowSorter();
 			if (filterText.length() == 0) {
 				sorter.setRowFilter(null);
 			} else {
 				try {
-					RowFilter<ComponentMetadataTableModel, Object> rf = RowFilter.regexFilter(filterText, 0, 1);
+					RowFilter<IdentifiedMetadataTableModel, Object> rf = RowFilter.regexFilter(filterText, 0, 1);
 					sorter.setRowFilter(rf);
 				} catch (PatternSyntaxException e) {
 					sorter.setRowFilter(null);
@@ -534,10 +535,10 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 	 * SBOLStackQuery thread update the table.
 	 */
 	public class TableUpdater {
-		public void updateTable(ArrayList<IdentifiedMetadata> components) {
-			ComponentMetadataTableModel tableModel = new ComponentMetadataTableModel(components);
+		public void updateTable(ArrayList<IdentifiedMetadata> identified) {
+			IdentifiedMetadataTableModel tableModel = new IdentifiedMetadataTableModel(identified);
 			table = new JTable(tableModel);
-			tableLabel.setText("Matching parts (" + components.size() + ")");
+			tableLabel.setText("Matching parts (" + identified.size() + ")");
 			TableRowSorter<TableModel> sorter = new TableRowSorter<TableModel>(tableModel);
 			table.setRowSorter(sorter);
 			setWidthAsPercentages(table, tableModel.getWidths());
@@ -551,8 +552,7 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 			table.addMouseListener(new MouseAdapter() {
 				public void mouseClicked(MouseEvent e) {
 					if (e.getClickCount() == 2 && table.getSelectedRow() >= 0) {
-						canceled = false;
-						setVisible(false);
+						handleTableSelection();
 					}
 				}
 			});

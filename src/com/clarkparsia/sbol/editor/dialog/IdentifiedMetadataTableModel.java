@@ -5,11 +5,11 @@ import java.util.List;
 import org.sbolstack.frontend.IdentifiedMetadata;
 import com.clarkparsia.swing.AbstractListTableModel;
 
-class ComponentMetadataTableModel extends AbstractListTableModel<IdentifiedMetadata> {
+class IdentifiedMetadataTableModel extends AbstractListTableModel<IdentifiedMetadata> {
 	private static final String[] COLUMNS = { "Display Id", "Name", "Version", "Description" };
 	private static final double[] WIDTHS = { 0.2, 0.2, 0.1, 0.5 };
 
-	public ComponentMetadataTableModel(List<IdentifiedMetadata> components) {
+	public IdentifiedMetadataTableModel(List<IdentifiedMetadata> components) {
 		super(components, COLUMNS, WIDTHS);
 	}
 

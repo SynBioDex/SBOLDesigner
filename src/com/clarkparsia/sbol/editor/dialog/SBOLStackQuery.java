@@ -6,12 +6,14 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.SwingWorker;
@@ -30,7 +32,7 @@ public class SBOLStackQuery extends SwingWorker<Object, Object> {
 	Set<URI> types;
 	Set<URI> collections;
 	TableUpdater tableUpdater;
-	ArrayList<IdentifiedMetadata> components;
+	ArrayList<IdentifiedMetadata> identified;
 	LoadingDialog loading;
 
 	public SBOLStackQuery(StackFrontend stack, Set<URI> roles, Set<URI> types, Set<URI> collections,
@@ -39,26 +41,41 @@ public class SBOLStackQuery extends SwingWorker<Object, Object> {
 		this.roles = roles;
 		this.types = types;
 		for (URI uri : collections) {
-			if (uri.toString().equals("")) {
+			if (uri == null || uri.toString().equals("")) {
 				// a uri of "" means "all collections"
 				collections = new HashSet<URI>();
+				break;
 			}
 		}
 		this.collections = collections;
 		this.tableUpdater = tableUpdater;
 		this.loading = new LoadingDialog(parent);
+		this.identified = new ArrayList<IdentifiedMetadata>();
 	}
 
 	@Override
 	protected ArrayList<IdentifiedMetadata> doInBackground() throws Exception {
 		loading.start();
-		this.components = stack.searchComponentMetadata(null, roles, types, collections, null, null);
-		return components;
+		// fetch collections
+		if (collections.isEmpty()) {
+			identified.addAll(stack.fetchRootCollectionMetadata());
+		} else {
+			for (URI collection : collections) {
+				try {
+					identified.addAll(stack.fetchSubCollectionMetadata(collection));
+				} catch (StackException e1) {
+					JOptionPane.showMessageDialog(null, "There was a problem fetching collections: " + e1.getMessage());
+					e1.printStackTrace();
+				}
+			}
+		}
+		identified.addAll(stack.searchComponentMetadata(null, roles, types, collections, null, null));
+		return identified;
 	}
 
 	@Override
 	protected void done() {
-		tableUpdater.updateTable(components);
+		tableUpdater.updateTable(identified);
 		loading.stop();
 	}
 }

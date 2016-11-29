@@ -83,6 +83,11 @@ public abstract class InputDialog<T> extends JDialog {
 	protected void registryChanged() {
 	}
 
+	protected void handleTableSelection() {
+		canceled = true;
+		setVisible(false);
+	}
+
 	private void initGUI() {
 		JPanel buttonPanel = new JPanel();
 		buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.LINE_AXIS));
@@ -192,8 +197,7 @@ public abstract class InputDialog<T> extends JDialog {
 		table.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(MouseEvent e) {
 				if (e.getClickCount() == 2 && table.getSelectedRow() >= 0) {
-					canceled = false;
-					setVisible(false);
+					handleTableSelection();
 				}
 			}
 		});
@@ -261,8 +265,7 @@ public abstract class InputDialog<T> extends JDialog {
 				canceled = true;
 				setVisible(false);
 			} else if (source == selectButton) {
-				canceled = false;
-				setVisible(false);
+				handleTableSelection();
 			}
 		}
 	}
