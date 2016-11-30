@@ -131,13 +131,13 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 			return null;
 		}
 	}
-	
+
 	/**
 	 * Returns the SequenceAnnotation edited by PartEditDialog. Null if the
 	 * dialog throws an exception. Also pass in the design.
 	 */
-	public static SequenceAnnotation editPart(Component parent, ComponentDefinition CD, SequenceAnnotation SA, boolean enableSave,
-			boolean canEdit, SBOLDocument design) {
+	public static SequenceAnnotation editPart(Component parent, ComponentDefinition CD, SequenceAnnotation SA,
+			boolean enableSave, boolean canEdit, SBOLDocument design) {
 		try {
 			PartEditDialog dialog = new PartEditDialog(parent, CD, SA, canEdit, design);
 			dialog.saveButton.setEnabled(enableSave);
@@ -283,8 +283,8 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 		displayId.requestFocusInWindow();
 	}
 
-
-	private PartEditDialog(final Component parent, final ComponentDefinition CD, final SequenceAnnotation SA, boolean canEdit, SBOLDocument design) {
+	private PartEditDialog(final Component parent, final ComponentDefinition CD, final SequenceAnnotation SA,
+			boolean canEdit, SBOLDocument design) {
 		super(JOptionPane.getFrameForComponent(parent), TITLE + title(SA), true);
 
 		this.SA = SA;
@@ -354,7 +354,7 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 		}
 		builder.add("Description", description, SA.getDescription());
 		JPanel controlsPane = builder.build();
-		
+
 		// TODO: read only for now
 		roleSelection.setEnabled(false);
 		roleRefinement.setEnabled(false);
@@ -364,7 +364,7 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 		importFromRegistry.setEnabled(false);
 		importSequence.setEnabled(false);
 		importCD.setEnabled(false);
-		
+
 		JScrollPane tableScroller = new JScrollPane(sequenceField);
 		tableScroller.setPreferredSize(new Dimension(550, 200));
 		tableScroller.setAlignmentX(LEFT_ALIGNMENT);
@@ -382,11 +382,11 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 		sequenceField.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
 		Sequence seq = CD.getSequenceByEncoding(Sequence.IUPAC_DNA);
 		if (seq != null && !seq.getElements().isEmpty()) {
-			if (SA.getLocations().size()==1) {
+			if (SA.getLocations().size() == 1) {
 				Location location = SA.getLocations().iterator().next();
 				if (location instanceof Range) {
-					Range range = (Range)location;
-					sequenceField.setText(seq.getElements().substring(range.getStart()-1,range.getEnd()));
+					Range range = (Range) location;
+					sequenceField.setText(seq.getElements().substring(range.getStart() - 1, range.getEnd()));
 				} else if (location instanceof Cut) {
 					// TODO: need to consider how to display this
 				}
@@ -427,7 +427,7 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 		setLocationRelativeTo(parent);
 		displayId.requestFocusInWindow();
 	}
-	
+
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		boolean keepVisible = false;
@@ -577,7 +577,13 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 			CD = (ComponentDefinition) design.createCopy(CD, uniqueId, version.getText());
 		}
 
-		CD.setName(name.getText());
+		if (name.getText().length() == 0) {
+			if (CD.isSetName()) {
+				CD.unsetName();
+			}
+		} else {
+			CD.setName(name.getText());
+		}
 		CD.setDescription(description.getText());
 
 		Part part = (Part) roleSelection.getSelectedItem();

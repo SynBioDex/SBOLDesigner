@@ -881,13 +881,13 @@ public class SBOLDesign {
 
 	private String getButtonText(final DesignElement e) {
 		if (e.getCD() != null) {
-			if (e.getCD().isSetName()) {
+			if (e.getCD().isSetName() && e.getCD().getName().length() != 0) {
 				return e.getCD().getName();
 			} else {
 				return e.getCD().getDisplayId();
 			}
 		} else {
-			if (e.getSeqAnn().isSetName()) {
+			if (e.getSeqAnn().isSetName() && e.getSeqAnn().getName().length() != 0) {
 				return e.getSeqAnn().getName();
 			} else {
 				return e.getSeqAnn().getDisplayId();
