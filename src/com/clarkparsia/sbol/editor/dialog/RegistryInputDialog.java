@@ -250,8 +250,7 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 		JPanel panel;
 		if (isMetadata()) {
 			searchParts(isRoleSelection() ? part : null, stack);
-			IdentifiedMetadataTableModel tableModel = new IdentifiedMetadataTableModel(
-					new ArrayList<IdentifiedMetadata>());
+			TableMetadataTableModel tableModel = new TableMetadataTableModel(new ArrayList<TableMetadata>());
 			panel = createTablePanel(tableModel, "Matching parts (" + tableModel.getRowCount() + ")");
 		} else {
 			List<ComponentDefinition> components = searchParts(isRoleSelection() ? part : null);
@@ -362,11 +361,14 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 			int row = table.convertRowIndexToModel(table.getSelectedRow());
 
 			if (isMetadata()) {
-				IdentifiedMetadata compMeta = ((IdentifiedMetadataTableModel) table.getModel()).getElement(row);
+				TableMetadata compMeta = ((TableMetadataTableModel) table.getModel()).getElement(row);
 				if (stack == null) {
 					stack = new StackFrontend(location);
 				}
-				comp = stack.fetchComponent(URI.create(compMeta.uri));
+				if (compMeta.isCollection) {
+					return new SBOLDocument();
+				}
+				comp = stack.fetchComponent(URI.create(compMeta.identified.uri));
 			} else {
 				comp = ((ComponentDefinitionTableModel) table.getModel()).getElement(row);
 			}
@@ -486,15 +488,14 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 		// handle collection selected
 		if (isMetadata()) {
 			int row = table.convertRowIndexToModel(table.getSelectedRow());
-			IdentifiedMetadata meta = ((IdentifiedMetadataTableModel) table.getModel()).getElement(row);
-			try {
-				stack.fetchComponent(URI.create(meta.uri));
-			} catch (StackException e1) {
-				updateCollectionSelection(false, meta);
+			TableMetadata meta = ((TableMetadataTableModel) table.getModel()).getElement(row);
+			if (meta.isCollection) {
+				updateCollectionSelection(false, meta.identified);
 				updateTable();
 				return;
 			}
 		}
+		// otherwise a part was selected
 		canceled = false;
 		setVisible(false);
 	}
@@ -502,12 +503,12 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 	private void updateFilter(String filterText) {
 		filterText = "(?i)" + filterText;
 		if (isMetadata()) {
-			TableRowSorter<IdentifiedMetadataTableModel> sorter = (TableRowSorter) table.getRowSorter();
+			TableRowSorter<TableMetadataTableModel> sorter = (TableRowSorter) table.getRowSorter();
 			if (filterText.length() == 0) {
 				sorter.setRowFilter(null);
 			} else {
 				try {
-					RowFilter<IdentifiedMetadataTableModel, Object> rf = RowFilter.regexFilter(filterText, 0, 1, 3);
+					RowFilter<TableMetadataTableModel, Object> rf = RowFilter.regexFilter(filterText, 0, 1, 3);
 					sorter.setRowFilter(rf);
 				} catch (PatternSyntaxException e) {
 					sorter.setRowFilter(null);
@@ -535,8 +536,8 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 	 * SBOLStackQuery thread update the table.
 	 */
 	public class TableUpdater {
-		public void updateTable(ArrayList<IdentifiedMetadata> identified) {
-			IdentifiedMetadataTableModel tableModel = new IdentifiedMetadataTableModel(identified);
+		public void updateTable(ArrayList<TableMetadata> identified) {
+			TableMetadataTableModel tableModel = new TableMetadataTableModel(identified);
 			table = new JTable(tableModel);
 			tableLabel.setText("Matching parts (" + identified.size() + ")");
 			TableRowSorter<TableModel> sorter = new TableRowSorter<TableModel>(tableModel);

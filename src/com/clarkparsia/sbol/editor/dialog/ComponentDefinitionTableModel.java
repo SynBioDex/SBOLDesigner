@@ -22,8 +22,8 @@ import org.sbolstandard.core2.ComponentDefinition;
 import com.clarkparsia.swing.AbstractListTableModel;
 
 class ComponentDefinitionTableModel extends AbstractListTableModel<ComponentDefinition> {
-	private static final String[] COLUMNS = { "Display Id", "Name", "Version", "Description" };
-	private static final double[] WIDTHS = { 0.2, 0.2, 0.1, 0.5 };
+	private static final String[] COLUMNS = { "Type", "Display Id", "Name", "Version", "Description" };
+	private static final double[] WIDTHS = { 0.1, 0.2, 0.2, 0.1, 0.4 };
 
 	public ComponentDefinitionTableModel(List<ComponentDefinition> CDs) {
 		super(CDs, COLUMNS, WIDTHS);
@@ -32,12 +32,14 @@ class ComponentDefinitionTableModel extends AbstractListTableModel<ComponentDefi
 	public Object getField(ComponentDefinition CD, int col) {
 		switch (col) {
 		case 0:
-			return CD.getDisplayId();
+			return "Part";
 		case 1:
-			return CD.getName();
+			return CD.getDisplayId();
 		case 2:
-			return CD.getVersion();
+			return CD.getName();
 		case 3:
+			return CD.getVersion();
+		case 4:
 			return CD.getDescription();
 		default:
 			throw new IndexOutOfBoundsException();

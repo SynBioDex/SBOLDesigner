@@ -32,7 +32,7 @@ public class SBOLStackQuery extends SwingWorker<Object, Object> {
 	Set<URI> types;
 	Set<URI> collections;
 	TableUpdater tableUpdater;
-	ArrayList<IdentifiedMetadata> identified;
+	ArrayList<TableMetadata> identified;
 	LoadingDialog loading;
 
 	public SBOLStackQuery(StackFrontend stack, Set<URI> roles, Set<URI> types, Set<URI> collections,
@@ -50,27 +50,49 @@ public class SBOLStackQuery extends SwingWorker<Object, Object> {
 		this.collections = collections;
 		this.tableUpdater = tableUpdater;
 		this.loading = new LoadingDialog(parent);
-		this.identified = new ArrayList<IdentifiedMetadata>();
+		this.identified = new ArrayList<TableMetadata>();
 	}
 
 	@Override
-	protected ArrayList<IdentifiedMetadata> doInBackground() throws Exception {
+	protected ArrayList<TableMetadata> doInBackground() throws Exception {
 		loading.start();
 		// fetch collections
 		if (collections.isEmpty()) {
-			identified.addAll(stack.fetchRootCollectionMetadata());
+			identified.addAll(getTableMetadata(stack.fetchRootCollectionMetadata(), null));
 		} else {
 			for (URI collection : collections) {
 				try {
-					identified.addAll(stack.fetchSubCollectionMetadata(collection));
+					identified.addAll(getTableMetadata(stack.fetchSubCollectionMetadata(collection), null));
 				} catch (StackException e1) {
 					JOptionPane.showMessageDialog(null, "There was a problem fetching collections: " + e1.getMessage());
 					e1.printStackTrace();
 				}
 			}
 		}
-		identified.addAll(stack.searchComponentMetadata(null, roles, types, collections, null, null));
+		// fetch parts
+		identified.addAll(
+				getTableMetadata(null, stack.searchComponentMetadata(null, roles, types, collections, null, null)));
 		return identified;
+	}
+
+	/**
+	 * Takes a list of part metadata and collection metadata and returns a
+	 * single list of table metadata
+	 */
+	private List<TableMetadata> getTableMetadata(List<IdentifiedMetadata> collectionMeta,
+			List<IdentifiedMetadata> partMeta) {
+		List<TableMetadata> tableMeta = new ArrayList<TableMetadata>();
+		if (collectionMeta != null) {
+			for (IdentifiedMetadata meta : collectionMeta) {
+				tableMeta.add(new TableMetadata(meta, true));
+			}
+		}
+		if (partMeta != null) {
+			for (IdentifiedMetadata meta : partMeta) {
+				tableMeta.add(new TableMetadata(meta, false));
+			}
+		}
+		return tableMeta;
 	}
 
 	@Override
