@@ -89,6 +89,7 @@ import org.slf4j.LoggerFactory;
 import com.adamtaft.eb.EventBus;
 import com.clarkparsia.sbol.CharSequences;
 import com.clarkparsia.sbol.SBOLUtils;
+import com.clarkparsia.sbol.editor.dialog.MessageDialog;
 import com.clarkparsia.sbol.editor.dialog.PartEditDialog;
 import com.clarkparsia.sbol.editor.dialog.RootInputDialog;
 import com.clarkparsia.sbol.editor.dialog.RegistryInputDialog;
@@ -432,8 +433,7 @@ public class SBOLDesign {
 		SBOLValidate.validateSBOL(doc, false, false, true);
 		List<String> errors = SBOLValidate.getErrors();
 		if (!errors.isEmpty()) {
-			JOptionPane.showMessageDialog(panel,
-					"Beware, this file isn't following best practice: " + errors.toString());
+			MessageDialog.showMessage(panel, "Beware, this file isn't following best practice", errors);
 		}
 		design = doc;
 
