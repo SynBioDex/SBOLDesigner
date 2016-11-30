@@ -429,7 +429,12 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 		if (newCollection != null) {
 			collectionSelection.addItem(newCollection);
 			collectionSelection.setSelectedItem(newCollection);
+		} else {
+			while (collectionSelection.getSelectedIndex()+1 < collectionSelection.getItemCount()) {
+				collectionSelection.removeItemAt(collectionSelection.getSelectedIndex()+1);
+			}
 		}
+		
 		collectionSelection.addActionListener(collectionSelectionListener);
 	}
 
