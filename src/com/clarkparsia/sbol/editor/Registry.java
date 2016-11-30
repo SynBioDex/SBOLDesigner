@@ -35,7 +35,8 @@ public class Registry implements Serializable {
 	public static final Registry WORKING_DOCUMENT = new Registry("Working document",
 			"The current file you are working in", "N/A");
 
-	public static final Registry STACK = new Registry("SBOL Stack", "The Newcastle instance of the SBOL Stack",
+	public static final Registry STACK = new Registry("iGEM SBOL Registry",
+			"An SBOL Stack instance hosted by Newcastle University for storing iGEM registry parts",
 			"http://synbiohub.org:9090");
 
 	public Registry(String name, String description, String location) {
