@@ -105,7 +105,7 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 		@Override
 		protected String getLabel(IdentifiedMetadata collection) {
 			if (collection != null) {
-				return collection.name;
+				return collection.displayId;
 			} else {
 				return "Unknown";
 			}
@@ -418,6 +418,7 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 			// display only "allCollections"
 			IdentifiedMetadata allCollections = new IdentifiedMetadata();
 			allCollections.name = "All Collections";
+			allCollections.displayId = "All Collections";
 			allCollections.uri = "";
 			collectionSelection.removeAllItems();
 			collectionSelection.addItem(allCollections);
@@ -430,11 +431,11 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 			collectionSelection.addItem(newCollection);
 			collectionSelection.setSelectedItem(newCollection);
 		} else {
-			while (collectionSelection.getSelectedIndex()+1 < collectionSelection.getItemCount()) {
-				collectionSelection.removeItemAt(collectionSelection.getSelectedIndex()+1);
+			while (collectionSelection.getSelectedIndex() + 1 < collectionSelection.getItemCount()) {
+				collectionSelection.removeItemAt(collectionSelection.getSelectedIndex() + 1);
 			}
 		}
-		
+
 		collectionSelection.addActionListener(collectionSelectionListener);
 	}
 
