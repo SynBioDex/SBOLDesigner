@@ -84,7 +84,7 @@ public abstract class InputDialog<T> extends JDialog {
 	}
 
 	protected void handleTableSelection() {
-		canceled = true;
+		canceled = false;
 		setVisible(false);
 	}
 
