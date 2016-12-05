@@ -75,8 +75,6 @@ public class Parts {
 			ImageType.CENTERED_ON_BASELINE, "SO:0001933");
 	public static final Part THREEOH = createPart("3' Overhang", "_3OH", "three-prime-overhang.png",
 			ImageType.CENTERED_ON_BASELINE, "SO:0001932");
-	public static final Part BACKBONE = createPart("Backbone", "BB", "blank-backbone.png",
-			ImageType.CENTERED_ON_BASELINE, "SO:0000280");
 
 	private static Iterable<Part> SORTED_PARTS;
 
@@ -142,11 +140,11 @@ public class Parts {
 		Part result = null;
 		Collection<URI> roles;
 		if (identified instanceof ComponentDefinition) {
-			roles = ((ComponentDefinition)identified).getRoles();
+			roles = ((ComponentDefinition) identified).getRoles();
 		} else if (identified instanceof Component) {
-			roles = ((Component)identified).getRoles();
+			roles = ((Component) identified).getRoles();
 		} else if (identified instanceof SequenceAnnotation) {
-			roles = ((SequenceAnnotation)identified).getRoles();
+			roles = ((SequenceAnnotation) identified).getRoles();
 		} else {
 			return GENERIC;
 		}
