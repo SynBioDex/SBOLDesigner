@@ -961,6 +961,7 @@ public class SBOLDesign {
 			}
 		});
 	}
+
 	private String getTooltipText(DesignElement e) {
 		SequenceOntology so = new SequenceOntology();
 		StringBuilder sb = new StringBuilder();
