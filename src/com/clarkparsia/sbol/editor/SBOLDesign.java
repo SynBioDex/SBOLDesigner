@@ -619,7 +619,7 @@ public class SBOLDesign {
 					}
 				}), design);
 	}
-
+	
 	/**
 	 * Adds components in the order they appear in the sequence
 	 */
@@ -962,7 +962,6 @@ public class SBOLDesign {
 			}
 		});
 	}
-
 	private String getTooltipText(DesignElement e) {
 		SequenceOntology so = new SequenceOntology();
 		StringBuilder sb = new StringBuilder();
