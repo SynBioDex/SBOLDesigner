@@ -619,17 +619,18 @@ public class SBOLDesign {
 					}
 				}), design);
 	}
-	
+
 	/**
 	 * Adds components in the order they appear in the sequence
 	 */
 	private void populateComponents(ComponentDefinition comp) throws SBOLValidationException {
-		// Check if the design is completely annotated, this is true if all Components
-		// have a precise location specified by a SequenceAnnotation with a Range or Cut Location.
+		// Check if the design is completely annotated, this is true if all
+		// Components have a precise location specified by a SequenceAnnotation
+		// with a Range or Cut Location.
 		boolean completelyAnnotated = true;
 		for (org.sbolstandard.core2.Component component : comp.getComponents()) {
 			SequenceAnnotation sa = comp.getSequenceAnnotation(component);
-			if (sa==null) {
+			if (sa == null) {
 				completelyAnnotated = false;
 				break;
 			}
@@ -648,16 +649,14 @@ public class SBOLDesign {
 				break;
 			}
 		}
-		
+
 		// If completely annotated, then sort by SequenceAnnotations
 		// SequenceConstraints can be neglected
 		if (completelyAnnotated) {
 			// TODO: what was this for?
 			/*
-			if (canvasCD != comp) {
-				addCD(comp);
-			}
-			*/
+			 * if (canvasCD != comp) { addCD(comp); }
+			 */
 			Iterable<SequenceAnnotation> sortedSAs = comp.getSortedSequenceAnnotations();
 			for (SequenceAnnotation sequenceAnnotation : sortedSAs) {
 				if (sequenceAnnotation.isSetComponent()) {
@@ -667,20 +666,12 @@ public class SBOLDesign {
 						// component reference without a connected CD
 						continue;
 					}
-
-					// // potentially add extra backbone
-					// String uncoveredSeq = backboneElements(parentSeq,
-					// refered.getSequenceByEncoding(Sequence.IUPAC_DNA).getElements());
-					// if (uncoveredSeq.length() > 0) {
-					// addCD(createBackboneCD(uncoveredSeq));
-					// parentSeq = parentSeq.substring(uncoveredSeq.length());
-					// }
 					if (component.getRoles().isEmpty()) {
 						addCD(component, refered, Parts.forIdentified(refered));
 					} else {
 						// If component has roles, then these should be used
 						addCD(component, refered, Parts.forIdentified(component));
-					}					
+					}
 				} else {
 					addSA(sequenceAnnotation, Parts.forIdentified(sequenceAnnotation));
 				}
@@ -689,7 +680,7 @@ public class SBOLDesign {
 		}
 
 		// get sortedComponents and add them in order
-		
+
 		// If not completely annotated, need to sort by Components
 		Iterable<org.sbolstandard.core2.Component> sortedComponents = comp.getSortedComponents();
 		for (org.sbolstandard.core2.Component component : sortedComponents) {
@@ -962,6 +953,7 @@ public class SBOLDesign {
 			}
 		});
 	}
+
 	private String getTooltipText(DesignElement e) {
 		SequenceOntology so = new SequenceOntology();
 		StringBuilder sb = new StringBuilder();
