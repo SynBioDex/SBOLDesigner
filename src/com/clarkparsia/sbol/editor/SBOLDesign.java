@@ -624,24 +624,73 @@ public class SBOLDesign {
 	 * Adds components in the order they appear in the sequence
 	 */
 	private void populateComponents(ComponentDefinition comp) throws SBOLValidationException {
-		// If the rootComponent we passed in is empty, start with a blank
-		// canvas.
-		if (comp.getComponents().isEmpty()) {
+		// Check if the design is completely annotated, this is true if all Components
+		// have a precise location specified by a SequenceAnnotation with a Range or Cut Location.
+		boolean completelyAnnotated = true;
+		for (org.sbolstandard.core2.Component component : comp.getComponents()) {
+			SequenceAnnotation sa = comp.getSequenceAnnotation(component);
+			if (sa==null) {
+				completelyAnnotated = false;
+				break;
+			}
+			boolean preciseLocation = false;
+			for (Location location : sa.getLocations()) {
+				if (location instanceof Range) {
+					preciseLocation = true;
+					break;
+				} else if (location instanceof Cut) {
+					preciseLocation = true;
+					break;
+				}
+			}
+			if (!preciseLocation) {
+				completelyAnnotated = false;
+				break;
+			}
+		}
+		
+		// If completely annotated, then sort by SequenceAnnotations
+		// SequenceConstraints can be neglected
+		if (completelyAnnotated) {
+			// TODO: what was this for?
+			/*
 			if (canvasCD != comp) {
 				addCD(comp);
 			}
+			*/
 			Iterable<SequenceAnnotation> sortedSAs = comp.getSortedSequenceAnnotations();
 			for (SequenceAnnotation sequenceAnnotation : sortedSAs) {
-				addSA(sequenceAnnotation, Parts.forIdentified(sequenceAnnotation));
+				if (sequenceAnnotation.isSetComponent()) {
+					org.sbolstandard.core2.Component component = sequenceAnnotation.getComponent();
+					ComponentDefinition refered = component.getDefinition();
+					if (refered == null) {
+						// component reference without a connected CD
+						continue;
+					}
+
+					// // potentially add extra backbone
+					// String uncoveredSeq = backboneElements(parentSeq,
+					// refered.getSequenceByEncoding(Sequence.IUPAC_DNA).getElements());
+					// if (uncoveredSeq.length() > 0) {
+					// addCD(createBackboneCD(uncoveredSeq));
+					// parentSeq = parentSeq.substring(uncoveredSeq.length());
+					// }
+					if (component.getRoles().isEmpty()) {
+						addCD(component, refered, Parts.forIdentified(refered));
+					} else {
+						// If component has roles, then these should be used
+						addCD(component, refered, Parts.forIdentified(component));
+					}					
+				} else {
+					addSA(sequenceAnnotation, Parts.forIdentified(sequenceAnnotation));
+				}
 			}
 			return;
 		}
 
-		// TODO this breaks when sequences overlap
-		// keeps track of the base pairs we've seen already
-		// String parentSeq =
-		// comp.getSequenceByEncoding(Sequence.IUPAC_DNA).getElements();
 		// get sortedComponents and add them in order
+		
+		// If not completely annotated, need to sort by Components
 		Iterable<org.sbolstandard.core2.Component> sortedComponents = comp.getSortedComponents();
 		for (org.sbolstandard.core2.Component component : sortedComponents) {
 			ComponentDefinition refered = component.getDefinition();
@@ -650,69 +699,12 @@ public class SBOLDesign {
 				continue;
 			}
 
-			// // potentially add extra backbone
-			// String uncoveredSeq = backboneElements(parentSeq,
-			// refered.getSequenceByEncoding(Sequence.IUPAC_DNA).getElements());
-			// if (uncoveredSeq.length() > 0) {
-			// addCD(createBackboneCD(uncoveredSeq));
-			// parentSeq = parentSeq.substring(uncoveredSeq.length());
-			// }
 			if (component.getRoles().isEmpty()) {
 				addCD(component, refered, Parts.forIdentified(refered));
 			} else {
 				// If component has roles, then these should be used
 				addCD(component, refered, Parts.forIdentified(component));
 			}
-			// String referedSeq =
-			// refered.getSequenceByEncoding(Sequence.IUPAC_DNA).getElements();
-			// if (referedSeq.length() < parentSeq.length()) {
-			// parentSeq = parentSeq.substring(referedSeq.length());
-			// }
-		}
-		// if (parentSeq.length() > 0) {
-		// // the end might be uncovered
-		// addCD(createBackboneCD(parentSeq));
-		// }
-	}
-
-	/**
-	 * Returns a plain backbone CD with a Sequence containing the provided
-	 * elements.
-	 */
-	private ComponentDefinition createBackboneCD(String elements) throws SBOLValidationException {
-		try {
-			String CDID = SBOLUtils.getUniqueDisplayId(null, "backboneCD", "1", "CD", design);
-			String seqID = SBOLUtils.getUniqueDisplayId(null, "backboneSequence", "1", "Sequence", design);
-			ComponentDefinition CD;
-			CD = design.createComponentDefinition(CDID, "1", new URI("SO:0000001"));
-			CD.addSequence(design.createSequence(seqID, "1", elements, Sequence.IUPAC_DNA));
-			return CD;
-		} catch (URISyntaxException e) {
-			e.printStackTrace();
-			return null;
-		}
-	}
-
-	/**
-	 * Returns the elements in parentSeq that occur before elements
-	 */
-	private String backboneElements(String parentSeq, String elements) {
-		Pattern pattern = Pattern.compile(elements);
-		Matcher matcher = pattern.matcher(parentSeq);
-		if (matcher.find()) {
-			int start = matcher.start();
-			// TODO test this
-			System.out.print("Start index: " + matcher.start());
-			System.out.print(" End index: " + matcher.end());
-			System.out.println(" Found: " + matcher.group());
-			if (start != 0) {
-				return parentSeq.substring(0, start);
-			} else {
-				return "";
-			}
-		} else {
-			// can't find any occurrences of elements
-			return parentSeq;
 		}
 	}
 
@@ -978,6 +970,7 @@ public class SBOLDesign {
 		final ComponentDefinition comp = e.getCD();
 		SequenceAnnotation sa = e.getSeqAnn();
 		if (comp != null) {
+			sb.append("<b>Component</b><br>");
 			sb.append("<b>Display ID:</b> ").append(comp.getDisplayId()).append("<br>");
 			sb.append("<b>Name:</b> ").append(Strings.nullToEmpty(comp.getName())).append("<br>");
 			sb.append("<b>Description:</b> ").append(Strings.nullToEmpty(comp.getDescription())).append("<br>");
@@ -1003,6 +996,7 @@ public class SBOLDesign {
 			 * sb.append("<br>"); }
 			 */
 		} else {
+			sb.append("<b>Feature</b><br>");
 			sb.append("<b>Display ID:</b> ").append(sa.getDisplayId()).append("<br>");
 			sb.append("<b>Name:</b> ").append(Strings.nullToEmpty(sa.getName())).append("<br>");
 			sb.append("<b>Description:</b> ").append(Strings.nullToEmpty(sa.getDescription())).append("<br>");
