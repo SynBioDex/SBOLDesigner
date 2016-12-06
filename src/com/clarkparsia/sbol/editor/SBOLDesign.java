@@ -652,12 +652,6 @@ public class SBOLDesign {
 		// If completely annotated, then sort by SequenceAnnotations
 		// SequenceConstraints can be neglected
 		if (completelyAnnotated) {
-			// TODO: what was this for?
-			/*
-			if (canvasCD != comp) {
-				addCD(comp);
-			}
-			*/
 			Iterable<SequenceAnnotation> sortedSAs = comp.getSortedSequenceAnnotations();
 			for (SequenceAnnotation sequenceAnnotation : sortedSAs) {
 				if (sequenceAnnotation.isSetComponent()) {
@@ -689,7 +683,12 @@ public class SBOLDesign {
 		}
 
 		// get sortedComponents and add them in order
-		
+		// TODO: what was this for?
+		/*
+		if (canvasCD != comp) {
+			addCD(comp);
+		}
+		*/
 		// If not completely annotated, need to sort by Components
 		Iterable<org.sbolstandard.core2.Component> sortedComponents = comp.getSortedComponents();
 		for (org.sbolstandard.core2.Component component : sortedComponents) {
