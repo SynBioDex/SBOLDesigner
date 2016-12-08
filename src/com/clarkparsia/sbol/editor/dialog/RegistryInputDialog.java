@@ -216,6 +216,7 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 		// set up the JComboBox for role refinement
 		roleRefinement = new JComboBox<String>();
 		updateRoleRefinement();
+		roleRefinement.removeActionListener(roleRefinementListener);
 		if (role != null && role != part.getRole()) {
 			String roleName = new SequenceOntology().getName(role);
 			if (!comboBoxContains(roleRefinement, roleName)) {
@@ -271,6 +272,17 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 	@Override
 	protected JPanel initMainPanel() {
 		JPanel panel;
+
+		Part part;
+		String roleName = (String) roleRefinement.getSelectedItem();
+		if (roleName == null || roleName.equals("None")) {
+			part = isRoleSelection() ? (Part) roleSelection.getSelectedItem() : ALL_PARTS;
+		} else {
+			SequenceOntology so = new SequenceOntology();
+			URI role = so.getURIbyName(roleName);
+			part = new Part(role, null, null);
+		}
+
 		if (isMetadata()) {
 			searchParts(isRoleSelection() ? part : null, stack);
 			TableMetadataTableModel tableModel = new TableMetadataTableModel(new ArrayList<TableMetadata>());
