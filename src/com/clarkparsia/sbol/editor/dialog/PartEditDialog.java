@@ -508,9 +508,10 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 	private boolean importFromRegistryHandler() throws Exception {
 		Part criteria = roleSelection.getSelectedItem().equals("None") ? PartInputDialog.ALL_PARTS
 				: (Part) roleSelection.getSelectedItem();
+		URI role = new SequenceOntology().getURIbyName((String) roleRefinement.getSelectedItem());
 
 		// User selects the CD
-		SBOLDocument selection = new RegistryInputDialog(this.getParent(), criteria, design).getInput();
+		SBOLDocument selection = new RegistryInputDialog(this.getParent(), criteria, role, design).getInput();
 		if (selection == null) {
 			return false;
 		} else {

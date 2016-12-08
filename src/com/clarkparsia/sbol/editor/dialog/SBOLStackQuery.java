@@ -97,7 +97,7 @@ public class SBOLStackQuery extends SwingWorker<Object, Object> {
 
 	@Override
 	protected void done() {
-		tableUpdater.updateTable(identified);
 		loading.stop();
+		tableUpdater.updateTable(identified);
 	}
 }

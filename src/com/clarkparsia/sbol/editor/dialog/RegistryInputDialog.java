@@ -120,7 +120,10 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 	private static final String TITLE = "Select a part from registry";
 
 	private static final Part ALL_PARTS = new Part("All parts", "All");
+	// represents what part we should display in role selection
 	private Part part;
+	// represents the role of the template CD, could be used in roleRefinement
+	private URI role;
 	private JComboBox<Part> roleSelection;
 	private JComboBox<String> roleRefinement;
 	private ActionListener roleRefinementListener = new ActionListener() {
@@ -148,11 +151,12 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 	private static StackFrontend stack;
 	private SBOLDocument design;
 
-	public RegistryInputDialog(final Component parent, final Part part, SBOLDocument design) {
+	public RegistryInputDialog(final Component parent, final Part part, URI role, SBOLDocument design) {
 		super(parent, TITLE);
 
 		this.design = design;
 		this.part = part;
+		this.role = role;
 
 		Registries registries = Registries.get();
 		int selectedRegistry = registries.getVersionRegistryIndex();
@@ -212,6 +216,13 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 		// set up the JComboBox for role refinement
 		roleRefinement = new JComboBox<String>();
 		updateRoleRefinement();
+		if (role != null && role != part.getRole()) {
+			String roleName = new SequenceOntology().getName(role);
+			if (!comboBoxContains(roleRefinement, roleName)) {
+				roleRefinement.addItem(roleName);
+			}
+			roleRefinement.setSelectedItem(roleName);
+		}
 		roleRefinement.addActionListener(roleRefinementListener);
 		builder.add("Role refinement", roleRefinement);
 
@@ -239,6 +250,18 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 			}
 		});
 		builder.add("Filter parts", filterSelection);
+	}
+
+	/**
+	 * Returns whether box contains s
+	 */
+	private boolean comboBoxContains(JComboBox<String> box, String s) {
+		for (int i = 0; i < box.getItemCount(); i++) {
+			if (s.equals(roleRefinement.getItemAt(i))) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	private boolean isRoleSelection() {
