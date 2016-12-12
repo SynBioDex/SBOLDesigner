@@ -18,8 +18,6 @@ import org.sbolstandard.core2.Sequence;
 
 import com.clarkparsia.swing.FormBuilder;
 
-import scala.Array;
-
 /**
  * A GUI for choosing a Sequence (String of elements) from a set of Sequences
  * 

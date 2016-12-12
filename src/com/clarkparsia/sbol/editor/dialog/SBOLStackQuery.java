@@ -70,8 +70,8 @@ public class SBOLStackQuery extends SwingWorker<Object, Object> {
 			}
 		}
 		// fetch parts
-		identified.addAll(
-				getTableMetadata(null, stack.searchComponentMetadata(null, roles, types, collections, null, null)));
+		identified.addAll(getTableMetadata(null,
+				stack.searchComponentDefinitionMetadata(null, roles, types, collections, null, null)));
 		return identified;
 	}
 

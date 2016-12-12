@@ -403,7 +403,7 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 				if (compMeta.isCollection) {
 					return new SBOLDocument();
 				}
-				comp = stack.fetchComponent(URI.create(compMeta.identified.uri));
+				comp = stack.fetchComponentDefinition(URI.create(compMeta.identified.uri));
 			} else {
 				comp = ((ComponentDefinitionTableModel) table.getModel()).getElement(row);
 			}
