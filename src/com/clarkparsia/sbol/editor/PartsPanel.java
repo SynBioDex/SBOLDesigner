@@ -82,6 +82,7 @@ public class PartsPanel extends JPanel {
 
 	@EventHandler
 	public void designChanged(DesignChangedEvent event) {
-		buttons.get(Parts.ORI).setEnabled(!event.getDesign().isCircular());
+		// TODO stop graying out Parts.ORI
+		//buttons.get(Parts.ORI).setEnabled(!event.getDesign().isCircular());
 	}
 }

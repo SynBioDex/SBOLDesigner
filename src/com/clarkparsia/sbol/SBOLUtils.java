@@ -179,11 +179,11 @@ public class SBOLUtils {
 		SequenceOntology so = new SequenceOntology();
 		Set<URI> roles;
 		if (comp instanceof ComponentDefinition) {
-			roles = ((ComponentDefinition)comp).getRoles();
+			roles = ((ComponentDefinition) comp).getRoles();
 		} else if (comp instanceof Component) {
-			roles = ((Component)comp).getRoles();
+			roles = ((Component) comp).getRoles();
 		} else if (comp instanceof SequenceAnnotation) {
-			roles = ((SequenceAnnotation)comp).getRoles();
+			roles = ((SequenceAnnotation) comp).getRoles();
 		} else {
 			return list;
 		}
@@ -381,7 +381,7 @@ public class SBOLUtils {
 	}
 
 	public enum Types {
-		All_types, DNA, Complex, Effector, Protein, RNA, Small_molecule;
+		All_types, DNA, Complex, Effector, Protein, RNA, Small_molecule, Circular;
 	}
 
 	/**
@@ -410,6 +410,9 @@ public class SBOLUtils {
 		case Small_molecule:
 			uri = ComponentDefinition.SMALL_MOLECULE;
 			break;
+		case Circular:
+			uri = SequenceOntology.CIRCULAR;
+			break;
 		default:
 			System.out.println("Invalid type");
 			return new HashSet<URI>();
@@ -420,37 +423,38 @@ public class SBOLUtils {
 	}
 
 	/**
+	 * Returns the Types enum associated with a type URI in types. If none
+	 * exist, returns null.
+	 */
+	public static Types convertURIsToType(Set<URI> types) {
+		for (URI type : types) {
+			if (type.equals(ComponentDefinition.DNA)) {
+				return Types.DNA;
+			} else if (type.equals(ComponentDefinition.COMPLEX)) {
+				return Types.Complex;
+			} else if (type.equals(ComponentDefinition.EFFECTOR)) {
+				return Types.Effector;
+			} else if (type.equals(ComponentDefinition.PROTEIN)) {
+				return Types.Protein;
+			} else if (type.equals(ComponentDefinition.RNA)) {
+				return Types.RNA;
+			} else if (type.equals(ComponentDefinition.SMALL_MOLECULE)) {
+				return Types.Small_molecule;
+			} else if (type.equals(SequenceOntology.CIRCULAR)) {
+				return Types.Circular;
+			}
+		}
+		return null;
+	}
+
+	/**
 	 * Returns a list with all the CDs in list which contain type (URI).
 	 */
 	public static List<ComponentDefinition> getCDOfType(List<ComponentDefinition> list, Types type) {
-		URI uri = null;
-		switch (type) {
-		case All_types:
-			// return everything in the list
-			return list;
-		case DNA:
-			uri = ComponentDefinition.DNA;
-			break;
-		case Complex:
-			uri = ComponentDefinition.COMPLEX;
-			break;
-		case Effector:
-			uri = ComponentDefinition.EFFECTOR;
-			break;
-		case Protein:
-			uri = ComponentDefinition.PROTEIN;
-			break;
-		case RNA:
-			uri = ComponentDefinition.RNA;
-			break;
-		case Small_molecule:
-			uri = ComponentDefinition.SMALL_MOLECULE;
-			break;
-		default:
-			System.out.println("Invalid type");
+		if (type == Types.All_types) {
 			return list;
 		}
-
+		URI uri = convertTypesToSet(type).iterator().next();
 		List<ComponentDefinition> result = new ArrayList<ComponentDefinition>();
 		for (ComponentDefinition CD : list) {
 			if (CD.getTypes().contains(uri)) {

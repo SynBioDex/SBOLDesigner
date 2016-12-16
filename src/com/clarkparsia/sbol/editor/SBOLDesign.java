@@ -266,7 +266,6 @@ public class SBOLDesign {
 
 	private boolean loading = false;
 
-	private boolean isCircular = false;
 	private DesignElement selectedElement = null;
 
 	private final Box elementBox;
@@ -476,7 +475,6 @@ public class SBOLDesign {
 		backboneBox.removeAll();
 		elements.clear();
 		buttons.clear();
-		isCircular = false;
 		readOnly.clear();
 
 		canvasCD = newRoot;
@@ -708,7 +706,7 @@ public class SBOLDesign {
 	}
 
 	public boolean isCircular() {
-		return isCircular;
+		return canvasCD.containsType(SequenceOntology.CIRCULAR);
 	}
 
 	public JPanel getPanel() {
@@ -805,21 +803,11 @@ public class SBOLDesign {
 	 */
 	private void addCD(org.sbolstandard.core2.Component component, ComponentDefinition comp, Part part)
 			throws SBOLValidationException {
-		boolean backbone = (part == Parts.ORI);
 		DesignElement e = new DesignElement(component, canvasCD, comp, part, design);
 		JLabel button = createComponentButton(e);
 
-		if (backbone) {
-			if (isCircular) {
-				throw new IllegalArgumentException("Cannot add multiple origin of replication parts");
-			}
-			elements.add(0, e);
-			backboneBox.add(button);
-			isCircular = true;
-		} else {
-			elements.add(e);
-			elementBox.add(button);
-		}
+		elements.add(e);
+		elementBox.add(button);
 		buttons.put(e, button);
 
 		if (!isPartVisible(part)) {
@@ -923,7 +911,7 @@ public class SBOLDesign {
 		});
 		// button.setComponentPopupMenu(popupMenu);
 
-		boolean isDraggable = (e.getPart() != Parts.ORI);
+		boolean isDraggable = true;
 		if (isDraggable) {
 			setupDragActions(button, e);
 		}
@@ -1037,10 +1025,9 @@ public class SBOLDesign {
 				elements.remove(selectedIndex);
 				elements.add(index, selectedElement);
 
-				int indexAdjustment = isCircular ? -1 : 0;
 				JLabel button = buttons.get(selectedElement);
-				elementBox.remove(selectedIndex + indexAdjustment);
-				elementBox.add(button, index + indexAdjustment);
+				elementBox.remove(selectedIndex);
+				elementBox.add(button, index);
 
 				fireDesignChangedEvent();
 			}
@@ -1081,12 +1068,8 @@ public class SBOLDesign {
 
 			JLabel button = buttons.remove(e);
 			elements.remove(index);
-			if (isCircular && index == 0) {
-				backboneBox.remove(button);
-				isCircular = false;
-			} else {
-				elementBox.remove(button);
-			}
+			elementBox.remove(button);
+
 			updateCanvasCD();
 			fireDesignChangedEvent();
 		}
@@ -1175,7 +1158,7 @@ public class SBOLDesign {
 		}
 
 		int size = elements.size();
-		int start = isCircular ? 1 : 0;
+		int start = 0;
 		int end = size - 1;
 		DesignElement curr = (size == 0) ? null : elements.get(start);
 		for (int i = start; i < end; i++) {
@@ -1302,7 +1285,7 @@ public class SBOLDesign {
 		int designHeight = elementBox.getHeight();
 
 		int x = (totalWidth - designWidth) / 2;
-		if (isCircular) {
+		if (isCircular()) {
 			x -= IMG_PAD;
 			designWidth += (2 * IMG_PAD);
 			designHeight += backboneBox.getHeight();
@@ -1623,7 +1606,7 @@ public class SBOLDesign {
 				int x = (totalWidth - designWidth) / 2;
 				int y = IMG_HEIGHT / 2;
 
-				if (!isCircular) {
+				if (!isCircular()) {
 					g.drawLine(x, y, totalWidth - x, y);
 				} else {
 					g.drawRoundRect(x - IMG_PAD, y, designWidth + 2 * IMG_PAD, backboneBox.getHeight(), IMG_PAD,
