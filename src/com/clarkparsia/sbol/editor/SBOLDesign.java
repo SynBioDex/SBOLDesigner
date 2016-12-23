@@ -664,13 +664,6 @@ public class SBOLDesign {
 						continue;
 					}
 
-					// // potentially add extra backbone
-					// String uncoveredSeq = backboneElements(parentSeq,
-					// refered.getSequenceByEncoding(Sequence.IUPAC_DNA).getElements());
-					// if (uncoveredSeq.length() > 0) {
-					// addCD(createBackboneCD(uncoveredSeq));
-					// parentSeq = parentSeq.substring(uncoveredSeq.length());
-					// }
 					if (component.getRoles().isEmpty()) {
 						addCD(component, refered, Parts.forIdentified(refered));
 					} else {

@@ -75,6 +75,7 @@ import org.sbolstandard.core2.SequenceOntology;
 
 import com.clarkparsia.sbol.CharSequences;
 import com.clarkparsia.sbol.SBOLUtils;
+import com.clarkparsia.sbol.SBOLUtils.Types;
 import com.clarkparsia.sbol.editor.Part;
 import com.clarkparsia.sbol.editor.Parts;
 import com.clarkparsia.sbol.editor.SBOLDesign;
@@ -101,6 +102,7 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 	private SBOLDocument design;
 
 	private final JComboBox<Part> roleSelection = new JComboBox<Part>(Iterables.toArray(Parts.sorted(), Part.class));
+	private final JComboBox<Types> typeSelection = new JComboBox<Types>(Types.values());
 	private final JComboBox<String> roleRefinement;
 	private final JButton saveButton;
 	private final JButton cancelButton;
@@ -187,6 +189,9 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 		importCD = new JButton("Import part");
 		importCD.addActionListener(this);
 
+		typeSelection.setSelectedItem(SBOLUtils.convertURIsToType(CD.getTypes()));
+		typeSelection.addActionListener(this);
+
 		roleSelection.setSelectedItem(Parts.forIdentified(CD));
 		roleSelection.setRenderer(new PartCellRenderer());
 		roleSelection.addActionListener(this);
@@ -206,6 +211,7 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 
 		// put the controlsPane together
 		FormBuilder builder = new FormBuilder();
+		builder.add("Part type", typeSelection);
 		builder.add("Part role", roleSelection);
 		builder.add("Role refinement", roleRefinement);
 		builder.add("Display ID", displayId, CD.getDisplayId());
@@ -308,6 +314,9 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 		importCD = new JButton("Import part");
 		importCD.addActionListener(this);
 
+		typeSelection.setSelectedItem(SBOLUtils.convertURIsToType(CD.getTypes()));
+		typeSelection.addActionListener(this);
+
 		roleSelection.setSelectedItem(Parts.forIdentified(SA));
 		roleSelection.setRenderer(new PartCellRenderer());
 		roleSelection.addActionListener(this);
@@ -327,6 +336,7 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 
 		// put the controlsPane together
 		FormBuilder builder = new FormBuilder();
+		builder.add("Part type", typeSelection);
 		builder.add("Part role", roleSelection);
 		builder.add("Role refinement", roleRefinement);
 		builder.add("Display ID", displayId, SA.getDisplayId());
@@ -431,7 +441,8 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		boolean keepVisible = false;
-		if (e.getSource().equals(roleSelection) || e.getSource().equals(roleRefinement)) {
+		if (e.getSource().equals(roleSelection) || e.getSource().equals(roleRefinement)
+				|| e.getSource().equals(typeSelection)) {
 			if (canEdit) {
 				saveButton.setEnabled(true);
 			}
@@ -586,6 +597,11 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 			CD.setName(name.getText());
 		}
 		CD.setDescription(description.getText());
+
+		Types type = (Types) typeSelection.getSelectedItem();
+		if (type != null) {
+			CD.setTypes(SBOLUtils.convertTypesToSet(type));
+		}
 
 		Part part = (Part) roleSelection.getSelectedItem();
 		if (part != null) {

@@ -151,6 +151,7 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 	private static StackFrontend stack;
 	private SBOLDocument design;
 
+	// TODO should be able to take in type and role refinement
 	public RegistryInputDialog(final Component parent, final Part part, URI role, SBOLDocument design) {
 		super(parent, TITLE);
 
