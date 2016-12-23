@@ -798,7 +798,7 @@ public class SBOLDesign {
 	 */
 	private void addCD(org.sbolstandard.core2.Component component, ComponentDefinition comp, Part part)
 			throws SBOLValidationException {
-		boolean backbone = (part == Parts.ORI);
+		boolean backbone = (part == Parts.CIRCULAR);
 		DesignElement e = new DesignElement(component, canvasCD, comp, part, design);
 		JLabel button = createComponentButton(e);
 
@@ -916,7 +916,7 @@ public class SBOLDesign {
 		});
 		// button.setComponentPopupMenu(popupMenu);
 
-		boolean isDraggable = (e.getPart() != Parts.ORI);
+		boolean isDraggable = (e.getPart() != Parts.CIRCULAR);
 		if (isDraggable) {
 			setupDragActions(button, e);
 		}
@@ -1330,6 +1330,13 @@ public class SBOLDesign {
 	 */
 	private void updateCanvasCD() {
 		try {
+			// check circular
+			if (isCircular) {
+				canvasCD.addType(SequenceOntology.CIRCULAR);
+			} else {
+				canvasCD.removeType(SequenceOntology.CIRCULAR);
+			}
+			
 			updateSequenceAnnotations();
 			updateSequenceConstraints();
 

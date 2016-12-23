@@ -82,6 +82,6 @@ public class PartsPanel extends JPanel {
 
 	@EventHandler
 	public void designChanged(DesignChangedEvent event) {
-		buttons.get(Parts.ORI).setEnabled(!event.getDesign().isCircular());
+		buttons.get(Parts.CIRCULAR).setEnabled(!event.getDesign().isCircular());
 	}
 }
