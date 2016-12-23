@@ -286,8 +286,6 @@ public class SBOLDesign {
 	 */
 	private ComponentDefinition canvasCD;
 
-	private boolean hasSequence;
-
 	private final Deque<ComponentDefinition> parentCDs = new ArrayDeque<ComponentDefinition>();
 
 	public SBOLDesign(EventBus eventBus) {
@@ -481,10 +479,6 @@ public class SBOLDesign {
 
 		canvasCD = newRoot;
 		populateComponents(canvasCD);
-
-		// hasSequence = (canvasCD.getSequences() != null) &&
-		// elements.isEmpty();
-		hasSequence = (!canvasCD.getSequences().isEmpty()) && elements.isEmpty();
 
 		detectReadOnly();
 
@@ -1329,6 +1323,11 @@ public class SBOLDesign {
 	 * SequenceAnnotations.
 	 */
 	private void updateCanvasCD() {
+		// should not allow updating of CDs outside our namespace
+		if (SBOLUtils.isRegistryComponent(canvasCD)) {
+			return;
+		}
+
 		try {
 			// check circular
 			if (isCircular) {
@@ -1336,7 +1335,7 @@ public class SBOLDesign {
 			} else {
 				canvasCD.removeType(SequenceOntology.CIRCULAR);
 			}
-			
+
 			updateSequenceAnnotations();
 			updateSequenceConstraints();
 
