@@ -85,4 +85,3 @@ public class PartsPanel extends JPanel {
 		buttons.get(Parts.CIRCULAR).setEnabled(!event.getDesign().isCircular());
 	}
 }
-

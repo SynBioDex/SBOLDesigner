@@ -381,7 +381,7 @@ public class SBOLUtils {
 	}
 
 	public enum Types {
-		All_types, DNA, Complex, Effector, Protein, RNA, Small_molecule, Circular;
+		All_types, DNA, Complex, Effector, Protein, RNA, Small_molecule;
 	}
 
 	/**
@@ -409,9 +409,6 @@ public class SBOLUtils {
 			break;
 		case Small_molecule:
 			uri = ComponentDefinition.SMALL_MOLECULE;
-			break;
-		case Circular:
-			uri = SequenceOntology.CIRCULAR;
 			break;
 		default:
 			System.out.println("Invalid type");
