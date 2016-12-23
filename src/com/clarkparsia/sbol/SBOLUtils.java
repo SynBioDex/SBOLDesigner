@@ -440,8 +440,6 @@ public class SBOLUtils {
 				return Types.RNA;
 			} else if (type.equals(ComponentDefinition.SMALL_MOLECULE)) {
 				return Types.Small_molecule;
-			} else if (type.equals(SequenceOntology.CIRCULAR)) {
-				return Types.Circular;
 			}
 		}
 		return null;

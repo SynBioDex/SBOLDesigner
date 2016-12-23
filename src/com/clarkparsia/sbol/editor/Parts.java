@@ -75,6 +75,8 @@ public class Parts {
 			ImageType.CENTERED_ON_BASELINE, "SO:0001933");
 	public static final Part THREEOH = createPart("3' Overhang", "_3OH", "three-prime-overhang.png",
 			ImageType.CENTERED_ON_BASELINE, "SO:0001932");
+	public static final Part CIRCULAR = createPart("Circular Backbone", "Circular", "blank-backbone.png",
+			ImageType.CENTERED_ON_BASELINE, "SO:0000755");
 
 	private static Iterable<Part> SORTED_PARTS;
 

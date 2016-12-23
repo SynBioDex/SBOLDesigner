@@ -266,6 +266,7 @@ public class SBOLDesign {
 
 	private boolean loading = false;
 
+	private boolean isCircular = false;
 	private DesignElement selectedElement = null;
 
 	private final Box elementBox;
@@ -284,8 +285,6 @@ public class SBOLDesign {
 	 * The current CD displayed in the canvas.
 	 */
 	private ComponentDefinition canvasCD;
-
-	private boolean hasSequence;
 
 	private final Deque<ComponentDefinition> parentCDs = new ArrayDeque<ComponentDefinition>();
 
@@ -479,10 +478,6 @@ public class SBOLDesign {
 
 		canvasCD = newRoot;
 		populateComponents(canvasCD);
-
-		// hasSequence = (canvasCD.getSequences() != null) &&
-		// elements.isEmpty();
-		hasSequence = (!canvasCD.getSequences().isEmpty()) && elements.isEmpty();
 
 		detectReadOnly();
 
@@ -796,6 +791,7 @@ public class SBOLDesign {
 	 */
 	private void addCD(org.sbolstandard.core2.Component component, ComponentDefinition comp, Part part)
 			throws SBOLValidationException {
+		boolean backbone = (part == Parts.CIRCULAR);
 		DesignElement e = new DesignElement(component, canvasCD, comp, part, design);
 		JLabel button = createComponentButton(e);
 
@@ -904,7 +900,7 @@ public class SBOLDesign {
 		});
 		// button.setComponentPopupMenu(popupMenu);
 
-		boolean isDraggable = true;
+		boolean isDraggable = (e.getPart() != Parts.CIRCULAR);
 		if (isDraggable) {
 			setupDragActions(button, e);
 		}
@@ -1312,7 +1308,19 @@ public class SBOLDesign {
 	 * SequenceAnnotations.
 	 */
 	private void updateCanvasCD() {
+		// should not allow updating of CDs outside our namespace
+		if (SBOLUtils.isRegistryComponent(canvasCD)) {
+			return;
+		}
+
 		try {
+			// check circular
+			if (isCircular) {
+				canvasCD.addType(SequenceOntology.CIRCULAR);
+			} else {
+				canvasCD.removeType(SequenceOntology.CIRCULAR);
+			}
+
 			updateSequenceAnnotations();
 			updateSequenceConstraints();
 

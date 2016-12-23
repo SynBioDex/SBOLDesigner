@@ -176,7 +176,7 @@ public class SBOLDesignerPanel extends JPanel {
 	final SBOLEditorAction INFO = new SBOLEditorAction("About SBOLDesigner", "info.gif") {
 		@Override
 		protected void perform() {
-			// TODO debugging
+			// for debugging
 			try {
 				design.getDesign().write(System.out);
 			} catch (SBOLConversionException e) {
