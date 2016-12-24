@@ -622,9 +622,8 @@ public class SBOLDesign {
 	 */
 	private void populateComponents(ComponentDefinition comp) throws SBOLValidationException {
 		// Check if the design is completely annotated, this is true if all
-		// Components
-		// have a precise location specified by a SequenceAnnotation with a
-		// Range or Cut Location.
+		// Components have a precise location specified by a SequenceAnnotation
+		// with a Range or Cut Location.
 		boolean completelyAnnotated = true;
 		for (org.sbolstandard.core2.Component component : comp.getComponents()) {
 			SequenceAnnotation sa = comp.getSequenceAnnotation(component);
@@ -674,12 +673,8 @@ public class SBOLDesign {
 			return;
 		}
 
-		// get sortedComponents and add them in order
-		// TODO: what was this for?
-		/*
-		 * if (canvasCD != comp) { addCD(comp); }
-		 */
 		// If not completely annotated, need to sort by Components
+		// get sortedComponents and add them in order
 		Iterable<org.sbolstandard.core2.Component> sortedComponents = comp.getSortedComponents();
 		for (org.sbolstandard.core2.Component component : sortedComponents) {
 			ComponentDefinition refered = component.getDefinition();
