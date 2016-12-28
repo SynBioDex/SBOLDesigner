@@ -1293,6 +1293,8 @@ public class SBOLDesign {
 		SBOLDocument uploadDoc = createDocument();
 		for (ComponentDefinition cd : uploadDoc.getRootComponentDefinitions()) {
 			Collection collection = uploadDoc.createCollection(cd.getDisplayId()+"_collection");
+			collection.setName(cd.getName());
+			collection.setDescription(cd.getDescription());
 			collection.createAnnotation(new QName("http://synbiohub.org#","uploadedBy","synbiohub"), email);
 			for (ComponentDefinition cd2 : uploadDoc.getComponentDefinitions()) {
 				collection.addMember(cd2.getIdentity());
