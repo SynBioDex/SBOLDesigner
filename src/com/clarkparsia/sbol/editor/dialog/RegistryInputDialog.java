@@ -132,6 +132,7 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 			updateTable();
 		}
 	};
+	private Types type;
 	private JComboBox<Types> typeSelection;
 	private JComboBox<IdentifiedMetadata> collectionSelection;
 	private ActionListener collectionSelectionListener = new ActionListener() {
@@ -151,13 +152,13 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 	private static StackFrontend stack;
 	private SBOLDocument design;
 
-	// TODO should be able to take in type
-	public RegistryInputDialog(final Component parent, final Part part, URI role, SBOLDocument design) {
+	public RegistryInputDialog(final Component parent, final Part part, Types type, URI role, SBOLDocument design) {
 		super(parent, TITLE);
 
 		this.design = design;
 		this.part = part;
 		this.role = role;
+		this.type = type;
 
 		Registries registries = Registries.get();
 		int selectedRegistry = registries.getVersionRegistryIndex();
@@ -183,7 +184,7 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 	public void initFormPanel(FormBuilder builder) {
 		// set up type selection
 		typeSelection = new JComboBox<Types>(Types.values());
-		typeSelection.setSelectedItem(Types.DNA);
+		typeSelection.setSelectedItem(type);
 		typeSelection.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {

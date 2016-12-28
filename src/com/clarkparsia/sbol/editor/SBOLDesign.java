@@ -45,8 +45,10 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Deque;
 import java.util.EnumSet;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -91,6 +93,7 @@ import org.slf4j.LoggerFactory;
 import com.adamtaft.eb.EventBus;
 import com.clarkparsia.sbol.CharSequences;
 import com.clarkparsia.sbol.SBOLUtils;
+import com.clarkparsia.sbol.SBOLUtils.Types;
 import com.clarkparsia.sbol.editor.dialog.MessageDialog;
 import com.clarkparsia.sbol.editor.dialog.PartEditDialog;
 import com.clarkparsia.sbol.editor.dialog.RootInputDialog;
@@ -625,9 +628,8 @@ public class SBOLDesign {
 	 */
 	private void populateComponents(ComponentDefinition comp) throws SBOLValidationException {
 		// Check if the design is completely annotated, this is true if all
-		// Components
-		// have a precise location specified by a SequenceAnnotation with a
-		// Range or Cut Location.
+		// Components have a precise location specified by a SequenceAnnotation
+		// with a Range or Cut Location.
 		boolean completelyAnnotated = true;
 		for (org.sbolstandard.core2.Component component : comp.getComponents()) {
 			SequenceAnnotation sa = comp.getSequenceAnnotation(component);
@@ -677,12 +679,8 @@ public class SBOLDesign {
 			return;
 		}
 
-		// get sortedComponents and add them in order
-		// TODO: what was this for?
-		/*
-		 * if (canvasCD != comp) { addCD(comp); }
-		 */
 		// If not completely annotated, need to sort by Components
+		// get sortedComponents and add them in order
 		Iterable<org.sbolstandard.core2.Component> sortedComponents = comp.getSortedComponents();
 		for (org.sbolstandard.core2.Component component : sortedComponents) {
 			ComponentDefinition refered = component.getDefinition();
@@ -1256,9 +1254,11 @@ public class SBOLDesign {
 	public void findPartForSelectedCD() throws Exception {
 		Part part = selectedElement.getPart();
 		ComponentDefinition selectedCD = selectedElement.getCD();
+		URI role = selectedCD.getRoles().iterator().next();
+		Types type = SBOLUtils
+				.convertURIsToType(new HashSet<URI>(Arrays.asList(selectedCD.getTypes().iterator().next())));
 		SBOLDocument selection = null;
-		selection = new RegistryInputDialog(panel.getParent(), part, selectedCD.getRoles().iterator().next(), design)
-				.getInput();
+		selection = new RegistryInputDialog(panel.getParent(), part, type, role, design).getInput();
 
 		if (selection != null) {
 			SBOLUtils.insertTopLevels(selection, design);
