@@ -1287,6 +1287,7 @@ public class SBOLDesign {
 		
 		PersonInfo info = SBOLEditorPreferences.INSTANCE.getUserInfo();
 		String email = info == null || info.getEmail() == null ? null : info.getEmail().getLocalName();
+		String uri = info == null ? null : info.getURI().stringValue();
 		String emailHash = Hashing.sha1().hashString(email, Charsets.UTF_8 ).toString();
 		// TODO: need to revise this when revised on stack 
 		String storename = "synbiohub_user_" + Hashing.sha1().hashString( "synbiohub_" + emailHash + "synbiohub_change_me", Charsets.UTF_8 ).toString();
@@ -1297,6 +1298,7 @@ public class SBOLDesign {
 			collection.setDescription(cd.getDescription());
 			collection.createAnnotation(new QName("http://synbiohub.org#","uploadedBy","synbiohub"), email);
 			for (ComponentDefinition cd2 : uploadDoc.getComponentDefinitions()) {
+				if (!cd2.getIdentity().toString().startsWith(uri)) continue;
 				collection.addMember(cd2.getIdentity());
 			}
 			stack.upload(storename, uploadDoc);
