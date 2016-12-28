@@ -67,10 +67,12 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.KeyStroke;
 import javax.swing.SwingConstants;
+import javax.xml.namespace.QName;
 
 import org.sbolstack.frontend.StackException;
 import org.sbolstack.frontend.StackFrontend;
 import org.sbolstandard.core2.AccessType;
+import org.sbolstandard.core2.Collection;
 import org.sbolstandard.core2.ComponentDefinition;
 import org.sbolstandard.core2.Cut;
 import org.sbolstandard.core2.Location;
@@ -99,12 +101,16 @@ import com.clarkparsia.sbol.editor.event.FocusInEvent;
 import com.clarkparsia.sbol.editor.event.FocusOutEvent;
 import com.clarkparsia.sbol.editor.event.PartVisibilityChangedEvent;
 import com.clarkparsia.sbol.editor.event.SelectionChangedEvent;
+import com.clarkparsia.swing.FormBuilder;
+import com.clarkparsia.versioning.PersonInfo;
+import com.google.common.base.Charsets;
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import com.google.common.hash.Hashing;
 
 /**
  * 
@@ -1278,7 +1284,21 @@ public class SBOLDesign {
 			return;
 		}
 		StackFrontend stack = new StackFrontend(registry.getLocation());
-		stack.upload(createDocument());
+		
+		PersonInfo info = SBOLEditorPreferences.INSTANCE.getUserInfo();
+		String email = info == null || info.getEmail() == null ? null : info.getEmail().getLocalName();
+		String emailHash = Hashing.sha1().hashString(email, Charsets.UTF_8 ).toString();
+		// TODO: need to revise this when revised on stack 
+		String storename = "synbiohub_user_" + Hashing.sha1().hashString( "synbiohub_" + emailHash + "synbiohub_change_me", Charsets.UTF_8 ).toString();
+		SBOLDocument uploadDoc = createDocument();
+		for (ComponentDefinition cd : uploadDoc.getRootComponentDefinitions()) {
+			Collection collection = uploadDoc.createCollection(cd.getDisplayId()+"_collection");
+			collection.createAnnotation(new QName("http://synbiohub.org#","uploadedBy","synbiohub"), email);
+			for (ComponentDefinition cd2 : uploadDoc.getComponentDefinitions()) {
+				collection.addMember(cd2.getIdentity());
+			}
+			stack.upload(storename, uploadDoc);
+		}
 	}
 
 	public BufferedImage getSnapshot() {
