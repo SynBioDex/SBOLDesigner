@@ -1294,9 +1294,14 @@ public class SBOLDesign {
 		SBOLDocument uploadDoc = createDocument();
 		for (ComponentDefinition cd : uploadDoc.getRootComponentDefinitions()) {
 			Collection collection = uploadDoc.createCollection(cd.getDisplayId()+"_collection");
-			collection.setName(cd.getName()+" "+"Collection");
+			if (cd.isSetName()) {
+				collection.setName(cd.getName()+" "+"Collection");
+			} else {
+				collection.setName(cd.getDisplayId()+" "+"Collection");
+			}
 			collection.setDescription(cd.getDescription());
 			collection.createAnnotation(new QName("http://synbiohub.org#","uploadedBy","synbiohub"), email);
+			collection.createAnnotation(new QName("http://purl.org/dc/terms/","creator","dcterms"), info.getName());
 			for (ComponentDefinition cd2 : uploadDoc.getComponentDefinitions()) {
 				if (!cd2.getIdentity().toString().startsWith(uri)) continue;
 				collection.addMember(cd2.getIdentity());
