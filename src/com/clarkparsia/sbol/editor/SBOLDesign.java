@@ -1298,6 +1298,8 @@ public class SBOLDesign {
 		// TODO: need to revise this when revised on stack
 		String storename = "synbiohub_user_" + Hashing.sha1()
 				.hashString("synbiohub_" + emailHash + "synbiohub_change_me", Charsets.UTF_8).toString();
+		// TODO: uploadDoc should only include objects in your namespace.
+		// filter for member collections works, but it ends up uploading extra objects
 		SBOLDocument uploadDoc = createDocument();
 		// TODO: would this ever be more than one root?
 		for (ComponentDefinition cd : uploadDoc.getRootComponentDefinitions()) {
