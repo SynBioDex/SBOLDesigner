@@ -96,7 +96,7 @@ public class SBOLDesignerPanel extends JPanel {
 		}
 	};
 
-	private final SBOLEditorAction NEW = new SBOLEditorAction("New", "Create a new design", "new.gif") {
+	private final SBOLEditorAction NEW_PART = new SBOLEditorAction("New", "Create a new part", "newFile.gif") {
 		@Override
 		protected void perform() {
 			try {
@@ -108,7 +108,8 @@ public class SBOLDesignerPanel extends JPanel {
 		}
 	}.precondition(CONFIRM_SAVE);
 
-	private final SBOLEditorAction OPEN = new SBOLEditorAction("Open", "Load a design from an SBOL file", "open.gif") {
+	private final SBOLEditorAction OPEN_DOCUMENT = new SBOLEditorAction("Open Document",
+			"Load an existing SBOL document", "openFolder.gif") {
 		@Override
 		protected void perform() {
 			int returnVal = fc.showOpenDialog(SBOLDesignerPanel.this);
@@ -117,9 +118,29 @@ public class SBOLDesignerPanel extends JPanel {
 				File file = fc.getSelectedFile();
 				Preferences.userRoot().node("path").put("path", file.getPath());
 				try {
-					openDesign(new FileDocumentIO(false));
+					openDocument(new FileDocumentIO(false));
 				} catch (SBOLValidationException | IOException | SBOLConversionException e) {
-					JOptionPane.showMessageDialog(null, "There was a problem opening this design: " + e.getMessage());
+					JOptionPane.showMessageDialog(null, "There was a problem opening this document: " + e.getMessage());
+					e.printStackTrace();
+				}
+			}
+		}
+	}.precondition(CONFIRM_SAVE);
+
+	private final SBOLEditorAction NEW_DOCUMENT = new SBOLEditorAction("New Document", "Create a new SBOL Document",
+			"newFolder.png") {
+		@Override
+		protected void perform() {
+			int returnVal = fc.showSaveDialog(SBOLDesignerPanel.this);
+			if (returnVal == JFileChooser.APPROVE_OPTION) {
+				File file = fc.getSelectedFile();
+				Preferences.userRoot().node("path").put("path", file.getPath());
+				try {
+					new FileDocumentIO(false).write(new SBOLDocument());
+					openDocument(new FileDocumentIO(false));
+				} catch (SBOLValidationException | IOException | SBOLConversionException e) {
+					JOptionPane.showMessageDialog(null,
+							"There was a problem creating this document: " + e.getMessage());
 					e.printStackTrace();
 				}
 			}
@@ -206,7 +227,7 @@ public class SBOLDesignerPanel extends JPanel {
 						ComponentDefinition newComponent = SBOLUtils.getRootCD(newIO.read());
 						design.addCD(newComponent);
 					} else {
-						openDesign(newIO);
+						openDocument(newIO);
 					}
 				}
 			} catch (SBOLValidationException | IOException | SBOLConversionException e) {
@@ -260,7 +281,7 @@ public class SBOLDesignerPanel extends JPanel {
 				Branch branch = dialog.getInput();
 				if (branch != null) {
 					DocumentIO newIO = rvtIO.mergeBranch(branch, dialog.getMergeMessage());
-					openDesign(newIO);
+					openDocument(newIO);
 				}
 			} catch (SBOLValidationException | IOException | SBOLConversionException e) {
 				JOptionPane.showMessageDialog(null, "There was a problem merging this design: " + e.getMessage());
@@ -278,7 +299,7 @@ public class SBOLDesignerPanel extends JPanel {
 				Branch branch = new SwitchBranchDialog(SBOLDesignerPanel.this, rvtIO.getBranch()).getInput();
 				if (branch != null) {
 					DocumentIO newIO = rvtIO.switchBranch(branch);
-					openDesign(newIO);
+					openDocument(newIO);
 				}
 			} catch (SBOLValidationException | IOException | SBOLConversionException e) {
 				JOptionPane.showMessageDialog(null, "There was a problem switching this design: " + e.getMessage());
@@ -336,7 +357,7 @@ public class SBOLDesignerPanel extends JPanel {
 						ComponentDefinition comp = SBOLUtils.getRootCD(doc);
 						design.addCD(comp);
 					} else if (confirmSave()) {
-						openDesign(docIO);
+						openDocument(docIO);
 					}
 				}
 			} catch (Exception e) {
@@ -352,7 +373,8 @@ public class SBOLDesignerPanel extends JPanel {
 		return editor;
 	}
 
-	SBOLEditorActions TOOLBAR_ACTIONS = new SBOLEditorActions().add(NEW, OPEN, SAVE, EXPORT, DIVIDER)
+	SBOLEditorActions TOOLBAR_ACTIONS = new SBOLEditorActions()
+			.add(NEW_PART, NEW_DOCUMENT, OPEN_DOCUMENT, SAVE, EXPORT, DIVIDER)
 			.addIf(SBOLEditorPreferences.INSTANCE.isVersioningEnabled(), VERSION, DIVIDER)
 			.add(design.EDIT_CANVAS, design.EDIT, design.FIND, design.UPLOAD, design.DELETE, design.FLIP, DIVIDER)
 			.add(design.HIDE_SCARS, design.ADD_SCARS, DIVIDER).add(design.FOCUS_IN, design.FOCUS_OUT, DIVIDER, SNAPSHOT)
@@ -497,7 +519,7 @@ public class SBOLDesignerPanel extends JPanel {
 		SBOLEditorPreferences.INSTANCE.saveUserInfo(userInfo);
 	}
 
-	void openDesign(DocumentIO documentIO) throws SBOLValidationException, IOException, SBOLConversionException {
+	void openDocument(DocumentIO documentIO) throws SBOLValidationException, IOException, SBOLConversionException {
 		SBOLDocument doc = documentIO.read();
 		doc.setDefaultURIprefix(SBOLEditorPreferences.INSTANCE.getUserInfo().getURI().toString());
 		if (editor.getDesign().load(doc)) {
@@ -594,10 +616,10 @@ public class SBOLDesignerPanel extends JPanel {
 		}
 
 		// save into existing file or into a new file
-		if (!SBOLUtils.setupFile().exists()) {
-			saveIntoNewFile();
-		} else {
+		if (SBOLUtils.setupFile().exists()) {
 			saveIntoExistingFile();
+		} else {
+			saveIntoNewFile();
 		}
 		return true;
 	}

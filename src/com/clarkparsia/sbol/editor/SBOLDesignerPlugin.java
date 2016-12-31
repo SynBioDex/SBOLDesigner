@@ -118,7 +118,7 @@ public class SBOLDesignerPlugin extends SBOLDesignerPanel {
 
 		File file = new File(path + this.fileName);
 		Preferences.userRoot().node("path").put("path", file.getPath());
-		openDesign(new FileDocumentIO(false));
+		openDocument(new FileDocumentIO(false));
 	}
 	
 	private void saveURIprefix() {
@@ -170,7 +170,7 @@ public class SBOLDesignerPlugin extends SBOLDesignerPanel {
 		return toolbar;
 	}
 
-	void openDesign(DocumentIO documentIO) throws SBOLValidationException, IOException, SBOLConversionException {
+	void openDocument(DocumentIO documentIO) throws SBOLValidationException, IOException, SBOLConversionException {
 		SBOLDocument doc = documentIO.read();
 		doc.setDefaultURIprefix(URIprefix);
 		if (rootURI != null) {

@@ -87,7 +87,7 @@ public class SBOLDesignerStandalone extends JFrame {
 			try {
 				File file = new File(args[0]);
 				Preferences.userRoot().node("path").put("path", file.getPath());
-				frame.panel.openDesign(new FileDocumentIO(false));
+				frame.panel.openDocument(new FileDocumentIO(false));
 			} catch (Exception e) {
 				e.printStackTrace();
 			}

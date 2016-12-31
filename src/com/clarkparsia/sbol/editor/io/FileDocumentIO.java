@@ -75,6 +75,7 @@ public class FileDocumentIO implements DocumentIO {
 		String fileName = file.getName();
 		if (!fileName.contains(".")) {
 			file = new File(file + ".xml");
+			Preferences.userRoot().node("path").put("path", file.getPath());
 		}
 		SBOLWriter.write(doc, new FileOutputStream(file));
 	}
