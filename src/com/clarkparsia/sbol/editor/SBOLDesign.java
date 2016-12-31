@@ -1294,7 +1294,7 @@ public class SBOLDesign {
 					"Upload failed", JOptionPane.ERROR_MESSAGE);
 		}
 		String emailHash = Hashing.sha1().hashString(email, Charsets.UTF_8).toString();
-		String userId = URIUtil.encodeQuery(email);
+		String userId = email.replace("@", "%40");
 		// TODO: need to revise this when revised on stack
 		String storename = "synbiohub_user_" + Hashing.sha1()
 				.hashString("synbiohub_" + emailHash + "synbiohub_change_me", Charsets.UTF_8).toString();
