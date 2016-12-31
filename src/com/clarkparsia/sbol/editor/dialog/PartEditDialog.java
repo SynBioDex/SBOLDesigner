@@ -109,6 +109,7 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 	private final JButton importSequence;
 	private final JButton importCD;
 	private final JButton importFromRegistry;
+	private final JButton viewAnnotations;
 	private final JTextField displayId = new JTextField();
 	private final JTextField name = new JTextField();
 	private final JTextField version = new JTextField();
@@ -188,6 +189,8 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 		importSequence.addActionListener(this);
 		importCD = new JButton("Import part");
 		importCD.addActionListener(this);
+		viewAnnotations = new JButton("View annotations");
+		viewAnnotations.addActionListener(this);
 
 		typeSelection.setSelectedItem(SBOLUtils.convertURIsToType(CD.getTypes()));
 		typeSelection.addActionListener(this);
@@ -236,6 +239,7 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 			});
 			builder.add("Derived from", derivedFrom);
 		}
+
 		builder.add("Description", description, CD.getDescription());
 		JPanel controlsPane = builder.build();
 
@@ -266,6 +270,7 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 		buttonPane.add(importFromRegistry);
 		buttonPane.add(importCD);
 		buttonPane.add(importSequence);
+		buttonPane.add(viewAnnotations);
 		buttonPane.add(Box.createHorizontalStrut(100));
 		buttonPane.add(Box.createHorizontalGlue());
 		buttonPane.add(cancelButton);
@@ -313,6 +318,8 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 		importSequence.addActionListener(this);
 		importCD = new JButton("Import part");
 		importCD.addActionListener(this);
+		viewAnnotations = new JButton("View annotations");
+		viewAnnotations.addActionListener(this);
 
 		typeSelection.setSelectedItem(SBOLUtils.convertURIsToType(CD.getTypes()));
 		typeSelection.addActionListener(this);
@@ -415,6 +422,7 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 		buttonPane.add(importFromRegistry);
 		buttonPane.add(importCD);
 		buttonPane.add(importSequence);
+		buttonPane.add(viewAnnotations);
 		buttonPane.add(Box.createHorizontalStrut(100));
 		buttonPane.add(Box.createHorizontalGlue());
 		buttonPane.add(cancelButton);
