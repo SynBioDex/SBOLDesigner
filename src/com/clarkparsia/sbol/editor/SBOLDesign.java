@@ -71,6 +71,8 @@ import javax.swing.KeyStroke;
 import javax.swing.SwingConstants;
 import javax.xml.namespace.QName;
 
+import org.apache.commons.httpclient.URIException;
+import org.apache.commons.httpclient.util.URIUtil;
 import org.sbolstack.frontend.StackException;
 import org.sbolstack.frontend.StackFrontend;
 import org.sbolstandard.core2.AccessType;
@@ -167,7 +169,7 @@ public class SBOLDesign {
 		protected void perform() {
 			try {
 				uploadDesign();
-			} catch (SBOLValidationException | StackException e) {
+			} catch (SBOLValidationException | StackException | URIException e) {
 				JOptionPane.showMessageDialog(panel, "There was a problem uploading the design: " + e.getMessage());
 				e.printStackTrace();
 			}
@@ -1269,7 +1271,7 @@ public class SBOLDesign {
 		}
 	}
 
-	public void uploadDesign() throws StackException, SBOLValidationException {
+	public void uploadDesign() throws StackException, SBOLValidationException, URIException {
 		ArrayList<Registry> list = new ArrayList<Registry>();
 		for (Registry r : Registries.get()) {
 			if (r.getLocation().startsWith("http://")) {
@@ -1289,9 +1291,11 @@ public class SBOLDesign {
 		String email = info == null || info.getEmail() == null ? null : info.getEmail().getLocalName();
 		String uri = info == null ? null : info.getURI().stringValue();
 		String emailHash = Hashing.sha1().hashString(email, Charsets.UTF_8 ).toString();
+		String userId = URIUtil.encodeQuery(email);
 		// TODO: need to revise this when revised on stack 
 		String storename = "synbiohub_user_" + Hashing.sha1().hashString( "synbiohub_" + emailHash + "synbiohub_change_me", Charsets.UTF_8 ).toString();
 		SBOLDocument uploadDoc = createDocument();
+		// TODO: need to update all URIs before upload
 		for (ComponentDefinition cd : uploadDoc.getRootComponentDefinitions()) {
 			Collection collection = uploadDoc.createCollection(cd.getDisplayId()+"_collection");
 			if (cd.isSetName()) {
@@ -1306,6 +1310,7 @@ public class SBOLDesign {
 				if (!cd2.getIdentity().toString().startsWith(uri)) continue;
 				collection.addMember(cd2.getIdentity());
 			}
+			uploadDoc = uploadDoc.changeURIPrefix("http://synbiohub.org/user/"+userId+"/"+cd.getDisplayId());
 			stack.upload(storename, uploadDoc);
 		}
 	}

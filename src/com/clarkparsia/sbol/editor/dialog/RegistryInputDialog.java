@@ -105,7 +105,7 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 		@Override
 		protected String getLabel(IdentifiedMetadata collection) {
 			if (collection != null) {
-				return collection.displayId;
+				return collection.getDisplayId();
 			} else {
 				return "Unknown";
 			}
@@ -113,7 +113,7 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 
 		@Override
 		protected String getToolTip(IdentifiedMetadata collection) {
-			return collection == null ? "" : collection.description;
+			return collection == null ? "" : collection.getDescription();
 		}
 	};
 
@@ -370,10 +370,10 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 			if (part != null) {
 				// create the query
 				IdentifiedMetadata selectedCollection = (IdentifiedMetadata) collectionSelection.getSelectedItem();
-				if (selectedCollection == null || selectedCollection.uri == null) {
+				if (selectedCollection == null || selectedCollection.getUri() == null) {
 					return;
 				}
-				Set<URI> setCollections = new HashSet<URI>(Arrays.asList(URI.create(selectedCollection.uri)));
+				Set<URI> setCollections = new HashSet<URI>(Arrays.asList(URI.create(selectedCollection.getUri())));
 				Set<URI> setRoles = new HashSet<URI>(part.getRoles());
 				Set<URI> setTypes = SBOLUtils.convertTypesToSet((Types) typeSelection.getSelectedItem());
 				SBOLStackQuery query = new SBOLStackQuery(stack, setRoles, setTypes, setCollections, new TableUpdater(),
@@ -405,7 +405,7 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 				if (compMeta.isCollection) {
 					return new SBOLDocument();
 				}
-				comp = stack.fetchComponentDefinition(URI.create(compMeta.identified.uri));
+				comp = stack.fetchComponentDefinition(URI.create(compMeta.identified.getUri()));
 			} else {
 				comp = ((ComponentDefinitionTableModel) table.getModel()).getElement(row);
 			}
@@ -454,9 +454,9 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 		if (registryChanged) {
 			// display only "allCollections"
 			IdentifiedMetadata allCollections = new IdentifiedMetadata();
-			allCollections.name = "All Collections";
-			allCollections.displayId = "All Collections";
-			allCollections.uri = "";
+			allCollections.setName("All Collections");
+			allCollections.setDisplayId("All Collections");
+			allCollections.setUri("");
 			collectionSelection.removeAllItems();
 			collectionSelection.addItem(allCollections);
 			collectionSelection.setSelectedItem(allCollections);

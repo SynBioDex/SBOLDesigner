@@ -18,13 +18,13 @@ class TableMetadataTableModel extends AbstractListTableModel<TableMetadata> {
 		case 0:
 			return component.isCollection ? "Collection" : "Part";
 		case 1:
-			return component.identified.displayId;
+			return component.identified.getDisplayId();
 		case 2:
-			return component.identified.name;
+			return component.identified.getName();
 		case 3:
-			return component.identified.version;
+			return component.identified.getVersion();
 		case 4:
-			return component.identified.description;
+			return component.identified.getDescription();
 		default:
 			throw new IndexOutOfBoundsException();
 		}

@@ -58,11 +58,11 @@ public class SBOLStackQuery extends SwingWorker<Object, Object> {
 		loading.start();
 		// fetch collections
 		if (collections.isEmpty()) {
-			identified.addAll(getTableMetadata(stack.fetchRootCollectionMetadata(), null));
+			identified.addAll(getTableMetadata(stack.searchRootCollectionMetadata(), null));
 		} else {
 			for (URI collection : collections) {
 				try {
-					identified.addAll(getTableMetadata(stack.fetchSubCollectionMetadata(collection), null));
+					identified.addAll(getTableMetadata(stack.searchSubCollectionMetadata(collection), null));
 				} catch (StackException e1) {
 					JOptionPane.showMessageDialog(null, "There was a problem fetching collections: " + e1.getMessage());
 					e1.printStackTrace();
