@@ -49,12 +49,14 @@ public class SBOLDesignerStandalone extends JFrame {
 	SBOLDesignerPanel panel = null;
 
 	public SBOLDesignerStandalone() throws SBOLValidationException, IOException {
+		// reset the path
+		Preferences.userRoot().node("path").put("path", "");
 		// creates the panel with this frame so title can be set
 		panel = new SBOLDesignerPanel(this);
 		// Only ask for a URI prefix if the current one is
 		// "http://www.dummy.org"
-		panel.newDesign(
-				SBOLEditorPreferences.INSTANCE.getUserInfo().getURI().toString().equals("http://www.dummy.org"));
+		panel.newPart(SBOLEditorPreferences.INSTANCE.getUserInfo().getURI().toString().equals("http://www.dummy.org"),
+				true);
 
 		setContentPane(panel);
 		setLocationRelativeTo(null);
@@ -87,7 +89,7 @@ public class SBOLDesignerStandalone extends JFrame {
 			try {
 				File file = new File(args[0]);
 				Preferences.userRoot().node("path").put("path", file.getPath());
-				frame.panel.openDesign(new FileDocumentIO(false));
+				frame.panel.openDocument(new FileDocumentIO(false));
 			} catch (Exception e) {
 				e.printStackTrace();
 			}

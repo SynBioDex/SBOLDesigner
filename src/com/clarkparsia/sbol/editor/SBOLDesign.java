@@ -452,7 +452,7 @@ public class SBOLDesign {
 		switch (rootCDs.length) {
 		case 0:
 			// There isn't a rootCD
-			rootCD = design.createComponentDefinition("NewDesign", "1", ComponentDefinition.DNA);
+			rootCD = design.createComponentDefinition("UnnamedPart", "1", ComponentDefinition.DNA);
 			rootCD.addRole(SequenceOntology.ENGINEERED_REGION);
 			break;
 		case 1:
