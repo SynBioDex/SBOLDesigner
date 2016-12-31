@@ -1299,15 +1299,15 @@ public class SBOLDesign {
 		String storename = "synbiohub_user_" + Hashing.sha1()
 				.hashString("synbiohub_" + emailHash + "synbiohub_change_me", Charsets.UTF_8).toString();
 		SBOLDocument uploadDoc = createDocument();
-		// TODO: need to update all URIs before upload
+		// TODO: would this ever be more than one root?
 		for (ComponentDefinition cd : uploadDoc.getRootComponentDefinitions()) {
-			Collection collection = uploadDoc.createCollection(cd.getDisplayId() + "_collection");
-			if (cd.isSetName()) {
-				collection.setName(cd.getName() + " " + "Collection");
-			} else {
-				collection.setName(cd.getDisplayId() + " " + "Collection");
-			}
-			collection.setDescription(cd.getDescription());
+			// TODO: should ask the user for a submissionId and perhaps other fields as done for synbiohub
+			String submissionId = cd.getDisplayId();
+			String submissionName = cd.isSetName()?cd.getName():cd.getDisplayId();
+			String submissionDescription = cd.isSetDescription()?cd.getDescription():"";
+			Collection collection = uploadDoc.createCollection(submissionId + "_collection");
+			collection.setName(submissionName + " " + "Collection");
+			collection.setDescription(submissionDescription);
 			collection.createAnnotation(new QName("http://synbiohub.org#", "uploadedBy", "synbiohub"), email);
 			collection.createAnnotation(new QName("http://purl.org/dc/terms/", "creator", "dcterms"), info.getName());
 			for (ComponentDefinition cd2 : uploadDoc.getComponentDefinitions()) {
@@ -1315,7 +1315,7 @@ public class SBOLDesign {
 					continue;
 				collection.addMember(cd2.getIdentity());
 			}
-			uploadDoc = uploadDoc.changeURIPrefix("http://synbiohub.org/user/"+userId+"/"+cd.getDisplayId());
+			uploadDoc = uploadDoc.changeURIPrefix("http://synbiohub.org/user/"+userId+"/"+submissionId+"/");
 			stack.upload(storename, uploadDoc);
 		}
 	}
