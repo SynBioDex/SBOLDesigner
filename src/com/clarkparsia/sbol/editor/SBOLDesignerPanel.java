@@ -96,13 +96,31 @@ public class SBOLDesignerPanel extends JPanel {
 		}
 	};
 
-	private final SBOLEditorAction NEW_PART = new SBOLEditorAction("New", "Create a new part", "newFile.gif") {
+	private final SBOLEditorAction NEW_PART = new SBOLEditorAction("New Part", "Create a new part in this document",
+			"newFile.gif") {
 		@Override
 		protected void perform() {
 			try {
-				newDesign(false);
+				newPart(false, false);
 			} catch (SBOLValidationException e) {
-				JOptionPane.showMessageDialog(null, "There was a problem creating a this design: " + e.getMessage());
+				JOptionPane.showMessageDialog(null, "There was a problem creating this part: " + e.getMessage());
+				e.printStackTrace();
+			}
+		}
+	}.precondition(CONFIRM_SAVE);
+
+	private final SBOLEditorAction OPEN_PART = new SBOLEditorAction("Open Part", "Open a part from this document",
+			"openFile.png") {
+		@Override
+		protected void perform() {
+			try {
+				if (documentIO != null) {
+					openDocument(new FileDocumentIO(false));
+				} else {
+					JOptionPane.showMessageDialog(null, "The current document has not yet been saved.");
+				}
+			} catch (SBOLValidationException | IOException | SBOLConversionException e) {
+				JOptionPane.showMessageDialog(null, "There was a problem opening this design: " + e.getMessage());
 				e.printStackTrace();
 			}
 		}
@@ -374,7 +392,7 @@ public class SBOLDesignerPanel extends JPanel {
 	}
 
 	SBOLEditorActions TOOLBAR_ACTIONS = new SBOLEditorActions()
-			.add(NEW_PART, NEW_DOCUMENT, OPEN_DOCUMENT, SAVE, EXPORT, DIVIDER)
+			.add(NEW_PART, OPEN_PART, NEW_DOCUMENT, OPEN_DOCUMENT, SAVE, EXPORT, DIVIDER)
 			.addIf(SBOLEditorPreferences.INSTANCE.isVersioningEnabled(), VERSION, DIVIDER)
 			.add(design.EDIT_CANVAS, design.EDIT, design.FIND, design.UPLOAD, design.DELETE, design.FLIP, DIVIDER)
 			.add(design.HIDE_SCARS, design.ADD_SCARS, DIVIDER).add(design.FOCUS_IN, design.FOCUS_OUT, DIVIDER, SNAPSHOT)
@@ -475,15 +493,19 @@ public class SBOLDesignerPanel extends JPanel {
 
 	/**
 	 * Creates a new design to show on the canvas. Asks the user for a
-	 * defaultURIprefix if askForURIPrefix is true.
+	 * defaultURIprefix if askForURIPrefix is true. Also detaches the current
+	 * file/working document if true.
 	 */
-	void newDesign(boolean askForURIPrefix) throws SBOLValidationException {
+	void newPart(boolean askForURIPrefix, boolean detachCurrentFile) throws SBOLValidationException {
 		SBOLDocument doc = new SBOLDocument();
 		if (askForURIPrefix) {
 			setURIprefix(doc);
 		}
 		editor.getDesign().load(doc);
-		setCurrentFile(null);
+		if (detachCurrentFile) {
+			setCurrentFile(null);
+		}
+		updateEnabledButtons(false);
 	}
 
 	/**
@@ -675,7 +697,7 @@ public class SBOLDesignerPanel extends JPanel {
 		} else {
 			String[] options = { "Overwrite", "New Version" };
 			selection = JOptionPane.showOptionDialog(this,
-					"You are saving into an existing SBOL file.  Would you like to overwrite or create new versions of parts that already exist in the design?",
+					"You are saving into an existing SBOL file.  Would you like to overwrite or create new versions of parts that already exist in the document?",
 					"Save Options", JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, options,
 					options[0]);
 		}
