@@ -1305,7 +1305,7 @@ public class SBOLDesign {
 			String submissionId = cd.getDisplayId();
 			String submissionName = cd.isSetName()?cd.getName():cd.getDisplayId();
 			String submissionDescription = cd.isSetDescription()?cd.getDescription():"";
-			Collection collection = uploadDoc.createCollection(submissionId + "_collection");
+			Collection collection = uploadDoc.createCollection(submissionId + "_collection","1");
 			collection.setName(submissionName + " " + "Collection");
 			collection.setDescription(submissionDescription);
 			collection.createAnnotation(new QName("http://synbiohub.org#", "uploadedBy", "synbiohub"), email);
