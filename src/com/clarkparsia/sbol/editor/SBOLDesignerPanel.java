@@ -97,7 +97,7 @@ public class SBOLDesignerPanel extends JPanel {
 	};
 
 	private final SBOLEditorAction NEW_PART = new SBOLEditorAction("New Part", "Create a new part in this document",
-			"newFile.gif") {
+			"newFile.png") {
 		@Override
 		protected void perform() {
 			try {
@@ -127,7 +127,7 @@ public class SBOLDesignerPanel extends JPanel {
 	}.precondition(CONFIRM_SAVE);
 
 	private final SBOLEditorAction OPEN_DOCUMENT = new SBOLEditorAction("Open Document",
-			"Load an existing SBOL document", "openFolder.gif") {
+			"Load an existing SBOL document", "openFolder.png") {
 		@Override
 		protected void perform() {
 			int returnVal = fc.showOpenDialog(SBOLDesignerPanel.this);
@@ -165,7 +165,7 @@ public class SBOLDesignerPanel extends JPanel {
 		}
 	}.precondition(CONFIRM_SAVE);
 
-	private final SBOLEditorAction SAVE = new SBOLEditorAction("Save", "Save your current design", "save.gif") {
+	private final SBOLEditorAction SAVE = new SBOLEditorAction("Save", "Save your current design", "save.png") {
 		@Override
 		protected void perform() {
 			try {
@@ -205,14 +205,14 @@ public class SBOLDesignerPanel extends JPanel {
 	};
 
 	final SBOLEditorAction PREFERENCES = new SBOLEditorAction("Edit preferences and configuration options",
-			"configure.gif") {
+			"configure.png") {
 		@Override
 		protected void perform() {
 			PreferencesDialog.showPreferences(SBOLDesignerPanel.this);
 		}
 	};
 
-	final SBOLEditorAction INFO = new SBOLEditorAction("About SBOLDesigner", "info.gif") {
+	final SBOLEditorAction INFO = new SBOLEditorAction("About SBOLDesigner", "info.png") {
 		@Override
 		protected void perform() {
 			// for debugging

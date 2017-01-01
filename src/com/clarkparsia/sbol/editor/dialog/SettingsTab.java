@@ -36,7 +36,7 @@ public enum SettingsTab implements PreferencesTab {
 
 	@Override
 	public Icon getIcon() {
-		return new ImageIcon(Images.getActionImage("settings.gif"));
+		return new ImageIcon(Images.getActionImage("settings.png"));
 	}
 
 	@Override

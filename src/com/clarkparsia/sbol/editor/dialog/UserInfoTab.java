@@ -58,7 +58,7 @@ public enum UserInfoTab implements PreferencesTab {
 
 	@Override
 	public Icon getIcon() {
-		return new ImageIcon(Images.getActionImage("user.gif"));
+		return new ImageIcon(Images.getActionImage("user.png"));
 	}
 
 	@Override

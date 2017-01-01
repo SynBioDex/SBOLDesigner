@@ -138,7 +138,7 @@ public class SBOLDesign {
 	}
 
 	public final SBOLEditorAction EDIT_CANVAS = new SBOLEditorAction("Edit canvas part", "Edit canvas part information",
-			"edit_root.gif") {
+			"edit_root.png") {
 		@Override
 		protected void perform() {
 			try {
@@ -177,7 +177,7 @@ public class SBOLDesign {
 	};
 
 	public final SBOLEditorAction EDIT = new SBOLEditorAction("Edit part", "Edit selected part information",
-			"edit.gif") {
+			"edit.png") {
 		@Override
 		protected void perform() {
 			try {
@@ -189,7 +189,7 @@ public class SBOLDesign {
 		}
 	};
 	public final SBOLEditorAction DELETE = new SBOLEditorAction("Delete part", "Delete the selected part",
-			"delete.gif") {
+			"delete.png") {
 		@Override
 		protected void perform() {
 			try {
@@ -1299,15 +1299,17 @@ public class SBOLDesign {
 		String storename = "synbiohub_user_" + Hashing.sha1()
 				.hashString("synbiohub_" + emailHash + "synbiohub_change_me", Charsets.UTF_8).toString();
 		// TODO: uploadDoc should only include objects in your namespace.
-		// filter for member collections works, but it ends up uploading extra objects
+		// filter for member collections works, but it ends up uploading extra
+		// objects
 		SBOLDocument uploadDoc = createDocument();
 		// TODO: would this ever be more than one root?
 		for (ComponentDefinition cd : uploadDoc.getRootComponentDefinitions()) {
-			// TODO: should ask the user for a submissionId and perhaps other fields as done for synbiohub
+			// TODO: should ask the user for a submissionId and perhaps other
+			// fields as done for synbiohub
 			String submissionId = cd.getDisplayId();
-			String submissionName = cd.isSetName()?cd.getName():cd.getDisplayId();
-			String submissionDescription = cd.isSetDescription()?cd.getDescription():"";
-			Collection collection = uploadDoc.createCollection(submissionId + "_collection","1");
+			String submissionName = cd.isSetName() ? cd.getName() : cd.getDisplayId();
+			String submissionDescription = cd.isSetDescription() ? cd.getDescription() : "";
+			Collection collection = uploadDoc.createCollection(submissionId + "_collection", "1");
 			collection.setName(submissionName + " " + "Collection");
 			collection.setDescription(submissionDescription);
 			collection.createAnnotation(new QName("http://synbiohub.org#", "uploadedBy", "synbiohub"), email);
@@ -1317,7 +1319,7 @@ public class SBOLDesign {
 					continue;
 				collection.addMember(cd2.getIdentity());
 			}
-			uploadDoc = uploadDoc.changeURIPrefix("http://synbiohub.org/user/"+userId+"/"+submissionId+"/");
+			uploadDoc = uploadDoc.changeURIPrefix("http://synbiohub.org/user/" + userId + "/" + submissionId + "/");
 			stack.upload(storename, uploadDoc);
 		}
 	}

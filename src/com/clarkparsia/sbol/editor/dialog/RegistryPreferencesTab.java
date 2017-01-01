@@ -58,7 +58,7 @@ public enum RegistryPreferencesTab implements PreferencesTab {
 
 	@Override
 	public Icon getIcon() {
-		return new ImageIcon(Images.getActionImage("registry.gif"));
+		return new ImageIcon(Images.getActionImage("registry.png"));
 	}
 
 	@Override
