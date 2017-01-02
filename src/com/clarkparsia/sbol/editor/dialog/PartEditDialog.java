@@ -97,9 +97,9 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 
 	private ComponentDefinition CD;
 	private SequenceAnnotation SA;
-	private boolean canEdit;
-
 	private SBOLDocument design;
+	private boolean canEdit;
+	private Component parent;
 
 	private final JComboBox<Part> roleSelection = new JComboBox<Part>(Iterables.toArray(Parts.sorted(), Part.class));
 	private final JComboBox<Types> typeSelection = new JComboBox<Types>(Types.values());
@@ -172,6 +172,7 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 		this.CD = CD;
 		this.design = design;
 		this.canEdit = canEdit;
+		this.parent = parent;
 
 		cancelButton = new JButton("Cancel");
 		cancelButton.registerKeyboardAction(this, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0),
@@ -493,6 +494,11 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 			return;
 		}
 
+		if (e.getSource() == viewAnnotations) {
+			viewAnnotationHandler();
+			return;
+		}
+
 		try {
 			if (e.getSource().equals(saveButton)) {
 				saveButtonHandler();
@@ -518,6 +524,10 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 		for (String s : SBOLUtils.createRefinements((Part) roleSelection.getSelectedItem())) {
 			roleRefinement.addItem(s);
 		}
+	}
+
+	private void viewAnnotationHandler() {
+		new AnnotationViewer(parent, CD);
 	}
 
 	/**
