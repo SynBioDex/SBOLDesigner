@@ -1319,7 +1319,8 @@ public class SBOLDesign {
 					continue;
 				collection.addMember(cd2.getIdentity());
 			}
-			uploadDoc = uploadDoc.changeURIPrefix("http://synbiohub.org/user/" + userId + "/" + submissionId + "/");
+			// TODO: which version?
+			uploadDoc = uploadDoc.changeURIPrefixVersion("http://synbiohub.org/user/" + userId + "/" + submissionId + "/","1");
 			stack.upload(storename, uploadDoc);
 		}
 	}
