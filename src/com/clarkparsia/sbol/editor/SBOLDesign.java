@@ -1309,6 +1309,7 @@ public class SBOLDesign {
 			String submissionId = cd.getDisplayId();
 			String submissionName = cd.isSetName() ? cd.getName() : cd.getDisplayId();
 			String submissionDescription = cd.isSetDescription() ? cd.getDescription() : "";
+			String submissionVersion = cd.isSetVersion() ? cd.getVersion() : "1";
 			Collection collection = uploadDoc.createCollection(submissionId + "_collection", "1");
 			collection.setName(submissionName + " " + "Collection");
 			collection.setDescription(submissionDescription);
@@ -1319,8 +1320,8 @@ public class SBOLDesign {
 					continue;
 				collection.addMember(cd2.getIdentity());
 			}
-			// TODO: which version?
-			uploadDoc = uploadDoc.changeURIPrefixVersion("http://synbiohub.org/user/" + userId + "/" + submissionId + "/","1");
+			uploadDoc = uploadDoc.changeURIPrefixVersion("http://synbiohub.org/user/" + userId + "/" + submissionId + "/",
+					submissionVersion);
 			stack.upload(storename, uploadDoc);
 		}
 	}
