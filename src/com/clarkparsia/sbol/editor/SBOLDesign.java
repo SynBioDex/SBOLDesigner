@@ -99,6 +99,7 @@ import com.clarkparsia.sbol.SBOLUtils.Types;
 import com.clarkparsia.sbol.editor.dialog.MessageDialog;
 import com.clarkparsia.sbol.editor.dialog.PartEditDialog;
 import com.clarkparsia.sbol.editor.dialog.RootInputDialog;
+import com.clarkparsia.sbol.editor.dialog.UploadDialog;
 import com.clarkparsia.sbol.editor.dialog.RegistryInputDialog;
 import com.clarkparsia.sbol.editor.event.DesignChangedEvent;
 import com.clarkparsia.sbol.editor.event.DesignLoadedEvent;
@@ -1285,6 +1286,13 @@ public class SBOLDesign {
 		if (registry == null) {
 			return;
 		}
+
+		UploadDialog uploadDialog = new UploadDialog(panel.getParent(), registry, createDocument());
+
+		if (true) {
+			return;
+		}
+		// TODO replaced with uploadDialog
 		StackFrontend stack = new StackFrontend(registry.getLocation());
 		PersonInfo info = SBOLEditorPreferences.INSTANCE.getUserInfo();
 		String email = info == null || info.getEmail() == null ? null : info.getEmail().getLocalName();
@@ -1320,8 +1328,8 @@ public class SBOLDesign {
 					continue;
 				collection.addMember(cd2.getIdentity());
 			}
-			uploadDoc = uploadDoc.changeURIPrefixVersion("http://synbiohub.org/user/" + userId + "/" + submissionId + "/",
-					submissionVersion);
+			uploadDoc = uploadDoc.changeURIPrefixVersion(
+					"http://synbiohub.org/user/" + userId + "/" + submissionId + "/", submissionVersion);
 			stack.upload(storename, uploadDoc);
 		}
 	}
