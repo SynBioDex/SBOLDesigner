@@ -9,7 +9,12 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.BorderFactory;
@@ -35,14 +40,27 @@ import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.message.BasicNameValuePair;
 import org.sbolstandard.core2.ComponentDefinition;
 import org.sbolstandard.core2.Identified;
+import org.sbolstandard.core2.SBOLConversionException;
 import org.sbolstandard.core2.SBOLDocument;
+import org.sbolstandard.core2.SBOLWriter;
 
 import com.clarkparsia.sbol.CharSequences;
 import com.clarkparsia.sbol.editor.Registry;
+import com.clarkparsia.sbol.editor.SBOLEditorPreferences;
 import com.clarkparsia.swing.AbstractListTableModel;
 import com.clarkparsia.swing.FormBuilder;
+import com.clarkparsia.versioning.PersonInfo;
 
 public class UploadDialog extends JDialog implements ActionListener, DocumentListener {
 	private static final String TITLE = "Upload Design: ";
@@ -57,8 +75,12 @@ public class UploadDialog extends JDialog implements ActionListener, DocumentLis
 		return CharSequences.shorten(title, 20).toString();
 	}
 
+	private Component parent;
 	private Registry registry;
 	private SBOLDocument toBeUploaded;
+
+	private HttpClient client = HttpClients.createDefault();
+
 	private final JButton uploadButton;
 	private final JButton cancelButton;
 	private final JTextField username = new JTextField();
@@ -70,6 +92,7 @@ public class UploadDialog extends JDialog implements ActionListener, DocumentLis
 
 	public UploadDialog(final Component parent, Registry registry, SBOLDocument toBeUploaded) {
 		super(JOptionPane.getFrameForComponent(parent), TITLE + title(registry), true);
+		this.parent = parent;
 		this.registry = registry;
 		this.toBeUploaded = toBeUploaded;
 
@@ -104,6 +127,14 @@ public class UploadDialog extends JDialog implements ActionListener, DocumentLis
 	}
 
 	private JPanel initMainPanel() {
+		PersonInfo info = SBOLEditorPreferences.INSTANCE.getUserInfo();
+		String email = info == null || info.getEmail() == null ? null : info.getEmail().getLocalName();
+		String uri = info == null ? null : info.getURI().stringValue();
+		if (email == null || email.equals("") || uri == null) {
+			JOptionPane.showMessageDialog(parent, "Make sure your email and URI are both set and valid in preferences.",
+					"Upload failed", JOptionPane.ERROR_MESSAGE);
+		}
+		username.setText(email);
 		username.getDocument().addDocumentListener(this);
 		password.getDocument().addDocumentListener(this);
 		submissionId.getDocument().addDocumentListener(this);
@@ -132,12 +163,72 @@ public class UploadDialog extends JDialog implements ActionListener, DocumentLis
 		}
 
 		if (e.getSource() == uploadButton) {
-			uploadDesign();
+			try {
+				uploadDesign();
+			} catch (IOException | SBOLConversionException e1) {
+				e1.printStackTrace();
+			}
 		}
 	}
 
-	private void uploadDesign() {
-		// TODO
+	private void uploadDesign() throws ClientProtocolException, IOException, SBOLConversionException {
+		OutputStream out = null;
+		SBOLWriter.write(toBeUploaded, out);
+		String serializedDoc = out.toString();
+
+		Object user = login(username.getText(), password.getText(), registry.getLocation());
+
+		HttpPost httppost = new HttpPost(registry.getLocation());
+
+		// Request parameters and other properties.
+		List<NameValuePair> params = new ArrayList<NameValuePair>();
+		// TODO unsure how to include user's info as parameter
+		params.add(new BasicNameValuePair("user", user.toString()));
+		params.add(new BasicNameValuePair("id", submissionId.getText()));
+		params.add(new BasicNameValuePair("version", version.getText()));
+		params.add(new BasicNameValuePair("name", name.getText()));
+		params.add(new BasicNameValuePair("description", description.getText()));
+		params.add(new BasicNameValuePair("file", serializedDoc));
+		httppost.setEntity(new UrlEncodedFormEntity(params));
+
+		// Execute and get the response.
+		HttpResponse response = client.execute(httppost);
+		HttpEntity entity = response.getEntity();
+
+		if (entity != null) {
+			InputStream instream = entity.getContent();
+			try {
+				// TODO unsure how to determine success
+			} finally {
+				instream.close();
+			}
+		}
+	}
+
+	private Object login(String username, String password, String endpoint)
+			throws ClientProtocolException, IOException {
+		HttpPost httppost = new HttpPost(endpoint);
+
+		// Request parameters and other properties.
+		List<NameValuePair> params = new ArrayList<NameValuePair>();
+		params.add(new BasicNameValuePair("email", username));
+		params.add(new BasicNameValuePair("password", password));
+		httppost.setEntity(new UrlEncodedFormEntity(params));
+
+		// Execute and get the response.
+		HttpResponse response = client.execute(httppost);
+		HttpEntity entity = response.getEntity();
+
+		if (entity != null) {
+			InputStream instream = entity.getContent();
+			try {
+				// TODO unsure how to interpret resulting login info
+				return null;
+			} finally {
+				instream.close();
+			}
+		}
+		return null;
 	}
 
 	@Override
