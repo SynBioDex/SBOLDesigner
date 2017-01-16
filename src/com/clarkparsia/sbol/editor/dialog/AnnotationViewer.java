@@ -66,7 +66,7 @@ public class AnnotationViewer extends JDialog implements ActionListener {
 		super(JOptionPane.getFrameForComponent(parent), TITLE + title(CD), true);
 		this.CD = CD;
 
-		cancelButton = new JButton("Cancel");
+		cancelButton = new JButton("Close");
 		cancelButton.registerKeyboardAction(this, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0),
 				JComponent.WHEN_IN_FOCUSED_WINDOW);
 		cancelButton.addActionListener(this);
@@ -82,7 +82,8 @@ public class AnnotationViewer extends JDialog implements ActionListener {
 		buttonPane.add(Box.createHorizontalStrut(100));
 		buttonPane.add(Box.createHorizontalGlue());
 		buttonPane.add(cancelButton);
-		buttonPane.add(saveButton);
+		// TODO
+		// buttonPane.add(saveButton);
 
 		JPanel tablePane = initMainPanel();
 

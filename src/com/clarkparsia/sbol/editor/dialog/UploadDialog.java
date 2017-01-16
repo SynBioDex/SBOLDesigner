@@ -23,8 +23,11 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.TableColumn;
@@ -41,7 +44,7 @@ import com.clarkparsia.sbol.editor.Registry;
 import com.clarkparsia.swing.AbstractListTableModel;
 import com.clarkparsia.swing.FormBuilder;
 
-public class UploadDialog extends JDialog implements ActionListener {
+public class UploadDialog extends JDialog implements ActionListener, DocumentListener {
 	private static final String TITLE = "Upload Design: ";
 
 	private static String title(Registry registry) {
@@ -58,6 +61,12 @@ public class UploadDialog extends JDialog implements ActionListener {
 	private SBOLDocument toBeUploaded;
 	private final JButton uploadButton;
 	private final JButton cancelButton;
+	private final JTextField username = new JTextField();
+	private final JTextField password = new JTextField();
+	private final JTextField submissionId = new JTextField();
+	private final JTextField version = new JTextField();
+	private final JTextField name = new JTextField();
+	private final JTextField description = new JTextField();
 
 	public UploadDialog(final Component parent, Registry registry, SBOLDocument toBeUploaded) {
 		super(JOptionPane.getFrameForComponent(parent), TITLE + title(registry), true);
@@ -95,11 +104,22 @@ public class UploadDialog extends JDialog implements ActionListener {
 	}
 
 	private JPanel initMainPanel() {
+		username.getDocument().addDocumentListener(this);
+		password.getDocument().addDocumentListener(this);
+		submissionId.getDocument().addDocumentListener(this);
+		version.getDocument().addDocumentListener(this);
+		name.getDocument().addDocumentListener(this);
+		description.getDocument().addDocumentListener(this);
 
-		JPanel panel = new JPanel();
+		FormBuilder builder = new FormBuilder();
+		builder.add("Username", username);
+		builder.add("Password", password);
+		builder.add("Submission ID", submissionId);
+		builder.add("Version", version);
+		builder.add("Name", name);
+		builder.add("Description", description);
+		JPanel panel = builder.build();
 		panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
-		// TODO add submission fields
-		// panel.add();
 		panel.add(Box.createRigidArea(new Dimension(0, 5)));
 		return panel;
 	}
@@ -112,8 +132,27 @@ public class UploadDialog extends JDialog implements ActionListener {
 		}
 
 		if (e.getSource() == uploadButton) {
-			// TODO upload
+			uploadDesign();
 		}
+	}
+
+	private void uploadDesign() {
+		// TODO
+	}
+
+	@Override
+	public void insertUpdate(DocumentEvent e) {
+		uploadButton.setEnabled(true);
+	}
+
+	@Override
+	public void removeUpdate(DocumentEvent e) {
+		uploadButton.setEnabled(true);
+	}
+
+	@Override
+	public void changedUpdate(DocumentEvent e) {
+		uploadButton.setEnabled(true);
 	}
 
 }
