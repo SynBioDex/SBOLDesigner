@@ -229,6 +229,7 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 		});
 
 		// put the controlsPane together
+		// some fields are optional
 		FormBuilder builder = new FormBuilder();
 		builder.add("Part type", typeSelection);
 		builder.add("Part role", roleSelection);
@@ -236,9 +237,11 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 		builder.add("Display ID", displayId, CD.getDisplayId());
 		builder.add("Name", name, CD.getName());
 		builder.add("Description", description, CD.getDescription());
+		if (CD.isSetVersion()) {
+			version.setEditable(false);
+			builder.add("Version", version, CD.getVersion());
+		}
 		builder.add("URI", URIlink);
-
-		// optional fields are optional
 		if (CD.isSetWasDerivedFrom()) {
 			derivedFrom.setText(CD.getWasDerivedFrom().toString());
 			derivedFrom.setCursor(new Cursor(Cursor.HAND_CURSOR));
@@ -254,11 +257,6 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 			});
 			builder.add("Derived from", derivedFrom);
 		}
-		if (CD.isSetVersion()) {
-			version.setEditable(false);
-			builder.add("Version", version, CD.getVersion());
-		}
-
 		JPanel controlsPane = builder.build();
 
 		JScrollPane tableScroller = new JScrollPane(sequenceField);
@@ -374,6 +372,7 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 		});
 
 		// put the controlsPane together
+		// some fields are optional
 		FormBuilder builder = new FormBuilder();
 		builder.add("Part type", typeSelection);
 		builder.add("Part role", roleSelection);
@@ -381,9 +380,11 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 		builder.add("Display ID", displayId, SA.getDisplayId());
 		builder.add("Name", name, SA.getName());
 		builder.add("Description", description, SA.getDescription());
+		if (SA.isSetVersion()) {
+			version.setEditable(false);
+			builder.add("Version", version, SA.getVersion());
+		}
 		builder.add("URI", URIlink);
-
-		// optional fields are optional
 		if (SA.isSetWasDerivedFrom()) {
 			derivedFrom.setText(SA.getWasDerivedFrom().toString());
 			derivedFrom.setCursor(new Cursor(Cursor.HAND_CURSOR));
@@ -399,11 +400,6 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 			});
 			builder.add("Derived from", derivedFrom);
 		}
-		if (SA.isSetVersion()) {
-			version.setEditable(false);
-			builder.add("Version", version, SA.getVersion());
-		}
-
 		JPanel controlsPane = builder.build();
 
 		// TODO: read only for now
