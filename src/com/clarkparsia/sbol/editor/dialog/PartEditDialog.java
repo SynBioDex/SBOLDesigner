@@ -114,6 +114,7 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 	private final JTextField name = new JTextField();
 	private final JTextField version = new JTextField();
 	private final JTextField description = new JTextField();
+	private final JLabel URIlink = new JLabel();
 	private final JLabel derivedFrom = new JLabel();
 	private final JTextArea sequenceField = new JTextArea(10, 80);
 
@@ -213,6 +214,20 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 		}
 		roleRefinement.addActionListener(this);
 
+		// set up clickable URIlink
+		URIlink.setText(CD.getIdentity().toString());
+		URIlink.setCursor(new Cursor(Cursor.HAND_CURSOR));
+		URIlink.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				try {
+					Desktop.getDesktop().browse(CD.getIdentity());
+				} catch (IOException e1) {
+					JOptionPane.showMessageDialog(parent, "The URI could not be opened: " + e1.getMessage());
+				}
+			}
+		});
+
 		// put the controlsPane together
 		FormBuilder builder = new FormBuilder();
 		builder.add("Part type", typeSelection);
@@ -220,11 +235,10 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 		builder.add("Role refinement", roleRefinement);
 		builder.add("Display ID", displayId, CD.getDisplayId());
 		builder.add("Name", name, CD.getName());
+		builder.add("Description", description, CD.getDescription());
+		builder.add("URI", URIlink);
+
 		// optional fields are optional
-		if (CD.isSetVersion()) {
-			version.setEditable(false);
-			builder.add("Version", version, CD.getVersion());
-		}
 		if (CD.isSetWasDerivedFrom()) {
 			derivedFrom.setText(CD.getWasDerivedFrom().toString());
 			derivedFrom.setCursor(new Cursor(Cursor.HAND_CURSOR));
@@ -240,8 +254,11 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 			});
 			builder.add("Derived from", derivedFrom);
 		}
+		if (CD.isSetVersion()) {
+			version.setEditable(false);
+			builder.add("Version", version, CD.getVersion());
+		}
 
-		builder.add("Description", description, CD.getDescription());
 		JPanel controlsPane = builder.build();
 
 		JScrollPane tableScroller = new JScrollPane(sequenceField);
@@ -342,6 +359,20 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 		}
 		roleRefinement.addActionListener(this);
 
+		// set up clickable URIlink
+		URIlink.setText(CD.getIdentity().toString());
+		URIlink.setCursor(new Cursor(Cursor.HAND_CURSOR));
+		URIlink.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				try {
+					Desktop.getDesktop().browse(CD.getIdentity());
+				} catch (IOException e1) {
+					JOptionPane.showMessageDialog(parent, "The URI could not be opened: " + e1.getMessage());
+				}
+			}
+		});
+
 		// put the controlsPane together
 		FormBuilder builder = new FormBuilder();
 		builder.add("Part type", typeSelection);
@@ -349,12 +380,10 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 		builder.add("Role refinement", roleRefinement);
 		builder.add("Display ID", displayId, SA.getDisplayId());
 		builder.add("Name", name, SA.getName());
+		builder.add("Description", description, SA.getDescription());
+		builder.add("URI", URIlink);
 
 		// optional fields are optional
-		if (SA.isSetVersion()) {
-			version.setEditable(false);
-			builder.add("Version", version, SA.getVersion());
-		}
 		if (SA.isSetWasDerivedFrom()) {
 			derivedFrom.setText(SA.getWasDerivedFrom().toString());
 			derivedFrom.setCursor(new Cursor(Cursor.HAND_CURSOR));
@@ -370,7 +399,11 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 			});
 			builder.add("Derived from", derivedFrom);
 		}
-		builder.add("Description", description, SA.getDescription());
+		if (SA.isSetVersion()) {
+			version.setEditable(false);
+			builder.add("Version", version, SA.getVersion());
+		}
+
 		JPanel controlsPane = builder.build();
 
 		// TODO: read only for now
