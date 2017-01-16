@@ -81,8 +81,8 @@ public class UploadDialog extends JDialog implements ActionListener, DocumentLis
 
 	private HttpClient client = HttpClients.createDefault();
 
-	private final JButton uploadButton;
-	private final JButton cancelButton;
+	private final JButton uploadButton = new JButton("Upload");
+	private final JButton cancelButton = new JButton("Cancel");
 	private final JTextField username = new JTextField();
 	private final JTextField password = new JTextField();
 	private final JTextField submissionId = new JTextField();
@@ -96,12 +96,22 @@ public class UploadDialog extends JDialog implements ActionListener, DocumentLis
 		this.registry = registry;
 		this.toBeUploaded = toBeUploaded;
 
-		cancelButton = new JButton("Cancel");
+		// set default values
+		PersonInfo info = SBOLEditorPreferences.INSTANCE.getUserInfo();
+		String email = info == null || info.getEmail() == null ? null : info.getEmail().getLocalName();
+		String uri = info == null ? null : info.getURI().stringValue();
+		if (email == null || email.equals("") || uri == null) {
+			JOptionPane.showMessageDialog(parent, "Make sure your email and URI are both set and valid in preferences.",
+					"Upload failed", JOptionPane.ERROR_MESSAGE);
+			return;
+		}
+		username.setText(email);
+
+		// layout
 		cancelButton.registerKeyboardAction(this, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0),
 				JComponent.WHEN_IN_FOCUSED_WINDOW);
 		cancelButton.addActionListener(this);
 
-		uploadButton = new JButton("Upload");
 		uploadButton.addActionListener(this);
 		uploadButton.setEnabled(false);
 		getRootPane().setDefaultButton(uploadButton);
@@ -123,18 +133,10 @@ public class UploadDialog extends JDialog implements ActionListener, DocumentLis
 
 		pack();
 		setLocationRelativeTo(parent);
-		this.setVisible(true);
+		setVisible(true);
 	}
 
 	private JPanel initMainPanel() {
-		PersonInfo info = SBOLEditorPreferences.INSTANCE.getUserInfo();
-		String email = info == null || info.getEmail() == null ? null : info.getEmail().getLocalName();
-		String uri = info == null ? null : info.getURI().stringValue();
-		if (email == null || email.equals("") || uri == null) {
-			JOptionPane.showMessageDialog(parent, "Make sure your email and URI are both set and valid in preferences.",
-					"Upload failed", JOptionPane.ERROR_MESSAGE);
-		}
-		username.setText(email);
 		username.getDocument().addDocumentListener(this);
 		password.getDocument().addDocumentListener(this);
 		submissionId.getDocument().addDocumentListener(this);
@@ -172,6 +174,7 @@ public class UploadDialog extends JDialog implements ActionListener, DocumentLis
 	}
 
 	private void uploadDesign() throws ClientProtocolException, IOException, SBOLConversionException {
+		// TODO unsure how to serialize document
 		OutputStream out = null;
 		SBOLWriter.write(toBeUploaded, out);
 		String serializedDoc = out.toString();
