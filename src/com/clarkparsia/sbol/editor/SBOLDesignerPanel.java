@@ -53,6 +53,7 @@ import org.sbolstandard.core2.TopLevel;
 import com.adamtaft.eb.EventHandler;
 import com.clarkparsia.sbol.SBOLUtils;
 import com.clarkparsia.sbol.editor.dialog.AboutDialog;
+import com.clarkparsia.sbol.editor.dialog.BOOSTDialog;
 import com.clarkparsia.sbol.editor.dialog.CheckoutDialog;
 import com.clarkparsia.sbol.editor.dialog.CheckoutDialog.CheckoutResult;
 import com.clarkparsia.sbol.editor.dialog.CreateBranchDialog;
@@ -550,10 +551,10 @@ public class SBOLDesignerPanel extends JPanel {
 	}
 
 	private void export() throws FileNotFoundException, SBOLConversionException, IOException, SBOLValidationException {
-		String[] formats = { "GenBank", "FASTA", "SBOL 1.1", "SBOL 2.0", "Cancel" };
+		String[] formats = { "GenBank", "FASTA", "SBOL 1.1", "SBOL 2.0", "BOOST Optimized File" };
 		int format = JOptionPane.showOptionDialog(this, "Please select an export format", "Export",
-				JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, formats, "GenBank");
-		if (format == JOptionPane.CLOSED_OPTION || format == 4) {
+				JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, formats, "Cancel");
+		if (format == JOptionPane.CLOSED_OPTION) {
 			return;
 		}
 		fc.setSelectedFile(SBOLUtils.setupFile());
@@ -600,7 +601,8 @@ public class SBOLDesignerPanel extends JPanel {
 				SBOLWriter.write(doc, new FileOutputStream(file));
 				break;
 			case 4:
-				// Cancel
+				// BOOST Optimized SBOL 2.0
+				BOOSTDialog boostDialog = new BOOSTDialog(getParent(), file, doc);
 				break;
 			default:
 				break;
