@@ -18,14 +18,9 @@ package com.clarkparsia.sbol.editor.io;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
-import javax.xml.stream.FactoryConfigurationError;
-import javax.xml.stream.XMLStreamException;
-
 import org.sbolstandard.core2.SBOLConversionException;
 import org.sbolstandard.core2.SBOLDocument;
 import org.sbolstandard.core2.SBOLValidationException;
-
-import uk.ac.ncl.intbio.core.io.CoreIoException;
 
 /**
  * 

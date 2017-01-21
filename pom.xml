@@ -5,6 +5,12 @@
   <version>2.2-SNAPSHOT</version>
   <name>SBOLDesigner</name>
   <description>An intuitive genetic design tool using SBOL 2.0</description>
+  <repositories>
+    <repository>
+      <id>libRepo</id>
+      <url>file://${project.basedir}/libRepo</url>
+    </repository>
+  </repositories>
   <build>
     <sourceDirectory>src/main/java</sourceDirectory>
     <testSourceDirectory>src/test/java</testSourceDirectory>
@@ -87,36 +93,26 @@
       <groupId>simpleeventbus</groupId>
       <artifactId>simpleeventbus</artifactId>
       <version>1.2</version>
-      <scope>system</scope>
-      <systemPath>${project.basedir}/lib/simpleeventbus-1.2.jar</systemPath>
     </dependency>
     <dependency>
       <groupId>openrdf-sesame</groupId>
       <artifactId>openrdf-sesame</artifactId>
       <version>2.6.9</version>
-      <scope>system</scope>
-      <systemPath>${project.basedir}/lib/openrdf-sesame-2.6.9-onejar.jar</systemPath>
     </dependency>
     <dependency>
       <groupId>libSBOLj</groupId>
       <artifactId>libSBOLj-javadoc</artifactId>
       <version>2.1.2</version>
-      <scope>system</scope>
-      <systemPath>${project.basedir}/lib/libSBOLj-2.1.2-SNAPSHOT-javadoc.jar</systemPath>
     </dependency>
     <dependency>
       <groupId>libSBOLj</groupId>
       <artifactId>libSBOLj-sources</artifactId>
       <version>2.1.2</version>
-      <scope>system</scope>
-      <systemPath>${project.basedir}/lib/libSBOLj-2.1.2-SNAPSHOT-sources.jar</systemPath>
     </dependency>
     <dependency>
       <groupId>libSBOLj</groupId>
       <artifactId>libSBOLj-withDependencies</artifactId>
       <version>2.1.2</version>
-      <scope>system</scope>
-      <systemPath>${project.basedir}/lib/libSBOLj-2.1.2-SNAPSHOT-withDependencies.jar</systemPath>
     </dependency>
   </dependencies>
 </project>
