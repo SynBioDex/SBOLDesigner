@@ -410,7 +410,7 @@ public class SBOLDesignerPanel extends JPanel {
 
 	private SBOLDesignerStandalone frame = null;
 
-	public SBOLDesignerPanel(SBOLDesignerStandalone frame) throws SBOLValidationException {
+	public SBOLDesignerPanel(SBOLDesignerStandalone frame) {
 		if (frame != null) {
 			this.frame = frame;
 		}

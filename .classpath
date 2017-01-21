@@ -1,34 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry excluding="com/clarkparsia/sbol/SBOLObjectFinder.java|com/clarkparsia/sbol/SBOLPredicates.java|com/clarkparsia/sbol/SBOLTextWriter.java|com/clarkparsia/sbol/SublimeSBOLBaseVisitor.java|com/clarkparsia/sbol/SublimeSBOLObjectImpl.java|com/clarkparsia/sbol/SublimeSBOLVisitor.java|com/clarkparsia/sbol/SublimeSequenceAnalysis.java|com/clarkparsia/sbol/SublimeSequenceVariant.java|com/clarkparsia/sbol/SublimeSequencingData.java|com/clarkparsia/sbol/SBOLAbstractWriter.java|com/clarkparsia/sbol/SBOLRDFReader.java|com/clarkparsia/sbol/SBOLRDFWriter.java|com/clarkparsia/sbol/SublimeSBOLFactory.java|com/clarkparsia/sbol/SBOLSPARQLWriter.java|com/clarkparsia/sbol/editor/io/SPARQLDocumentIO.java|com/clarkparsia/sbol/SBOLSPARQLReader.java" kind="src" path="src"/>
-	<classpathentry kind="src" path="versioning/src"/>
-	<classpathentry kind="src" path="versioning/cli"/>
-	<classpathentry kind="src" path="servlet/src"/>
-	<classpathentry kind="src" path="versioning/test"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="lib/opencsv-2.0.jar"/>
-	<classpathentry kind="lib" path="lib/simpleeventbus-1.2.jar"/>
-	<classpathentry kind="lib" path="versioning/lib/airline-0.5.jar"/>
-	<classpathentry kind="lib" path="versioning/lib/javax.inject-1.jar"/>
-	<classpathentry kind="lib" path="versioning/lib/jgraphx.jar"/>
-	<classpathentry kind="lib" path="servlet/lib/servlet.jar"/>
-	<classpathentry kind="lib" path="lib/guava-18.0.jar"/>
-	<classpathentry kind="lib" path="lib/openrdf-sesame-2.6.9-onejar.jar"/>
-	<classpathentry kind="lib" path="lib/slf4j-api-1.6.1.jar"/>
-	<classpathentry kind="lib" path="lib/slf4j-jdk14-1.6.1.jar"/>
-	<classpathentry kind="lib" path="lib/jcl-over-slf4j-1.6.1.jar"/>
-	<classpathentry kind="lib" path="lib/libSBOLj-2.1.2-SNAPSHOT-javadoc.jar"/>
-	<classpathentry kind="lib" path="lib/libSBOLj-2.1.2-SNAPSHOT-sources.jar"/>
-	<classpathentry kind="lib" path="lib/libSBOLj-2.1.2-SNAPSHOT-withDependencies.jar" sourcepath="lib/libSBOLj-2.1.2-SNAPSHOT-sources.jar">
+	<classpathentry including="**/*.java" kind="src" output="target/classes" path="src">
 		<attributes>
-			<attribute name="javadoc_location" value="jar:platform:/resource/SBOLDesigner/lib/libSBOLj-2.1.2-SNAPSHOT-javadoc.jar!/"/>
+			<attribute name="optional" value="true"/>
+			<attribute name="maven.pomderived" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="lib/httpclient-4.5.2.jar"/>
-	<classpathentry kind="lib" path="lib/httpclient-cache-4.5.2.jar"/>
-	<classpathentry kind="lib" path="lib/httpcore-4.4.4.jar"/>
-	<classpathentry kind="lib" path="lib/httpmime-4.5.2.jar"/>
-	<classpathentry kind="lib" path="lib/commons-httpclient-3.1.jar"/>
+	<classpathentry excluding="com/clarkparsia/versioning/cli/RVTCli.java" kind="src" path="versioning/cli"/>
+	<classpathentry excluding="com/clarkparsia/sbol/servlet/SBOLVisualServlet.java" kind="src" path="servlet/src"/>
+	<classpathentry kind="src" output="target/test-classes" path="versioning/test">
+		<attributes>
+			<attribute name="optional" value="true"/>
+			<attribute name="maven.pomderived" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="src" path="versioning/src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8">
+		<attributes>
+			<attribute name="maven.pomderived" value="true"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
-	<classpathentry kind="output" path="bin"/>
+	<classpathentry kind="con" path="org.eclipse.m2e.MAVEN2_CLASSPATH_CONTAINER">
+		<attributes>
+			<attribute name="maven.pomderived" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="output" path="target/classes"/>
 </classpath>
