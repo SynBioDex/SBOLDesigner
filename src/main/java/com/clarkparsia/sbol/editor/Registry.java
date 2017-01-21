@@ -16,8 +16,6 @@
 package com.clarkparsia.sbol.editor;
 
 import java.io.Serializable;
-import java.util.prefs.BackingStoreException;
-import java.util.prefs.Preferences;
 
 import com.clarkparsia.sbol.editor.sparql.LocalEndpoint;
 import com.clarkparsia.sbol.editor.sparql.SPARQLEndpoint;

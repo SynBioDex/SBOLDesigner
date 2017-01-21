@@ -2,7 +2,6 @@ package com.clarkparsia.sbol.editor.dialog;
 
 import java.util.List;
 
-import org.sbolstandard.core2.ComponentDefinition;
 import org.sbolstandard.core2.Sequence;
 
 import com.clarkparsia.swing.AbstractListTableModel;

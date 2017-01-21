@@ -16,24 +16,19 @@
 package com.clarkparsia.sbol.editor.dialog;
 
 import java.awt.Component;
-import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.io.File;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.PatternSyntaxException;
 
-import javax.swing.Box;
-import javax.swing.BoxLayout;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
@@ -51,14 +46,13 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 
+import org.sbolstack.frontend.IdentifiedMetadata;
+import org.sbolstack.frontend.StackFrontend;
 import org.sbolstandard.core2.ComponentDefinition;
 import org.sbolstandard.core2.SBOLDocument;
 import org.sbolstandard.core2.SBOLReader;
 import org.sbolstandard.core2.Sequence;
 import org.sbolstandard.core2.SequenceOntology;
-import org.sbolstack.frontend.IdentifiedMetadata;
-import org.sbolstack.frontend.StackException;
-import org.sbolstack.frontend.StackFrontend;
 
 import com.clarkparsia.sbol.CharSequences;
 import com.clarkparsia.sbol.SBOLUtils;
@@ -68,7 +62,6 @@ import com.clarkparsia.sbol.editor.Parts;
 import com.clarkparsia.sbol.editor.Registries;
 import com.clarkparsia.sbol.editor.Registry;
 import com.clarkparsia.sbol.editor.SBOLEditorPreferences;
-import com.clarkparsia.swing.AbstractListTableModel;
 import com.clarkparsia.swing.ComboBoxRenderer;
 import com.clarkparsia.swing.FormBuilder;
 import com.google.common.collect.Iterables;

@@ -36,10 +36,6 @@ import java.awt.image.RGBImageFilter;
 import java.io.File;
 import java.io.IOException;
 
-import java.net.URLClassLoader;
-import java.util.Arrays;
-import java.util.stream.Collectors;
-
 import javax.imageio.ImageIO;
 import javax.swing.JComponent;
 

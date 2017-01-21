@@ -29,7 +29,6 @@ import org.sbolstandard.core2.SequenceOntology;
 import com.clarkparsia.sbol.editor.Part.ImageType;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Ordering;
 
 public class Parts {
 	private Parts() {

@@ -10,7 +10,6 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.net.URI;
-import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -37,7 +36,6 @@ import org.sbolstandard.core2.Identified;
 
 import com.clarkparsia.sbol.CharSequences;
 import com.clarkparsia.swing.AbstractListTableModel;
-import com.clarkparsia.swing.FormBuilder;
 
 public class AnnotationViewer extends JDialog implements ActionListener {
 	private static final String TITLE = "Annotations: ";

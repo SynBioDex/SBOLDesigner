@@ -42,7 +42,6 @@ import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import com.clarkparsia.sbol.editor.dialog.PreferencesDialog.PreferencesTab;
 import com.google.common.base.Objects;
 
 /**

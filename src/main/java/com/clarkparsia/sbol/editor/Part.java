@@ -18,7 +18,6 @@ package com.clarkparsia.sbol.editor;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;

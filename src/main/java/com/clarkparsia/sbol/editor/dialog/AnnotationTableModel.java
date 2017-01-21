@@ -3,7 +3,6 @@ package com.clarkparsia.sbol.editor.dialog;
 import java.util.List;
 
 import org.sbolstandard.core2.Annotation;
-import org.sbolstandard.core2.ComponentDefinition;
 
 import com.clarkparsia.swing.AbstractListTableModel;
 

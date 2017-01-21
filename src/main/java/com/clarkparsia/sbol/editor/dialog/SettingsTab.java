@@ -1,15 +1,11 @@
 package com.clarkparsia.sbol.editor.dialog;
 
 import java.awt.Component;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.prefs.BackingStoreException;
 
 import javax.swing.ButtonGroup;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JRadioButton;
 
 import com.clarkparsia.sbol.editor.Images;

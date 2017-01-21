@@ -31,18 +31,11 @@ import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 
-import org.sbolstandard.core2.SBOLDocument;
-import org.sbolstandard.core2.TopLevel;
-
-import com.clarkparsia.sbol.CharSequences;
 import com.clarkparsia.sbol.editor.Registries;
 import com.clarkparsia.sbol.editor.Registry;
-import com.clarkparsia.sbol.editor.sparql.SPARQLEndpoint;
 import com.clarkparsia.swing.AbstractListTableModel;
-import com.clarkparsia.swing.ComboBoxRenderer;
 import com.clarkparsia.swing.FormBuilder;
 import com.google.common.base.Throwables;
-import com.google.common.collect.Iterables;
 
 /**
  * 

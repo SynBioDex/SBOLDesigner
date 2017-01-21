@@ -2,7 +2,6 @@ package com.clarkparsia.sbol.editor.dialog;
 
 import java.util.List;
 
-import org.sbolstack.frontend.IdentifiedMetadata;
 import com.clarkparsia.swing.AbstractListTableModel;
 
 class TableMetadataTableModel extends AbstractListTableModel<TableMetadata> {

@@ -15,8 +15,6 @@
 
 package com.clarkparsia.sbol.editor;
 
-import java.awt.Image;
-import java.awt.Toolkit;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
@@ -27,15 +25,11 @@ import java.util.logging.Logger;
 import java.util.prefs.Preferences;
 
 import javax.imageio.ImageIO;
-import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.UIManager;
 
-import org.sbolstandard.core2.SBOLConversionException;
-import org.sbolstandard.core2.SBOLDocument;
 import org.sbolstandard.core2.SBOLValidationException;
 
-import com.clarkparsia.sbol.editor.io.DocumentIO;
 import com.clarkparsia.sbol.editor.io.FileDocumentIO;
 
 /**

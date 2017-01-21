@@ -15,7 +15,6 @@
 
 package com.clarkparsia.sbol.editor;
 
-import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
 import com.clarkparsia.versioning.Infos;

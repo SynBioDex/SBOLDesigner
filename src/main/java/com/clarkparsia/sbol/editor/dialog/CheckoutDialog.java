@@ -42,7 +42,6 @@ import com.clarkparsia.sbol.CharSequences;
 import com.clarkparsia.sbol.editor.Images;
 import com.clarkparsia.sbol.editor.SBOLEditorPreferences;
 import com.clarkparsia.sbol.editor.dialog.CheckoutDialog.CheckoutResult;
-import com.clarkparsia.sbol.editor.io.DocumentIO;
 import com.clarkparsia.sbol.editor.io.RVTDocumentIO;
 import com.clarkparsia.swing.FilterTree;
 import com.clarkparsia.swing.FilterTree.FilterTreeModel;

@@ -25,8 +25,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 import javax.swing.text.JTextComponent;
 
-import org.sbolstandard.core2.SBOLDocument;
-
 import com.clarkparsia.sbol.SBOLUtils;
 import com.clarkparsia.sbol.editor.Registry;
 import com.clarkparsia.swing.FormBuilder;

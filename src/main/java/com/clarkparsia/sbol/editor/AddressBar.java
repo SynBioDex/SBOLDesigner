@@ -28,7 +28,6 @@ import javax.swing.Box;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
-import javax.swing.JOptionPane;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.JToolTip;
@@ -36,7 +35,6 @@ import javax.swing.plaf.basic.BasicToolTipUI;
 import javax.swing.plaf.metal.MetalToolTipUI;
 
 import org.sbolstandard.core2.ComponentDefinition;
-import org.sbolstandard.core2.SBOLValidationException;
 
 import com.adamtaft.eb.EventHandler;
 import com.clarkparsia.sbol.editor.event.DesignChangedEvent;

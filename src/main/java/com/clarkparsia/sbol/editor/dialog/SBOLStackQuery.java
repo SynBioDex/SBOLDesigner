@@ -1,6 +1,5 @@
 package com.clarkparsia.sbol.editor.dialog;
 
-import java.awt.BorderLayout;
 import java.awt.Component;
 import java.io.IOException;
 import java.net.URI;
@@ -9,20 +8,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JProgressBar;
 import javax.swing.SwingWorker;
 
 import org.sbolstack.frontend.IdentifiedMetadata;
 import org.sbolstack.frontend.StackException;
 import org.sbolstack.frontend.StackFrontend;
 
-import com.clarkparsia.sbol.editor.Images;
 import com.clarkparsia.sbol.editor.dialog.RegistryInputDialog.TableUpdater;
 
 public class SBOLStackQuery extends SwingWorker<Object, Object> {

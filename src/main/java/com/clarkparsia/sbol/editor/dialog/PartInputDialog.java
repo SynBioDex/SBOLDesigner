@@ -28,7 +28,6 @@ import com.clarkparsia.sbol.SBOLUtils;
 import com.clarkparsia.sbol.SBOLUtils.Types;
 import com.clarkparsia.sbol.editor.Part;
 import com.clarkparsia.sbol.editor.Parts;
-import com.clarkparsia.sbol.editor.SPARQLUtilities;
 import com.clarkparsia.swing.FormBuilder;
 import com.google.common.collect.Lists;
 

@@ -20,36 +20,30 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 import java.util.prefs.Preferences;
 
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
-import org.sbolstandard.core.SBOLObject;
 import org.sbolstandard.core2.Component;
 import org.sbolstandard.core2.ComponentDefinition;
 import org.sbolstandard.core2.Identified;
 import org.sbolstandard.core2.Location;
 import org.sbolstandard.core2.Range;
-import org.sbolstandard.core2.Sequence;
 import org.sbolstandard.core2.SBOLDocument;
 import org.sbolstandard.core2.SBOLReader;
 import org.sbolstandard.core2.SBOLValidationException;
+import org.sbolstandard.core2.Sequence;
 import org.sbolstandard.core2.SequenceAnnotation;
 import org.sbolstandard.core2.SequenceOntology;
 import org.sbolstandard.core2.TopLevel;
 
-import com.clarkparsia.sbol.SBOLUtils.Types;
 import com.clarkparsia.sbol.editor.Part;
 import com.clarkparsia.sbol.editor.SBOLEditorPreferences;
-import com.clarkparsia.sbol.editor.dialog.RootInputDialog;
-import com.clarkparsia.sbol.editor.io.FileDocumentIO;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Maps;

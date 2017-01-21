@@ -27,16 +27,11 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.io.File;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Scanner;
 import java.util.Set;
-import java.util.prefs.Preferences;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -45,7 +40,6 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
-import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -55,19 +49,13 @@ import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-import javax.swing.filechooser.FileNameExtensionFilter;
-import javax.swing.text.html.HTMLDocument.Iterator;
-import javax.xml.stream.FactoryConfigurationError;
-import javax.xml.stream.XMLStreamException;
 
 import org.sbolstandard.core2.ComponentDefinition;
 import org.sbolstandard.core2.Cut;
 import org.sbolstandard.core2.Identified;
 import org.sbolstandard.core2.Location;
 import org.sbolstandard.core2.Range;
-import org.sbolstandard.core2.SBOLConversionException;
 import org.sbolstandard.core2.SBOLDocument;
-import org.sbolstandard.core2.SBOLReader;
 import org.sbolstandard.core2.SBOLValidationException;
 import org.sbolstandard.core2.Sequence;
 import org.sbolstandard.core2.SequenceAnnotation;
@@ -78,15 +66,10 @@ import com.clarkparsia.sbol.SBOLUtils;
 import com.clarkparsia.sbol.SBOLUtils.Types;
 import com.clarkparsia.sbol.editor.Part;
 import com.clarkparsia.sbol.editor.Parts;
-import com.clarkparsia.sbol.editor.SBOLDesign;
 import com.clarkparsia.sbol.editor.SBOLEditorPreferences;
-import com.clarkparsia.sbol.editor.io.FileDocumentIO;
-import com.clarkparsia.sbol.terms.SO;
 import com.clarkparsia.swing.FormBuilder;
 import com.google.common.base.Objects;
 import com.google.common.collect.Iterables;
-
-import uk.ac.ncl.intbio.core.io.CoreIoException;
 
 /**
  * 
