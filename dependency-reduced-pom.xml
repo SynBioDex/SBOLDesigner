@@ -147,7 +147,7 @@
     <maven-shade-plugin.version>2.4.2</maven-shade-plugin.version>
     <protobuf.input.directory>${project.basedir}/src/main/proto</protobuf.input.directory>
     <maven-antrun-plugin.version>1.8</maven-antrun-plugin.version>
-    <maven-dependency-plugin.version>2.10</maven-dependency-plugin.version>
+    <maven-dependency-plugin.version>3.0.0</maven-dependency-plugin.version>
     <build-helper-maven-plugin.version>1.9.1</build-helper-maven-plugin.version>
   </properties>
 </project>
