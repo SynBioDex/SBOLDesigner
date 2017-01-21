@@ -27,6 +27,7 @@ import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPasswordField;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
@@ -85,11 +86,15 @@ public class UploadDialog extends JDialog implements ActionListener, DocumentLis
 	private final JButton uploadButton = new JButton("Upload");
 	private final JButton cancelButton = new JButton("Cancel");
 	private final JTextField username = new JTextField("");
-	private final JTextField password = new JTextField("");
+	private final JPasswordField password = new JPasswordField("");
 	private final JTextField submissionId = new JTextField("");
 	private final JTextField version = new JTextField("");
 	private final JTextField name = new JTextField("");
 	private final JTextField description = new JTextField("");
+	private final JTextField citations = new JTextField("");
+	private final JTextField keywords = new JTextField("");
+	private final JTextField chassis = new JTextField("");
+	private final JTextField purpose = new JTextField("");
 
 	public UploadDialog(final Component parent, Registry registry, SBOLDocument toBeUploaded) {
 		super(JOptionPane.getFrameForComponent(parent), TITLE + title(registry), true);
@@ -102,11 +107,18 @@ public class UploadDialog extends JDialog implements ActionListener, DocumentLis
 		String email = info == null || info.getEmail() == null ? null : info.getEmail().getLocalName();
 		String uri = info == null ? null : info.getURI().stringValue();
 		if (email == null || email.equals("") || uri == null) {
-			JOptionPane.showMessageDialog(parent, "Make sure your email and URI are both set and valid in preferences.",
-					"Upload failed", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(parent,
+					"Make sure your email and URI/namespace are both set and valid in preferences.", "Upload failed",
+					JOptionPane.ERROR_MESSAGE);
 			return;
 		}
 		username.setText(email);
+		password.setEchoChar('*');
+		ComponentDefinition root = toBeUploaded.getRootComponentDefinitions().iterator().next();
+		submissionId.setText(root.getDisplayId());
+		version.setText("1");
+		name.setText(root.isSetName() ? root.getName() : root.getDisplayId());
+		description.setText(root.isSetDescription() ? root.getDescription() : "");
 
 		// layout
 		cancelButton.registerKeyboardAction(this, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0),
@@ -144,14 +156,23 @@ public class UploadDialog extends JDialog implements ActionListener, DocumentLis
 		version.getDocument().addDocumentListener(this);
 		name.getDocument().addDocumentListener(this);
 		description.getDocument().addDocumentListener(this);
+		citations.getDocument().addDocumentListener(this);
+		keywords.getDocument().addDocumentListener(this);
+		chassis.getDocument().addDocumentListener(this);
+		purpose.getDocument().addDocumentListener(this);
 
 		FormBuilder builder = new FormBuilder();
 		builder.add("Username", username);
 		builder.add("Password", password);
+		builder.add("", new JLabel(" "));
 		builder.add("Submission ID", submissionId);
 		builder.add("Version", version);
 		builder.add("Name", name);
 		builder.add("Description", description);
+		builder.add("Citations", citations);
+		builder.add("Keywords", keywords);
+		builder.add("Chassis", chassis);
+		builder.add("Purpose", purpose);
 		JPanel panel = builder.build();
 		panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
 		panel.add(Box.createRigidArea(new Dimension(0, 5)));
@@ -181,9 +202,9 @@ public class UploadDialog extends JDialog implements ActionListener, DocumentLis
 
 	private void uploadDesign() throws StackException {
 		StackFrontend stack = toBeUploaded.addRegistry(registry.getLocation());
-		stack.login(username.getText(), password.getText());
-		stack.submit(submissionId.getText(), version.getText(), name.getText(), description.getText(), "", "", "", "",
-				toBeUploaded);
+		stack.login(username.getText(), new String(password.getPassword()));
+		stack.submit(submissionId.getText(), version.getText(), name.getText(), description.getText(),
+				citations.getText(), keywords.getText(), chassis.getText(), purpose.getText(), toBeUploaded);
 	}
 
 	@Override
