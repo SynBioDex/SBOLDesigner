@@ -1,3 +1,13 @@
+Compilation
+===========
+In order to clean, install, and run the SBOL designer, type the following into
+a Windows shell:
+
+```
+mvn clean install exec:java
+-Dexec.mainClass="com.clarkparsia.sbol.editor.SBOLDesignerStandalone"
+```
+
 SBOL Designer
 =============
 
