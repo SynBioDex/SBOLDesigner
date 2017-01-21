@@ -22,6 +22,7 @@ import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.event.DocumentEvent;
@@ -53,7 +54,7 @@ public class BOOSTDialog extends JDialog implements ActionListener, DocumentList
 	private final JLabel info = new JLabel(
 			"Please visit https://boost.jgi.doe.gov/boost.html to create an account. Note this feature requires an internet connection.");
 	private final JTextField username = new JTextField();
-	private final JTextField password = new JTextField();
+	private final JPasswordField password = new JPasswordField();
 
 	public BOOSTDialog(Component parent, File output, SBOLDocument doc) {
 		super(JOptionPane.getFrameForComponent(parent), TITLE, true);
@@ -63,6 +64,7 @@ public class BOOSTDialog extends JDialog implements ActionListener, DocumentList
 
 		username.getDocument().addDocumentListener(this);
 		password.getDocument().addDocumentListener(this);
+		password.setEchoChar('*');
 		FormBuilder builder = new FormBuilder();
 		builder.add("", info);
 		builder.add("", new JLabel(" "));
@@ -115,7 +117,7 @@ public class BOOSTDialog extends JDialog implements ActionListener, DocumentList
 	}
 
 	private void optimizeDesign() throws BOOSTClientException, IOException {
-		BOOSTClient client = new BOOSTClient(username.getText(), password.getText());
+		BOOSTClient client = new BOOSTClient(username.getText(), new String(password.getPassword()));
 
 		// TODO various options/features should be incorporated
 		client.reverseTranslate(null, Strategy.MostlyUsed, null, FileFormat.SBOL);
