@@ -12,6 +12,11 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -28,14 +33,20 @@ import javax.swing.KeyStroke;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
+import org.apache.commons.io.IOUtils;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
+import org.apache.http.message.BasicNameValuePair;
 import org.sbolstandard.core2.SBOLDocument;
 
 import com.clarkparsia.swing.FormBuilder;
-
-import gov.doe.jgi.boost.client.BOOSTClient;
-import gov.doe.jgi.boost.enums.FileFormat;
-import gov.doe.jgi.boost.enums.Strategy;
-import gov.doe.jgi.boost.exception.BOOSTClientException;
 
 /**
  * @author Michael Zhang
@@ -48,9 +59,15 @@ public class BOOSTDialog extends JDialog implements ActionListener, DocumentList
 	private Component parent;
 	private File output;
 	private SBOLDocument doc;
+	private HttpClient client = HttpClients.createDefault();
+	private static final String BOOST_REST_URL = "https://boost.jgi.doe.gov/rest";
+	private static final String LOGIN_RESOURCE = BOOST_REST_URL + "/auth/login";
+	private static final String REVERSE_TRANSLATE_RESOURCE = BOOST_REST_URL + "/juggler/juggle";
+	private static final String CODON_JUGGLE_RESOURCE = BOOST_REST_URL + "/juggle/juggle";
 
 	private final JButton optimizeButton = new JButton("Optimize Design");
 	private final JButton cancelButton = new JButton("Cancel");
+	// TODO add BOOST logo image
 	private final JLabel info = new JLabel(
 			"Please visit https://boost.jgi.doe.gov/boost.html to create an account. Note this feature requires an internet connection.");
 	private final JTextField username = new JTextField();
@@ -110,19 +127,57 @@ public class BOOSTDialog extends JDialog implements ActionListener, DocumentList
 		if (e.getSource() == optimizeButton) {
 			try {
 				optimizeDesign();
-			} catch (BOOSTClientException | IOException e1) {
+			} catch (IOException e1) {
 				e1.printStackTrace();
 			}
 		}
 	}
 
-	private void optimizeDesign() throws BOOSTClientException, IOException {
-		BOOSTClient client = new BOOSTClient(username.getText(), new String(password.getPassword()));
+	private void optimizeDesign() throws ClientProtocolException, IOException {
+		String userjwt = login(username.getText(), new String(password.getPassword()));
 
-		// TODO various options/features should be incorporated
-		client.reverseTranslate(null, Strategy.MostlyUsed, null, FileFormat.SBOL);
-		client.codonJuggle(null, true, Strategy.MostlyUsed, null, FileFormat.SBOL);
-		// TODO where is the output?
+		// reverse translate
+		HttpPost request = new HttpPost(REVERSE_TRANSLATE_RESOURCE);
+		List<NameValuePair> params = new ArrayList<NameValuePair>();
+		// TODO unsure how parameters are encoded
+		request.setEntity(new UrlEncodedFormEntity(params));
+		request.setHeader("Content-Type", "application/x-www-form-urlencoded");
+
+		HttpResponse response = client.execute(request);
+		HttpEntity entity = response.getEntity();
+		if (entity == null) {
+			return;
+		}
+		InputStream is = entity.getContent();
+		String reply = inputStreamToString(is);
+		// TODO unsure how reply is encoded
+	}
+
+	private String login(String username, String password) throws ClientProtocolException, IOException {
+		HttpPost request = new HttpPost(LOGIN_RESOURCE);
+
+		List<NameValuePair> params = new ArrayList<NameValuePair>();
+		params.add(new BasicNameValuePair("username", username));
+		params.add(new BasicNameValuePair("password", password));
+		request.setEntity(new UrlEncodedFormEntity(params));
+		request.setHeader("Content-Type", "application/x-www-form-urlencoded");
+
+		HttpResponse response = client.execute(request);
+		HttpEntity entity = response.getEntity();
+		if (entity == null) {
+			return null;
+		}
+		InputStream is = entity.getContent();
+		// TODO userjwt is an "unsupported media type" error
+		String userjwt = inputStreamToString(is);
+		is.close();
+		return userjwt;
+	}
+
+	private String inputStreamToString(InputStream inputStream) throws IOException {
+		StringWriter writer = new StringWriter();
+		IOUtils.copy(inputStream, writer);
+		return writer.toString();
 	}
 
 	@Override
