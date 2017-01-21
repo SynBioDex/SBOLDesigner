@@ -6,11 +6,11 @@
   <name>SBOLDesigner</name>
   <description>An intuitive genetic design tool using SBOL 2.0</description>
   <build>
-    <sourceDirectory>src</sourceDirectory>
-    <testSourceDirectory>versioning/test</testSourceDirectory>
+    <sourceDirectory>src/main/java</sourceDirectory>
+    <testSourceDirectory>src/test/java</testSourceDirectory>
     <resources>
       <resource>
-        <directory>src</directory>
+        <directory>src/main/resources</directory>
         <excludes>
           <exclude>**/*.java</exclude>
         </excludes>
@@ -43,10 +43,6 @@
 		<configuration>
 		  <source>1.8</source>
 		  <target>1.8</target>
-		  <includes>
-		    <include>src/**/*.java</include>
-		    <include>versioning/src/**/*.java</include>
-		  </includes>
 		</configuration>
 	  </plugin>
 	</plugins>
