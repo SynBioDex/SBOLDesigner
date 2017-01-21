@@ -1,12 +1,14 @@
-Compilation
-===========
-In order to clean, install, and run the SBOL designer, type the following into
-a Windows shell:
+Compilation (added January, 2017)
+=================================
+In order to clean, install, and run SBOLDesigner, type the following into a Windows shell or create an Eclipse Maven run configuration that has the following goals (excluding the "mvn"):
+mvn clean install exec:java -Dexec.mainClass="com.clarkparsia.sbol.editor.SBOLDesignerStandalone"
 
-```
-mvn clean install exec:java
--Dexec.mainClass="com.clarkparsia.sbol.editor.SBOLDesignerStandalone"
-```
+In order to generate sources from Google protocol buffer, right click on the project and run-as Maven generate-sources.  This is required first.  Also, the pom.xml file has protobuffer dependencies as described here:
+http://vlkan.com/blog/post/2015/11/27/maven-protobuf/
+
+libRepo is a local Maven repository that is also an included dependency.  This allows for jar files to be included using Maven's pom.xml.  For updates, refer to "Creating a maven repo inside the project" here:
+http://blog.valdaris.com/post/custom-jar/
+
 
 SBOL Designer
 =============

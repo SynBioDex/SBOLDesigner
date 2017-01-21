@@ -1,0 +1,27 @@
+syntax="proto3";
+
+package texts;
+
+option java_package="com.clarkparsia.sbol.editor.dialog.boostformat";
+option java_outer_classname="Juggle";
+
+message Request {
+    FileFormat output = 1;
+    Sequence sequences = 2;
+    Modification modifications = 3;
+}
+
+message FileFormat {
+    string format = 1;
+}
+
+message Sequence {
+    string text = 1;
+    repeated string type = 2; 
+}
+
+message Modification {
+    string genetic_code = 1;
+    string host_name = 2;
+    string strategy = 3;
+}

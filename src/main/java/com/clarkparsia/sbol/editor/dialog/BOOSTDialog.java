@@ -45,6 +45,8 @@ import org.apache.http.message.BasicNameValuePair;
 import org.sbolstandard.core2.SBOLDocument;
 
 import com.clarkparsia.swing.FormBuilder;
+import com.google.protobuf.util.JsonFormat;
+import com.clarkparsia.sbol.editor.dialog.boostformat.Juggle;
 
 /**
  * @author Michael Zhang
@@ -132,6 +134,29 @@ public class BOOSTDialog extends JDialog implements ActionListener, DocumentList
 	}
 
 	private void optimizeDesign() throws ClientProtocolException, IOException {
+		////////////////////////////////
+		// example of Protocol Buffer using src/main/proto/juggle.proto
+		Juggle.Request req = Juggle.Request.newBuilder()
+				.setModifications(Juggle.Modification.newBuilder().setGeneticCode("STANDARD")
+						.setHostName("Arabidopsis thaliana").setStrategy("Balanced"))
+				.setOutput(Juggle.FileFormat.newBuilder().setFormat("GENBANK"))
+				.setSequences(Juggle.Sequence.newBuilder().setText(">protein_sequence\nMFLIMVSPTAY").addType("PROTEIN"))
+				.build();
+
+		String jsonData = JsonFormat.printer().includingDefaultValueFields().print(req);
+
+		Juggle.Request.parseFrom(req.toByteArray());
+
+		System.out.println(req.toString());
+
+		Juggle.Request.Builder builder = Juggle.Request.newBuilder();
+
+		JsonFormat.parser().ignoringUnknownFields().merge(jsonData, builder);
+
+		builder.getModifications();
+
+		//////////////////////////////////////
+
 		String userjwt = login(username.getText(), new String(password.getPassword()));
 
 		// reverse translate
