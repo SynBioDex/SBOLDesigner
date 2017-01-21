@@ -1288,50 +1288,6 @@ public class SBOLDesign {
 		}
 
 		UploadDialog uploadDialog = new UploadDialog(panel.getParent(), registry, createDocument());
-
-		if (true) {
-			return;
-		}
-		// TODO replaced with uploadDialog
-		StackFrontend stack = new StackFrontend(registry.getLocation());
-		PersonInfo info = SBOLEditorPreferences.INSTANCE.getUserInfo();
-		String email = info == null || info.getEmail() == null ? null : info.getEmail().getLocalName();
-		String uri = info == null ? null : info.getURI().stringValue();
-		if (email == null || email.equals("") || uri == null) {
-			JOptionPane.showMessageDialog(panel, "Make sure your email and URI are both set and valid in preferences.",
-					"Upload failed", JOptionPane.ERROR_MESSAGE);
-		}
-		String emailHash = Hashing.sha1().hashString(email, Charsets.UTF_8).toString();
-		String userId = email.replace("@", "%40");
-		// TODO: need to revise this when revised on stack
-		String storename = "synbiohub_user_" + Hashing.sha1()
-				.hashString("synbiohub_" + emailHash + "synbiohub_change_me", Charsets.UTF_8).toString();
-		// TODO: uploadDoc should only include objects in your namespace.
-		// filter for member collections works, but it ends up uploading extra
-		// objects
-		SBOLDocument uploadDoc = createDocument();
-		// TODO: would this ever be more than one root?
-		for (ComponentDefinition cd : uploadDoc.getRootComponentDefinitions()) {
-			// TODO: should ask the user for a submissionId and perhaps other
-			// fields as done for synbiohub
-			String submissionId = cd.getDisplayId();
-			String submissionName = cd.isSetName() ? cd.getName() : cd.getDisplayId();
-			String submissionDescription = cd.isSetDescription() ? cd.getDescription() : "";
-			String submissionVersion = cd.isSetVersion() ? cd.getVersion() : "1";
-			Collection collection = uploadDoc.createCollection(submissionId + "_collection", "1");
-			collection.setName(submissionName + " " + "Collection");
-			collection.setDescription(submissionDescription);
-			collection.createAnnotation(new QName("http://synbiohub.org#", "uploadedBy", "synbiohub"), email);
-			collection.createAnnotation(new QName("http://purl.org/dc/terms/", "creator", "dcterms"), info.getName());
-			for (ComponentDefinition cd2 : uploadDoc.getComponentDefinitions()) {
-				if (!cd2.getIdentity().toString().startsWith(uri))
-					continue;
-				collection.addMember(cd2.getIdentity());
-			}
-			uploadDoc = uploadDoc.changeURIPrefixVersion(
-					"http://synbiohub.org/user/" + userId + "/" + submissionId + "/", submissionVersion);
-			stack.upload(storename, uploadDoc);
-		}
 	}
 
 	public BufferedImage getSnapshot() {

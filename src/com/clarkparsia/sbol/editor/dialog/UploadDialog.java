@@ -15,6 +15,7 @@ import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.swing.BorderFactory;
@@ -49,6 +50,8 @@ import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
+import org.sbolstack.frontend.StackException;
+import org.sbolstack.frontend.StackFrontend;
 import org.sbolstandard.core2.ComponentDefinition;
 import org.sbolstandard.core2.Identified;
 import org.sbolstandard.core2.SBOLConversionException;
@@ -79,16 +82,14 @@ public class UploadDialog extends JDialog implements ActionListener, DocumentLis
 	private Registry registry;
 	private SBOLDocument toBeUploaded;
 
-	private HttpClient client = HttpClients.createDefault();
-
 	private final JButton uploadButton = new JButton("Upload");
 	private final JButton cancelButton = new JButton("Cancel");
-	private final JTextField username = new JTextField();
-	private final JTextField password = new JTextField();
-	private final JTextField submissionId = new JTextField();
-	private final JTextField version = new JTextField();
-	private final JTextField name = new JTextField();
-	private final JTextField description = new JTextField();
+	private final JTextField username = new JTextField("");
+	private final JTextField password = new JTextField("");
+	private final JTextField submissionId = new JTextField("");
+	private final JTextField version = new JTextField("");
+	private final JTextField name = new JTextField("");
+	private final JTextField description = new JTextField("");
 
 	public UploadDialog(final Component parent, Registry registry, SBOLDocument toBeUploaded) {
 		super(JOptionPane.getFrameForComponent(parent), TITLE + title(registry), true);
@@ -167,71 +168,22 @@ public class UploadDialog extends JDialog implements ActionListener, DocumentLis
 		if (e.getSource() == uploadButton) {
 			try {
 				uploadDesign();
-			} catch (IOException | SBOLConversionException e1) {
+				JOptionPane.showMessageDialog(parent, "Upload successful!");
+				setVisible(false);
+				return;
+			} catch (StackException e1) {
+				MessageDialog.showMessage(parent, "Uploading failed", Arrays.asList(e1.getMessage().split("\"|,")));
+				toBeUploaded.clearRegistries();
 				e1.printStackTrace();
 			}
 		}
 	}
 
-	private void uploadDesign() throws ClientProtocolException, IOException, SBOLConversionException {
-		// TODO unsure how to serialize document
-		OutputStream out = null;
-		SBOLWriter.write(toBeUploaded, out);
-		String serializedDoc = out.toString();
-
-		Object user = login(username.getText(), password.getText(), registry.getLocation());
-
-		HttpPost httppost = new HttpPost(registry.getLocation());
-
-		// Request parameters and other properties.
-		List<NameValuePair> params = new ArrayList<NameValuePair>();
-		// TODO unsure how to include user's info as parameter
-		params.add(new BasicNameValuePair("user", user.toString()));
-		params.add(new BasicNameValuePair("id", submissionId.getText()));
-		params.add(new BasicNameValuePair("version", version.getText()));
-		params.add(new BasicNameValuePair("name", name.getText()));
-		params.add(new BasicNameValuePair("description", description.getText()));
-		params.add(new BasicNameValuePair("file", serializedDoc));
-		httppost.setEntity(new UrlEncodedFormEntity(params));
-
-		// Execute and get the response.
-		HttpResponse response = client.execute(httppost);
-		HttpEntity entity = response.getEntity();
-
-		if (entity != null) {
-			InputStream instream = entity.getContent();
-			try {
-				// TODO unsure how to determine success
-			} finally {
-				instream.close();
-			}
-		}
-	}
-
-	private Object login(String username, String password, String endpoint)
-			throws ClientProtocolException, IOException {
-		HttpPost httppost = new HttpPost(endpoint);
-
-		// Request parameters and other properties.
-		List<NameValuePair> params = new ArrayList<NameValuePair>();
-		params.add(new BasicNameValuePair("email", username));
-		params.add(new BasicNameValuePair("password", password));
-		httppost.setEntity(new UrlEncodedFormEntity(params));
-
-		// Execute and get the response.
-		HttpResponse response = client.execute(httppost);
-		HttpEntity entity = response.getEntity();
-
-		if (entity != null) {
-			InputStream instream = entity.getContent();
-			try {
-				// TODO unsure how to interpret resulting login info
-				return null;
-			} finally {
-				instream.close();
-			}
-		}
-		return null;
+	private void uploadDesign() throws StackException {
+		StackFrontend stack = toBeUploaded.addRegistry(registry.getLocation());
+		stack.login(username.getText(), password.getText());
+		stack.submit(submissionId.getText(), version.getText(), name.getText(), description.getText(), "", "", "", "",
+				toBeUploaded);
 	}
 
 	@Override

@@ -1,5 +1,6 @@
 package com.clarkparsia.sbol.editor.dialog;
 
+import java.awt.Component;
 import java.awt.Dimension;
 import java.util.List;
 
@@ -10,7 +11,7 @@ import javax.swing.JTextArea;
 
 public class MessageDialog {
 
-	public static void showMessage(JPanel panel, String title, List<String> messages) {
+	public static void showMessage(Component parentComponent, String title, List<String> messages) {
 		StringBuilder sb = new StringBuilder();
 		for (String message : messages) {
 			sb.append(message);
@@ -25,6 +26,6 @@ public class MessageDialog {
 				return new Dimension(580, 320);
 			}
 		};
-		JOptionPane.showMessageDialog(panel, jsp, title, JOptionPane.ERROR_MESSAGE);
+		JOptionPane.showMessageDialog(parentComponent, jsp, title, JOptionPane.ERROR_MESSAGE);
 	}
 }
