@@ -36,6 +36,10 @@ import java.awt.image.RGBImageFilter;
 import java.io.File;
 import java.io.IOException;
 
+import java.net.URLClassLoader;
+import java.util.Arrays;
+import java.util.stream.Collectors;
+
 import javax.imageio.ImageIO;
 import javax.swing.JComponent;
 
@@ -48,19 +52,19 @@ public class Images {
 	public static BufferedImage getPartImage(String fileName) {
 		return getImage("parts/" + fileName);
 	}
-	
-	public static BufferedImage getActionImage(String fileName) {		
+
+	public static BufferedImage getActionImage(String fileName) {
 		return getImage("actions/" + fileName);
 	}
-	
-	public static BufferedImage getImage(String fileName) {		
+
+	public static BufferedImage getImage(String fileName) {
 		try {
 			if (fileName != null) {
-				return ImageIO.read(Images.class.getResourceAsStream("images/" + fileName));
+				return ImageIO.read(Images.class.getClassLoader().getResourceAsStream("images/" + fileName));
 			}
 		} catch (Exception e) {
 		}
-		
+
 		return null;
 	}
 
@@ -69,9 +73,11 @@ public class Images {
 	}
 
 	public static Image scaleImage(Image image, double scaleFactor) {
-		return image == null ? null : image.getScaledInstance((int) (image.getWidth(null) * scaleFactor), (int) (image.getHeight(null) * scaleFactor), Image.SCALE_SMOOTH);
+		return image == null ? null
+				: image.getScaledInstance((int) (image.getWidth(null) * scaleFactor),
+						(int) (image.getHeight(null) * scaleFactor), Image.SCALE_SMOOTH);
 	}
-	
+
 	public static BufferedImage createBorderedImage(final Image image, final Color color) {
 		int w = image.getWidth(null);
 		int h = image.getHeight(null);
@@ -85,15 +91,15 @@ public class Images {
 
 		return bufferedImage;
 	}
-	
-	public static void makeAllImagesTransparent(File dir) throws IOException {
-        for (File f : dir.listFiles()) {
-            BufferedImage image = ImageIO.read(f);
-            Image img = makeColorTransparent(image, Color.white);
-        	BufferedImage transparent = toBufferedImage(img);
 
-        	ImageIO.write(transparent, "PNG", f);
-        }
+	public static void makeAllImagesTransparent(File dir) throws IOException {
+		for (File f : dir.listFiles()) {
+			BufferedImage image = ImageIO.read(f);
+			Image img = makeColorTransparent(image, Color.white);
+			BufferedImage transparent = toBufferedImage(img);
+
+			ImageIO.write(transparent, "PNG", f);
+		}
 	}
 
 	public static Image makeColorTransparent(final BufferedImage im, final Color color) {
@@ -105,8 +111,7 @@ public class Images {
 				if ((rgb | 0xFF000000) == markerRGB) {
 					// Mark the alpha bits as zero - transparent
 					return 0x00FFFFFF & rgb;
-				}
-				else {
+				} else {
 					// nothing to do
 					return rgb;
 				}
@@ -121,7 +126,7 @@ public class Images {
 		if (image instanceof BufferedImage) {
 			return (BufferedImage) image;
 		}
-		
+
 		int w = image.getWidth(null);
 		int h = image.getHeight(null);
 		BufferedImage bufferedImage = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
@@ -131,7 +136,7 @@ public class Images {
 
 		return bufferedImage;
 	}
-	
+
 	public static BufferedImage flipVertical(Image image) {
 		AffineTransform tx = AffineTransform.getScaleInstance(1, -1);
 		tx.translate(0, -image.getHeight(null));
@@ -149,8 +154,8 @@ public class Images {
 		tx.translate(-image.getWidth(null), -image.getHeight(null));
 		return applyTransform(image, tx);
 	}
-		
-	public static BufferedImage applyTransform(Image image, AffineTransform tx) {	
+
+	public static BufferedImage applyTransform(Image image, AffineTransform tx) {
 		AffineTransformOp op = new AffineTransformOp(tx, AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
 		return op.filter(toBufferedImage(image), null);
 	}
@@ -160,21 +165,22 @@ public class Images {
 		BufferedImage image = new BufferedImage(dim.width, dim.height, BufferedImage.TYPE_INT_RGB);
 		Graphics2D g2d = image.createGraphics();
 
-		// Paint a background for non-opaque components, otherwise the background will be black
+		// Paint a background for non-opaque components, otherwise the
+		// background will be black
 		if (!component.isOpaque()) {
 			g2d.setColor(component.getBackground());
 			g2d.fillRect(0, 0, dim.width, dim.height);
 		}
-		
+
 		component.paint(g2d);
 		g2d.dispose();
 		return image;
 	}
-	
+
 	public static void copyToClipboard(Image image) {
 		TransferableImage trans = new TransferableImage(image);
 		Clipboard c = Toolkit.getDefaultToolkit().getSystemClipboard();
-		c.setContents(trans, new ClipboardOwner() {				
+		c.setContents(trans, new ClipboardOwner() {
 			@Override
 			public void lostOwnership(Clipboard c, Transferable t) {
 				// nothing to do
@@ -192,8 +198,7 @@ public class Images {
 		public Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException, IOException {
 			if (flavor.equals(DataFlavor.imageFlavor) && i != null) {
 				return i;
-			}
-			else {
+			} else {
 				throw new UnsupportedFlavorException(flavor);
 			}
 		}

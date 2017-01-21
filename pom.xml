@@ -16,27 +16,7 @@
         </excludes>
       </resource>
     </resources>
-	<pluginManagement>
 	<plugins>
-	  <plugin>
-	    <groupId>org.apache.maven.plugins</groupId>
-	    <artifactId>maven-dependency-plugin</artifactId>
-	  </plugin>
-	  <plugin>
-		<groupId>org.codehaus.mojo</groupId>
-		<artifactId>build-helper-maven-plugin</artifactId>
-		<executions>
-		  <execution>
-			<phase>generate-sources</phase>
-			<goals><goal>add-source</goal></goals>
-			<configuration>
-			  <sources>
-				<source>${project.basedir}/versioning/src</source>
-			  </sources>
-			</configuration>
-		  </execution>
-		</executions>
-	  </plugin>
 	  <plugin>
 		<artifactId>maven-compiler-plugin</artifactId>
 		<version>3.3</version>
@@ -46,7 +26,6 @@
 		</configuration>
 	  </plugin>
 	</plugins>
-	</pluginManagement>
   </build>
   <dependencies>
     <dependency>

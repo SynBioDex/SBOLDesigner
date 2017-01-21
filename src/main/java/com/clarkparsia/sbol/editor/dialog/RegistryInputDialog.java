@@ -329,7 +329,7 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 			Registry registry = (Registry) registrySelection.getSelectedItem();
 			if (registry.equals(Registry.BUILT_IN)) {
 				// read from BuiltInParts.xml
-				doc = SBOLReader.read(Registry.class.getResourceAsStream("BuiltInParts.xml"));
+				doc = SBOLReader.read(Registry.class.getResourceAsStream("/BuiltInParts.xml"));
 			} else if (registry.equals(Registry.WORKING_DOCUMENT)) {
 				// read from SBOLUtils.setupFile();
 				File file = SBOLUtils.setupFile();
