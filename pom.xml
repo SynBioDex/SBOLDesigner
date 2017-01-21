@@ -93,26 +93,31 @@
       <groupId>simpleeventbus</groupId>
       <artifactId>simpleeventbus</artifactId>
       <version>1.2</version>
+      <type>jar</type>
     </dependency>
     <dependency>
       <groupId>openrdf-sesame</groupId>
       <artifactId>openrdf-sesame</artifactId>
       <version>2.6.9</version>
+      <type>jar</type>
     </dependency>
     <dependency>
       <groupId>libSBOLj</groupId>
       <artifactId>libSBOLj-javadoc</artifactId>
       <version>2.1.2</version>
+      <type>jar</type>
     </dependency>
     <dependency>
       <groupId>libSBOLj</groupId>
       <artifactId>libSBOLj-sources</artifactId>
       <version>2.1.2</version>
+      <type>jar</type>
     </dependency>
     <dependency>
       <groupId>libSBOLj</groupId>
       <artifactId>libSBOLj-withDependencies</artifactId>
       <version>2.1.2</version>
+      <type>jar</type>
     </dependency>
   </dependencies>
 </project>
