@@ -15,7 +15,7 @@ public class LoadingDialog {
 	public LoadingDialog(Component parent) throws IOException {
 		// Starts a progress loading indicator
 		dialog = new JDialog();
-		ImageIcon loading = new ImageIcon(getClass().getResource("/com/clarkparsia/sbol/editor/images/loading.gif"));
+		ImageIcon loading = new ImageIcon(getClass().getResource("/images/loading.gif"));
 		JLabel label = new JLabel(loading);
 		dialog.add(label, BorderLayout.CENTER);
 		dialog.setUndecorated(true);

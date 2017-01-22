@@ -253,7 +253,7 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 	 */
 	private boolean comboBoxContains(JComboBox<String> box, String s) {
 		for (int i = 0; i < box.getItemCount(); i++) {
-			if (s.equals(roleRefinement.getItemAt(i))) {
+			if (s != null && s.equals(roleRefinement.getItemAt(i))) {
 				return true;
 			}
 		}
