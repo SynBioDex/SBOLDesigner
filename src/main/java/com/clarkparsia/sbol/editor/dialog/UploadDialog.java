@@ -98,17 +98,21 @@ public class UploadDialog extends JDialog implements ActionListener, DocumentLis
 		description.setText(root.isSetDescription() ? root.getDescription() : "");
 
 		// layout
-		JPanel optionPanel = new JPanel();
+		JPanel optionPanel1 = new JPanel();
+		JPanel optionPanel2 = new JPanel();
 		ButtonGroup options = new ButtonGroup();
-		optionPanel.add(prevent);
-		optionPanel.add(overwrite);
-		optionPanel.add(mergePrevent);
-		optionPanel.add(mergeReplace);
+		optionPanel1.add(prevent);
+		optionPanel1.add(overwrite);
+		optionPanel2.add(mergePrevent);
+		optionPanel2.add(mergeReplace);
 		options.add(prevent);
 		options.add(overwrite);
 		options.add(mergePrevent);
 		options.add(mergeReplace);
 		prevent.setSelected(true);
+		JPanel optionPanel = new JPanel(new BorderLayout());
+		optionPanel.add(optionPanel1,"North");
+		optionPanel.add(optionPanel2,"South");
 
 		cancelButton.registerKeyboardAction(this, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0),
 				JComponent.WHEN_IN_FOCUSED_WINDOW);
@@ -160,8 +164,9 @@ public class UploadDialog extends JDialog implements ActionListener, DocumentLis
 		builder.add("Citations", citations);
 		builder.add("Keywords", keywords);
 		JPanel panel = builder.build();
-		panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
-		panel.add(Box.createRigidArea(new Dimension(0, 5)));
+		panel.setAlignmentX(LEFT_ALIGNMENT);
+		//panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
+		//panel.add(Box.createRigidArea(new Dimension(0, 5)));
 		return panel;
 	}
 
