@@ -12,6 +12,7 @@ import java.util.Arrays;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
@@ -19,6 +20,7 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
+import javax.swing.JRadioButton;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.event.DocumentEvent;
@@ -52,8 +54,16 @@ public class UploadDialog extends JDialog implements ActionListener, DocumentLis
 	private Registry registry;
 	private SBOLDocument toBeUploaded;
 
+	// TODO add infos
+	private final JLabel whatDoesThisDialogDo = new JLabel("TODO");
+	private final JLabel whatDoTheOptionsMean = new JLabel("TODO");
 	private final JButton uploadButton = new JButton("Upload");
 	private final JButton cancelButton = new JButton("Cancel");
+	// TODO these descriptions should change
+	private final JRadioButton prevent = new JRadioButton("Prevent if submission exists");
+	private final JRadioButton overwrite = new JRadioButton("Overwrite entire submission");
+	private final JRadioButton mergePrevent = new JRadioButton("Merge and prevent if existing objects");
+	private final JRadioButton mergeReplace = new JRadioButton("Merge and replace if existing objects");
 	private final JTextField username = new JTextField("");
 	private final JPasswordField password = new JPasswordField("");
 	private final JTextField submissionId = new JTextField("");
@@ -88,6 +98,18 @@ public class UploadDialog extends JDialog implements ActionListener, DocumentLis
 		description.setText(root.isSetDescription() ? root.getDescription() : "");
 
 		// layout
+		JPanel optionPanel = new JPanel();
+		ButtonGroup options = new ButtonGroup();
+		optionPanel.add(prevent);
+		optionPanel.add(overwrite);
+		optionPanel.add(mergePrevent);
+		optionPanel.add(mergeReplace);
+		options.add(prevent);
+		options.add(overwrite);
+		options.add(mergePrevent);
+		options.add(mergeReplace);
+		prevent.setSelected(true);
+
 		cancelButton.registerKeyboardAction(this, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0),
 				JComponent.WHEN_IN_FOCUSED_WINDOW);
 		cancelButton.addActionListener(this);
@@ -107,7 +129,8 @@ public class UploadDialog extends JDialog implements ActionListener, DocumentLis
 		JPanel panel = initMainPanel();
 
 		Container contentPane = getContentPane();
-		contentPane.add(panel, BorderLayout.CENTER);
+		contentPane.add(panel, BorderLayout.PAGE_START);
+		contentPane.add(optionPanel, BorderLayout.CENTER);
 		contentPane.add(buttonPane, BorderLayout.PAGE_END);
 		((JComponent) contentPane).setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
@@ -165,9 +188,26 @@ public class UploadDialog extends JDialog implements ActionListener, DocumentLis
 
 	private void uploadDesign() throws StackException {
 		StackFrontend stack = toBeUploaded.addRegistry(registry.getLocation());
+
 		stack.login(username.getText(), new String(password.getPassword()));
+
+		String option;
+		if (prevent.isSelected()) {
+			option = "0";
+		} else if (overwrite.isSelected()) {
+			option = "1";
+		} else if (mergePrevent.isSelected()) {
+			option = "2";
+		} else if (mergeReplace.isSelected()) {
+			// TODO replace with 3 when stack frontend is updated
+			option = "2";
+		} else {
+			// default
+			option = "0";
+		}
+
 		stack.submit(submissionId.getText(), version.getText(), name.getText(), description.getText(),
-				citations.getText(), keywords.getText(), "0", toBeUploaded);
+				citations.getText(), keywords.getText(), option, toBeUploaded);
 	}
 
 	@Override
