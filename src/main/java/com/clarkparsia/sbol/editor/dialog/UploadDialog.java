@@ -62,8 +62,6 @@ public class UploadDialog extends JDialog implements ActionListener, DocumentLis
 	private final JTextField description = new JTextField("");
 	private final JTextField citations = new JTextField("");
 	private final JTextField keywords = new JTextField("");
-	private final JTextField chassis = new JTextField("");
-	private final JTextField purpose = new JTextField("");
 
 	public UploadDialog(final Component parent, Registry registry, SBOLDocument toBeUploaded) {
 		super(JOptionPane.getFrameForComponent(parent), TITLE + title(registry), true);
@@ -127,8 +125,6 @@ public class UploadDialog extends JDialog implements ActionListener, DocumentLis
 		description.getDocument().addDocumentListener(this);
 		citations.getDocument().addDocumentListener(this);
 		keywords.getDocument().addDocumentListener(this);
-		chassis.getDocument().addDocumentListener(this);
-		purpose.getDocument().addDocumentListener(this);
 
 		FormBuilder builder = new FormBuilder();
 		builder.add("Username", username);
@@ -140,8 +136,6 @@ public class UploadDialog extends JDialog implements ActionListener, DocumentLis
 		builder.add("Description", description);
 		builder.add("Citations", citations);
 		builder.add("Keywords", keywords);
-		builder.add("Chassis", chassis);
-		builder.add("Purpose", purpose);
 		JPanel panel = builder.build();
 		panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
 		panel.add(Box.createRigidArea(new Dimension(0, 5)));
@@ -173,7 +167,7 @@ public class UploadDialog extends JDialog implements ActionListener, DocumentLis
 		StackFrontend stack = toBeUploaded.addRegistry(registry.getLocation());
 		stack.login(username.getText(), new String(password.getPassword()));
 		stack.submit(submissionId.getText(), version.getText(), name.getText(), description.getText(),
-				citations.getText(), keywords.getText(), chassis.getText(), purpose.getText(), toBeUploaded);
+				citations.getText(), keywords.getText(), "0", toBeUploaded);
 	}
 
 	@Override
