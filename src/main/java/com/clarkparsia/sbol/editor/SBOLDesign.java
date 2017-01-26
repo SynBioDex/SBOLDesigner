@@ -153,7 +153,7 @@ public class SBOLDesign {
 	};
 
 	public final SBOLEditorAction UPLOAD = new SBOLEditorAction("Upload design",
-			"Upload the current desgin into an SBOL Stack instance", "upload.png") {
+			"Upload the current design into an SBOL Stack instance", "upload.png") {
 		@Override
 		protected void perform() {
 			try {
@@ -1269,7 +1269,7 @@ public class SBOLDesign {
 		}
 		Object[] options = list.toArray();
 		Registry registry = (Registry) JOptionPane.showInputDialog(panel,
-				"Please select the SBOL Stack instance you want to upload the current desgin to.", "Upload",
+				"Please select the SBOL Stack instance you want to upload the current design to.", "Upload",
 				JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
 		if (registry == null) {
 			return;
