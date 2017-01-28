@@ -59,6 +59,8 @@ public class Images {
 				return ImageIO.read(Images.class.getClassLoader().getResourceAsStream("images/" + fileName));
 			}
 		} catch (Exception e) {
+			System.out.println("images/"+fileName);
+			e.printStackTrace();
 		}
 
 		return null;

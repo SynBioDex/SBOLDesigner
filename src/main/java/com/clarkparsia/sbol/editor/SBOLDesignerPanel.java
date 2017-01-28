@@ -339,22 +339,22 @@ public class SBOLDesignerPanel extends JPanel {
 		}
 	}.precondition(CONFIRM_SAVE);
 
-	private final SBOLEditorAction VALIDATE = new SBOLEditorAction("Validate", "Validate the current design",
-			"validate.gif") {
-		@Override
-		protected void perform() {
-			RVTDocumentIO rvtIO = ((RVTDocumentIO) documentIO);
-			SPARQLEndpoint endpoint = rvtIO.getBranch().getEndpoint();
-			try {
-				endpoint.validate(RDFInput.forURL(SBOLUtils.class.getResource("constraints.ttl")),
-						rvtIO.getBranch().getHead().getURI().toString());
-			} catch (Exception e) {
-				JOptionPane.showMessageDialog(null, "There was a problem validating this design: " + e.getMessage());
-				e.printStackTrace();
-			}
-
-		}
-	}.precondition(CONFIRM_SAVE);
+//	private final SBOLEditorAction VALIDATE = new SBOLEditorAction("Validate", "Validate the current design",
+//			"validate.gif") {
+//		@Override
+//		protected void perform() {
+//			RVTDocumentIO rvtIO = ((RVTDocumentIO) documentIO);
+//			SPARQLEndpoint endpoint = rvtIO.getBranch().getEndpoint();
+//			try {
+//				endpoint.validate(RDFInput.forURL(SBOLUtils.class.getResource("constraints.ttl")),
+//						rvtIO.getBranch().getHead().getURI().toString());
+//			} catch (Exception e) {
+//				JOptionPane.showMessageDialog(null, "There was a problem validating this design: " + e.getMessage());
+//				e.printStackTrace();
+//			}
+//
+//		}
+//	}.precondition(CONFIRM_SAVE);
 
 	private final SBOLEditorAction QUERY_VERSION = new SBOLEditorAction("Query", "Query the version repository",
 			"queryVersion.png") {
@@ -400,7 +400,7 @@ public class SBOLDesignerPanel extends JPanel {
 			.add(PREFERENCES).add(SPACER, INFO);
 
 	private final SBOLEditorActions VERSION_ACTIONS = new SBOLEditorActions().add(NEW_VERSION, DIVIDER)
-			.add(CHECKOUT, COMMIT, TAG, VALIDATE, DIVIDER)
+			.add(CHECKOUT, COMMIT, TAG, DIVIDER)
 			.addIf(SBOLEditorPreferences.INSTANCE.isBranchingEnabled(), BRANCH, SWITCH, MERGE, DIVIDER)
 			.add(QUERY_VERSION, HISTORY);
 
