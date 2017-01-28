@@ -35,7 +35,7 @@ public class Registry implements Serializable {
 
 	public static final Registry STACK = new Registry("iGEM SBOL Registry",
 			"An SBOL Stack instance hosted by Newcastle University for storing iGEM registry parts",
-			"http://synbiohub.org:9090");
+			"http://synbiohub.org");
 
 	public Registry(String name, String description, String location) {
 		Preconditions.checkNotNull(name, "Name cannot be null");
