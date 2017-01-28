@@ -1274,8 +1274,8 @@ public class SBOLDesign {
 		if (registry == null) {
 			return;
 		}
-
-		UploadDialog uploadDialog = new UploadDialog(panel.getParent(), registry, createDocument());
+		SBOLDocument uploadDoc = createDocument();
+		UploadDialog uploadDialog = new UploadDialog(panel.getParent(), registry, uploadDoc);
 	}
 
 	public BufferedImage getSnapshot() {
