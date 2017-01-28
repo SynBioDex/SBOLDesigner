@@ -186,7 +186,7 @@ public class UploadDialog extends JDialog implements ActionListener, DocumentLis
 			} catch (StackException e1) {
 				MessageDialog.showMessage(parent, "Uploading failed", Arrays.asList(e1.getMessage().split("\"|,")));
 				toBeUploaded.clearRegistries();
-				e1.printStackTrace();
+				//e1.printStackTrace();
 			}
 		}
 	}
