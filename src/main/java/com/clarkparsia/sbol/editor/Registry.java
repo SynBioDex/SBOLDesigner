@@ -26,23 +26,25 @@ public class Registry implements Serializable {
 	private final String name;
 	private final String description;
 	private final String location;
+	private final String uriPrefix;
 
 	public static final Registry BUILT_IN = new Registry("Built-in parts",
-			"Built-in registry containing all the iGEM parts", "N/A");
+			"Built-in registry containing all the iGEM parts", "N/A", "N/A");
 
 	public static final Registry WORKING_DOCUMENT = new Registry("Working document",
-			"The current file you are working in", "N/A");
+			"The current file you are working in", "N/A", "N/A");
 
 	public static final Registry STACK = new Registry("iGEM SBOL Registry",
 			"An SBOL Stack instance hosted by Newcastle University for storing iGEM registry parts",
-			"http://synbiohub.org");
+			"http://synbiohub.org", "http://synbiohub.org");
 
-	public Registry(String name, String description, String location) {
+	public Registry(String name, String description, String location, String uriPrefix) {
 		Preconditions.checkNotNull(name, "Name cannot be null");
 		Preconditions.checkNotNull(location, "URL/Path cannot be null");
 		this.name = name;
 		this.description = description;
 		this.location = location;
+		this.uriPrefix = uriPrefix;
 	}
 
 	public String getName() {
@@ -57,6 +59,13 @@ public class Registry implements Serializable {
 		return location;
 	}
 
+	/**
+	 * @return the uriPrefix
+	 */
+	public String getUriPrefix() {
+		return uriPrefix;
+	}
+	
 	public boolean isPath() {
 		return !location.startsWith("http://");
 	}

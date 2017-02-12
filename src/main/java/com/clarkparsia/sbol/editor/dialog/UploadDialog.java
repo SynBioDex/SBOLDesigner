@@ -26,10 +26,12 @@ import javax.swing.KeyStroke;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
-import org.sbolstack.frontend.StackException;
-import org.sbolstack.frontend.StackFrontend;
+import org.synbiohub.frontend.SynBioHubException;
+import org.synbiohub.frontend.SynBioHubFrontend;
 import org.sbolstandard.core2.ComponentDefinition;
 import org.sbolstandard.core2.SBOLDocument;
+import org.sbolstandard.core2.SBOLValidationException;
+import org.sbolstandard.core2.TopLevel;
 
 import com.clarkparsia.sbol.CharSequences;
 import com.clarkparsia.sbol.editor.Registry;
@@ -78,6 +80,19 @@ public class UploadDialog extends JDialog implements ActionListener, DocumentLis
 		this.parent = parent;
 		this.registry = registry;
 		this.toBeUploaded = toBeUploaded;
+		
+		// Remove objects that should already be found in this registry
+		for (TopLevel topLevel : this.toBeUploaded.getTopLevels()) {
+			if (topLevel.getIdentity().toString().startsWith(registry.getUriPrefix())) {
+				try {
+					this.toBeUploaded.removeTopLevel(topLevel);
+				}
+				catch (SBOLValidationException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		}
 
 		// set default values
 		PersonInfo info = SBOLEditorPreferences.INSTANCE.getUserInfo();
@@ -183,7 +198,7 @@ public class UploadDialog extends JDialog implements ActionListener, DocumentLis
 				JOptionPane.showMessageDialog(parent, "Upload successful!");
 				setVisible(false);
 				return;
-			} catch (StackException e1) {
+			} catch (SynBioHubException e1) {
 				MessageDialog.showMessage(parent, "Uploading failed", Arrays.asList(e1.getMessage().split("\"|,")));
 				toBeUploaded.clearRegistries();
 				//e1.printStackTrace();
@@ -191,8 +206,8 @@ public class UploadDialog extends JDialog implements ActionListener, DocumentLis
 		}
 	}
 
-	private void uploadDesign() throws StackException {
-		StackFrontend stack = toBeUploaded.addRegistry(registry.getLocation());
+	private void uploadDesign() throws SynBioHubException {
+		SynBioHubFrontend stack = toBeUploaded.addRegistry(registry.getLocation(),registry.getUriPrefix());
 
 		stack.login(username.getText(), new String(password.getPassword()));
 

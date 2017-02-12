@@ -53,12 +53,13 @@ public class Registries implements Iterable<Registry> {
 			String name = child.get("name", null);
 			String desc = child.get("description", null);
 			String location = child.get("location", null);
+			String uriPrefix = child.get("uriPrefix", null);
 			try {
 				// if (url.startsWith("jar:") || url.startsWith("file:")) {
 				// registries.add(Registry.BUILT_IN);
 				// }
 				// else {
-				registries.add(new Registry(name, desc, location));
+				registries.add(new Registry(name, desc, location, uriPrefix));
 				// }
 			} catch (Exception e) {
 				// e.printStackTrace();
@@ -114,6 +115,7 @@ public class Registries implements Iterable<Registry> {
 			child.put("name", registry.getName());
 			child.put("description", registry.getDescription());
 			child.put("location", registry.getLocation());
+			child.put("uriPrefix", registry.getUriPrefix());
 		}
 	}
 

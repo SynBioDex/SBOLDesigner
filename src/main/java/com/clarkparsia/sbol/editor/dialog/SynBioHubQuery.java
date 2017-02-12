@@ -11,15 +11,15 @@ import java.util.Set;
 import javax.swing.JOptionPane;
 import javax.swing.SwingWorker;
 
-import org.sbolstack.frontend.IdentifiedMetadata;
-import org.sbolstack.frontend.StackException;
-import org.sbolstack.frontend.StackFrontend;
+import org.synbiohub.frontend.IdentifiedMetadata;
+import org.synbiohub.frontend.SynBioHubException;
+import org.synbiohub.frontend.SynBioHubFrontend;
 
 import com.clarkparsia.sbol.editor.dialog.RegistryInputDialog.TableUpdater;
 
-public class SBOLStackQuery extends SwingWorker<Object, Object> {
+public class SynBioHubQuery extends SwingWorker<Object, Object> {
 
-	StackFrontend stack;
+	SynBioHubFrontend synBioHub;
 	Set<URI> roles;
 	Set<URI> types;
 	Set<URI> collections;
@@ -27,9 +27,9 @@ public class SBOLStackQuery extends SwingWorker<Object, Object> {
 	ArrayList<TableMetadata> identified;
 	LoadingDialog loading;
 
-	public SBOLStackQuery(StackFrontend stack, Set<URI> roles, Set<URI> types, Set<URI> collections,
+	public SynBioHubQuery(SynBioHubFrontend stack, Set<URI> roles, Set<URI> types, Set<URI> collections,
 			TableUpdater tableUpdater, Component parent) throws IOException {
-		this.stack = stack;
+		this.synBioHub = stack;
 		this.roles = roles;
 		this.types = types;
 		for (URI uri : collections) {
@@ -50,12 +50,12 @@ public class SBOLStackQuery extends SwingWorker<Object, Object> {
 		loading.start();
 		// fetch collections
 		if (collections.isEmpty()) {
-			identified.addAll(getTableMetadata(stack.searchRootCollectionMetadata(), null));
+			identified.addAll(getTableMetadata(synBioHub.getRootCollectionMetadata(), null));
 		} else {
 			for (URI collection : collections) {
 				try {
-					identified.addAll(getTableMetadata(stack.searchSubCollectionMetadata(collection), null));
-				} catch (StackException e1) {
+					identified.addAll(getTableMetadata(synBioHub.getSubCollectionMetadata(collection), null));
+				} catch (SynBioHubException e1) {
 					JOptionPane.showMessageDialog(null, "There was a problem fetching collections: " + e1.getMessage());
 					e1.printStackTrace();
 				}
@@ -63,7 +63,7 @@ public class SBOLStackQuery extends SwingWorker<Object, Object> {
 		}
 		// fetch parts
 		identified.addAll(getTableMetadata(null,
-				stack.searchComponentDefinitionMetadata(null, roles, types, collections, null, null)));
+				synBioHub.getMatchingComponentDefinitionMetadata(null, roles, types, collections, null, null)));
 		return identified;
 	}
 

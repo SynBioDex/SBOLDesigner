@@ -68,7 +68,7 @@ import javax.swing.KeyStroke;
 import javax.swing.SwingConstants;
 
 import org.apache.commons.httpclient.URIException;
-import org.sbolstack.frontend.StackException;
+import org.synbiohub.frontend.SynBioHubException;
 import org.sbolstandard.core2.AccessType;
 import org.sbolstandard.core2.ComponentDefinition;
 import org.sbolstandard.core2.Cut;
@@ -158,7 +158,7 @@ public class SBOLDesign {
 		protected void perform() {
 			try {
 				uploadDesign();
-			} catch (SBOLValidationException | StackException | URIException e) {
+			} catch (SBOLValidationException | SynBioHubException | URIException e) {
 				JOptionPane.showMessageDialog(panel, "There was a problem uploading the design: " + e.getMessage());
 				e.printStackTrace();
 			}
@@ -1260,7 +1260,7 @@ public class SBOLDesign {
 		}
 	}
 
-	public void uploadDesign() throws StackException, SBOLValidationException, URIException {
+	public void uploadDesign() throws SynBioHubException, SBOLValidationException, URIException {
 		ArrayList<Registry> list = new ArrayList<Registry>();
 		for (Registry r : Registries.get()) {
 			if (r.getLocation().startsWith("http://")) {

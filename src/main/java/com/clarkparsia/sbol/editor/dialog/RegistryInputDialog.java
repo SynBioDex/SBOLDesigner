@@ -46,8 +46,8 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 
-import org.sbolstack.frontend.IdentifiedMetadata;
-import org.sbolstack.frontend.StackFrontend;
+import org.synbiohub.frontend.IdentifiedMetadata;
+import org.synbiohub.frontend.SynBioHubFrontend;
 import org.sbolstandard.core2.ComponentDefinition;
 import org.sbolstandard.core2.SBOLDocument;
 import org.sbolstandard.core2.SBOLReader;
@@ -142,7 +142,7 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 
 	private JCheckBox importSubparts;
 
-	private static StackFrontend stack;
+	private static SynBioHubFrontend synBioHub;
 	private SBOLDocument design;
 
 	public RegistryInputDialog(final Component parent, final Part part, Types type, URI role, SBOLDocument design) {
@@ -168,8 +168,10 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 			JOptionPane.showMessageDialog(this,
 					"No parts registries are defined.\nPlease click 'Options' and add a parts registry.");
 			location = null;
+			uriPrefix = null;
 		} else {
 			location = registries.get(selectedRegistry).getLocation();
+			uriPrefix = registries.get(selectedRegistry).getUriPrefix();
 		}
 	}
 
@@ -279,7 +281,7 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 		}
 
 		if (isMetadata()) {
-			searchParts(isRoleSelection() ? part : null, stack);
+			searchParts(isRoleSelection() ? part : null, synBioHub);
 			TableMetadataTableModel tableModel = new TableMetadataTableModel(new ArrayList<TableMetadata>());
 			panel = createTablePanel(tableModel, "Matching parts (" + tableModel.getRowCount() + ")");
 		} else {
@@ -352,13 +354,13 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 	/**
 	 * Queries the stack provided for CDs matching the role(s) of the part
 	 */
-	private void searchParts(Part part, StackFrontend stack) {
+	private void searchParts(Part part, SynBioHubFrontend stack) {
 		try {
 			if (!isMetadata()) {
 				throw new Exception("Incorrect state.  url is a path");
 			}
 			if (stack == null) {
-				stack = new StackFrontend(location);
+				stack = new SynBioHubFrontend(location,uriPrefix);
 			}
 			if (part != null) {
 				// create the query
@@ -369,7 +371,7 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 				Set<URI> setCollections = new HashSet<URI>(Arrays.asList(URI.create(selectedCollection.getUri())));
 				Set<URI> setRoles = new HashSet<URI>(part.getRoles());
 				Set<URI> setTypes = SBOLUtils.convertTypesToSet((Types) typeSelection.getSelectedItem());
-				SBOLStackQuery query = new SBOLStackQuery(stack, setRoles, setTypes, setCollections, new TableUpdater(),
+				SynBioHubQuery query = new SynBioHubQuery(stack, setRoles, setTypes, setCollections, new TableUpdater(),
 						this);
 				// non-blocking: will update using the TableUpdater
 				query.execute();
@@ -387,18 +389,20 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 	@Override
 	protected SBOLDocument getSelection() {
 		try {
-			ComponentDefinition comp;
+			SBOLDocument document = null;
+			ComponentDefinition comp = null;
 			int row = table.convertRowIndexToModel(table.getSelectedRow());
 
 			if (isMetadata()) {
 				TableMetadata compMeta = ((TableMetadataTableModel) table.getModel()).getElement(row);
-				if (stack == null) {
-					stack = new StackFrontend(location);
+				if (synBioHub == null) {
+					synBioHub = new SynBioHubFrontend(location,uriPrefix);
 				}
 				if (compMeta.isCollection) {
 					return new SBOLDocument();
 				}
-				comp = stack.fetchComponentDefinition(URI.create(compMeta.identified.getUri()));
+				document = synBioHub.getSBOL(URI.create(compMeta.identified.getUri()));
+				comp = document.getComponentDefinition(URI.create(compMeta.identified.getUri()));
 			} else {
 				comp = ((ComponentDefinitionTableModel) table.getModel()).getElement(row);
 			}
@@ -406,6 +410,7 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 			SBOLDocument doc = new SBOLDocument();
 			if (!importSubparts.isSelected()) {
 				// remove all dependencies
+				// TODO: this looks problematic.  Maybe we should remove this option.
 				comp.clearSequenceConstraints();
 				comp.clearSequenceAnnotations();
 				comp.clearComponents();
@@ -414,6 +419,8 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 					doc.createCopy(comp.getSequenceByEncoding(Sequence.IUPAC_DNA));
 				}
 			} else {
+				// TODO: could change to copy document, but not sure about the isMetaData check.  I guess in
+				// this case, we would need to still do the recursive copy.  Leaving this as is for now.
 				doc = doc.createRecursiveCopy(comp);
 			}
 			return doc;
@@ -427,7 +434,7 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 	@Override
 	protected void registryChanged() {
 		if (isMetadata()) {
-			stack = new StackFrontend(location);
+			synBioHub = new SynBioHubFrontend(location,uriPrefix);
 		}
 		updateCollectionSelection(true, null);
 		updateTable();
@@ -440,8 +447,8 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 			collectionSelection.addActionListener(collectionSelectionListener);
 			return;
 		}
-		if (stack == null) {
-			stack = new StackFrontend(location);
+		if (synBioHub == null) {
+			synBioHub = new SynBioHubFrontend(location,uriPrefix);
 		}
 
 		if (registryChanged) {
@@ -491,7 +498,7 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 		}
 
 		if (isMetadata()) {
-			searchParts(part, stack);
+			searchParts(part, synBioHub);
 		} else {
 			List<ComponentDefinition> components = searchParts(part);
 			components = SBOLUtils.getCDOfType(components, (Types) typeSelection.getSelectedItem());

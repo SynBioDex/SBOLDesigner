@@ -1,6 +1,6 @@
 package com.clarkparsia.sbol.editor.dialog;
 
-import org.sbolstack.frontend.IdentifiedMetadata;
+import org.synbiohub.frontend.IdentifiedMetadata;
 
 /**
  * A wrapper for IdentifiedMetadata that also knows if it's a collection

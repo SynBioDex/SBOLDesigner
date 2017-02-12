@@ -51,6 +51,8 @@ public abstract class InputDialog<T> extends JDialog {
 	 */
 	protected String location;
 
+	protected String uriPrefix;
+
 	protected FormBuilder builder = new FormBuilder();
 
 	protected boolean canceled = true;
@@ -232,6 +234,7 @@ public abstract class InputDialog<T> extends JDialog {
 				final Registry registry = (Registry) registrySelection.getSelectedItem();
 				if (registry == null) {
 					location = null;
+					location = null;
 				} else {
 					int selectedIndex = registrySelection.getSelectedIndex();
 					// if (registryType != RegistryType.PART) {
@@ -240,6 +243,7 @@ public abstract class InputDialog<T> extends JDialog {
 					Registries.get().setVersionRegistryIndex(selectedIndex);
 					// }
 					location = registry.getLocation();
+					uriPrefix = registry.getUriPrefix();
 				}
 				SwingUtilities.invokeLater(new Runnable() {
 					@Override

@@ -42,6 +42,7 @@ import com.google.common.base.Strings;
 public class RegistryAddDialog extends InputDialog<Registry> {
 	private JTextField nameField;
 	private JTextField locationField;
+	private JTextField uriPrefixField;
 	private JTextComponent description;
 	private Registry oldRegistry = null;
 
@@ -57,14 +58,17 @@ public class RegistryAddDialog extends InputDialog<Registry> {
 	protected void initFormPanel(FormBuilder builder) {
 		String oldName = "";
 		String oldLocation = "";
+		String oldUriPrefix = "";
 		String oldDescription = "";
 		if (oldRegistry != null) {
 			oldName = oldRegistry.getName();
 			oldLocation = oldRegistry.getLocation();
+			oldUriPrefix = oldRegistry.getUriPrefix();
 			oldDescription = oldRegistry.getDescription();
 		}
 		nameField = builder.addTextField("Name", oldName);
 		locationField = builder.addTextField("URL or Path", oldLocation);
+		uriPrefixField = builder.addTextField("URI Prefix", oldUriPrefix);
 		description = builder.addTextField("Description", oldDescription);
 		JButton browse = new JButton("Browse local repositories (This can be any SBOL file)");
 		browse.addActionListener(new ActionListener() {
@@ -104,7 +108,8 @@ public class RegistryAddDialog extends InputDialog<Registry> {
 	@Override
 	protected Registry getSelection() {
 		if (validateInput()) {
-			return new Registry(nameField.getText(), description.getText(), locationField.getText());
+			return new Registry(nameField.getText(), description.getText(), locationField.getText(),
+					uriPrefixField.getText());
 		}
 		return null;
 	}
