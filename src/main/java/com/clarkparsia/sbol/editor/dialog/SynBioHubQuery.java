@@ -63,7 +63,7 @@ public class SynBioHubQuery extends SwingWorker<Object, Object> {
 		}
 		// fetch parts
 		identified.addAll(getTableMetadata(null,
-				synBioHub.getMatchingComponentDefinitionMetadata(null, roles, types, collections, null, null)));
+				synBioHub.getMatchingComponentDefinitionMetadata(null, roles, types, collections, 0, 10000)));
 		return identified;
 	}
 
