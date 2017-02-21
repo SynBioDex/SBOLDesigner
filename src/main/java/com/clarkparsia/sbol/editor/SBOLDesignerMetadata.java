@@ -57,6 +57,6 @@ public class SBOLDesignerMetadata {
 		// }
 		// }
 
-		return versionProperties.getProperty("plugin-version", "2.0");
+		return versionProperties.getProperty("plugin-version", "2");
 	}
 }
