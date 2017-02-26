@@ -48,26 +48,6 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Maps;
 
-/**
- * Being used:
- * 
- * SBOLUtils.getRootComponent(doc)
- * 
- * SBOLUtils.rename(comp)
- * 
- * SBOLUtils.createSequence(seq)
- * 
- * SBOLUtils.isRegistryComponent(comp)
- * 
- * SBOLUtils.createURI()
- * 
- * SBOLUtils.findUncoveredSequences(currentComponent, Lists.transform(elements,
- * new Function<DesignElement, SequenceAnnotation>() {
- * 
- * @Override public SequenceAnnotation apply(DesignElement e) { return
- *           e.getAnnotation(); } }))
- */
-
 public class SBOLUtils {
 	/**
 	 * Returns an int which guarantees a unique URI. Pass in the parent CD (if
@@ -259,14 +239,6 @@ public class SBOLUtils {
 		return new File(path);
 	}
 
-	// public static URI createURI() {
-	// return URI.create("http://" + UUID.randomUUID());
-	// }
-
-	// public static URI createURI(String uri) {
-	// return uri == null || uri.length() == 0 ? createURI() : URI.create(uri);
-	// }
-
 	private static String getNucleotides(ComponentDefinition comp) {
 		// Sequence seq = comp.getSequence();
 		Sequence seq = null;
@@ -276,27 +248,10 @@ public class SBOLUtils {
 		return (seq == null) ? null : seq.getElements();
 	}
 
-	// public static SBOLDocument createdDocument(ComponentDefinition comp) {
-	// SBOLDocument doc = SBOLFactory.createDocument();
-	// doc.addContent(comp);
-	// return doc;
-	// }
-
 	public static ComponentDefinition getRootCD(SBOLDocument doc) {
-		// return
-		// Iterators.getOnlyElement(Iterators.filter(doc.getContents().iterator(),
-		// ComponentDefinition.class), null);
 		return Iterators.getOnlyElement(
 				Iterators.filter(doc.getRootComponentDefinitions().iterator(), ComponentDefinition.class), null);
 	}
-
-	// public static Iterator<ComponentDefinition>
-	// getRootComponentDefinitions(SBOLDocument doc) {
-	// // return Iterators.filter(doc.getContents().iterator(),
-	// // ComponentDefinition.class);
-	// return Iterators.filter(doc.getRootComponentDefinitions().iterator(),
-	// ComponentDefinition.class);
-	// }
 
 	/**
 	 * Pass in the nucleotides and the SBOLDocument you want to create the
@@ -522,19 +477,4 @@ public class SBOLUtils {
 		}
 		return v;
 	}
-
-	// public static BufferedImage getImage(ComponentDefinition comp) {
-	// SBOLEditor editor = new SBOLEditor(false);
-	// SBOLDesign design = editor.getDesign();
-	// SBOLDocument doc = new SBOLDocument();
-	// doc.addContent(comp);
-	// design.load(doc);
-	//
-	// JPanel panel = design.getPanel();
-	// panel.addNotify();
-	// panel.setSize(panel.getPreferredSize());
-	// panel.validate();
-	//
-	// return design.getSnapshot();
-	// }
 }
