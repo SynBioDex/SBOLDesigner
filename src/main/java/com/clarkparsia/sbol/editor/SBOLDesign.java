@@ -510,68 +510,53 @@ public class SBOLDesign {
 			return false;
 		}
 
-		// if (readOnly.contains(ReadOnly.MISSING_START_END)) {
-		// int result = JOptionPane.showConfirmDialog(panel,
-		// "The component '" + canvasCD.getDisplayId() + "' has a DNA sequence
-		// but the\n"
-		// + "subcomponents don't have start or end\n"
-		// + "coordinates. If you edit the design you will\n" + "lose the DNA
-		// sequence.\n\n"
-		// + "Do you want to continue with editing?",
-		// "Uncovered sequence", JOptionPane.YES_NO_OPTION,
-		// JOptionPane.QUESTION_MESSAGE);
-		//
-		// if (result == JOptionPane.NO_OPTION) {
-		// return false;
-		// }
-		// readOnly.remove(ReadOnly.REGISTRY_COMPONENT);
-		// } else if (readOnly.contains(ReadOnly.UNCOVERED_SEQUENCE)) {
-		// String msg = "The sub components do not cover the DNA sequence\n" +
-		// "of the component '"
-		// + canvasCD.getDisplayId() + "' completely.\n"
-		// + "You need to add SCAR components to cover the missing\n"
-		// + "parts or you will lose the uncovered DNA sequence.\n\n" + "How do
-		// you want to continue?";
-		//
-		// JRadioButton[] buttons = { new JRadioButton("Add SCAR Parts to handle
-		// uncovered sequences"),
-		// new JRadioButton("Continue with editing and lose the root DNA
-		// sequence"),
-		// new JRadioButton("Cancel the operation and do not edit the
-		// component") };
-		//
-		// JTextArea textArea = new JTextArea(msg);
-		// textArea.setEditable(false);
-		// textArea.setLineWrap(true);
-		// textArea.setOpaque(false);
-		// textArea.setBorder(BorderFactory.createEmptyBorder());
-		// textArea.setAlignmentX(Component.LEFT_ALIGNMENT);
-		//
-		// Box box = Box.createVerticalBox();
-		// box.add(textArea);
-		//
-		// ButtonGroup group = new ButtonGroup();
-		// for (JRadioButton button : buttons) {
-		// button.setSelected(true);
-		// button.setAlignmentX(Component.LEFT_ALIGNMENT);
-		// group.add(button);
-		// box.add(button);
-		// }
-		//
-		// int result = JOptionPane.showConfirmDialog(panel, box, "Uncovered
-		// sequence", JOptionPane.OK_CANCEL_OPTION,
-		// JOptionPane.QUESTION_MESSAGE);
-		//
-		// if (result == JOptionPane.CANCEL_OPTION || buttons[2].isSelected()) {
-		// return false;
-		// }
-		//
-		// readOnly.remove(ReadOnly.UNCOVERED_SEQUENCE);
-		//
-		// if (buttons[0].isSelected()) {
-		// addScarsForUncoveredSequences();
-		// }
-		// }
+		/*
+		 * if (readOnly.contains(ReadOnly.MISSING_START_END)) { int result =
+		 * JOptionPane.showConfirmDialog(panel, "The component '" +
+		 * canvasCD.getDisplayId() + "' has a DNA sequence but the\n" +
+		 * "subcomponents don't have start or end\n" +
+		 * "coordinates. If you edit the design you will\n" +
+		 * "lose the DNA sequence.\n\n" +
+		 * "Do you want to continue with editing?", "Uncovered sequence",
+		 * JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+		 * 
+		 * if (result == JOptionPane.NO_OPTION) { return false; }
+		 * readOnly.remove(ReadOnly.REGISTRY_COMPONENT); } else if
+		 * (readOnly.contains(ReadOnly.UNCOVERED_SEQUENCE)) { String msg =
+		 * "The sub components do not cover the DNA sequence\n" +
+		 * "of the component '" + canvasCD.getDisplayId() + "' completely.\n" +
+		 * "You need to add SCAR components to cover the missing\n" +
+		 * "parts or you will lose the uncovered DNA sequence.\n\n" +
+		 * "How do you want to continue?";
+		 * 
+		 * JRadioButton[] buttons = { new JRadioButton(
+		 * "Add SCAR Parts to handle uncovered sequences"), new JRadioButton(
+		 * "Continue with editing and lose the root DNA sequence"), new
+		 * JRadioButton("Cancel the operation and do not edit the component") };
+		 * 
+		 * JTextArea textArea = new JTextArea(msg); textArea.setEditable(false);
+		 * textArea.setLineWrap(true); textArea.setOpaque(false);
+		 * textArea.setBorder(BorderFactory.createEmptyBorder());
+		 * textArea.setAlignmentX(Component.LEFT_ALIGNMENT);
+		 * 
+		 * Box box = Box.createVerticalBox(); box.add(textArea);
+		 * 
+		 * ButtonGroup group = new ButtonGroup(); for (JRadioButton button :
+		 * buttons) { button.setSelected(true);
+		 * button.setAlignmentX(Component.LEFT_ALIGNMENT); group.add(button);
+		 * box.add(button); }
+		 * 
+		 * int result = JOptionPane.showConfirmDialog(panel, box,
+		 * "Uncovered sequence", JOptionPane.OK_CANCEL_OPTION,
+		 * JOptionPane.QUESTION_MESSAGE);
+		 * 
+		 * if (result == JOptionPane.CANCEL_OPTION || buttons[2].isSelected()) {
+		 * return false; }
+		 * 
+		 * readOnly.remove(ReadOnly.UNCOVERED_SEQUENCE);
+		 * 
+		 * if (buttons[0].isSelected()) { addScarsForUncoveredSequences(); } }
+		 */
 
 		return true;
 	}
