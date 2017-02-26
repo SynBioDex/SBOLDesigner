@@ -68,7 +68,8 @@ public enum UserInfoTab implements PreferencesTab {
 		name = builder.addTextField("Full name", info == null ? null : info.getName());
 		email = builder.addTextField("Email",
 				info == null || info.getEmail() == null ? null : info.getEmail().getLocalName());
-		uri = builder.addTextField("URI [mandatory]", info == null ? null : info.getURI().stringValue());
+		uri = builder.addTextField("Personal/unique namespace [mandatory]",
+				info == null ? null : info.getURI().stringValue());
 		JPanel formPanel = builder.build();
 
 		JButton deleteInfo = new JButton("Delete user info");
