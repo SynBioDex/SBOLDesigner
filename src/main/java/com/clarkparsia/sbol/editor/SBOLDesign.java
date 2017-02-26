@@ -1267,6 +1267,7 @@ public class SBOLDesign {
 				list.add(r);
 			}
 		}
+
 		Object[] options = list.toArray();
 		Registry registry = (Registry) JOptionPane.showInputDialog(panel,
 				"Please select the SynBioHub instance you want to upload the current design to.", "Upload",
@@ -1274,7 +1275,19 @@ public class SBOLDesign {
 		if (registry == null) {
 			return;
 		}
+
 		SBOLDocument uploadDoc = createDocument();
+
+		// if UnnamedPart still, remind user to rename
+		if (uploadDoc.getRootComponentDefinitions().iterator().next().getDisplayId().equals("UnnamedPart")) {
+			int cancel = JOptionPane.showOptionDialog(panel,
+					"The root part is still called \"UnnamedPart\".  Would you like to cancel and rename this part?",
+					null, JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, null, null);
+			if (cancel == JOptionPane.YES_OPTION) {
+				return;
+			}
+		}
+
 		UploadDialog uploadDialog = new UploadDialog(panel.getParent(), registry, uploadDoc);
 	}
 
