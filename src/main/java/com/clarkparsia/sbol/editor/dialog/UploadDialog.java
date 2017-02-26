@@ -80,14 +80,13 @@ public class UploadDialog extends JDialog implements ActionListener, DocumentLis
 		this.parent = parent;
 		this.registry = registry;
 		this.toBeUploaded = toBeUploaded;
-		
+
 		// Remove objects that should already be found in this registry
 		for (TopLevel topLevel : this.toBeUploaded.getTopLevels()) {
 			if (topLevel.getIdentity().toString().startsWith(registry.getUriPrefix())) {
 				try {
 					this.toBeUploaded.removeTopLevel(topLevel);
-				}
-				catch (SBOLValidationException e) {
+				} catch (SBOLValidationException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
@@ -126,8 +125,8 @@ public class UploadDialog extends JDialog implements ActionListener, DocumentLis
 		options.add(mergeReplace);
 		prevent.setSelected(true);
 		JPanel optionPanel = new JPanel(new BorderLayout());
-		optionPanel.add(optionPanel1,"North");
-		optionPanel.add(optionPanel2,"South");
+		optionPanel.add(optionPanel1, "North");
+		optionPanel.add(optionPanel2, "South");
 
 		cancelButton.registerKeyboardAction(this, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0),
 				JComponent.WHEN_IN_FOCUSED_WINDOW);
@@ -169,19 +168,17 @@ public class UploadDialog extends JDialog implements ActionListener, DocumentLis
 		keywords.getDocument().addDocumentListener(this);
 
 		FormBuilder builder = new FormBuilder();
-		builder.add("Username", username);
-		builder.add("Password", password);
+		builder.add("Username *", username);
+		builder.add("Password *", password);
 		builder.add("", new JLabel(" "));
-		builder.add("Submission ID", submissionId);
-		builder.add("Version", version);
-		builder.add("Name", name);
-		builder.add("Description", description);
+		builder.add("Submission ID *", submissionId);
+		builder.add("Version *", version);
+		builder.add("Name *", name);
+		builder.add("Description *", description);
 		builder.add("Citations", citations);
 		builder.add("Keywords", keywords);
 		JPanel panel = builder.build();
 		panel.setAlignmentX(LEFT_ALIGNMENT);
-		//panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
-		//panel.add(Box.createRigidArea(new Dimension(0, 5)));
 		return panel;
 	}
 
@@ -201,13 +198,12 @@ public class UploadDialog extends JDialog implements ActionListener, DocumentLis
 			} catch (SynBioHubException e1) {
 				MessageDialog.showMessage(parent, "Uploading failed", Arrays.asList(e1.getMessage().split("\"|,")));
 				toBeUploaded.clearRegistries();
-				//e1.printStackTrace();
 			}
 		}
 	}
 
 	private void uploadDesign() throws SynBioHubException {
-		SynBioHubFrontend stack = toBeUploaded.addRegistry(registry.getLocation(),registry.getUriPrefix());
+		SynBioHubFrontend stack = toBeUploaded.addRegistry(registry.getLocation(), registry.getUriPrefix());
 
 		stack.login(username.getText(), new String(password.getPassword()));
 
@@ -232,17 +228,24 @@ public class UploadDialog extends JDialog implements ActionListener, DocumentLis
 
 	@Override
 	public void insertUpdate(DocumentEvent e) {
-		uploadButton.setEnabled(true);
+		enableUpload();
 	}
 
 	@Override
 	public void removeUpdate(DocumentEvent e) {
-		uploadButton.setEnabled(true);
+		enableUpload();
 	}
 
 	@Override
 	public void changedUpdate(DocumentEvent e) {
-		uploadButton.setEnabled(true);
+		enableUpload();
+	}
+
+	private void enableUpload() {
+		boolean shouldEnable = !submissionId.getText().equals("") && !version.getText().equals("")
+				&& !name.getText().equals("") && !description.getText().equals("") && !username.getText().equals("")
+				&& !password.getPassword().equals("");
+		uploadButton.setEnabled(shouldEnable);
 	}
 
 }
