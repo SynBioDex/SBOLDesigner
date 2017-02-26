@@ -339,22 +339,24 @@ public class SBOLDesignerPanel extends JPanel {
 		}
 	}.precondition(CONFIRM_SAVE);
 
-//	private final SBOLEditorAction VALIDATE = new SBOLEditorAction("Validate", "Validate the current design",
-//			"validate.gif") {
-//		@Override
-//		protected void perform() {
-//			RVTDocumentIO rvtIO = ((RVTDocumentIO) documentIO);
-//			SPARQLEndpoint endpoint = rvtIO.getBranch().getEndpoint();
-//			try {
-//				endpoint.validate(RDFInput.forURL(SBOLUtils.class.getResource("constraints.ttl")),
-//						rvtIO.getBranch().getHead().getURI().toString());
-//			} catch (Exception e) {
-//				JOptionPane.showMessageDialog(null, "There was a problem validating this design: " + e.getMessage());
-//				e.printStackTrace();
-//			}
-//
-//		}
-//	}.precondition(CONFIRM_SAVE);
+	// private final SBOLEditorAction VALIDATE = new
+	// SBOLEditorAction("Validate", "Validate the current design",
+	// "validate.gif") {
+	// @Override
+	// protected void perform() {
+	// RVTDocumentIO rvtIO = ((RVTDocumentIO) documentIO);
+	// SPARQLEndpoint endpoint = rvtIO.getBranch().getEndpoint();
+	// try {
+	// endpoint.validate(RDFInput.forURL(SBOLUtils.class.getResource("constraints.ttl")),
+	// rvtIO.getBranch().getHead().getURI().toString());
+	// } catch (Exception e) {
+	// JOptionPane.showMessageDialog(null, "There was a problem validating this
+	// design: " + e.getMessage());
+	// e.printStackTrace();
+	// }
+	//
+	// }
+	// }.precondition(CONFIRM_SAVE);
 
 	private final SBOLEditorAction QUERY_VERSION = new SBOLEditorAction("Query", "Query the version repository",
 			"queryVersion.png") {
@@ -393,7 +395,7 @@ public class SBOLDesignerPanel extends JPanel {
 	}
 
 	SBOLEditorActions TOOLBAR_ACTIONS = new SBOLEditorActions()
-			.add(NEW_PART, OPEN_PART, NEW_DOCUMENT, OPEN_DOCUMENT, SAVE, EXPORT, DIVIDER)
+			.add(NEW_DOCUMENT, OPEN_DOCUMENT, NEW_PART, OPEN_PART, SAVE, EXPORT, DIVIDER)
 			.addIf(SBOLEditorPreferences.INSTANCE.isVersioningEnabled(), VERSION, DIVIDER)
 			.add(design.EDIT_CANVAS, design.EDIT, design.FIND, design.UPLOAD, design.DELETE, design.FLIP, DIVIDER)
 			.add(design.HIDE_SCARS, design.ADD_SCARS, DIVIDER).add(design.FOCUS_IN, design.FOCUS_OUT, DIVIDER, SNAPSHOT)

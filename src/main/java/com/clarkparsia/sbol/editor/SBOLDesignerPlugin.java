@@ -58,12 +58,7 @@ import com.clarkparsia.versioning.PersonInfo;
  */
 public class SBOLDesignerPlugin extends SBOLDesignerPanel {
 
-	SBOLEditorActions TOOLBAR_ACTIONS = new SBOLEditorActions()// .add(NEW,
-																// OPEN,
-																// SAVE,
-																// DIVIDER)
-			// .addIf(SBOLEditorPreferences.INSTANCE.isVersioningEnabled(),
-			// VERSION, DIVIDER)
+	SBOLEditorActions TOOLBAR_ACTIONS = new SBOLEditorActions()
 			.add(design.EDIT_CANVAS, design.EDIT, design.FIND, design.UPLOAD, design.DELETE, design.FLIP, DIVIDER)
 			.add(design.HIDE_SCARS, design.ADD_SCARS, DIVIDER).add(design.FOCUS_IN, design.FOCUS_OUT, DIVIDER, SNAPSHOT)
 			.add(PREFERENCES).add(SPACER, INFO);
@@ -86,7 +81,8 @@ public class SBOLDesignerPlugin extends SBOLDesignerPanel {
 	}
 
 	public String getRootDisplayId() {
-		if (design==null || design.getRootCD()==null) return null;
+		if (design == null || design.getRootCD() == null)
+			return null;
 		return design.getRootCD().getDisplayId();
 	}
 
@@ -120,7 +116,7 @@ public class SBOLDesignerPlugin extends SBOLDesignerPanel {
 		Preferences.userRoot().node("path").put("path", file.getPath());
 		openDocument(new FileDocumentIO(false));
 	}
-	
+
 	private void saveURIprefix() {
 		PersonInfo oldUserInfo = SBOLEditorPreferences.INSTANCE.getUserInfo();
 		PersonInfo userInfo = Infos.forPerson(URIprefix, oldUserInfo.getName(), oldUserInfo.getEmail().toString());
@@ -209,21 +205,24 @@ public class SBOLDesignerPlugin extends SBOLDesignerPanel {
 		return true;
 	}
 
-	public void exportSBOL(String exportFileName,String fileType)
+	public void exportSBOL(String exportFileName, String fileType)
 			throws FileNotFoundException, SBOLConversionException, IOException, SBOLValidationException {
-//		String[] formats = { "SBOL 2.0", "SBOL 1.1", "GenBank", "FASTA", "Cancel" };
-//		int format = JOptionPane.showOptionDialog(this, "Please select an export format", "Export",
-//				JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, formats, "SBOL 2.0");
-//		if (format == JOptionPane.CLOSED_OPTION) {
-//			return;
-//		}
+		// String[] formats = { "SBOL 2.0", "SBOL 1.1", "GenBank", "FASTA",
+		// "Cancel" };
+		// int format = JOptionPane.showOptionDialog(this, "Please select an
+		// export format", "Export",
+		// JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null,
+		// formats, "SBOL 2.0");
+		// if (format == JOptionPane.CLOSED_OPTION) {
+		// return;
+		// }
 		File file = new File(exportFileName);
 		Preferences.userRoot().node("path").put("path", file.getPath());
 		String fileName = file.getName();
 		SBOLDocument doc = editor.getDesign().createDocument();
 		switch (fileType) {
-//		case JOptionPane.CLOSED_OPTION:
-//			break;
+		// case JOptionPane.CLOSED_OPTION:
+		// break;
 		case "SBOL":
 			// SBOL 2.0
 			if (!fileName.contains(".")) {
@@ -254,7 +253,7 @@ public class SBOLDesignerPlugin extends SBOLDesignerPanel {
 			break;
 		}
 	}
-	
+
 	@EventHandler
 	public void designChanged(DesignChangedEvent e) {
 		updateEnabledButtons(true);
