@@ -21,6 +21,7 @@ import java.awt.event.ActionListener;
 import java.io.File;
 
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 import javax.swing.text.JTextComponent;
@@ -60,16 +61,20 @@ public class RegistryAddDialog extends InputDialog<Registry> {
 		String oldLocation = "";
 		String oldUriPrefix = "";
 		String oldDescription = "";
+
 		if (oldRegistry != null) {
 			oldName = oldRegistry.getName();
 			oldLocation = oldRegistry.getLocation();
 			oldUriPrefix = oldRegistry.getUriPrefix();
 			oldDescription = oldRegistry.getDescription();
 		}
+
 		nameField = builder.addTextField("Name", oldName);
 		locationField = builder.addTextField("URL or Path", oldLocation);
-		uriPrefixField = builder.addTextField("URI Prefix", oldUriPrefix);
+		uriPrefixField = builder.addTextField("URI Prefix (usually same as URL)", oldUriPrefix);
+		uriPrefixField.setToolTipText("\"N/A\" for paths");
 		description = builder.addTextField("Description", oldDescription);
+
 		JButton browse = new JButton("Browse local repositories (This can be any SBOL file)");
 		browse.addActionListener(new ActionListener() {
 			@Override
@@ -77,6 +82,7 @@ public class RegistryAddDialog extends InputDialog<Registry> {
 				File file = SBOLUtils.importFile();
 				if (file != null) {
 					locationField.setText(file.getPath());
+					uriPrefixField.setText("N/A");
 				}
 			}
 		});
