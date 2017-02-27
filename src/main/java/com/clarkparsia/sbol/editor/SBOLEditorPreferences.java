@@ -78,9 +78,6 @@ public enum SBOLEditorPreferences {
 	}
 
 	public void setBranchingEnabled(boolean enableBranching) {
-		// requires restart
-		// this.enableBranching = enableBranching;
-
 		Preferences prefs = Preferences.userNodeForPackage(SBOLEditorPreferences.class).node("versioning");
 		prefs.putBoolean("enableBranching", enableBranching);
 	}
@@ -95,9 +92,6 @@ public enum SBOLEditorPreferences {
 	}
 
 	public void setVersioningEnabled(boolean enableVersioning) {
-		// requires restart
-		// this.enableVersioning = enableVersioning;
-
 		Preferences prefs = Preferences.userNodeForPackage(SBOLEditorPreferences.class).node("versioning");
 		prefs.putBoolean("enable", enableVersioning);
 	}
@@ -122,5 +116,27 @@ public enum SBOLEditorPreferences {
 		Preferences prefs = Preferences.userNodeForPackage(SBOLEditorPreferences.class).node("settings");
 		prefs.putInt("seqBehavior", seqBehavior);
 		this.seqBehavior = seqBehavior;
+	}
+
+	private Integer nameDisplayIdBehavior = null;
+
+	/**
+	 * show name is 0, show displayId is 1
+	 */
+	public Integer getNameDisplayIdBehavior() {
+		if (nameDisplayIdBehavior == null) {
+			Preferences prefs = Preferences.userNodeForPackage(SBOLEditorPreferences.class).node("settings");
+			nameDisplayIdBehavior = prefs.getInt("nameDisplayIdBehavior", 0);
+		}
+		return nameDisplayIdBehavior;
+	}
+
+	/**
+	 * show name is 0, show displayId is 1
+	 */
+	public void setNameDisplayIdBehavior(int showNameOrDisplayId) {
+		Preferences prefs = Preferences.userNodeForPackage(SBOLEditorPreferences.class).node("settings");
+		prefs.putInt("nameDisplayIdBehavior", showNameOrDisplayId);
+		this.nameDisplayIdBehavior = showNameOrDisplayId;
 	}
 }

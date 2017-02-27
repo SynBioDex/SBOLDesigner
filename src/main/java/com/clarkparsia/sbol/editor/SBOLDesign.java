@@ -72,6 +72,7 @@ import org.synbiohub.frontend.SynBioHubException;
 import org.sbolstandard.core2.AccessType;
 import org.sbolstandard.core2.ComponentDefinition;
 import org.sbolstandard.core2.Cut;
+import org.sbolstandard.core2.Identified;
 import org.sbolstandard.core2.Location;
 import org.sbolstandard.core2.OrientationType;
 import org.sbolstandard.core2.Range;
@@ -838,18 +839,14 @@ public class SBOLDesign {
 	}
 
 	private String getButtonText(final DesignElement e) {
-		if (e.getCD() != null) {
-			if (e.getCD().isSetName() && e.getCD().getName().length() != 0) {
-				return e.getCD().getName();
-			} else {
-				return e.getCD().getDisplayId();
-			}
+		Identified i = e.getCD() != null ? e.getCD() : e.getSeqAnn();
+
+		int prefs = SBOLEditorPreferences.INSTANCE.getNameDisplayIdBehavior();
+
+		if (prefs == 0 && i.isSetName() && i.getName().length() != 0) {
+			return i.getName();
 		} else {
-			if (e.getSeqAnn().isSetName() && e.getSeqAnn().getName().length() != 0) {
-				return e.getSeqAnn().getName();
-			} else {
-				return e.getSeqAnn().getDisplayId();
-			}
+			return i.getDisplayId();
 		}
 	}
 

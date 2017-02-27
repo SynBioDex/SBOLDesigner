@@ -16,9 +16,17 @@ import com.clarkparsia.swing.FormBuilder;
 public enum SettingsTab implements PreferencesTab {
 	INSTANCE;
 
-	private JRadioButton seqAskUser;
-	private JRadioButton seqOverwrite;
-	private JRadioButton seqKeep;
+	// askUser is 0, overwrite is 1, and keep is 2
+	private JRadioButton seqAskUser = new JRadioButton("Ask", SBOLEditorPreferences.INSTANCE.getSeqBehavior() == 0);
+	private JRadioButton seqOverwrite = new JRadioButton("Overwrite",
+			SBOLEditorPreferences.INSTANCE.getSeqBehavior() == 1);
+	private JRadioButton seqKeep = new JRadioButton("Keep", SBOLEditorPreferences.INSTANCE.getSeqBehavior() == 2);
+
+	// show name is 0, show displayId is 1
+	private JRadioButton showName = new JRadioButton("Show name when set",
+			SBOLEditorPreferences.INSTANCE.getNameDisplayIdBehavior() == 0);
+	private JRadioButton showDisplayId = new JRadioButton("Show displayId",
+			SBOLEditorPreferences.INSTANCE.getNameDisplayIdBehavior() == 1);
 
 	@Override
 	public String getTitle() {
@@ -39,20 +47,25 @@ public enum SettingsTab implements PreferencesTab {
 	public Component getComponent() {
 		JLabel impliedSequence = new JLabel(
 				"<html>Every time the implied sequence is shorter than the original <br>sequence, would you like to overwrite or keep the original sequence?</html>");
-		// askUser is 0, overwrite is 1, and keep is 2
-		seqAskUser = new JRadioButton("Ask", SBOLEditorPreferences.INSTANCE.getSeqBehavior() == 0);
-		seqOverwrite = new JRadioButton("Overwrite", SBOLEditorPreferences.INSTANCE.getSeqBehavior() == 1);
-		seqKeep = new JRadioButton("Keep", SBOLEditorPreferences.INSTANCE.getSeqBehavior() == 2);
 		ButtonGroup seqGroup = new ButtonGroup();
 		seqGroup.add(seqAskUser);
 		seqGroup.add(seqOverwrite);
 		seqGroup.add(seqKeep);
+
+		JLabel showNameOrDisplayId = new JLabel("<html>Always show displayId or always show name when set?</html>");
+		ButtonGroup nameDisplayIdGroup = new ButtonGroup();
+		nameDisplayIdGroup.add(showName);
+		nameDisplayIdGroup.add(showDisplayId);
 
 		FormBuilder builder = new FormBuilder();
 		builder.add("", impliedSequence);
 		builder.add("", seqAskUser);
 		builder.add("", seqOverwrite);
 		builder.add("", seqKeep);
+		builder.add("", showNameOrDisplayId);
+		builder.add("", showName);
+		builder.add("", showDisplayId);
+
 		return builder.build();
 	}
 
@@ -67,6 +80,14 @@ public enum SettingsTab implements PreferencesTab {
 			seqBehavior = 2;
 		}
 		SBOLEditorPreferences.INSTANCE.setSeqBehavior(seqBehavior);
+
+		int showNameOrDisplayId = 0;
+		if (showName.isSelected()) {
+			showNameOrDisplayId = 0;
+		} else if (showDisplayId.isSelected()) {
+			showNameOrDisplayId = 1;
+		}
+		SBOLEditorPreferences.INSTANCE.setNameDisplayIdBehavior(showNameOrDisplayId);
 	}
 
 	@Override
