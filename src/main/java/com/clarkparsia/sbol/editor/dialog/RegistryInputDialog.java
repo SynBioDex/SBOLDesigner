@@ -346,7 +346,6 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 			Registries registries = Registries.get();
 			registries.setVersionRegistryIndex(0);
 			registries.save();
-			e.printStackTrace();
 			return null;
 		}
 	}
@@ -360,7 +359,7 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 				throw new Exception("Incorrect state.  url is a path");
 			}
 			if (stack == null) {
-				stack = new SynBioHubFrontend(location,uriPrefix);
+				stack = new SynBioHubFrontend(location, uriPrefix);
 			}
 			if (part != null) {
 				// create the query
@@ -378,11 +377,10 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 			}
 		} catch (Exception e) {
 			JOptionPane.showMessageDialog(null, "Querying this repository failed: " + e.getMessage() + "\n"
-					+ " Internet connection is required for importing from the SBOL Stack. Setting default registry to built-in parts, which doesn't require an internet connection.");
+					+ " Internet connection is required for importing from SynBioHub. Setting default registry to built-in parts, which doesn't require an internet connection.");
 			Registries registries = Registries.get();
 			registries.setVersionRegistryIndex(0);
 			registries.save();
-			e.printStackTrace();
 		}
 	}
 
@@ -396,7 +394,7 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 			if (isMetadata()) {
 				TableMetadata compMeta = ((TableMetadataTableModel) table.getModel()).getElement(row);
 				if (synBioHub == null) {
-					synBioHub = new SynBioHubFrontend(location,uriPrefix);
+					synBioHub = new SynBioHubFrontend(location, uriPrefix);
 				}
 				if (compMeta.isCollection) {
 					return new SBOLDocument();
@@ -410,7 +408,8 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 			SBOLDocument doc = new SBOLDocument();
 			if (!importSubparts.isSelected()) {
 				// remove all dependencies
-				// TODO: this looks problematic.  Maybe we should remove this option.
+				// TODO: this looks problematic. Maybe we should remove this
+				// option.
 				comp.clearSequenceConstraints();
 				comp.clearSequenceAnnotations();
 				comp.clearComponents();
@@ -419,14 +418,15 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 					doc.createCopy(comp.getSequenceByEncoding(Sequence.IUPAC_DNA));
 				}
 			} else {
-				// TODO: could change to copy document, but not sure about the isMetaData check.  I guess in
-				// this case, we would need to still do the recursive copy.  Leaving this as is for now.
+				// TODO: could change to copy document, but not sure about the
+				// isMetaData check. I guess in
+				// this case, we would need to still do the recursive copy.
+				// Leaving this as is for now.
 				doc = doc.createRecursiveCopy(comp);
 			}
 			return doc;
 		} catch (Exception e) {
 			JOptionPane.showMessageDialog(null, "Getting this selection failed: " + e.getMessage());
-			e.printStackTrace();
 			return null;
 		}
 	}
@@ -434,7 +434,7 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 	@Override
 	protected void registryChanged() {
 		if (isMetadata()) {
-			synBioHub = new SynBioHubFrontend(location,uriPrefix);
+			synBioHub = new SynBioHubFrontend(location, uriPrefix);
 		}
 		updateCollectionSelection(true, null);
 		updateTable();
@@ -448,7 +448,7 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 			return;
 		}
 		if (synBioHub == null) {
-			synBioHub = new SynBioHubFrontend(location,uriPrefix);
+			synBioHub = new SynBioHubFrontend(location, uriPrefix);
 		}
 
 		if (registryChanged) {
