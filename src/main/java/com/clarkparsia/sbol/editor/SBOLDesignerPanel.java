@@ -686,6 +686,7 @@ public class SBOLDesignerPanel extends JPanel {
 		// the document we are saving
 		SBOLDocument currentDesign = design.createDocument();
 		ComponentDefinition currentRootCD = SBOLUtils.getRootCD(currentDesign);
+
 		int selection;
 		if (currentRootCD.getVersion() == null || currentRootCD.getVersion().equals("")) {
 			// can only overwrite
@@ -699,7 +700,7 @@ public class SBOLDesignerPanel extends JPanel {
 				selection = 0;
 			}
 		} else {
-			String[] options = { "Overwrite", "New Version" };
+			String[] options = { "Overwrite", "New Version", "Cancel" };
 			selection = JOptionPane.showOptionDialog(this,
 					"You are saving into an existing SBOL file.  Would you like to overwrite or create new versions of parts that already exist in the document?",
 					"Save Options", JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, options,
@@ -707,23 +708,24 @@ public class SBOLDesignerPanel extends JPanel {
 		}
 
 		switch (selection) {
-		case JOptionPane.CLOSED_OPTION:
-			// closed
-			// updateEnabledButtons(true);
-			return;
-		case 0:
-			// Overwrite
+		case 0: // overwrite
 			// Remove from doc everything contained within currentDesign
 			// that exists
 			SBOLUtils.insertTopLevels(currentDesign, doc);
 			break;
-		case 1:
-			// New Version
+		case 1: // new version
 			saveNewVersion(currentRootCD, currentDesign, doc);
 			break;
+		case 2: // canceled
+			updateEnabledButtons(true);
+			return;
+		case JOptionPane.CLOSED_OPTION: // closed
+			updateEnabledButtons(true);
+			return;
 		default:
 			throw new IllegalArgumentException();
 		}
+
 		documentIO.write(doc);
 		updateEnabledButtons(false);
 		return;
