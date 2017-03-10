@@ -27,9 +27,9 @@ public class SynBioHubQuery extends SwingWorker<Object, Object> {
 	ArrayList<TableMetadata> identified;
 	LoadingDialog loading;
 
-	public SynBioHubQuery(SynBioHubFrontend stack, Set<URI> roles, Set<URI> types, Set<URI> collections,
+	public SynBioHubQuery(SynBioHubFrontend synbiohub, Set<URI> roles, Set<URI> types, Set<URI> collections,
 			TableUpdater tableUpdater, Component parent) throws IOException {
-		this.synBioHub = stack;
+		this.synBioHub = synbiohub;
 		this.roles = roles;
 		this.types = types;
 		for (URI uri : collections) {

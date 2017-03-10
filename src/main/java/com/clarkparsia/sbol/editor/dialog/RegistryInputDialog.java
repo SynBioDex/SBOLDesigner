@@ -351,15 +351,15 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 	}
 
 	/**
-	 * Queries the stack provided for CDs matching the role(s) of the part
+	 * Queries synbiohub for CDs matching the role(s) of the part
 	 */
-	private void searchParts(Part part, SynBioHubFrontend stack) {
+	private void searchParts(Part part, SynBioHubFrontend synbiohub) {
 		try {
 			if (!isMetadata()) {
 				throw new Exception("Incorrect state.  url is a path");
 			}
-			if (stack == null) {
-				stack = new SynBioHubFrontend(location, uriPrefix);
+			if (synbiohub == null) {
+				synbiohub = new SynBioHubFrontend(location, uriPrefix);
 			}
 			if (part != null) {
 				// create the query
@@ -370,7 +370,7 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 				Set<URI> setCollections = new HashSet<URI>(Arrays.asList(URI.create(selectedCollection.getUri())));
 				Set<URI> setRoles = new HashSet<URI>(part.getRoles());
 				Set<URI> setTypes = SBOLUtils.convertTypesToSet((Types) typeSelection.getSelectedItem());
-				SynBioHubQuery query = new SynBioHubQuery(stack, setRoles, setTypes, setCollections, new TableUpdater(),
+				SynBioHubQuery query = new SynBioHubQuery(synbiohub, setRoles, setTypes, setCollections, new TableUpdater(),
 						this);
 				// non-blocking: will update using the TableUpdater
 				query.execute();
