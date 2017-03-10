@@ -1251,6 +1251,12 @@ public class SBOLDesign {
 		}
 
 		Object[] options = list.toArray();
+
+		if (options.length == 0) {
+			JOptionPane.showMessageDialog(panel, "There are no instances of SynBioHub in the registries list.");
+			return;
+		}
+
 		Registry registry = (Registry) JOptionPane.showInputDialog(panel,
 				"Please select the SynBioHub instance you want to upload the current design to.", "Upload",
 				JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
