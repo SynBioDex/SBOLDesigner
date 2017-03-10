@@ -61,11 +61,11 @@ public class UploadDialog extends JDialog implements ActionListener, DocumentLis
 	private final JLabel whatDoTheOptionsMean = new JLabel("TODO");
 	private final JButton uploadButton = new JButton("Upload");
 	private final JButton cancelButton = new JButton("Cancel");
-	// TODO these descriptions should change
-	private final JRadioButton prevent = new JRadioButton("Prevent if submission exists");
-	private final JRadioButton overwrite = new JRadioButton("Overwrite entire submission");
-	private final JRadioButton mergePrevent = new JRadioButton("Merge and prevent if existing objects");
-	private final JRadioButton mergeReplace = new JRadioButton("Merge and replace if existing objects");
+	// TODO make these a combo box
+	private final JRadioButton prevent = new JRadioButton("Prevent Submission");
+	private final JRadioButton overwrite = new JRadioButton("Overwrite Submission");
+	private final JRadioButton mergePrevent = new JRadioButton("Merge and Prevent, if existing");
+	private final JRadioButton mergeReplace = new JRadioButton("Merge and Replace, if existing");
 	private final JTextField username = new JTextField("");
 	private final JPasswordField password = new JPasswordField("");
 	private final JTextField submissionId = new JTextField("");
@@ -215,8 +215,7 @@ public class UploadDialog extends JDialog implements ActionListener, DocumentLis
 		} else if (mergePrevent.isSelected()) {
 			option = "2";
 		} else if (mergeReplace.isSelected()) {
-			// TODO replace with 3 when stack frontend is updated
-			option = "2";
+			option = "3";
 		} else {
 			// default
 			option = "0";
