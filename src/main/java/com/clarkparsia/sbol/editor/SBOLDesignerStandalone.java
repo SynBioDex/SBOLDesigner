@@ -30,6 +30,7 @@ import javax.swing.UIManager;
 
 import org.sbolstandard.core2.SBOLValidationException;
 
+import com.apple.eawt.*;
 import com.clarkparsia.sbol.editor.io.FileDocumentIO;
 
 /**
@@ -56,20 +57,31 @@ public class SBOLDesignerStandalone extends JFrame {
 		setLocationRelativeTo(null);
 		setSize(800, 600);
 		setIconImage(ImageIO.read(getClass().getResourceAsStream("/images/icon.png")));
-		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+
 		// set behavior for close operation
-		addWindowListener(new WindowAdapter() {
-			@Override
-			public void windowClosing(WindowEvent e) {
-				try {
-					if (panel.confirmSave()) {
-						System.exit(0);
+		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+		if (System.getProperty("os.name").toLowerCase().startsWith("mac os")) {
+			Application app = Application.getApplication();
+			// app.setQuitHandler(new QuitHandler() {
+			// public void handleQuitRequestWith(QuitEvent event, QuitResponse
+			// response) {
+			// exit();
+			// }
+			// });
+		} else {
+			addWindowListener(new WindowAdapter() {
+				@Override
+				public void windowClosing(WindowEvent e) {
+					try {
+						if (panel.confirmSave()) {
+							System.exit(0);
+						}
+					} catch (Exception e1) {
+						e1.printStackTrace();
 					}
-				} catch (Exception e1) {
-					e1.printStackTrace();
 				}
-			}
-		});
+			});
+		}
 	}
 
 	public static void main(String[] args) throws SBOLValidationException, IOException {
