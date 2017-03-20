@@ -80,7 +80,10 @@ public class UploadDialog extends JDialog implements ActionListener, DocumentLis
 
 		// Remove objects that should already be found in this registry
 		for (TopLevel topLevel : this.toBeUploaded.getTopLevels()) {
-			if (topLevel.getIdentity().toString().startsWith(registry.getUriPrefix())) {
+			String identity = topLevel.getIdentity().toString();
+			String registryPrefix = registry.getUriPrefix();
+			if ((!registryPrefix.equals("") && identity.startsWith(registryPrefix))
+					|| (registryPrefix.equals("") && identity.startsWith(registry.getLocation()))) {
 				try {
 					this.toBeUploaded.removeTopLevel(topLevel);
 				} catch (SBOLValidationException e) {
@@ -99,6 +102,7 @@ public class UploadDialog extends JDialog implements ActionListener, DocumentLis
 					JOptionPane.ERROR_MESSAGE);
 			return;
 		}
+
 		username.setText(email);
 		password.setEchoChar('*');
 		ComponentDefinition root = toBeUploaded.getRootComponentDefinitions().iterator().next();
