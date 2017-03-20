@@ -14,6 +14,7 @@ import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
@@ -56,16 +57,12 @@ public class UploadDialog extends JDialog implements ActionListener, DocumentLis
 	private Registry registry;
 	private SBOLDocument toBeUploaded;
 
-	// TODO add infos
-	private final JLabel whatDoesThisDialogDo = new JLabel("TODO");
-	private final JLabel whatDoTheOptionsMean = new JLabel("TODO");
+	private final JLabel info = new JLabel(
+			"Submission form for uploading to SynBioHub.  The options specify what actions to take for duplicate designs.  (*) indicates a required field");
 	private final JButton uploadButton = new JButton("Upload");
 	private final JButton cancelButton = new JButton("Cancel");
-	// TODO make these a combo box
-	private final JRadioButton prevent = new JRadioButton("Prevent Submission");
-	private final JRadioButton overwrite = new JRadioButton("Overwrite Submission");
-	private final JRadioButton mergePrevent = new JRadioButton("Merge and Prevent, if existing");
-	private final JRadioButton mergeReplace = new JRadioButton("Merge and Replace, if existing");
+	private final JComboBox<String> options = new JComboBox<>(new String[] { "Prevent Submission",
+			"Overwrite Submission", "Merge and Prevent, if existing", "Merge and Replace, if existing" });
 	private final JTextField username = new JTextField("");
 	private final JPasswordField password = new JPasswordField("");
 	private final JTextField submissionId = new JTextField("");
@@ -87,16 +84,15 @@ public class UploadDialog extends JDialog implements ActionListener, DocumentLis
 				try {
 					this.toBeUploaded.removeTopLevel(topLevel);
 				} catch (SBOLValidationException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}
 		}
 
 		// set default values
-		PersonInfo info = SBOLEditorPreferences.INSTANCE.getUserInfo();
-		String email = info == null || info.getEmail() == null ? null : info.getEmail().getLocalName();
-		String uri = info == null ? null : info.getURI().stringValue();
+		PersonInfo userInfo = SBOLEditorPreferences.INSTANCE.getUserInfo();
+		String email = userInfo == null || userInfo.getEmail() == null ? null : userInfo.getEmail().getLocalName();
+		String uri = userInfo == null ? null : userInfo.getURI().stringValue();
 		if (email == null || email.equals("") || uri == null) {
 			JOptionPane.showMessageDialog(parent,
 					"Make sure your email and URI/namespace are both set and valid in preferences.", "Upload failed",
@@ -110,23 +106,6 @@ public class UploadDialog extends JDialog implements ActionListener, DocumentLis
 		version.setText("1");
 		name.setText(root.isSetName() ? root.getName() : root.getDisplayId());
 		description.setText(root.isSetDescription() ? root.getDescription() : "");
-
-		// layout
-		JPanel optionPanel1 = new JPanel();
-		JPanel optionPanel2 = new JPanel();
-		ButtonGroup options = new ButtonGroup();
-		optionPanel1.add(prevent);
-		optionPanel1.add(overwrite);
-		optionPanel2.add(mergePrevent);
-		optionPanel2.add(mergeReplace);
-		options.add(prevent);
-		options.add(overwrite);
-		options.add(mergePrevent);
-		options.add(mergeReplace);
-		prevent.setSelected(true);
-		JPanel optionPanel = new JPanel(new BorderLayout());
-		optionPanel.add(optionPanel1, "North");
-		optionPanel.add(optionPanel2, "South");
 
 		cancelButton.registerKeyboardAction(this, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0),
 				JComponent.WHEN_IN_FOCUSED_WINDOW);
@@ -147,8 +126,8 @@ public class UploadDialog extends JDialog implements ActionListener, DocumentLis
 		JPanel panel = initMainPanel();
 
 		Container contentPane = getContentPane();
-		contentPane.add(panel, BorderLayout.PAGE_START);
-		contentPane.add(optionPanel, BorderLayout.CENTER);
+		contentPane.add(info, BorderLayout.PAGE_START);
+		contentPane.add(panel, BorderLayout.CENTER);
 		contentPane.add(buttonPane, BorderLayout.PAGE_END);
 		((JComponent) contentPane).setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
@@ -177,6 +156,7 @@ public class UploadDialog extends JDialog implements ActionListener, DocumentLis
 		builder.add("Description *", description);
 		builder.add("Citations", citations);
 		builder.add("Keywords", keywords);
+		builder.add("Options", options);
 		JPanel panel = builder.build();
 		panel.setAlignmentX(LEFT_ALIGNMENT);
 		return panel;
@@ -207,19 +187,7 @@ public class UploadDialog extends JDialog implements ActionListener, DocumentLis
 
 		stack.login(username.getText(), new String(password.getPassword()));
 
-		String option;
-		if (prevent.isSelected()) {
-			option = "0";
-		} else if (overwrite.isSelected()) {
-			option = "1";
-		} else if (mergePrevent.isSelected()) {
-			option = "2";
-		} else if (mergeReplace.isSelected()) {
-			option = "3";
-		} else {
-			// default
-			option = "0";
-		}
+		String option = Integer.toString(options.getSelectedIndex());
 
 		stack.submit(submissionId.getText(), version.getText(), name.getText(), description.getText(),
 				citations.getText(), keywords.getText(), option, toBeUploaded);
