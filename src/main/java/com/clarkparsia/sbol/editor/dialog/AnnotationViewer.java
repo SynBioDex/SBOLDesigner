@@ -41,8 +41,7 @@ public class AnnotationViewer extends JDialog implements ActionListener {
 	private static final String TITLE = "Annotations: ";
 
 	private ComponentDefinition CD;
-	private final JButton saveButton;
-	private final JButton cancelButton;
+	private final JButton closeButton;
 	private JTable table;
 	private JLabel tableLabel;
 	private JScrollPane scroller;
@@ -64,24 +63,18 @@ public class AnnotationViewer extends JDialog implements ActionListener {
 		super(JOptionPane.getFrameForComponent(parent), TITLE + title(CD), true);
 		this.CD = CD;
 
-		cancelButton = new JButton("Close");
-		cancelButton.registerKeyboardAction(this, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0),
+		closeButton = new JButton("Close");
+		closeButton.registerKeyboardAction(this, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0),
 				JComponent.WHEN_IN_FOCUSED_WINDOW);
-		cancelButton.addActionListener(this);
-
-		saveButton = new JButton("Save");
-		saveButton.addActionListener(this);
-		saveButton.setEnabled(false);
-		getRootPane().setDefaultButton(saveButton);
+		closeButton.addActionListener(this);
+		getRootPane().setDefaultButton(closeButton);
 
 		JPanel buttonPane = new JPanel();
 		buttonPane.setLayout(new BoxLayout(buttonPane, BoxLayout.LINE_AXIS));
 		buttonPane.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 		buttonPane.add(Box.createHorizontalStrut(100));
 		buttonPane.add(Box.createHorizontalGlue());
-		buttonPane.add(cancelButton);
-		// TODO
-		// buttonPane.add(saveButton);
+		buttonPane.add(closeButton);
 
 		JPanel tablePane = initMainPanel();
 
@@ -164,13 +157,9 @@ public class AnnotationViewer extends JDialog implements ActionListener {
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		if (e.getSource() == cancelButton) {
+		if (e.getSource() == closeButton) {
 			setVisible(false);
 			return;
-		}
-
-		if (e.getSource() == saveButton) {
-			// TODO
 		}
 	}
 
