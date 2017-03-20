@@ -112,7 +112,7 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 
 	private static final String TITLE = "Select a part from registry";
 
-	private static final Part ALL_PARTS = new Part("All parts", "All");
+	public static final Part ALL_PARTS = new Part("All parts", "All");
 	// represents what part we should display in role selection
 	private Part part;
 	// represents the role of the template CD, could be used in roleRefinement
@@ -143,12 +143,10 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 	private JCheckBox importSubparts;
 
 	private static SynBioHubFrontend synBioHub;
-	private SBOLDocument design;
 
-	public RegistryInputDialog(final Component parent, final Part part, Types type, URI role, SBOLDocument design) {
+	public RegistryInputDialog(final Component parent, final Part part, Types type, URI role) {
 		super(parent, TITLE);
 
-		this.design = design;
 		this.part = part;
 		this.role = role;
 		this.type = type;
@@ -370,8 +368,8 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 				Set<URI> setCollections = new HashSet<URI>(Arrays.asList(URI.create(selectedCollection.getUri())));
 				Set<URI> setRoles = new HashSet<URI>(part.getRoles());
 				Set<URI> setTypes = SBOLUtils.convertTypesToSet((Types) typeSelection.getSelectedItem());
-				SynBioHubQuery query = new SynBioHubQuery(synbiohub, setRoles, setTypes, setCollections, new TableUpdater(),
-						this);
+				SynBioHubQuery query = new SynBioHubQuery(synbiohub, setRoles, setTypes, setCollections,
+						new TableUpdater(), this);
 				// non-blocking: will update using the TableUpdater
 				query.execute();
 			}
