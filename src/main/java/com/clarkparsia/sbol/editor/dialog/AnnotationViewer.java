@@ -31,6 +31,7 @@ import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 
+import org.sbolstandard.core2.Annotation;
 import org.sbolstandard.core2.ComponentDefinition;
 import org.sbolstandard.core2.Identified;
 
@@ -41,7 +42,10 @@ public class AnnotationViewer extends JDialog implements ActionListener {
 	private static final String TITLE = "Annotations: ";
 
 	private ComponentDefinition CD;
-	private final JButton closeButton;
+	private final JButton closeButton = new JButton("Close");
+	private final JButton addButton = new JButton("Add");
+	private final JButton editButton = new JButton("Edit");
+	private final JButton removeButton = new JButton("Remove");
 	private JTable table;
 	private JLabel tableLabel;
 	private JScrollPane scroller;
@@ -63,7 +67,12 @@ public class AnnotationViewer extends JDialog implements ActionListener {
 		super(JOptionPane.getFrameForComponent(parent), TITLE + title(CD), true);
 		this.CD = CD;
 
-		closeButton = new JButton("Close");
+		addButton.addActionListener(this);
+		addButton.setEnabled(true);
+		editButton.addActionListener(this);
+		editButton.setEnabled(false);
+		removeButton.addActionListener(this);
+		removeButton.setEnabled(false);
 		closeButton.registerKeyboardAction(this, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0),
 				JComponent.WHEN_IN_FOCUSED_WINDOW);
 		closeButton.addActionListener(this);
@@ -72,6 +81,9 @@ public class AnnotationViewer extends JDialog implements ActionListener {
 		JPanel buttonPane = new JPanel();
 		buttonPane.setLayout(new BoxLayout(buttonPane, BoxLayout.LINE_AXIS));
 		buttonPane.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+		buttonPane.add(addButton);
+		buttonPane.add(editButton);
+		buttonPane.add(removeButton);
 		buttonPane.add(Box.createHorizontalStrut(100));
 		buttonPane.add(Box.createHorizontalGlue());
 		buttonPane.add(closeButton);
@@ -106,8 +118,8 @@ public class AnnotationViewer extends JDialog implements ActionListener {
 		table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
 			@Override
 			public void valueChanged(ListSelectionEvent event) {
-				// TODO
-				// setSelectAllowed(table.getSelectedRow() >= 0);
+				editButton.setEnabled(table.getSelectedRow() >= 0);
+				removeButton.setEnabled(table.getSelectedRow() >= 0);
 			}
 		});
 
@@ -119,8 +131,7 @@ public class AnnotationViewer extends JDialog implements ActionListener {
 		table.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(MouseEvent e) {
 				if (e.getClickCount() == 2 && table.getSelectedRow() >= 0) {
-					// TODO
-					// handleTableSelection();
+					// TODO a more extensive viewer? focus in?
 				}
 			}
 		});
@@ -161,6 +172,31 @@ public class AnnotationViewer extends JDialog implements ActionListener {
 			setVisible(false);
 			return;
 		}
+
+		if (e.getSource() == addButton) {
+			// TODO make changes to CD
+			updateTable();
+		}
+
+		if (e.getSource() == editButton) {
+			// TODO make changes to CD
+			updateTable();
+		}
+
+		if (e.getSource() == removeButton) {
+			int row = table.convertRowIndexToModel(table.getSelectedRow());
+			Annotation a = ((AnnotationTableModel) table.getModel()).getElement(row);
+			CD.removeAnnotation(a);
+			updateTable();
+		}
+	}
+
+	private void updateTable() {
+		AnnotationTableModel tableModel = new AnnotationTableModel(CD.getAnnotations());
+		table.setModel(tableModel);
+		setWidthAsPercentages(table, tableModel.getWidths());
+		TableRowSorter<TableModel> sorter = new TableRowSorter<TableModel>(tableModel);
+		table.setRowSorter(sorter);
 	}
 
 }
