@@ -177,6 +177,8 @@ public class RootInputDialog extends InputDialog<SBOLDocument> {
 		table.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 		tableLabel = (JLabel) panel.getClientProperty("label");
 
+		updateTable();
+
 		return panel;
 	}
 
