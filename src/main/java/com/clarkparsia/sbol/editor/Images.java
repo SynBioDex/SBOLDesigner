@@ -55,7 +55,7 @@ public class Images {
 
 	public static BufferedImage getImage(String fileName) {
 		try {
-			if (fileName != null && !fileName.equals("")) {
+			if (fileName != null) {
 				return ImageIO.read(Images.class.getClassLoader().getResourceAsStream("images/" + fileName));
 			}
 		} catch (Exception e) {

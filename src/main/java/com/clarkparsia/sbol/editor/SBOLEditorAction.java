@@ -32,36 +32,38 @@ public abstract class SBOLEditorAction extends AbstractAction {
 	protected boolean isToggle = false;
 	protected boolean allowed = true;
 	protected Supplier<Boolean> precondition = Suppliers.ofInstance(Boolean.TRUE);
-	
-	public static final SBOLEditorAction DIVIDER = new SBOLEditorAction("", "", "") {		
+
+	public static final SBOLEditorAction DIVIDER = new SBOLEditorAction("", "", "") {
 		@Override
 		protected void perform() {
 			throw new UnsupportedOperationException();
 		}
 	};
-	
-	public static final SBOLEditorAction SPACER = new SBOLEditorAction("", "", "") {		
+
+	public static final SBOLEditorAction SPACER = new SBOLEditorAction("", "", "") {
 		@Override
 		protected void perform() {
 			throw new UnsupportedOperationException();
 		}
 	};
-	
+
 	public SBOLEditorAction(String description, String image) {
 		this("", description, image);
 	}
-	
+
 	public SBOLEditorAction(String name, String description, String image) {
-        super(name, createIcon(image));
-        
-        putValue(SHORT_DESCRIPTION, description);
-    }
-	
-	static ImageIcon createIcon(String imageFile) {			
-		Image image = Images.getActionImage(imageFile);
-		if (image != null) {
-			image = Images.scaleImageToWidth(image, 16);
-			return new ImageIcon(image);
+		super(name, createIcon(image));
+
+		putValue(SHORT_DESCRIPTION, description);
+	}
+
+	static ImageIcon createIcon(String imageFile) {
+		if (!imageFile.equals("")) {
+			Image image = Images.getActionImage(imageFile);
+			if (image != null) {
+				image = Images.scaleImageToWidth(image, 16);
+				return new ImageIcon(image);
+			}
 		}
 		return null;
 	}
@@ -70,32 +72,32 @@ public abstract class SBOLEditorAction extends AbstractAction {
 		isToggle = true;
 		return this;
 	}
-	
+
 	public SBOLEditorAction precondition(Supplier<Boolean> precondition) {
 		this.precondition = precondition;
 		return this;
 	}
-	
+
 	public SBOLEditorAction allowed(boolean allowed) {
 		this.allowed = allowed;
 		return this;
 	}
-	
+
 	protected abstract void perform();
-	
+
 	public final void actionPerformed(ActionEvent e) {
 		if (Boolean.TRUE.equals(precondition.get())) {
 			perform();
-		}			
+		}
 	}
-	
+
 	protected AbstractButton createButton() {
 		Preconditions.checkState(allowed, "This action is not allowed");
 		final AbstractButton button = isToggle ? Buttons.createToggleButton(this) : Buttons.createButton(this);
 		button.setText("");
 		return button;
-	}		
-	
+	}
+
 	JMenuItem createMenuItem() {
 		Preconditions.checkState(allowed, "This action is not allowed");
 		return new JMenuItem(this);
