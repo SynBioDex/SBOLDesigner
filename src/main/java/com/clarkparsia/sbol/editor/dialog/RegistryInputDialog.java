@@ -116,7 +116,7 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 	// represents what part we should display in role selection
 	private Part part;
 	// represents the role of the template CD, could be used in roleRefinement
-	private URI role;
+	private URI refinementRole;
 	private JComboBox<Part> roleSelection;
 	private JComboBox<String> roleRefinement;
 	private ActionListener roleRefinementListener = new ActionListener() {
@@ -126,6 +126,7 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 		}
 	};
 	private Types type;
+	private SBOLDocument workingDoc;
 	private JComboBox<Types> typeSelection;
 	private JComboBox<IdentifiedMetadata> collectionSelection;
 	private ActionListener collectionSelectionListener = new ActionListener() {
@@ -144,11 +145,29 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 
 	private static SynBioHubFrontend synBioHub;
 
-	public RegistryInputDialog(final Component parent, final Part part, Types type, URI role) {
+	/**
+	 * For when the working document is known and preferences node shouldn't be
+	 * used
+	 */
+	public RegistryInputDialog(final Component parent, final Part part, Types type, URI refinementRole,
+			SBOLDocument workingDoc) {
 		super(parent, TITLE);
+		this.workingDoc = workingDoc;
+		setup(part, type, refinementRole);
+	}
 
+	/**
+	 * Recommended constructor
+	 */
+	public RegistryInputDialog(final Component parent, final Part part, Types type, URI refinementRole) {
+		super(parent, TITLE);
+		this.workingDoc = null;
+		setup(part, type, refinementRole);
+	}
+
+	private void setup(final Part part, Types type, URI refinementRole) {
 		this.part = part;
-		this.role = role;
+		this.refinementRole = refinementRole;
 		this.type = type;
 
 		Registries registries = Registries.get();
@@ -212,8 +231,8 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 		roleRefinement = new JComboBox<String>();
 		updateRoleRefinement();
 		roleRefinement.removeActionListener(roleRefinementListener);
-		if (role != null && role != part.getRole()) {
-			String roleName = new SequenceOntology().getName(role);
+		if (refinementRole != null && refinementRole != part.getRole()) {
+			String roleName = new SequenceOntology().getName(refinementRole);
 			if (!comboBoxContains(roleRefinement, roleName)) {
 				roleRefinement.addItem(roleName);
 			}
