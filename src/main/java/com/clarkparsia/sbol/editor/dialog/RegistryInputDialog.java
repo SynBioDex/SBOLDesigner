@@ -343,14 +343,19 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 				// read from BuiltInParts.xml
 				doc = SBOLReader.read(Registry.class.getResourceAsStream("/BuiltInParts.xml"));
 			} else if (registry.equals(Registry.WORKING_DOCUMENT)) {
-				// read from SBOLUtils.setupFile();
-				File file = SBOLUtils.setupFile();
-				if (file.exists()) {
-					doc = SBOLReader.read(file);
+				if (workingDoc != null) {
+					// workingDoc is specified, so use that
+					doc = workingDoc;
 				} else {
-					JOptionPane.showMessageDialog(null,
-							"The working document could not be found on disk.  Try opening the file again.");
-					return new ArrayList<ComponentDefinition>();
+					// read from SBOLUtils.setupFile();
+					File file = SBOLUtils.setupFile();
+					if (file.exists()) {
+						doc = SBOLReader.read(file);
+					} else {
+						JOptionPane.showMessageDialog(null,
+								"The working document could not be found on disk.  Try opening the file again.");
+						return new ArrayList<ComponentDefinition>();
+					}
 				}
 			} else {
 				// read from the location (path)
