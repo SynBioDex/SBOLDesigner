@@ -55,11 +55,11 @@ public class Images {
 
 	public static BufferedImage getImage(String fileName) {
 		try {
-			if (fileName != null) {
+			if (fileName != null && !fileName.equals("")) {
 				return ImageIO.read(Images.class.getClassLoader().getResourceAsStream("images/" + fileName));
 			}
 		} catch (Exception e) {
-			System.out.println("images/"+fileName);
+			System.out.println("images/" + fileName);
 			e.printStackTrace();
 		}
 
