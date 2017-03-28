@@ -48,6 +48,7 @@ public class SynBioHubQuery extends SwingWorker<Object, Object> {
 	@Override
 	protected ArrayList<TableMetadata> doInBackground() throws Exception {
 		loading.start();
+
 		// fetch collections
 		if (collections.isEmpty()) {
 			identified.addAll(getTableMetadata(synBioHub.getRootCollectionMetadata(), null));
@@ -61,9 +62,11 @@ public class SynBioHubQuery extends SwingWorker<Object, Object> {
 				}
 			}
 		}
+
 		// fetch parts
 		identified.addAll(getTableMetadata(null,
 				synBioHub.getMatchingComponentDefinitionMetadata(null, roles, types, collections, 0, 10000)));
+
 		return identified;
 	}
 
@@ -74,16 +77,19 @@ public class SynBioHubQuery extends SwingWorker<Object, Object> {
 	private List<TableMetadata> getTableMetadata(List<IdentifiedMetadata> collectionMeta,
 			List<IdentifiedMetadata> partMeta) {
 		List<TableMetadata> tableMeta = new ArrayList<TableMetadata>();
+
 		if (collectionMeta != null) {
 			for (IdentifiedMetadata meta : collectionMeta) {
 				tableMeta.add(new TableMetadata(meta, true));
 			}
 		}
+
 		if (partMeta != null) {
 			for (IdentifiedMetadata meta : partMeta) {
 				tableMeta.add(new TableMetadata(meta, false));
 			}
 		}
+
 		return tableMeta;
 	}
 

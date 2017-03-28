@@ -201,6 +201,7 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				updateTable();
+				updateContext();
 			}
 		});
 		builder.add("Part type", typeSelection);
@@ -279,30 +280,30 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 		return false;
 	}
 
-	private boolean isRoleSelection() {
-		return roleSelection != null;
-	}
-
 	@Override
 	protected JPanel initMainPanel() {
 		JPanel panel;
 
-		Part part;
-		String roleName = (String) roleRefinement.getSelectedItem();
-		if (roleName == null || roleName.equals("None")) {
-			part = isRoleSelection() ? (Part) roleSelection.getSelectedItem() : ALL_PARTS;
+		Part part = null;
+		if (roleSelection.isEnabled() && roleRefinement.isEnabled()) {
+			String roleName = (String) roleRefinement.getSelectedItem();
+			if (roleName == null || roleName.equals("None")) {
+				part = (Part) roleSelection.getSelectedItem();
+			} else {
+				SequenceOntology so = new SequenceOntology();
+				URI role = so.getURIbyName(roleName);
+				part = new Part(role, null, null);
+			}
 		} else {
-			SequenceOntology so = new SequenceOntology();
-			URI role = so.getURIbyName(roleName);
-			part = new Part(role, null, null);
+			part = ALL_PARTS;
 		}
 
 		if (isMetadata()) {
-			searchParts(isRoleSelection() ? part : null, synBioHub);
+			searchParts(part, synBioHub);
 			TableMetadataTableModel tableModel = new TableMetadataTableModel(new ArrayList<TableMetadata>());
 			panel = createTablePanel(tableModel, "Matching parts (" + tableModel.getRowCount() + ")");
 		} else {
-			List<ComponentDefinition> components = searchParts(isRoleSelection() ? part : null);
+			List<ComponentDefinition> components = searchParts(part);
 			ComponentDefinitionTableModel tableModel = new ComponentDefinitionTableModel(components);
 			panel = createTablePanel(tableModel, "Matching parts (" + tableModel.getRowCount() + ")");
 		}
@@ -331,6 +332,7 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 			if (isMetadata()) {
 				throw new Exception("Incorrect state.  url isn't a path");
 			}
+
 			if (part.equals(ALL_PARTS)) {
 				part = null;
 			}
@@ -339,9 +341,11 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 			SBOLReader.setCompliant(true);
 			SBOLDocument doc;
 			Registry registry = (Registry) registrySelection.getSelectedItem();
+
 			if (registry.equals(Registry.BUILT_IN)) {
 				// read from BuiltInParts.xml
 				doc = SBOLReader.read(Registry.class.getResourceAsStream("/BuiltInParts.xml"));
+
 			} else if (registry.equals(Registry.WORKING_DOCUMENT)) {
 				if (workingDoc != null) {
 					// workingDoc is specified, so use that
@@ -349,6 +353,7 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 				} else {
 					// read from SBOLUtils.setupFile();
 					File file = SBOLUtils.setupFile();
+
 					if (file.exists()) {
 						doc = SBOLReader.read(file);
 					} else {
@@ -357,12 +362,15 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 						return new ArrayList<ComponentDefinition>();
 					}
 				}
+
 			} else {
 				// read from the location (path)
 				doc = SBOLReader.read(location);
 			}
+
 			doc.setDefaultURIprefix(SBOLEditorPreferences.INSTANCE.getUserInfo().getURI().toString());
 			return SBOLUtils.getCDOfRole(doc, part);
+
 		} catch (Exception e) {
 			JOptionPane.showMessageDialog(null, "Getting the SBOLDocument from path failed: " + e.getMessage());
 			Registries registries = Registries.get();
@@ -380,15 +388,19 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 			if (!isMetadata()) {
 				throw new Exception("Incorrect state.  url is a path");
 			}
+
 			if (synbiohub == null) {
 				synbiohub = new SynBioHubFrontend(location, uriPrefix);
 			}
+
 			if (part != null) {
 				// create the query
 				IdentifiedMetadata selectedCollection = (IdentifiedMetadata) collectionSelection.getSelectedItem();
+
 				if (selectedCollection == null || selectedCollection.getUri() == null) {
 					return;
 				}
+
 				Set<URI> setCollections = new HashSet<URI>(Arrays.asList(URI.create(selectedCollection.getUri())));
 				Set<URI> setRoles = new HashSet<URI>(part.getRoles());
 				Set<URI> setTypes = SBOLUtils.convertTypesToSet((Types) typeSelection.getSelectedItem());
@@ -397,6 +409,7 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 				// non-blocking: will update using the TableUpdater
 				query.execute();
 			}
+
 		} catch (Exception e) {
 			JOptionPane.showMessageDialog(null, "Querying this repository failed: " + e.getMessage() + "\n"
 					+ " Internet connection is required for importing from SynBioHub. Setting default registry to built-in parts, which doesn't require an internet connection.");
@@ -507,16 +520,27 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 		roleRefinement.addActionListener(roleRefinementListener);
 	}
 
+	private void updateContext() {
+		boolean enableRoles = typeSelection.getSelectedItem() == Types.DNA
+				|| typeSelection.getSelectedItem() == Types.RNA;
+		roleSelection.setEnabled(enableRoles);
+		roleRefinement.setEnabled(enableRoles);
+	}
+
 	public void updateTable() {
 		// create the part criteria
-		Part part;
-		String roleName = (String) roleRefinement.getSelectedItem();
-		if (roleName == null || roleName.equals("None")) {
-			part = isRoleSelection() ? (Part) roleSelection.getSelectedItem() : ALL_PARTS;
+		Part part = null;
+		if (roleSelection.isEnabled() && roleRefinement.isEnabled()) {
+			String roleName = (String) roleRefinement.getSelectedItem();
+			if (roleName == null || roleName.equals("None")) {
+				part = (Part) roleSelection.getSelectedItem();
+			} else {
+				SequenceOntology so = new SequenceOntology();
+				URI role = so.getURIbyName(roleName);
+				part = new Part(role, null, null);
+			}
 		} else {
-			SequenceOntology so = new SequenceOntology();
-			URI role = so.getURIbyName(roleName);
-			part = new Part(role, null, null);
+			part = ALL_PARTS;
 		}
 
 		if (isMetadata()) {
