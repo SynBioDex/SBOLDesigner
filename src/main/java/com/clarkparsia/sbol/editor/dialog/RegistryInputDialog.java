@@ -241,6 +241,7 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 		}
 		roleRefinement.addActionListener(roleRefinementListener);
 		builder.add("Role refinement", roleRefinement);
+		updateContext();
 
 		// set up the import subparts checkbox
 		importSubparts = new JCheckBox("Import with subcomponents");
