@@ -92,7 +92,7 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 	private final JButton importSequence;
 	private final JButton importCD;
 	private final JButton importFromRegistry;
-	private final JButton viewAnnotations;
+	private final JButton openAnnotations;
 	private final JTextField displayId = new JTextField();
 	private final JTextField name = new JTextField();
 	private final JTextField version = new JTextField();
@@ -174,8 +174,8 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 		importSequence.addActionListener(this);
 		importCD = new JButton("Import part");
 		importCD.addActionListener(this);
-		viewAnnotations = new JButton("View annotations");
-		viewAnnotations.addActionListener(this);
+		openAnnotations = new JButton("Open annotations");
+		openAnnotations.addActionListener(this);
 
 		typeSelection.setSelectedItem(SBOLUtils.convertURIsToType(CD.getTypes()));
 		typeSelection.addActionListener(this);
@@ -269,7 +269,7 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 		buttonPane.add(importFromRegistry);
 		buttonPane.add(importCD);
 		buttonPane.add(importSequence);
-		buttonPane.add(viewAnnotations);
+		buttonPane.add(openAnnotations);
 		buttonPane.add(Box.createHorizontalStrut(100));
 		buttonPane.add(Box.createHorizontalGlue());
 		buttonPane.add(cancelButton);
@@ -317,8 +317,8 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 		importSequence.addActionListener(this);
 		importCD = new JButton("Import part");
 		importCD.addActionListener(this);
-		viewAnnotations = new JButton("View annotations");
-		viewAnnotations.addActionListener(this);
+		openAnnotations = new JButton("Open annotations");
+		openAnnotations.addActionListener(this);
 
 		typeSelection.setSelectedItem(SBOLUtils.convertURIsToType(CD.getTypes()));
 		typeSelection.addActionListener(this);
@@ -435,7 +435,7 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 		buttonPane.add(importFromRegistry);
 		buttonPane.add(importCD);
 		buttonPane.add(importSequence);
-		buttonPane.add(viewAnnotations);
+		buttonPane.add(openAnnotations);
 		buttonPane.add(Box.createHorizontalStrut(100));
 		buttonPane.add(Box.createHorizontalGlue());
 		buttonPane.add(cancelButton);
@@ -478,36 +478,31 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 			return;
 		}
 
-		if (e.getSource() == importCD) {
-			boolean isImported = false;
-			try {
+		try {
+			if (e.getSource() == importCD) {
+				boolean isImported = false;
 				isImported = importCDHandler();
-			} catch (Exception e1) {
-				JOptionPane.showMessageDialog(null, "This file cannot be imported: " + e1.getMessage());
-				e1.printStackTrace();
+				if (isImported) {
+					setVisible(false);
+				}
+				return;
 			}
-			if (isImported) {
-				setVisible(false);
-			}
-			return;
-		}
 
-		if (e.getSource() == importFromRegistry) {
-			boolean isImported = false;
-			try {
+			if (e.getSource() == importFromRegistry) {
+				boolean isImported = false;
 				isImported = importFromRegistryHandler();
-			} catch (Exception e1) {
-				JOptionPane.showMessageDialog(null, "This part cannot be imported: " + e1.getMessage());
-				e1.printStackTrace();
+				if (isImported) {
+					setVisible(false);
+				}
+				return;
 			}
-			if (isImported) {
-				setVisible(false);
-			}
-			return;
+		} catch (Exception e1) {
+			JOptionPane.showMessageDialog(null, "This part cannot be imported: " + e1.getMessage());
+			e1.printStackTrace();
 		}
 
-		if (e.getSource() == viewAnnotations) {
-			viewAnnotationHandler();
+		if (e.getSource() == openAnnotations) {
+			openAnnotationHandler();
 			return;
 		}
 
@@ -524,6 +519,7 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 			e1.printStackTrace();
 			keepVisible = true;
 		}
+
 		if (!keepVisible) {
 			setVisible(false);
 		} else {
@@ -538,8 +534,8 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 		}
 	}
 
-	private void viewAnnotationHandler() {
-		new AnnotationViewer(parent, CD);
+	private void openAnnotationHandler() {
+		new AnnotationEditor(parent, CD);
 	}
 
 	/**

@@ -39,7 +39,7 @@ import org.sbolstandard.core2.Identified;
 import com.clarkparsia.sbol.CharSequences;
 import com.clarkparsia.swing.AbstractListTableModel;
 
-public class AnnotationViewer extends JDialog implements ActionListener {
+public class AnnotationEditor extends JDialog implements ActionListener {
 	private static final String TITLE = "Annotations: ";
 
 	private ComponentDefinition CD;
@@ -64,7 +64,7 @@ public class AnnotationViewer extends JDialog implements ActionListener {
 		return (title == null) ? "" : CharSequences.shorten(title, 20).toString();
 	}
 
-	public AnnotationViewer(final Component parent, ComponentDefinition CD) {
+	public AnnotationEditor(final Component parent, ComponentDefinition CD) {
 		super(JOptionPane.getFrameForComponent(parent), TITLE + title(CD), true);
 		this.CD = CD;
 
@@ -182,8 +182,13 @@ public class AnnotationViewer extends JDialog implements ActionListener {
 		if (e.getSource() == editButton) {
 			int row = table.convertRowIndexToModel(table.getSelectedRow());
 			Annotation a = ((AnnotationTableModel) table.getModel()).getElement(row);
-			CD.removeAnnotation(a);
-			new AnnotationEditDialog(null, a, CD).getInput();
+			Annotation result = new AnnotationEditDialog(null, a, CD).getInput();
+
+			if (result != null) {
+				// A new annotation was added that isn't a
+				CD.removeAnnotation(a);
+			}
+
 			updateTable();
 		}
 
