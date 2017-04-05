@@ -30,6 +30,7 @@ import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
+import javax.xml.namespace.QName;
 
 import org.sbolstandard.core2.Annotation;
 import org.sbolstandard.core2.ComponentDefinition;
@@ -174,12 +175,15 @@ public class AnnotationViewer extends JDialog implements ActionListener {
 		}
 
 		if (e.getSource() == addButton) {
-			// TODO make changes to CD
+			new AnnotationEditDialog(null, null, CD).getInput();
 			updateTable();
 		}
 
 		if (e.getSource() == editButton) {
-			// TODO make changes to CD
+			int row = table.convertRowIndexToModel(table.getSelectedRow());
+			Annotation a = ((AnnotationTableModel) table.getModel()).getElement(row);
+			CD.removeAnnotation(a);
+			new AnnotationEditDialog(null, a, CD).getInput();
 			updateTable();
 		}
 

@@ -31,11 +31,6 @@ import com.clarkparsia.sbol.editor.Registry;
 import com.clarkparsia.swing.FormBuilder;
 import com.google.common.base.Strings;
 
-/*
- * ListDialog.java is meant to be used by programs such as
- * ListDialogRunner.  It requires no additional files.
- */
-
 /**
  * 
  * @author Evren Sirin
