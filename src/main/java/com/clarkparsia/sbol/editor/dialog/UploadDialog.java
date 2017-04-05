@@ -250,9 +250,8 @@ public class UploadDialog extends JDialog implements ActionListener, DocumentLis
 			try {
 				SearchQuery query = new SearchQuery();
 				SearchCriteria crit = new SearchCriteria();
-				// TODO what value to get all collections?
-				crit.setKey("collection");
-				crit.setValue("");
+				crit.setKey("objectType");
+				crit.setValue("Collection");
 				query.addCriteria(crit);
 				List<IdentifiedMetadata> results = stack.search(query);
 
