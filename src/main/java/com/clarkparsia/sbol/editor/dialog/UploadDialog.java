@@ -235,52 +235,53 @@ public class UploadDialog extends JDialog implements ActionListener, DocumentLis
 	 */
 	@Override
 	public void mouseClicked(MouseEvent e) {
+		if (e.getSource() == collections) {
+			SynBioHubFrontend stack = toBeUploaded.addRegistry(registry.getLocation(), registry.getUriPrefix());
 
-		SynBioHubFrontend stack = toBeUploaded.addRegistry(registry.getLocation(), registry.getUriPrefix());
-
-		try {
-			stack.login(username.getText(), new String(password.getPassword()));
-		} catch (SynBioHubException e1) {
-			JOptionPane.showMessageDialog(parent,
-					"Collection selection requires a valid username and password to be entered",
-					"Collection selection failed", JOptionPane.ERROR_MESSAGE);
-			return;
-		}
-
-		try {
-			SearchQuery query = new SearchQuery();
-			SearchCriteria crit = new SearchCriteria();
-			// TODO what value to get all collections?
-			crit.setKey("collection");
-			crit.setValue("");
-			query.addCriteria(crit);
-			List<IdentifiedMetadata> results = stack.search(query);
-
-			if (results.size() == 0) {
+			try {
+				stack.login(username.getText(), new String(password.getPassword()));
+			} catch (SynBioHubException e1) {
+				MessageDialog.showMessage(parent,
+						"Collection selection requires a valid username and password to be entered",
+						Arrays.asList(e1.getMessage().split("\"|,")));
 				return;
 			}
 
-			List<String> uris = new ArrayList<String>();
-			results.forEach((metadata) -> uris.add(metadata.getUri()));
+			try {
+				SearchQuery query = new SearchQuery();
+				SearchCriteria crit = new SearchCriteria();
+				// TODO what value to get all collections?
+				crit.setKey("collection");
+				crit.setValue("");
+				query.addCriteria(crit);
+				List<IdentifiedMetadata> results = stack.search(query);
 
-			Object[] options = uris.toArray();
-
-			int result = JOptionPane.showOptionDialog(parent, "Select a collection", "Collection selection",
-					JOptionPane.OK_OPTION, JOptionPane.PLAIN_MESSAGE, null, options, options[0]);
-
-			if (result != JOptionPane.CLOSED_OPTION) {
-				String text = collections.getText();
-
-				if (text.equals("")) {
-					text = (String) options[result];
-				} else {
-					text = text + "," + (String) options[result];
+				if (results.size() == 0) {
+					return;
 				}
 
-				collections.setText(text);
+				List<String> uris = new ArrayList<String>();
+				results.forEach((metadata) -> uris.add(metadata.getUri()));
+
+				Object[] options = uris.toArray();
+
+				int result = JOptionPane.showOptionDialog(parent, "Select a collection", "Collection selection",
+						JOptionPane.OK_OPTION, JOptionPane.PLAIN_MESSAGE, null, options, options[0]);
+
+				if (result != JOptionPane.CLOSED_OPTION) {
+					String text = collections.getText();
+
+					if (text.equals("")) {
+						text = (String) options[result];
+					} else {
+						text = text + "," + (String) options[result];
+					}
+
+					collections.setText(text);
+				}
+			} catch (SynBioHubException e1) {
+				MessageDialog.showMessage(parent, "Oops", Arrays.asList(e1.getMessage().split("\"|,")));
 			}
-		} catch (SynBioHubException e1) {
-			e1.printStackTrace();
 		}
 	}
 
