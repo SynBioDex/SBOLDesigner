@@ -71,7 +71,8 @@ public class UploadDialog extends JDialog implements ActionListener, DocumentLis
 	private final JButton uploadButton = new JButton("Upload");
 	private final JButton cancelButton = new JButton("Cancel");
 	private final JComboBox<String> options = new JComboBox<>(new String[] { "Prevent Submission",
-			"Overwrite Submission", "Merge and Prevent, if existing", "Merge and Replace, if existing" });
+			"Overwrite Submission", "Merge and Prevent if member of collection exists",
+			"Merge and Replace if member of collection exists" });
 	private final JTextField username = new JTextField("");
 	private final JPasswordField password = new JPasswordField("");
 	private final JTextField submissionId = new JTextField("");
@@ -170,7 +171,7 @@ public class UploadDialog extends JDialog implements ActionListener, DocumentLis
 		builder.add("Description *", description);
 		builder.add("Citations", citations);
 		builder.add("Collections", collections);
-		builder.add("Options", options);
+		builder.add("Options (if existing)", options);
 		JPanel panel = builder.build();
 		panel.setAlignmentX(LEFT_ALIGNMENT);
 		return panel;
