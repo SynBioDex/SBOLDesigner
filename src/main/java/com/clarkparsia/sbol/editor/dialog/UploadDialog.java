@@ -6,8 +6,14 @@ import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -27,6 +33,9 @@ import javax.swing.KeyStroke;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
+import org.synbiohub.frontend.IdentifiedMetadata;
+import org.synbiohub.frontend.SearchCriteria;
+import org.synbiohub.frontend.SearchQuery;
 import org.synbiohub.frontend.SynBioHubException;
 import org.synbiohub.frontend.SynBioHubFrontend;
 import org.sbolstandard.core2.ComponentDefinition;
@@ -40,7 +49,7 @@ import com.clarkparsia.sbol.editor.SBOLEditorPreferences;
 import com.clarkparsia.swing.FormBuilder;
 import com.clarkparsia.versioning.PersonInfo;
 
-public class UploadDialog extends JDialog implements ActionListener, DocumentListener {
+public class UploadDialog extends JDialog implements ActionListener, DocumentListener, MouseListener {
 	private static final String TITLE = "Upload Design: ";
 
 	private static String title(Registry registry) {
@@ -70,7 +79,7 @@ public class UploadDialog extends JDialog implements ActionListener, DocumentLis
 	private final JTextField name = new JTextField("");
 	private final JTextField description = new JTextField("");
 	private final JTextField citations = new JTextField("");
-	private final JTextField keywords = new JTextField("");
+	private final JTextField collections = new JTextField("");
 
 	public UploadDialog(final Component parent, Registry registry, SBOLDocument toBeUploaded) {
 		super(JOptionPane.getFrameForComponent(parent), TITLE + title(registry), true);
@@ -148,7 +157,8 @@ public class UploadDialog extends JDialog implements ActionListener, DocumentLis
 		name.getDocument().addDocumentListener(this);
 		description.getDocument().addDocumentListener(this);
 		citations.getDocument().addDocumentListener(this);
-		keywords.getDocument().addDocumentListener(this);
+		collections.getDocument().addDocumentListener(this);
+		collections.addMouseListener(this);
 
 		FormBuilder builder = new FormBuilder();
 		builder.add("Username *", username);
@@ -159,7 +169,7 @@ public class UploadDialog extends JDialog implements ActionListener, DocumentLis
 		builder.add("Name *", name);
 		builder.add("Description *", description);
 		builder.add("Citations", citations);
-		builder.add("Keywords", keywords);
+		builder.add("Collections", collections);
 		builder.add("Options", options);
 		JPanel panel = builder.build();
 		panel.setAlignmentX(LEFT_ALIGNMENT);
@@ -194,7 +204,7 @@ public class UploadDialog extends JDialog implements ActionListener, DocumentLis
 		String option = Integer.toString(options.getSelectedIndex());
 
 		stack.submit(submissionId.getText(), version.getText(), name.getText(), description.getText(),
-				citations.getText(), keywords.getText(), option, toBeUploaded);
+				citations.getText(), collections.getText(), option, toBeUploaded);
 	}
 
 	@Override
@@ -217,6 +227,76 @@ public class UploadDialog extends JDialog implements ActionListener, DocumentLis
 				&& !name.getText().equals("") && !description.getText().equals("") && !username.getText().equals("")
 				&& !password.getPassword().equals("");
 		uploadButton.setEnabled(shouldEnable);
+	}
+
+	/*
+	 * All mouse methods are for collections and collection selection
+	 */
+	@Override
+	public void mouseClicked(MouseEvent e) {
+
+		SynBioHubFrontend stack = toBeUploaded.addRegistry(registry.getLocation(), registry.getUriPrefix());
+
+		try {
+			stack.login(username.getText(), new String(password.getPassword()));
+		} catch (SynBioHubException e1) {
+			JOptionPane.showMessageDialog(parent,
+					"Collection selection requires a valid username and password to be entered",
+					"Collection selection failed", JOptionPane.ERROR_MESSAGE);
+			return;
+		}
+
+		try {
+			SearchQuery query = new SearchQuery();
+			SearchCriteria crit = new SearchCriteria();
+			// TODO what value to get all collections?
+			crit.setKey("collection");
+			crit.setValue("");
+			query.addCriteria(crit);
+			List<IdentifiedMetadata> results = stack.search(query);
+
+			if (results.size() == 0) {
+				return;
+			}
+
+			List<String> uris = new ArrayList<String>();
+			results.forEach((metadata) -> uris.add(metadata.getUri()));
+
+			Object[] options = uris.toArray();
+
+			int result = JOptionPane.showOptionDialog(parent, "Select a collection", "Collection selection",
+					JOptionPane.OK_OPTION, JOptionPane.PLAIN_MESSAGE, null, options, options[0]);
+
+			if (result != JOptionPane.CLOSED_OPTION) {
+				String text = collections.getText();
+
+				if (text.equals("")) {
+					text = (String) options[result];
+				} else {
+					text = text + "," + (String) options[result];
+				}
+
+				collections.setText(text);
+			}
+		} catch (SynBioHubException e1) {
+			e1.printStackTrace();
+		}
+	}
+
+	@Override
+	public void mousePressed(MouseEvent e) {
+	}
+
+	@Override
+	public void mouseReleased(MouseEvent e) {
+	}
+
+	@Override
+	public void mouseEntered(MouseEvent e) {
+	}
+
+	@Override
+	public void mouseExited(MouseEvent e) {
 	}
 
 }
