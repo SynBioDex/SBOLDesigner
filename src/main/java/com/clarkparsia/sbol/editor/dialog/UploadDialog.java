@@ -219,15 +219,6 @@ public class UploadDialog extends JDialog implements ActionListener, DocumentLis
 		SynBioHubFrontend stack = toBeUploaded.addRegistry(registry.getLocation(), registry.getUriPrefix());
 
 		try {
-			stack.login(username.getText(), new String(password.getPassword()));
-		} catch (SynBioHubException e1) {
-			MessageDialog.showMessage(parent,
-					"Collection selection requires a valid username and password to be entered",
-					Arrays.asList(e1.getMessage().split("\"|,")));
-			return;
-		}
-
-		try {
 			SearchQuery query = new SearchQuery();
 			SearchCriteria crit = new SearchCriteria();
 			crit.setKey("objectType");
