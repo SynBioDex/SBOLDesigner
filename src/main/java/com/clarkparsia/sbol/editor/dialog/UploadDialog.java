@@ -19,17 +19,24 @@ import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
+import javax.swing.DefaultListCellRenderer;
+import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JRadioButton;
+import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
+import javax.swing.ListCellRenderer;
+import javax.swing.ListModel;
+import javax.swing.ListSelectionModel;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
@@ -70,7 +77,6 @@ public class UploadDialog extends JDialog implements ActionListener, DocumentLis
 			"Submission form for uploading to SynBioHub.  The options specify what actions to take for duplicate designs.  (*) indicates a required field");
 	private final JButton uploadButton = new JButton("Upload");
 	private final JButton cancelButton = new JButton("Cancel");
-	private final JButton collectionsButton = new JButton("Browse Collections");
 	private final JComboBox<String> options = new JComboBox<>(new String[] { "Prevent Submission",
 			"Overwrite Submission", "Merge and Prevent if member of collection exists",
 			"Merge and Replace if member of collection exists" });
@@ -81,7 +87,7 @@ public class UploadDialog extends JDialog implements ActionListener, DocumentLis
 	private final JTextField name = new JTextField("");
 	private final JTextField description = new JTextField("");
 	private final JTextField citations = new JTextField("");
-	private final JTextField collections = new JTextField("");
+	private JList<IdentifiedMetadata> collections = null;
 
 	public UploadDialog(final Component parent, Registry registry, SBOLDocument toBeUploaded) {
 		super(JOptionPane.getFrameForComponent(parent), TITLE + title(registry), true);
@@ -122,8 +128,6 @@ public class UploadDialog extends JDialog implements ActionListener, DocumentLis
 		name.setText(root.isSetName() ? root.getName() : root.getDisplayId());
 		description.setText(root.isSetDescription() ? root.getDescription() : "");
 
-		collectionsButton.addActionListener(this);
-
 		cancelButton.registerKeyboardAction(this, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0),
 				JComponent.WHEN_IN_FOCUSED_WINDOW);
 		cancelButton.addActionListener(this);
@@ -135,7 +139,6 @@ public class UploadDialog extends JDialog implements ActionListener, DocumentLis
 		JPanel buttonPane = new JPanel();
 		buttonPane.setLayout(new BoxLayout(buttonPane, BoxLayout.LINE_AXIS));
 		buttonPane.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-		buttonPane.add(collectionsButton);
 		buttonPane.add(Box.createHorizontalStrut(100));
 		buttonPane.add(Box.createHorizontalGlue());
 		buttonPane.add(cancelButton);
@@ -162,7 +165,6 @@ public class UploadDialog extends JDialog implements ActionListener, DocumentLis
 		name.getDocument().addDocumentListener(this);
 		description.getDocument().addDocumentListener(this);
 		citations.getDocument().addDocumentListener(this);
-		collections.getDocument().addDocumentListener(this);
 
 		FormBuilder builder = new FormBuilder();
 		builder.add("Username *", username);
@@ -172,12 +174,67 @@ public class UploadDialog extends JDialog implements ActionListener, DocumentLis
 		builder.add("Version *", version);
 		builder.add("Name *", name);
 		builder.add("Description *", description);
-		builder.add("Citations", citations);
-		builder.add("Collections", collections);
 		builder.add("Options (if existing)", options);
 		JPanel panel = builder.build();
 		panel.setAlignmentX(LEFT_ALIGNMENT);
-		return panel;
+
+		// setup collections
+		collections = new JList<IdentifiedMetadata>(setupListModel());
+		collections.setCellRenderer(new MyListCellRenderer());
+		collections.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+		collections.setLayoutOrientation(JList.VERTICAL);
+		collections.setVisibleRowCount(5);
+		JScrollPane collectionsScroller = new JScrollPane(collections);
+		collectionsScroller.setPreferredSize(new Dimension(50, 200));
+		collectionsScroller.setAlignmentX(LEFT_ALIGNMENT);
+
+		JPanel mainPanel = new JPanel();
+		mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.PAGE_AXIS));
+		mainPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+		mainPanel.add(panel);
+		mainPanel.add(new JLabel("Collections:"));
+		mainPanel.add(collectionsScroller);
+
+		return mainPanel;
+	}
+
+	private class MyListCellRenderer extends DefaultListCellRenderer {
+		@Override
+		public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected,
+				boolean cellHasFocus) {
+			JLabel label = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+			label.setOpaque(isSelected); // Highlight only when selected
+			label.setText(((IdentifiedMetadata) value).getName());
+			return label;
+		}
+	}
+
+	private ListModel<IdentifiedMetadata> setupListModel() {
+		DefaultListModel<IdentifiedMetadata> model = new DefaultListModel<IdentifiedMetadata>();
+
+		SynBioHubFrontend stack = toBeUploaded.addRegistry(registry.getLocation(), registry.getUriPrefix());
+		SearchQuery query = new SearchQuery();
+		SearchCriteria crit = new SearchCriteria();
+		crit.setKey("objectType");
+		crit.setValue("Collection");
+		query.addCriteria(crit);
+		query.setLimit(10000);
+		query.setOffset(0);
+		List<IdentifiedMetadata> results;
+		try {
+			results = stack.search(query);
+		} catch (SynBioHubException e) {
+			return model;
+		}
+
+		if (results.size() == 0) {
+			return model;
+		}
+
+		for (IdentifiedMetadata collection : results) {
+			model.addElement(collection);
+		}
+		return model;
 	}
 
 	@Override
@@ -198,10 +255,6 @@ public class UploadDialog extends JDialog implements ActionListener, DocumentLis
 				toBeUploaded.clearRegistries();
 			}
 		}
-
-		if (e.getSource() == collectionsButton) {
-			collectionsButtonHandler();
-		}
 	}
 
 	private void uploadDesign() throws SynBioHubException {
@@ -211,49 +264,19 @@ public class UploadDialog extends JDialog implements ActionListener, DocumentLis
 
 		String option = Integer.toString(options.getSelectedIndex());
 
+		System.out.println(getSelectedCollections(collections));
 		stack.submit(submissionId.getText(), version.getText(), name.getText(), description.getText(),
-				citations.getText(), collections.getText(), option, toBeUploaded);
+				citations.getText(), getSelectedCollections(collections), option, toBeUploaded);
+		System.out.println("DONE");
 	}
 
-	private void collectionsButtonHandler() {
-		SynBioHubFrontend stack = toBeUploaded.addRegistry(registry.getLocation(), registry.getUriPrefix());
-
-		try {
-			SearchQuery query = new SearchQuery();
-			SearchCriteria crit = new SearchCriteria();
-			crit.setKey("objectType");
-			crit.setValue("Collection");
-			query.addCriteria(crit);
-			query.setLimit(10000);
-			query.setOffset(0);
-			List<IdentifiedMetadata> results = stack.search(query);
-
-			if (results.size() == 0) {
-				return;
-			}
-
-			List<String> uris = new ArrayList<String>();
-			results.forEach((metadata) -> uris.add(metadata.getUri().toString()));
-
-			Object[] options = uris.toArray();
-
-			Object selection = JOptionPane.showInputDialog(parent, "Select a collection", "Collection selection",
-					JOptionPane.PLAIN_MESSAGE, null, options, options[0]);
-
-			if (selection != null) {
-				String text = collections.getText();
-
-				if (text.equals("")) {
-					text = (String) selection;
-				} else {
-					text = text + "," + (String) selection;
-				}
-
-				collections.setText(text);
-			}
-		} catch (SynBioHubException e1) {
-			MessageDialog.showMessage(parent, "Oops", Arrays.asList(e1.getMessage().split("\"|,")));
+	private String getSelectedCollections(JList<IdentifiedMetadata> col) {
+		StringBuilder result = new StringBuilder();
+		for (IdentifiedMetadata collection : col.getSelectedValuesList()) {
+			result.append(collection.getUri());
+			result.append(",");
 		}
+		return result.length() > 0 ? result.substring(0, result.length() - 1) : "";
 	}
 
 	@Override
