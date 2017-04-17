@@ -264,10 +264,8 @@ public class UploadDialog extends JDialog implements ActionListener, DocumentLis
 
 		String option = Integer.toString(options.getSelectedIndex());
 
-		System.out.println(getSelectedCollections(collections));
 		stack.submit(submissionId.getText(), version.getText(), name.getText(), description.getText(),
 				citations.getText(), getSelectedCollections(collections), option, toBeUploaded);
-		System.out.println("DONE");
 	}
 
 	private String getSelectedCollections(JList<IdentifiedMetadata> col) {
