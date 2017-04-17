@@ -3,12 +3,14 @@ package com.clarkparsia.sbol.editor.dialog;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Container;
+import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.IOException;
 import java.net.URI;
 
 import javax.swing.BorderFactory;
@@ -131,9 +133,7 @@ public class AnnotationEditor extends JDialog implements ActionListener {
 
 		table.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(MouseEvent e) {
-				if (e.getClickCount() == 2 && table.getSelectedRow() >= 0) {
-					// TODO a more extensive viewer? focus in?
-				}
+				handleTableClick(e);
 			}
 		});
 
@@ -208,4 +208,20 @@ public class AnnotationEditor extends JDialog implements ActionListener {
 		table.setRowSorter(sorter);
 	}
 
+	protected void handleTableClick(MouseEvent e) {
+		// TODO potentially supported nested annotations and allow focus in
+		if (e.getClickCount() == 2 && table.getSelectedRow() >= 0) {
+			int row = table.convertRowIndexToModel(table.getSelectedRow());
+			Annotation a = ((AnnotationTableModel) table.getModel()).getElement(row);
+
+			if (a.isURIValue()) {
+				// clicked on an URI
+				try {
+					Desktop.getDesktop().browse(a.getURIValue());
+				} catch (IOException e1) {
+					JOptionPane.showMessageDialog(null, "The URI could not be opened: " + e1.getMessage());
+				}
+			}
+		}
+	}
 }

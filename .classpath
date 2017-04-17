@@ -27,7 +27,7 @@
 	</classpathentry>
 	<classpathentry kind="lib" path="lib/libSBOLj-2.2-javadoc.jar"/>
 	<classpathentry kind="lib" path="lib/libSBOLj-2.2-sources.jar"/>
-	<classpathentry kind="lib" path="lib/libSBOLj-2.2-withDependencies.jar"/>
+	<classpathentry kind="lib" path="lib/libSBOLj-2.2-withDependencies.jar" sourcepath="lib/libSBOLj-2.2-sources.jar"/>
 	<classpathentry kind="lib" path="lib/libSBOLj-2.2.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>
