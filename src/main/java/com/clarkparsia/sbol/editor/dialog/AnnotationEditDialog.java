@@ -19,6 +19,8 @@ import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Arrays;
 
 import javax.swing.JButton;
@@ -45,6 +47,7 @@ public class AnnotationEditDialog extends InputDialog<Annotation> {
 	private JTextField prefix;
 	private JTextField name;
 	private JTextComponent value;
+	private JCheckBox uri = new JCheckBox();
 	private Annotation oldAnnotation = null;
 	private ComponentDefinition cd = null;
 
@@ -69,12 +72,14 @@ public class AnnotationEditDialog extends InputDialog<Annotation> {
 			oldPrefix = oldAnnotation.getQName().getPrefix();
 			oldName = oldAnnotation.getQName().getLocalPart();
 			oldValue = getValue(oldAnnotation);
+			uri.setSelected(oldAnnotation.isURIValue());
 		}
 
 		namespace = builder.addTextField("Namespace", oldNamespace);
 		prefix = builder.addTextField("Prefix", oldPrefix);
 		name = builder.addTextField("Name", oldName);
 		value = builder.addTextField("Value", oldValue);
+		builder.add("Is clickable URI?", uri);
 	}
 
 	private String getValue(Annotation ann) {
@@ -101,9 +106,14 @@ public class AnnotationEditDialog extends InputDialog<Annotation> {
 	@Override
 	protected Annotation getSelection() {
 		try {
-			return cd.createAnnotation(new QName(namespace.getText(), name.getText(), prefix.getText()),
-					value.getText());
-		} catch (SBOLValidationException e) {
+			if (uri.isSelected()) {
+				return cd.createAnnotation(new QName(namespace.getText(), name.getText(), prefix.getText()),
+						new URI(value.getText()));
+			} else {
+				return cd.createAnnotation(new QName(namespace.getText(), name.getText(), prefix.getText()),
+						value.getText());
+			}
+		} catch (SBOLValidationException | URISyntaxException e) {
 			MessageDialog.showMessage(null, "Oops", Arrays.asList(e.getMessage().split("\"|,")));
 			return null;
 		}
