@@ -29,13 +29,13 @@ public class Registry implements Serializable {
 	private final String uriPrefix;
 
 	public static final Registry BUILT_IN = new Registry("Built-in parts",
-			"Built-in registry containing all the iGEM parts", "N/A", "N/A");
+			"Built-in parts obtained from the iGEM registry", "N/A", "N/A");
 
 	public static final Registry WORKING_DOCUMENT = new Registry("Working document",
 			"The current file you are working in", "N/A", "N/A");
 
-	public static final Registry STACK = new Registry("iGEM SBOL Registry",
-			"An SBOL Stack instance hosted by Newcastle University for storing iGEM registry parts",
+	public static final Registry STACK = new Registry("SynBioHub",
+			"The reference SynBioHub instance",
 			"http://synbiohub.org", "http://synbiohub.org");
 
 	public Registry(String name, String description, String location, String uriPrefix) {
