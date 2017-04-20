@@ -818,7 +818,6 @@ public class SBOLDesignerPanel extends JPanel {
 		COMMIT.setEnabled(designChanged || !versionedDesign);
 		// save and export is enabled only if the design changed
 		SAVE.setEnabled(designChanged);
-		EXPORT.setEnabled(designChanged);
 	}
 
 	public boolean isModified() {
