@@ -1,13 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="src" path="src/main/resources"/>
+	<classpathentry excluding="**" kind="src" output="target/classes" path="src/main/resources">
+		<attributes>
+			<attribute name="maven.pomderived" value="true"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="src" output="target/classes" path="src/main/java">
 		<attributes>
 			<attribute name="optional" value="true"/>
 			<attribute name="maven.pomderived" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="src" path="target/generated-sources"/>
+	<classpathentry kind="src" output="target/classes" path="target/generated-sources">
+		<attributes>
+			<attribute name="optional" value="true"/>
+			<attribute name="maven.pomderived" value="true"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8">
 		<attributes>
 			<attribute name="maven.pomderived" value="true"/>
@@ -25,9 +34,9 @@
 			<attribute name="maven.pomderived" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="lib/libSBOLj-2.2-javadoc.jar"/>
-	<classpathentry kind="lib" path="lib/libSBOLj-2.2-sources.jar"/>
-	<classpathentry kind="lib" path="lib/libSBOLj-2.2-withDependencies.jar" sourcepath="lib/libSBOLj-2.2-sources.jar"/>
-	<classpathentry kind="lib" path="lib/libSBOLj-2.2.jar"/>
+	<classpathentry kind="lib" path="lib/libSBOLj-2.2.0-javadoc.jar"/>
+	<classpathentry kind="lib" path="lib/libSBOLj-2.2.0-sources.jar"/>
+	<classpathentry kind="lib" path="lib/libSBOLj-2.2.0-withDependencies.jar"/>
+	<classpathentry kind="lib" path="lib/libSBOLj-2.2.0.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>
