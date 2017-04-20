@@ -806,16 +806,20 @@ public class SBOLDesignerPanel extends JPanel {
 	void updateEnabledButtons(boolean designChanged) {
 		// enable version actions only if this is a versioned design
 		boolean versionedDesign = (documentIO instanceof RVTDocumentIO);
+
 		for (SBOLEditorAction action : VERSION_ACTIONS) {
 			action.setEnabled(versionedDesign);
 		}
+
 		// new and checkout actions are always enabled
 		NEW_VERSION.setEnabled(true);
 		CHECKOUT.setEnabled(true);
 		QUERY_VERSION.setEnabled(true);
+
 		// commit enabled is design changed or it is not versioned so you can
 		// load a design from a file and save it in the version registry
 		COMMIT.setEnabled(designChanged || !versionedDesign);
+
 		// save and export is enabled only if the design changed
 		SAVE.setEnabled(designChanged);
 	}
