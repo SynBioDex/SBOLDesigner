@@ -30,7 +30,7 @@ public class AnnotationTableModel extends AbstractListTableModel<Annotation> {
 			} else if (ann.getStringValue() != null) {
 				return ann.getStringValue();
 			} else if (ann.getURIValue() != null) {
-				return "Clickable( " + ann.getURIValue().toString() + " )";
+				return ann.getURIValue().toString();
 			} else {
 				return "No value found";
 			}
