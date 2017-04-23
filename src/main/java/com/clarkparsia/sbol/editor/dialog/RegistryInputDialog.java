@@ -437,6 +437,12 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 				}
 				document = synBioHub.getSBOL(URI.create(compMeta.identified.getUri()));
 				comp = document.getComponentDefinition(URI.create(compMeta.identified.getUri()));
+				if (comp==null) {
+					// TODO: if cannot find it then return root component definition from document
+					for (ComponentDefinition cd : document.getRootComponentDefinitions()) {
+						comp = cd;
+					}
+				}
 			} else {
 				comp = ((ComponentDefinitionTableModel) table.getModel()).getElement(row);
 			}
