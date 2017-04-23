@@ -321,7 +321,7 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 	 * IdentifiedMetadata.
 	 */
 	private boolean isMetadata() {
-		return location.startsWith("http://");
+		return location.startsWith("http://") || location.startsWith("https://");
 	}
 
 	/**
