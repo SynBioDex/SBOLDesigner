@@ -85,7 +85,7 @@ public class Registries implements Iterable<Registry> {
 		registries.clear();
 		registries.add(Registry.BUILT_IN);
 		registries.add(Registry.WORKING_DOCUMENT);
-		registries.add(Registry.STACK);
+		registries.add(Registry.SYNBIOHUB);
 		partRegistryIndex = 1;
 		versionRegistryIndex = 1;
 		isModified = true;

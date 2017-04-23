@@ -34,8 +34,7 @@ public class Registry implements Serializable {
 	public static final Registry WORKING_DOCUMENT = new Registry("Working document",
 			"The current file you are working in", "N/A", "N/A");
 
-	public static final Registry STACK = new Registry("SynBioHub",
-			"The reference SynBioHub instance",
+	public static final Registry SYNBIOHUB = new Registry("SynBioHub", "The reference SynBioHub instance",
 			"http://synbiohub.org", "http://synbiohub.org");
 
 	public Registry(String name, String description, String location, String uriPrefix) {
@@ -65,9 +64,9 @@ public class Registry implements Serializable {
 	public String getUriPrefix() {
 		return uriPrefix;
 	}
-	
+
 	public boolean isPath() {
-		return !location.startsWith("http://");
+		return !location.startsWith("http://") && !location.startsWith("https://");
 	}
 
 	@Override

@@ -1245,7 +1245,7 @@ public class SBOLDesign {
 	public void uploadDesign() throws SynBioHubException, SBOLValidationException, URIException {
 		ArrayList<Registry> list = new ArrayList<Registry>();
 		for (Registry r : Registries.get()) {
-			if (r.getLocation().startsWith("http://")) {
+			if (!r.isPath()) {
 				list.add(r);
 			}
 		}
