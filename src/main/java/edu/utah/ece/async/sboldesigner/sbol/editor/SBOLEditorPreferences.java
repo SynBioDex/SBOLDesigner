@@ -85,7 +85,8 @@ public enum SBOLEditorPreferences {
 	public boolean isVersioningEnabled() {
 		if (enableVersioning == null) {
 			Preferences prefs = Preferences.userNodeForPackage(SBOLEditorPreferences.class).node("versioning");
-			enableVersioning = prefs.getBoolean("enable", true);
+			// versioning is no longer supported
+			enableVersioning = prefs.getBoolean("enable", false);
 		}
 
 		return enableVersioning;
