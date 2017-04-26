@@ -29,6 +29,8 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -668,24 +670,49 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 	}
 
 	private void addSBOLDesignerAnnotation(ComponentDefinition cd) throws SBOLValidationException {
-		GenericTopLevel gtl = design.getGenericTopLevel(URI.create("http://www.async.ece.utah.edu/SBOLDesigner/2.2"));
+		// get/create SBOLDesigner agent
+		GenericTopLevel designerAgent = design
+				.getGenericTopLevel(URI.create("http://www.async.ece.utah.edu/SBOLDesigner/2.2"));
 
-		if (gtl == null) {
-			gtl = design.createGenericTopLevel("http://www.async.ece.utah.edu", "SBOLDesigner", "2.2",
-					new QName("http://www.w3.org/ns/prov#", "Activity", "prov"));
-
-			String creator = SBOLEditorPreferences.INSTANCE.getUserInfo().getName();
-			gtl.createAnnotation(new QName("http://www.w3.org/ns/prov#", "creator", "prov"), creator);
-
-			gtl.createAnnotation(new QName("http://www.w3.org/ns/prov#", "endedAtTime", "prov"),
-					System.currentTimeMillis());
+		if (designerAgent == null) {
+			designerAgent = design.createGenericTopLevel("http://www.async.ece.utah.edu", "SBOLDesigner", "2.2",
+					new QName("http://www.w3.org/ns/prov#", "Agent", "prov"));
+			designerAgent.setName("SBOLDesigner CAD Tool");
 		}
-		System.out.println(gtl.getIdentity());
 
+		// get/create the activity
+		URI activityURI = URI
+				.create(design.getDefaultURIprefix() + cd.getDisplayId() + "_SBOLDesigner" + "/" + cd.getVersion());
+		GenericTopLevel oldActivity = design.getGenericTopLevel(activityURI);
+
+		if (oldActivity != null) {
+			design.removeGenericTopLevel(oldActivity);
+		}
+
+		GenericTopLevel partActivity = design.createGenericTopLevel(design.getDefaultURIprefix(),
+				cd.getDisplayId() + "_SBOLDesigner", cd.getVersion(),
+				new QName("http://www.w3.org/ns/prov#", "Activity", "prov"));
+
+		String creator = SBOLEditorPreferences.INSTANCE.getUserInfo().getName();
+		partActivity.createAnnotation(new QName("http://www.w3.org/ns/prov#", "creator", "prov"), creator);
+
+		partActivity.createAnnotation(new QName("http://www.w3.org/ns/prov#", "endedAtTime", "prov"),
+				System.currentTimeMillis());
+
+		// create the qualified usage annotation
+		Annotation agentAnnotation = new Annotation(new QName("http://www.w3.org/ns/prov#", "agent", "prov"),
+				designerAgent.getIdentity());
+
+		partActivity.createAnnotation(new QName("http://www.w3.org/ns/prov#", "qualifiedUsage", "prov"),
+				new QName("http://www.w3.org/ns/prov#", "Usage", "prov"),
+				URI.create(partActivity.getIdentity().toString() + "/usage"),
+				new ArrayList<Annotation>(Arrays.asList(agentAnnotation)));
+
+		// link the cd/part to partActivity
 		Annotation prev = null;
 		for (Annotation a : cd.getAnnotations()) {
 			if (a.getQName().getLocalPart().equals("wasGeneratedBy") && a.isURIValue()
-					&& a.getURIValue().equals(gtl.getIdentity())) {
+					&& a.getURIValue().equals(designerAgent.getIdentity())) {
 				prev = a;
 			}
 		}
@@ -694,7 +721,8 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 			cd.removeAnnotation(prev);
 		}
 
-		cd.createAnnotation(new QName("http://www.w3.org/ns/prov#", "wasGeneratedBy", "prov"), gtl.getIdentity());
+		cd.createAnnotation(new QName("http://www.w3.org/ns/prov#", "wasGeneratedBy", "prov"),
+				partActivity.getIdentity());
 	}
 
 	/**
