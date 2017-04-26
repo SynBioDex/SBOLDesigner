@@ -2,7 +2,7 @@ syntax="proto3";
 
 package texts;
 
-option java_package="com.clarkparsia.sbol.editor.dialog.boostformat";
+option java_package="edu.utah.ece.async.sboldesigner.sbol.editor.dialog.boostformat";
 option java_outer_classname="Juggle";
 
 message Request {

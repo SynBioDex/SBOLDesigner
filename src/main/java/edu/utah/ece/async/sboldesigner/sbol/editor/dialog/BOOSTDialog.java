@@ -46,9 +46,8 @@ import org.sbolstandard.core2.SBOLDocument;
 
 import com.google.protobuf.util.JsonFormat;
 
+import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.boostformat.Juggle;
 import edu.utah.ece.async.sboldesigner.swing.FormBuilder;
-
-import com.clarkparsia.sbol.editor.dialog.boostformat.Juggle;
 
 /**
  * @author Michael Zhang
