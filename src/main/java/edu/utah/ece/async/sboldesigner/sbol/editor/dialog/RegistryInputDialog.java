@@ -158,7 +158,8 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 	}
 
 	/**
-	 * Recommended constructor
+	 * For when the working document is unknown and preferences node should be
+	 * used
 	 */
 	public RegistryInputDialog(final Component parent, final Part part, Types type, URI refinementRole) {
 		super(parent, TITLE);
@@ -438,8 +439,9 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 				}
 				document = synBioHub.getSBOL(URI.create(compMeta.identified.getUri()));
 				comp = document.getComponentDefinition(URI.create(compMeta.identified.getUri()));
-				if (comp==null) {
-					// TODO: if cannot find it then return root component definition from document
+				if (comp == null) {
+					// TODO: if cannot find it then return root component
+					// definition from document
 					for (ComponentDefinition cd : document.getRootComponentDefinitions()) {
 						comp = cd;
 					}

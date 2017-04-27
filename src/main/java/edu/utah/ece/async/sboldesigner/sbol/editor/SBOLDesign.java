@@ -1232,7 +1232,7 @@ public class SBOLDesign {
 		Types type = SBOLUtils
 				.convertURIsToType(new HashSet<URI>(Arrays.asList(selectedCD.getTypes().iterator().next())));
 		SBOLDocument selection = null;
-		selection = new RegistryInputDialog(panel.getParent(), part, type, role).getInput();
+		selection = new RegistryInputDialog(panel.getParent(), part, type, role, design).getInput();
 
 		if (selection != null) {
 			SBOLUtils.insertTopLevels(selection, design);
