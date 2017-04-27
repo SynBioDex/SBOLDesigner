@@ -29,6 +29,8 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.net.URI;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -697,7 +699,7 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 		partActivity.createAnnotation(new QName("http://www.w3.org/ns/prov#", "creator", "prov"), creator);
 
 		partActivity.createAnnotation(new QName("http://www.w3.org/ns/prov#", "endedAtTime", "prov"),
-				System.currentTimeMillis());
+				ZonedDateTime.now().format(DateTimeFormatter.ISO_INSTANT));
 
 		// create the qualified usage annotation
 		Annotation agentAnnotation = new Annotation(new QName("http://www.w3.org/ns/prov#", "agent", "prov"),
