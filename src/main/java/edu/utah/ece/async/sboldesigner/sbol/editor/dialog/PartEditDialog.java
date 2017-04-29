@@ -680,6 +680,10 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 			designerAgent = design.createGenericTopLevel("http://www.async.ece.utah.edu", "SBOLDesigner", "2.2",
 					new QName("http://www.w3.org/ns/prov#", "Agent", "prov"));
 			designerAgent.setName("SBOLDesigner CAD Tool");
+			// TODO add description and more creators
+			designerAgent.setDescription("");
+			designerAgent.createAnnotation(new QName("http://www.w3.org/ns/prov#", "creator", "prov"), "Michael Zhang");
+			designerAgent.createAnnotation(new QName("http://www.w3.org/ns/prov#", "creator", "prov"), "Chris Myers");
 		}
 
 		// get/create the activity
