@@ -54,6 +54,29 @@
     </pluginManagement>
     <plugins>
       <plugin>
+        <artifactId>maven-install-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>install-libSBOLj</id>
+            <phase>clean</phase>
+            <goals>
+              <goal>install-file</goal>
+            </goals>
+            <configuration>
+              <file>${basedir}/lib/libSBOLj-2.2.1-withDependencies.jar</file>
+              <repositoryLayout>default</repositoryLayout>
+              <groupId>org.sbolstandard</groupId>
+              <artifactId>libSBOLj</artifactId>
+              <version>2.2.1</version>
+              <packaging>jar</packaging>
+              <javadoc>${basedir}/lib/libSBOLj-2.2.1-javadoc.jar</javadoc>
+              <sources>${basedir}/lib/libSBOLj-2.2.1-sources.jar</sources>
+              <generatePom>true</generatePom>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
         <version>3.3</version>
         <configuration>

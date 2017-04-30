@@ -30,8 +30,6 @@ import javax.swing.UIManager;
 
 import org.sbolstandard.core2.SBOLValidationException;
 
-import com.apple.eawt.*;
-
 import edu.utah.ece.async.sboldesigner.sbol.editor.io.FileDocumentIO;
 
 /**
@@ -62,7 +60,7 @@ public class SBOLDesignerStandalone extends JFrame {
 		// set behavior for close operation
 		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		if (System.getProperty("os.name").toLowerCase().startsWith("mac os")) {
-			Application app = Application.getApplication();
+			//Application app = Application.getApplication();
 			// app.setQuitHandler(new QuitHandler() {
 			// public void handleQuitRequestWith(QuitEvent event, QuitResponse
 			// response) {
