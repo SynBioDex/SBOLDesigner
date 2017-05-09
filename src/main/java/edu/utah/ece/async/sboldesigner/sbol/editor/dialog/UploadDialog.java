@@ -97,18 +97,18 @@ public class UploadDialog extends JDialog implements ActionListener, DocumentLis
 		this.toBeUploaded = toBeUploaded;
 
 		// Remove objects that should already be found in this registry
-		for (TopLevel topLevel : this.toBeUploaded.getTopLevels()) {
-			String identity = topLevel.getIdentity().toString();
-			String registryPrefix = registry.getUriPrefix();
-			if ((!registryPrefix.equals("") && identity.startsWith(registryPrefix))
-					|| (registryPrefix.equals("") && identity.startsWith(registry.getLocation()))) {
-				try {
-					this.toBeUploaded.removeTopLevel(topLevel);
-				} catch (SBOLValidationException e) {
-					e.printStackTrace();
-				}
-			}
-		}
+//		for (TopLevel topLevel : this.toBeUploaded.getTopLevels()) {
+//			String identity = topLevel.getIdentity().toString();
+//			String registryPrefix = registry.getUriPrefix();
+//			if ((!registryPrefix.equals("") && identity.startsWith(registryPrefix))
+//					|| (registryPrefix.equals("") && identity.startsWith(registry.getLocation()))) {
+//				try {
+//					this.toBeUploaded.removeTopLevel(topLevel);
+//				} catch (SBOLValidationException e) {
+//					e.printStackTrace();
+//				}
+//			}
+//		}
 
 		// set default values
 		PersonInfo userInfo = SBOLEditorPreferences.INSTANCE.getUserInfo();
