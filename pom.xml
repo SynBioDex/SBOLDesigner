@@ -4,7 +4,7 @@
 	<artifactId>SBOLDesigner</artifactId>
 	<version>2.2-SNAPSHOT</version>
 	<name>SBOLDesigner</name>
-	<description>An intuitive genetic design tool using SBOL 2.0</description>
+	<description>An intuitive genetic design tool using SBOL 2</description>
 	<repositories>
 		<repository>
 			<id>libRepo</id>
@@ -49,6 +49,17 @@
 				<configuration>
 					<source>1.8</source>
 					<target>1.8</target>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<configuration>
+					<archive>
+						<manifest>
+							<mainClass>edu.utah.ece.async.sboldesigner.sbol.editor.SBOLDesignerStandalone</mainClass>
+						</manifest>
+					</archive>
 				</configuration>
 			</plugin>
 			<!-- copy protoc binary into build directory -->
@@ -154,6 +165,52 @@
 								</relocation>
 							</relocations>
 						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-shade-plugin</artifactId>
+				<version>2.3</version>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>shade</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<shadedArtifactAttached>true</shadedArtifactAttached>
+					<shadedClassifierName>withDependencies</shadedClassifierName>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+				<version>2.4</version>
+				<executions>
+					<execution>
+						<id>attach-sources</id>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>2.10.3</version>
+				<configuration>
+                	<failOnError>false</failOnError>
+              	</configuration>
+				<executions>
+					<execution>
+						<id>attach-javadocs</id>
+						<goals>
+							<goal>jar</goal>
+						</goals>
 					</execution>
 				</executions>
 			</plugin>
