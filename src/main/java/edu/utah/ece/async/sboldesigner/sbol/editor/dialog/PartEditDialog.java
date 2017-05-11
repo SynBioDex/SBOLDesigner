@@ -668,7 +668,7 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 			CD.addSequence(dnaSeq);
 		}
 
-		addSBOLDesignerAnnotation(CD);
+		//addSBOLDesignerAnnotation(CD);
 	}
 
 	private void addSBOLDesignerAnnotation(ComponentDefinition cd) throws SBOLValidationException {
