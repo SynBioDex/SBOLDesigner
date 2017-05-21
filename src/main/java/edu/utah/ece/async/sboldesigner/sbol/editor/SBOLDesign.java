@@ -780,7 +780,7 @@ public class SBOLDesign {
 
 		if (backbone) {
 			if (isCircular) {
-				throw new IllegalArgumentException("Cannot add multiple origin of replication parts");
+				throw new IllegalArgumentException("Cannot add multiple backbone parts");
 			}
 			elements.add(0, e);
 			backboneBox.add(button);
