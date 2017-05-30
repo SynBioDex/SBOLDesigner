@@ -668,28 +668,14 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 			CD.addSequence(dnaSeq);
 		}
 
-		//addSBOLDesignerAnnotation(CD);
+		addSBOLDesignerAnnotation(CD);
 	}
 
 	private void addSBOLDesignerAnnotation(ComponentDefinition cd) throws SBOLValidationException {
 		// get/create SBOLDesigner agent
-		GenericTopLevel designerAgent = design
-				.getGenericTopLevel(URI.create("http://www.async.ece.utah.edu/SBOLDesigner/2.2"));
-
-		if (designerAgent == null) {
-			designerAgent = design.createGenericTopLevel("http://www.async.ece.utah.edu", "SBOLDesigner", "2.2",
-					new QName("http://www.w3.org/ns/prov#", "Agent", "prov"));
-			designerAgent.setName("SBOLDesigner CAD Tool");
-			designerAgent.setDescription(
-					"SBOLDesigner is a simple, biologist-friendly CAD software tool for creating and manipulating the sequences of genetic constructs using the Synthetic Biology Open Language (SBOL) 2.0 data model. Throughout the design process, SBOL Visual symbols, a system of schematic glyphs, provide standardized visualizations of individual parts. SBOLDesigner completes a workflow for users of genetic design automation tools. It combines a simple user interface with the power of the SBOL standard and serves as a launchpad for more detailed designs involving simulations and experiments. Some new features in SBOLDesigner are SynBioHub integration, local repositories, importing of parts/sequences from existing files, import and export of GenBank and FASTA files, extended role ontology support, the ability to partially open designs with multiple root ComponentDefinitions, backward compatibility with SBOL 1.1, and versioning.");
-			designerAgent.createAnnotation(new QName("http://www.w3.org/ns/prov#", "creator", "prov"), "Michael Zhang");
-			designerAgent.createAnnotation(new QName("http://www.w3.org/ns/prov#", "creator", "prov"), "Chris Myers");
-			designerAgent.createAnnotation(new QName("http://www.w3.org/ns/prov#", "creator", "prov"), "Michal Galdzicki");
-			designerAgent.createAnnotation(new QName("http://www.w3.org/ns/prov#", "creator", "prov"), "Bryan Bartley");
-			designerAgent.createAnnotation(new QName("http://www.w3.org/ns/prov#", "creator", "prov"), "Sean Sleight");
-			designerAgent.createAnnotation(new QName("http://www.w3.org/ns/prov#", "creator", "prov"), "Evren Sirin");
-			designerAgent.createAnnotation(new QName("http://www.w3.org/ns/prov#", "creator", "prov"), "John Gennari");
-		}
+		URI designerURI = URI.create("http://www.async.ece.utah.edu/SBOLDesigner/2.2");
+		// unused because designerURI will be dereferenced on SynBioHub
+		// designerURI = createSBOLDesignerAgent().getIdentity();
 
 		// get/create the activity
 		URI activityURI = URI
@@ -712,7 +698,7 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 
 		// create the qualified usage annotation
 		Annotation agentAnnotation = new Annotation(new QName("http://www.w3.org/ns/prov#", "agent", "prov"),
-				designerAgent.getIdentity());
+				designerURI);
 
 		partActivity.createAnnotation(new QName("http://www.w3.org/ns/prov#", "qualifiedUsage", "prov"),
 				new QName("http://www.w3.org/ns/prov#", "Usage", "prov"),
@@ -723,7 +709,7 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 		Annotation prev = null;
 		for (Annotation a : cd.getAnnotations()) {
 			if (a.getQName().getLocalPart().equals("wasGeneratedBy") && a.isURIValue()
-					&& a.getURIValue().equals(designerAgent.getIdentity())) {
+					&& a.getURIValue().equals(designerURI)) {
 				prev = a;
 			}
 		}
@@ -734,6 +720,29 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 
 		cd.createAnnotation(new QName("http://www.w3.org/ns/prov#", "wasGeneratedBy", "prov"),
 				partActivity.getIdentity());
+	}
+
+	private GenericTopLevel createSBOLDesignerAgent() throws SBOLValidationException {
+		GenericTopLevel designerAgent = design
+				.getGenericTopLevel(URI.create("http://www.async.ece.utah.edu/SBOLDesigner/2.2"));
+
+		if (designerAgent == null) {
+			designerAgent = design.createGenericTopLevel("http://www.async.ece.utah.edu", "SBOLDesigner", "2.2",
+					new QName("http://www.w3.org/ns/prov#", "Agent", "prov"));
+			designerAgent.setName("SBOLDesigner CAD Tool");
+			designerAgent.setDescription(
+					"SBOLDesigner is a simple, biologist-friendly CAD software tool for creating and manipulating the sequences of genetic constructs using the Synthetic Biology Open Language (SBOL) 2.0 data model. Throughout the design process, SBOL Visual symbols, a system of schematic glyphs, provide standardized visualizations of individual parts. SBOLDesigner completes a workflow for users of genetic design automation tools. It combines a simple user interface with the power of the SBOL standard and serves as a launchpad for more detailed designs involving simulations and experiments. Some new features in SBOLDesigner are SynBioHub integration, local repositories, importing of parts/sequences from existing files, import and export of GenBank and FASTA files, extended role ontology support, the ability to partially open designs with multiple root ComponentDefinitions, backward compatibility with SBOL 1.1, and versioning.");
+			designerAgent.createAnnotation(new QName("http://www.w3.org/ns/prov#", "creator", "prov"), "Michael Zhang");
+			designerAgent.createAnnotation(new QName("http://www.w3.org/ns/prov#", "creator", "prov"), "Chris Myers");
+			designerAgent.createAnnotation(new QName("http://www.w3.org/ns/prov#", "creator", "prov"),
+					"Michal Galdzicki");
+			designerAgent.createAnnotation(new QName("http://www.w3.org/ns/prov#", "creator", "prov"), "Bryan Bartley");
+			designerAgent.createAnnotation(new QName("http://www.w3.org/ns/prov#", "creator", "prov"), "Sean Sleight");
+			designerAgent.createAnnotation(new QName("http://www.w3.org/ns/prov#", "creator", "prov"), "Evren Sirin");
+			designerAgent.createAnnotation(new QName("http://www.w3.org/ns/prov#", "creator", "prov"), "John Gennari");
+		}
+
+		return designerAgent;
 	}
 
 	/**
