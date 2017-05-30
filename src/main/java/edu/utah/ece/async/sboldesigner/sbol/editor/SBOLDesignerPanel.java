@@ -56,7 +56,7 @@ import com.google.common.base.Supplier;
 
 import edu.utah.ece.async.sboldesigner.sbol.SBOLUtils;
 import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.AboutDialog;
-import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.BOOSTDialog;
+//import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.BOOSTDialog;
 import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.CheckoutDialog;
 import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.CreateBranchDialog;
 import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.CreateTagDialog;
@@ -554,7 +554,7 @@ public class SBOLDesignerPanel extends JPanel {
 	}
 
 	private void export() throws FileNotFoundException, SBOLConversionException, IOException, SBOLValidationException {
-		String[] formats = { "GenBank", "FASTA", "SBOL 1.1", "SBOL 2.0", "BOOST Optimized File" };
+		String[] formats = { "GenBank", "FASTA", "SBOL 1.1", "SBOL 2.0"}; //, "BOOST Optimized File" };
 		int format = JOptionPane.showOptionDialog(this, "Please select an export format", "Export",
 				JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, formats, "Cancel");
 		if (format == JOptionPane.CLOSED_OPTION) {
@@ -605,7 +605,7 @@ public class SBOLDesignerPanel extends JPanel {
 				break;
 			case 4:
 				// BOOST Optimized SBOL 2.0
-				BOOSTDialog boostDialog = new BOOSTDialog(getParent(), file, doc);
+				// BOOSTDialog boostDialog = new BOOSTDialog(getParent(), file, doc);
 				break;
 			default:
 				break;
