@@ -36,7 +36,7 @@ public class Registry implements Serializable {
 			"The current file you are working in", "N/A", "N/A");
 
 	public static final Registry SYNBIOHUB = new Registry("SynBioHub", "The reference SynBioHub instance",
-			"http://synbiohub.org", "http://synbiohub.org");
+			"https://synbiohub.org", "https://synbiohub.org");
 
 	public Registry(String name, String description, String location, String uriPrefix) {
 		Preconditions.checkNotNull(name, "Name cannot be null");
