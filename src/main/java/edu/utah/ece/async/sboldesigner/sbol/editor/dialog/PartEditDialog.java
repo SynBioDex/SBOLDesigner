@@ -673,7 +673,7 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 
 	private void addSBOLDesignerAnnotation(ComponentDefinition cd) throws SBOLValidationException {
 		// get/create SBOLDesigner agent
-		URI designerURI = URI.create("http://www.async.ece.utah.edu/SBOLDesigner/2.2");
+		URI designerURI = URI.create("https://synbiohub.org/public/SBOL_Software/SBOLDesigner/2.2");
 		// unused because designerURI will be dereferenced on SynBioHub
 		// designerURI = createSBOLDesignerAgent().getIdentity();
 
