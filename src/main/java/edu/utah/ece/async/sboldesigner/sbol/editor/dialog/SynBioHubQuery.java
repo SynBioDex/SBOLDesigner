@@ -61,11 +61,11 @@ public class SynBioHubQuery extends SwingWorker<Object, Object> {
 					e1.printStackTrace();
 				}
 			}
+			// fetch parts
+			identified.addAll(getTableMetadata(null,
+					synBioHub.getMatchingComponentDefinitionMetadata(null, roles, types, collections, 0, 10000)));
 		}
 
-		// fetch parts
-		identified.addAll(getTableMetadata(null,
-				synBioHub.getMatchingComponentDefinitionMetadata(null, roles, types, collections, 0, 10000)));
 
 		return identified;
 	}
