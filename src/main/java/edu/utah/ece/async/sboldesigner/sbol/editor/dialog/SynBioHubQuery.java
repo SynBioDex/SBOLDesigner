@@ -49,23 +49,28 @@ public class SynBioHubQuery extends SwingWorker<Object, Object> {
 	protected ArrayList<TableMetadata> doInBackground() throws Exception {
 		loading.start();
 
-		// fetch collections
+		// collections are empty, so we show only root collections
 		if (collections.isEmpty()) {
-			identified.addAll(getTableMetadata(synBioHub.getRootCollectionMetadata(), null));
-		} else {
-			for (URI collection : collections) {
-				try {
-					identified.addAll(getTableMetadata(synBioHub.getSubCollectionMetadata(collection), null));
-				} catch (SynBioHubException e1) {
-					JOptionPane.showMessageDialog(null, "There was a problem fetching collections: " + e1.getMessage());
-					e1.printStackTrace();
-				}
+			ArrayList<IdentifiedMetadata> rootCollections = synBioHub.getRootCollectionMetadata();
+			if (!rootCollections.isEmpty()) {
+				identified.addAll(getTableMetadata(rootCollections, null));
+				return identified;
 			}
-
-			// fetch parts
-			identified.addAll(getTableMetadata(null,
-					synBioHub.getMatchingComponentDefinitionMetadata(null, roles, types, collections, 0, 10000)));
 		}
+
+		// collections aren't empty, or there aren't any root collections
+		for (URI collection : collections) {
+			try {
+				identified.addAll(getTableMetadata(synBioHub.getSubCollectionMetadata(collection), null));
+			} catch (SynBioHubException e1) {
+				JOptionPane.showMessageDialog(null, "There was a problem fetching collections: " + e1.getMessage());
+				e1.printStackTrace();
+			}
+		}
+
+		// fetch parts
+		identified.addAll(getTableMetadata(null,
+				synBioHub.getMatchingComponentDefinitionMetadata(null, roles, types, collections, 0, 10000)));
 
 		return identified;
 	}
