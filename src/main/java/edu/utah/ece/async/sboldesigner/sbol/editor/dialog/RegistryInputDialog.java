@@ -393,7 +393,7 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 			}
 
 			if (synbiohub == null) {
-				synbiohub = new SynBioHubFrontend(location, uriPrefix);
+				synbiohub = createSynBioHubFrontend(location, uriPrefix);
 			}
 
 			if (part != null) {
@@ -432,7 +432,7 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 			if (isMetadata()) {
 				TableMetadata compMeta = ((TableMetadataTableModel) table.getModel()).getElement(row);
 				if (synBioHub == null) {
-					synBioHub = new SynBioHubFrontend(location, uriPrefix);
+					synBioHub = createSynBioHubFrontend(location, uriPrefix);
 				}
 				if (compMeta.isCollection) {
 					return new SBOLDocument();
@@ -479,7 +479,7 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 	@Override
 	protected void registryChanged() {
 		if (isMetadata()) {
-			synBioHub = new SynBioHubFrontend(location, uriPrefix);
+			synBioHub = createSynBioHubFrontend(location, uriPrefix);
 		}
 		updateCollectionSelection(true, null);
 		updateTable();
@@ -493,7 +493,7 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 			return;
 		}
 		if (synBioHub == null) {
-			synBioHub = new SynBioHubFrontend(location, uriPrefix);
+			synBioHub = createSynBioHubFrontend(location, uriPrefix);
 		}
 
 		if (registryChanged) {
@@ -658,5 +658,15 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 			});
 			scroller.setViewportView(table);
 		}
+	}
+
+	/**
+	 * Wraps SynBioHubFrontend creation so legacy locations can be used.
+	 */
+	private SynBioHubFrontend createSynBioHubFrontend(String location, String uriPrefix) {
+		if (location == "http://synbiohub.org") {
+			location = "https://synbiohub.org";
+		}
+		return new SynBioHubFrontend(location, uriPrefix);
 	}
 }
