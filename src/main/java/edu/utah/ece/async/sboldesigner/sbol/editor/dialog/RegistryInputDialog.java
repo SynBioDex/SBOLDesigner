@@ -664,9 +664,25 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 	 * Wraps SynBioHubFrontend creation so legacy locations can be used.
 	 */
 	private SynBioHubFrontend createSynBioHubFrontend(String location, String uriPrefix) {
+		// update location and SynBioHub location if not using https
 		if (location == "http://synbiohub.org") {
 			location = "https://synbiohub.org";
+
+			// This isn't elegant, but should work
+			ArrayList<Registry> oldRegistries = new ArrayList<Registry>();
+			for (int i = 3; i < Registries.get().size(); i++) {
+				oldRegistries.add(Registries.get().get(i));
+			}
+
+			Registries.get().restoreDefaults();
+
+			for (Registry r : oldRegistries) {
+				Registries.get().add(r);
+			}
+
+			Registries.get().save();
 		}
+
 		return new SynBioHubFrontend(location, uriPrefix);
 	}
 }
