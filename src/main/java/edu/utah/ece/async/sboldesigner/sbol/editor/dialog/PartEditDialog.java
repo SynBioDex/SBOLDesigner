@@ -724,7 +724,7 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 
 	private GenericTopLevel createSBOLDesignerAgent() throws SBOLValidationException {
 		GenericTopLevel designerAgent = design
-				.getGenericTopLevel(URI.create("http://www.async.ece.utah.edu/SBOLDesigner/2.2"));
+				.getGenericTopLevel(URI.create("https://synbiohub.org/public/SBOL_Software/SBOLDesigner/2.2"));
 
 		if (designerAgent == null) {
 			designerAgent = design.createGenericTopLevel("http://www.async.ece.utah.edu", "SBOLDesigner", "2.2",
