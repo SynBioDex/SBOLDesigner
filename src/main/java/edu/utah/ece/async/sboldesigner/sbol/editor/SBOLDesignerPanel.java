@@ -554,10 +554,10 @@ public class SBOLDesignerPanel extends JPanel {
 	}
 
 	private void export() throws FileNotFoundException, SBOLConversionException, IOException, SBOLValidationException {
-		String[] formats = { "GenBank", "FASTA", "SBOL 1.1", "SBOL 2.0"}; //, "BOOST Optimized File" };
+		String[] formats = { "GenBank", "FASTA", "SBOL 1.1", "SBOL 2.0", "Cancel" }; //, "BOOST Optimized File" };
 		int format = JOptionPane.showOptionDialog(this, "Please select an export format", "Export",
 				JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, formats, "Cancel");
-		if (format == JOptionPane.CLOSED_OPTION) {
+		if (format == JOptionPane.CLOSED_OPTION || format == 4) {
 			return;
 		}
 		fc.setSelectedFile(SBOLUtils.setupFile());
