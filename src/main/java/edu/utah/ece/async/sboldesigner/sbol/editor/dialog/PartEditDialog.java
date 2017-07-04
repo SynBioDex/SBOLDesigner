@@ -700,9 +700,9 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 		Annotation agentAnnotation = new Annotation(new QName("http://www.w3.org/ns/prov#", "agent", "prov"),
 				designerURI);
 
-		partActivity.createAnnotation(new QName("http://www.w3.org/ns/prov#", "qualifiedUsage", "prov"),
-				new QName("http://www.w3.org/ns/prov#", "Usage", "prov"),
-				URI.create(partActivity.getIdentity().toString() + "/usage"),
+		partActivity.createAnnotation(new QName("http://www.w3.org/ns/prov#", "qualifiedAssociation", "prov"),
+				new QName("http://www.w3.org/ns/prov#", "Association", "prov"),
+				URI.create(partActivity.getIdentity().toString() + "/association"),
 				new ArrayList<Annotation>(Arrays.asList(agentAnnotation)));
 
 		// link the cd/part to partActivity
