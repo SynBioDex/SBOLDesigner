@@ -691,7 +691,7 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 				new QName("http://www.w3.org/ns/prov#", "Activity", "prov"));
 
 		String creator = SBOLEditorPreferences.INSTANCE.getUserInfo().getName();
-		partActivity.createAnnotation(new QName("http://www.w3.org/ns/prov#", "creator", "prov"), creator);
+		partActivity.createAnnotation(new QName("http://purl.org/dc/terms/", "creator", "dc"), creator);
 
 		partActivity.createAnnotation(new QName("http://www.w3.org/ns/prov#", "endedAtTime", "prov"),
 				ZonedDateTime.now().format(DateTimeFormatter.ISO_INSTANT));
@@ -732,14 +732,14 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 			designerAgent.setName("SBOLDesigner CAD Tool");
 			designerAgent.setDescription(
 					"SBOLDesigner is a simple, biologist-friendly CAD software tool for creating and manipulating the sequences of genetic constructs using the Synthetic Biology Open Language (SBOL) 2.0 data model. Throughout the design process, SBOL Visual symbols, a system of schematic glyphs, provide standardized visualizations of individual parts. SBOLDesigner completes a workflow for users of genetic design automation tools. It combines a simple user interface with the power of the SBOL standard and serves as a launchpad for more detailed designs involving simulations and experiments. Some new features in SBOLDesigner are SynBioHub integration, local repositories, importing of parts/sequences from existing files, import and export of GenBank and FASTA files, extended role ontology support, the ability to partially open designs with multiple root ComponentDefinitions, backward compatibility with SBOL 1.1, and versioning.");
-			designerAgent.createAnnotation(new QName("http://www.w3.org/ns/prov#", "creator", "prov"), "Michael Zhang");
-			designerAgent.createAnnotation(new QName("http://www.w3.org/ns/prov#", "creator", "prov"), "Chris Myers");
-			designerAgent.createAnnotation(new QName("http://www.w3.org/ns/prov#", "creator", "prov"),
+			designerAgent.createAnnotation(new QName("http://purl.org/dc/terms/", "creator", "dc"), "Michael Zhang");
+			designerAgent.createAnnotation(new QName("http://purl.org/dc/terms/", "creator", "dc"), "Chris Myers");
+			designerAgent.createAnnotation(new QName("http://purl.org/dc/terms/", "creator", "dc"),
 					"Michal Galdzicki");
-			designerAgent.createAnnotation(new QName("http://www.w3.org/ns/prov#", "creator", "prov"), "Bryan Bartley");
-			designerAgent.createAnnotation(new QName("http://www.w3.org/ns/prov#", "creator", "prov"), "Sean Sleight");
-			designerAgent.createAnnotation(new QName("http://www.w3.org/ns/prov#", "creator", "prov"), "Evren Sirin");
-			designerAgent.createAnnotation(new QName("http://www.w3.org/ns/prov#", "creator", "prov"), "John Gennari");
+			designerAgent.createAnnotation(new QName("http://purl.org/dc/terms/", "creator", "dc"), "Bryan Bartley");
+			designerAgent.createAnnotation(new QName("http://purl.org/dc/terms/", "creator", "dc"), "Sean Sleight");
+			designerAgent.createAnnotation(new QName("http://purl.org/dc/terms/", "creator", "dc"), "Evren Sirin");
+			designerAgent.createAnnotation(new QName("http://purl.org/dc/terms/", "creator", "dc"), "John Gennari");
 		}
 
 		return designerAgent;
