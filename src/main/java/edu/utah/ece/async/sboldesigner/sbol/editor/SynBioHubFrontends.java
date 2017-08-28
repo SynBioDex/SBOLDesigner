@@ -1,5 +1,6 @@
 package edu.utah.ece.async.sboldesigner.sbol.editor;
 
+import java.util.Collection;
 import java.util.HashMap;
 
 import org.synbiohub.frontend.SynBioHubFrontend;
@@ -7,7 +8,7 @@ import org.synbiohub.frontend.SynBioHubFrontend;
 /**
  * Represents the SynBioHubFrontends that the user is currently logged into.
  * This is used instead of SBOLDocument's registries map because this will
- * persist across SBOLDocuments.
+ * persist across multiple SBOLDocuments.
  */
 public class SynBioHubFrontends {
 	private static HashMap<String, SynBioHubFrontend> frontends = null;
@@ -24,6 +25,10 @@ public class SynBioHubFrontends {
 
 	public SynBioHubFrontend getFrontend(String url) {
 		return frontends.get(url);
+	}
+
+	public Collection<SynBioHubFrontend> getFrontends() {
+		return frontends.values();
 	}
 
 	public void addFrontend(String url, SynBioHubFrontend frontend) {

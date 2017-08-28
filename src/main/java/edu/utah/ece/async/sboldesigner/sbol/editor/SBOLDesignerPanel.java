@@ -49,6 +49,7 @@ import org.sbolstandard.core2.SBOLValidationException;
 import org.sbolstandard.core2.SBOLWriter;
 import org.sbolstandard.core2.Sequence;
 import org.sbolstandard.core2.TopLevel;
+import org.synbiohub.frontend.SynBioHubFrontend;
 
 import com.adamtaft.eb.EventHandler;
 import com.google.common.base.Strings;
@@ -220,6 +221,12 @@ public class SBOLDesignerPanel extends JPanel {
 			// for debugging
 			try {
 				design.getDesign().write(System.out);
+
+				System.out.println("SynBioHubFrontends:");
+				SynBioHubFrontends frontends = new SynBioHubFrontends();
+				for (SynBioHubFrontend frontend : frontends.getFrontends()) {
+					System.out.println(frontend.getBackendUrl());
+				}
 			} catch (SBOLConversionException e) {
 			}
 			AboutDialog.show(SBOLDesignerPanel.this);
@@ -554,7 +561,11 @@ public class SBOLDesignerPanel extends JPanel {
 	}
 
 	private void export() throws FileNotFoundException, SBOLConversionException, IOException, SBOLValidationException {
-		String[] formats = { "GenBank", "FASTA", "SBOL 1.1", "SBOL 2.0", "Cancel" }; //, "BOOST Optimized File" };
+		String[] formats = { "GenBank", "FASTA", "SBOL 1.1", "SBOL 2.0", "Cancel" }; // ,
+																						// "BOOST
+																						// Optimized
+																						// File"
+																						// };
 		int format = JOptionPane.showOptionDialog(this, "Please select an export format", "Export",
 				JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, formats, "Cancel");
 		if (format == JOptionPane.CLOSED_OPTION || format == 4) {
@@ -605,7 +616,8 @@ public class SBOLDesignerPanel extends JPanel {
 				break;
 			case 4:
 				// BOOST Optimized SBOL 2.0
-				// BOOSTDialog boostDialog = new BOOSTDialog(getParent(), file, doc);
+				// BOOSTDialog boostDialog = new BOOSTDialog(getParent(), file,
+				// doc);
 				break;
 			default:
 				break;

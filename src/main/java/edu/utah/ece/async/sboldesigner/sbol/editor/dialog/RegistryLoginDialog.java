@@ -28,7 +28,6 @@ import edu.utah.ece.async.sboldesigner.sbol.editor.SBOLEditorPreferences;
 import edu.utah.ece.async.sboldesigner.swing.FormBuilder;
 import edu.utah.ece.async.sboldesigner.versioning.PersonInfo;
 
-// TODO integrate frontends with all Frontend calls, remove from Upload
 public class RegistryLoginDialog extends JDialog implements ActionListener {
 	private String backendUrl;
 	private String uriPrefix;
@@ -103,6 +102,7 @@ public class RegistryLoginDialog extends JDialog implements ActionListener {
 				frontend.login(username.getText(), new String(password.getPassword()));
 			} catch (SynBioHubException e1) {
 				MessageDialog.showMessage(parent, "Login failed", Arrays.asList(e1.getMessage().split("\"|,")));
+				frontend = null;
 				e1.printStackTrace();
 			}
 			setVisible(false);

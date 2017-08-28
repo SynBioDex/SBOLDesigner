@@ -65,6 +65,7 @@ import edu.utah.ece.async.sboldesigner.sbol.editor.Parts;
 import edu.utah.ece.async.sboldesigner.sbol.editor.Registries;
 import edu.utah.ece.async.sboldesigner.sbol.editor.Registry;
 import edu.utah.ece.async.sboldesigner.sbol.editor.SBOLEditorPreferences;
+import edu.utah.ece.async.sboldesigner.sbol.editor.SynBioHubFrontends;
 import edu.utah.ece.async.sboldesigner.swing.ComboBoxRenderer;
 import edu.utah.ece.async.sboldesigner.swing.FormBuilder;
 
@@ -681,6 +682,12 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 			}
 
 			Registries.get().save();
+		}
+
+		// get logged in SynBioHubFrontend if possible
+		SynBioHubFrontends frontends = new SynBioHubFrontends();
+		if (frontends.hasFrontend(location)) {
+			return frontends.getFrontend(location);
 		}
 
 		return new SynBioHubFrontend(location, uriPrefix);

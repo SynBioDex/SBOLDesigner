@@ -49,6 +49,7 @@ import org.synbiohub.frontend.SynBioHubFrontend;
 import edu.utah.ece.async.sboldesigner.sbol.CharSequences;
 import edu.utah.ece.async.sboldesigner.sbol.editor.Registry;
 import edu.utah.ece.async.sboldesigner.sbol.editor.SBOLEditorPreferences;
+import edu.utah.ece.async.sboldesigner.sbol.editor.SynBioHubFrontends;
 import edu.utah.ece.async.sboldesigner.swing.FormBuilder;
 import edu.utah.ece.async.sboldesigner.versioning.PersonInfo;
 
@@ -81,8 +82,6 @@ public class UploadDialog extends JDialog implements ActionListener, DocumentLis
 	private final JComboBox<String> options = new JComboBox<>(new String[] { "Prevent Submission",
 			"Overwrite Submission", "Merge and Prevent if member of collection exists",
 			"Merge and Replace if member of collection exists" });
-	private final JTextField username = new JTextField("");
-	private final JPasswordField password = new JPasswordField("");
 	private final JTextField submissionId = new JTextField("");
 	private final JTextField version = new JTextField("");
 	private final JTextField name = new JTextField("");
@@ -97,18 +96,20 @@ public class UploadDialog extends JDialog implements ActionListener, DocumentLis
 		this.toBeUploaded = toBeUploaded;
 
 		// Remove objects that should already be found in this registry
-//		for (TopLevel topLevel : this.toBeUploaded.getTopLevels()) {
-//			String identity = topLevel.getIdentity().toString();
-//			String registryPrefix = registry.getUriPrefix();
-//			if ((!registryPrefix.equals("") && identity.startsWith(registryPrefix))
-//					|| (registryPrefix.equals("") && identity.startsWith(registry.getLocation()))) {
-//				try {
-//					this.toBeUploaded.removeTopLevel(topLevel);
-//				} catch (SBOLValidationException e) {
-//					e.printStackTrace();
-//				}
-//			}
-//		}
+		// for (TopLevel topLevel : this.toBeUploaded.getTopLevels()) {
+		// String identity = topLevel.getIdentity().toString();
+		// String registryPrefix = registry.getUriPrefix();
+		// if ((!registryPrefix.equals("") &&
+		// identity.startsWith(registryPrefix))
+		// || (registryPrefix.equals("") &&
+		// identity.startsWith(registry.getLocation()))) {
+		// try {
+		// this.toBeUploaded.removeTopLevel(topLevel);
+		// } catch (SBOLValidationException e) {
+		// e.printStackTrace();
+		// }
+		// }
+		// }
 
 		// set default values
 		PersonInfo userInfo = SBOLEditorPreferences.INSTANCE.getUserInfo();
@@ -121,8 +122,6 @@ public class UploadDialog extends JDialog implements ActionListener, DocumentLis
 			return;
 		}
 
-		username.setText(email);
-		password.setEchoChar('*');
 		ComponentDefinition root = toBeUploaded.getRootComponentDefinitions().iterator().next();
 		submissionId.setText(root.getDisplayId());
 		version.setText("1");
@@ -159,8 +158,6 @@ public class UploadDialog extends JDialog implements ActionListener, DocumentLis
 	}
 
 	private JPanel initMainPanel() {
-		username.getDocument().addDocumentListener(this);
-		password.getDocument().addDocumentListener(this);
 		submissionId.getDocument().addDocumentListener(this);
 		version.getDocument().addDocumentListener(this);
 		name.getDocument().addDocumentListener(this);
@@ -168,8 +165,6 @@ public class UploadDialog extends JDialog implements ActionListener, DocumentLis
 		citations.getDocument().addDocumentListener(this);
 
 		FormBuilder builder = new FormBuilder();
-		builder.add("Username *", username);
-		builder.add("Password *", password);
 		builder.add("", new JLabel(" "));
 		builder.add("Submission ID *", submissionId);
 		builder.add("Version *", version);
@@ -211,9 +206,14 @@ public class UploadDialog extends JDialog implements ActionListener, DocumentLis
 	}
 
 	private ListModel<IdentifiedMetadata> setupListModel() {
-		DefaultListModel<IdentifiedMetadata> model = new DefaultListModel<IdentifiedMetadata>();
+		SynBioHubFrontends frontends = new SynBioHubFrontends();
+		SynBioHubFrontend frontend = null;
+		if (frontends.hasFrontend(registry.getLocation())) {
+			frontend = frontends.getFrontend(registry.getLocation());
+		} else {
+			frontend = toBeUploaded.addRegistry(registry.getLocation(), registry.getUriPrefix());
+		}
 
-		SynBioHubFrontend stack = toBeUploaded.addRegistry(registry.getLocation(), registry.getUriPrefix());
 		SearchQuery query = new SearchQuery();
 		SearchCriteria crit = new SearchCriteria();
 		crit.setKey("objectType");
@@ -222,8 +222,9 @@ public class UploadDialog extends JDialog implements ActionListener, DocumentLis
 		query.setLimit(10000);
 		query.setOffset(0);
 		List<IdentifiedMetadata> results;
+		DefaultListModel<IdentifiedMetadata> model = new DefaultListModel<IdentifiedMetadata>();
 		try {
-			results = stack.search(query);
+			results = frontend.search(query);
 		} catch (SynBioHubException e) {
 			return model;
 		}
@@ -248,7 +249,6 @@ public class UploadDialog extends JDialog implements ActionListener, DocumentLis
 		if (e.getSource() == uploadButton) {
 			try {
 				uploadDesign();
-				JOptionPane.showMessageDialog(parent, "Upload successful!");
 				setVisible(false);
 				return;
 			} catch (SynBioHubException e1) {
@@ -259,14 +259,18 @@ public class UploadDialog extends JDialog implements ActionListener, DocumentLis
 	}
 
 	private void uploadDesign() throws SynBioHubException {
-		SynBioHubFrontend stack = toBeUploaded.addRegistry(registry.getLocation(), registry.getUriPrefix());
-
-		stack.login(username.getText(), new String(password.getPassword()));
+		SynBioHubFrontends frontends = new SynBioHubFrontends();
+		if (!frontends.hasFrontend(registry.getLocation())) {
+			JOptionPane.showMessageDialog(parent,
+					"Please login to " + registry.getLocation() + " in the Registry preferences menu.");
+			return;
+		}
+		SynBioHubFrontend frontend = frontends.getFrontend(registry.getLocation());
 
 		String option = Integer.toString(options.getSelectedIndex());
-
-		stack.submit(submissionId.getText(), version.getText(), name.getText(), description.getText(),
+		frontend.submit(submissionId.getText(), version.getText(), name.getText(), description.getText(),
 				citations.getText(), getSelectedCollections(collections), option, toBeUploaded);
+		JOptionPane.showMessageDialog(parent, "Upload successful!");
 	}
 
 	private String getSelectedCollections(JList<IdentifiedMetadata> col) {
@@ -295,8 +299,7 @@ public class UploadDialog extends JDialog implements ActionListener, DocumentLis
 
 	private void enableUpload() {
 		boolean shouldEnable = !submissionId.getText().equals("") && !version.getText().equals("")
-				&& !name.getText().equals("") && !description.getText().equals("") && !username.getText().equals("")
-				&& !password.getPassword().equals("");
+				&& !name.getText().equals("") && !description.getText().equals("");
 		uploadButton.setEnabled(shouldEnable);
 	}
 }
