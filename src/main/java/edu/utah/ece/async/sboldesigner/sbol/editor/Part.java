@@ -132,8 +132,11 @@ public class Part {
 		try {
 			String uniqueId = SBOLUtils.getUniqueDisplayId(null, getDisplayId(), "1", "CD", design);
 			ComponentDefinition comp = design.createComponentDefinition(uniqueId, "1", ComponentDefinition.DNA);
-			// if a CD is being created by a sequence feature part, replace
-			// sequence feature with engineered region
+			// If a CD is being created by a SEQUENCE_FEATURE part, replace
+			// SEQUENCE_FEATURE with ENGINEERED_REGION. SBOLDesigner creates
+			// ENGINEERED_REGIONs, not SEQUENCE_FEATUREs. However, GENERIC parts
+			// are of role SEQUENCE_FEATURE, so searching registries for GENERIC
+			// still matches all CDs.
 			if (setRoles.contains(SequenceOntology.SEQUENCE_FEATURE)) {
 				setRoles.clear();
 				setRoles.add(SequenceOntology.ENGINEERED_REGION);
