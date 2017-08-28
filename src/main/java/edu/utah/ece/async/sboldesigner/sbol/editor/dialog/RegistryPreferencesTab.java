@@ -38,9 +38,12 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableRowSorter;
 
+import org.synbiohub.frontend.SynBioHubFrontend;
+
 import edu.utah.ece.async.sboldesigner.sbol.editor.Images;
 import edu.utah.ece.async.sboldesigner.sbol.editor.Registries;
 import edu.utah.ece.async.sboldesigner.sbol.editor.Registry;
+import edu.utah.ece.async.sboldesigner.sbol.editor.SynBioHubFrontends;
 import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.PreferencesDialog.PreferencesTab;
 
 public enum RegistryPreferencesTab implements PreferencesTab {
@@ -84,6 +87,23 @@ public enum RegistryPreferencesTab implements PreferencesTab {
 					model.remove(row);
 					Registries.get().save();
 					break;
+				case LOGIN:
+					row = table.convertRowIndexToModel(table.getSelectedRow());
+					Registry r = model.getComponent(row);
+
+					RegistryLoginDialog loginDialog = new RegistryLoginDialog(getComponent(), r.getLocation(),
+							r.getUriPrefix());
+					SynBioHubFrontend frontend = loginDialog.getSynBioHubFrontend();
+					if (frontend == null) {
+						break;
+					}
+
+					SynBioHubFrontends frontends = new SynBioHubFrontends();
+					if (frontends.hasFrontend(r.getLocation())) {
+						frontends.removeFrontend(r.getLocation());
+					}
+					frontends.addFrontend(r.getLocation(), frontend);
+					break;
 				case RESTORE:
 					model.restoreDefaults();
 					Registries.get().save();
@@ -119,6 +139,11 @@ public enum RegistryPreferencesTab implements PreferencesTab {
 		removeButton.setActionCommand(Action.REMOVE.toString());
 		removeButton.addActionListener(listener);
 		removeButton.setEnabled(false);
+
+		final JButton loginButton = new JButton("Login");
+		loginButton.setActionCommand(Action.LOGIN.toString());
+		loginButton.addActionListener(listener);
+		loginButton.setEnabled(true);
 
 		final JButton restoreButton = new JButton("Restore defaults");
 		restoreButton.setActionCommand(Action.RESTORE.toString());
@@ -158,6 +183,7 @@ public enum RegistryPreferencesTab implements PreferencesTab {
 		buttonPane.add(addButton);
 		buttonPane.add(editButton);
 		buttonPane.add(removeButton);
+		buttonPane.add(loginButton);
 		buttonPane.add(Box.createHorizontalGlue());
 		buttonPane.add(restoreButton);
 
@@ -177,7 +203,7 @@ public enum RegistryPreferencesTab implements PreferencesTab {
 	}
 
 	private static enum Action {
-		ADD, REMOVE, RESTORE, EDIT
+		ADD, REMOVE, LOGIN, RESTORE, EDIT
 	}
 
 	private static class RegistryTableModel extends AbstractTableModel {
