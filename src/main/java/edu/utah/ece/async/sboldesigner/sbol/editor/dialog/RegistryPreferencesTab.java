@@ -29,6 +29,7 @@ import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -90,6 +91,12 @@ public enum RegistryPreferencesTab implements PreferencesTab {
 				case LOGIN:
 					row = table.convertRowIndexToModel(table.getSelectedRow());
 					Registry r = model.getComponent(row);
+
+					if (r.isPath()) {
+						JOptionPane.showMessageDialog(getComponent(),
+								"It appears this registry is not a SynBioHub instance.  SynBioHub urls start with https://");
+						break;
+					}
 
 					RegistryLoginDialog loginDialog = new RegistryLoginDialog(getComponent(), r.getLocation(),
 							r.getUriPrefix());
