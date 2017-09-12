@@ -31,6 +31,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 
 import org.sbolstandard.core2.Component;
 import org.sbolstandard.core2.ComponentDefinition;
+import org.sbolstandard.core2.GenericTopLevel;
 import org.sbolstandard.core2.Identified;
 import org.sbolstandard.core2.Location;
 import org.sbolstandard.core2.Range;
@@ -459,6 +460,10 @@ public class SBOLUtils {
 					if (!design.removeSequence(design.getSequence(tl.getIdentity()))) {
 						throw new Exception("ERROR: " + tl.getDisplayId() + " didn't get removed");
 					}
+				} else if (tl instanceof GenericTopLevel) {
+					if (!design.removeGenericTopLevel(design.getGenericTopLevel(tl.getIdentity()))) {
+						throw new Exception("ERROR: " + tl.getDisplayId() + " didn't get removed");
+					}	
 				}
 			}
 		}
