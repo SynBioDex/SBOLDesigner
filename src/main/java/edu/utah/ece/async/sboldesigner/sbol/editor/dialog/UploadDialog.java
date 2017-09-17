@@ -152,6 +152,8 @@ public class UploadDialog extends JDialog implements ActionListener, DocumentLis
 		contentPane.add(buttonPane, BorderLayout.PAGE_END);
 		((JComponent) contentPane).setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
+		enableUpload();
+
 		pack();
 		setLocationRelativeTo(parent);
 		setVisible(true);
