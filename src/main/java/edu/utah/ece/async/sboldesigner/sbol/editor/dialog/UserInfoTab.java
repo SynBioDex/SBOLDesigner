@@ -19,12 +19,14 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
@@ -33,6 +35,8 @@ import org.openrdf.model.URI;
 import com.google.common.base.Strings;
 
 import edu.utah.ece.async.sboldesigner.sbol.editor.Images;
+import edu.utah.ece.async.sboldesigner.sbol.editor.Registries;
+import edu.utah.ece.async.sboldesigner.sbol.editor.Registry;
 import edu.utah.ece.async.sboldesigner.sbol.editor.SBOLEditorPreferences;
 import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.PreferencesDialog.PreferencesTab;
 import edu.utah.ece.async.sboldesigner.swing.FormBuilder;
@@ -102,13 +106,40 @@ public enum UserInfoTab implements PreferencesTab {
 		boolean noURI = Strings.isNullOrEmpty(uri.getText());
 		boolean noName = Strings.isNullOrEmpty(name.getText());
 		boolean noEmail = Strings.isNullOrEmpty(email.getText());
-		if (!(noURI && noName && noEmail)) {
-			URI personURI = noURI ? Terms.unique("Person") : Terms.uri(uri.getText());
-			String personName = noName ? "" : name.getText();
-			URI personEmail = noEmail ? null : Terms.uri("mailto:" + email.getText());
-			PersonInfo info = Infos.forPerson(personURI, personName, personEmail);
-			SBOLEditorPreferences.INSTANCE.saveUserInfo(info);
+
+		if (hasNamespaceCollision(uri.getText())) {
+			JOptionPane.showMessageDialog(getComponent(),
+					"The user namespace cannot conflict with an existing Registry namespace.  Please try http://www.dummy.org instead.");
+			return;
 		}
+
+		URI personURI = noURI ? Terms.uri("http://www.dummy.org") : Terms.uri(uri.getText());
+		String personName = noName ? "" : name.getText();
+		URI personEmail = noEmail ? null : Terms.uri("mailto:" + email.getText());
+		PersonInfo info = Infos.forPerson(personURI, personName, personEmail);
+		SBOLEditorPreferences.INSTANCE.saveUserInfo(info);
+	}
+
+	private boolean hasNamespaceCollision(String newNamespace) {
+		for (Registry r : Registries.get()) {
+			if (!r.isPath()) {
+
+				ArrayList<String> variations = new ArrayList<>();
+				variations.add(r.getLocation());
+				if (r.getLocation().startsWith("https")) {
+					variations.add(r.getLocation().replace("https", "http"));
+				} else {
+					variations.add(r.getLocation().replace("http", "https"));
+				}
+
+				for (String variation : variations) {
+					if (newNamespace.equals(variation)) {
+						return true;
+					}
+				}
+			}
+		}
+		return false;
 	}
 
 	@Override
