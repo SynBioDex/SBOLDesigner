@@ -69,6 +69,7 @@ import javax.swing.SwingConstants;
 
 import org.apache.commons.httpclient.URIException;
 import org.synbiohub.frontend.SynBioHubException;
+import org.synbiohub.frontend.SynBioHubFrontend;
 import org.sbolstandard.core2.AccessType;
 import org.sbolstandard.core2.ComponentDefinition;
 import org.sbolstandard.core2.Cut;
@@ -99,6 +100,7 @@ import edu.utah.ece.async.sboldesigner.sbol.SBOLUtils.Types;
 import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.MessageDialog;
 import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.PartEditDialog;
 import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.RegistryInputDialog;
+import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.RegistryLoginDialog;
 import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.RootInputDialog;
 import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.UploadDialog;
 import edu.utah.ece.async.sboldesigner.sbol.editor.event.DesignChangedEvent;
@@ -1275,6 +1277,19 @@ public class SBOLDesign {
 			if (cancel == JOptionPane.YES_OPTION) {
 				return;
 			}
+		}
+
+		// potentially log in to this registry
+		SynBioHubFrontends frontends = new SynBioHubFrontends();
+		if (!frontends.hasFrontend(registry.getLocation())) {
+			JOptionPane.showMessageDialog(panel, "You are not logged in to " + registry + ". Please log in.");
+			RegistryLoginDialog loginDialog = new RegistryLoginDialog(panel, registry.getLocation(),
+					registry.getUriPrefix());
+			SynBioHubFrontend frontend = loginDialog.getSynBioHubFrontend();
+			if (frontend == null) {
+				return;
+			}
+			frontends.addFrontend(registry.getLocation(), frontend);
 		}
 
 		UploadDialog uploadDialog = new UploadDialog(panel.getParent(), registry, uploadDoc);
