@@ -58,7 +58,7 @@ import org.sbolstandard.core2.SBOLDocument;
 import org.sbolstandard.core2.SBOLValidationException;
 import org.sbolstandard.core2.TopLevel;
 
-public class UploadDialog extends JDialog implements ActionListener, DocumentListener {
+public class UploadNewDialog extends JDialog implements ActionListener, DocumentListener {
 	private static final String TITLE = "Upload Design: ";
 
 	private static String title(Registry registry) {
@@ -87,9 +87,8 @@ public class UploadDialog extends JDialog implements ActionListener, DocumentLis
 	private final JTextField name = new JTextField("");
 	private final JTextField description = new JTextField("");
 	private final JTextField citations = new JTextField("");
-	private JList<IdentifiedMetadata> collections = null;
 
-	public UploadDialog(final Component parent, Registry registry, SBOLDocument toBeUploaded) {
+	public UploadNewDialog(final Component parent, Registry registry, SBOLDocument toBeUploaded) {
 		super(JOptionPane.getFrameForComponent(parent), TITLE + title(registry), true);
 		this.parent = parent;
 		this.registry = registry;
@@ -176,69 +175,12 @@ public class UploadDialog extends JDialog implements ActionListener, DocumentLis
 		JPanel panel = builder.build();
 		panel.setAlignmentX(LEFT_ALIGNMENT);
 
-		// setup collections
-		collections = new JList<IdentifiedMetadata>(setupListModel());
-		collections.setCellRenderer(new MyListCellRenderer());
-		collections.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-		collections.setLayoutOrientation(JList.VERTICAL);
-		collections.setVisibleRowCount(5);
-		JScrollPane collectionsScroller = new JScrollPane(collections);
-		collectionsScroller.setPreferredSize(new Dimension(50, 200));
-		collectionsScroller.setAlignmentX(LEFT_ALIGNMENT);
-
 		JPanel mainPanel = new JPanel();
 		mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.PAGE_AXIS));
 		mainPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 		mainPanel.add(panel);
-		mainPanel.add(new JLabel("Collections:"));
-		mainPanel.add(collectionsScroller);
 
 		return mainPanel;
-	}
-
-	private class MyListCellRenderer extends DefaultListCellRenderer {
-		@Override
-		public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected,
-				boolean cellHasFocus) {
-			JLabel label = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-			label.setOpaque(isSelected); // Highlight only when selected
-			label.setText(((IdentifiedMetadata) value).getName());
-			return label;
-		}
-	}
-
-	private ListModel<IdentifiedMetadata> setupListModel() {
-		SynBioHubFrontends frontends = new SynBioHubFrontends();
-		SynBioHubFrontend frontend = null;
-		if (frontends.hasFrontend(registry.getLocation())) {
-			frontend = frontends.getFrontend(registry.getLocation());
-		} else {
-			frontend = toBeUploaded.addRegistry(registry.getLocation(), registry.getUriPrefix());
-		}
-
-		SearchQuery query = new SearchQuery();
-		SearchCriteria crit = new SearchCriteria();
-		crit.setKey("objectType");
-		crit.setValue("Collection");
-		query.addCriteria(crit);
-		query.setLimit(10000);
-		query.setOffset(0);
-		List<IdentifiedMetadata> results;
-		DefaultListModel<IdentifiedMetadata> model = new DefaultListModel<IdentifiedMetadata>();
-		try {
-			results = frontend.search(query);
-		} catch (SynBioHubException e) {
-			return model;
-		}
-
-		if (results.size() == 0) {
-			return model;
-		}
-
-		for (IdentifiedMetadata collection : results) {
-			model.addElement(collection);
-		}
-		return model;
 	}
 
 	@Override
@@ -271,17 +213,8 @@ public class UploadDialog extends JDialog implements ActionListener, DocumentLis
 
 		String option = Integer.toString(options.getSelectedIndex());
 		frontend.submit(submissionId.getText(), version.getText(), name.getText(), description.getText(),
-				citations.getText(), getSelectedCollections(collections), option, toBeUploaded);
+				citations.getText(), null, option, toBeUploaded);
 		JOptionPane.showMessageDialog(parent, "Upload successful!");
-	}
-
-	private String getSelectedCollections(JList<IdentifiedMetadata> col) {
-		StringBuilder result = new StringBuilder();
-		for (IdentifiedMetadata collection : col.getSelectedValuesList()) {
-			result.append(collection.getUri());
-			result.append(",");
-		}
-		return result.length() > 0 ? result.substring(0, result.length() - 1) : "";
 	}
 
 	@Override

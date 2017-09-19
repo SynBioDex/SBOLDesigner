@@ -102,7 +102,8 @@ import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.PartEditDialog;
 import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.RegistryInputDialog;
 import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.RegistryLoginDialog;
 import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.RootInputDialog;
-import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.UploadDialog;
+import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.UploadExistingDialog;
+import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.UploadNewDialog;
 import edu.utah.ece.async.sboldesigner.sbol.editor.event.DesignChangedEvent;
 import edu.utah.ece.async.sboldesigner.sbol.editor.event.DesignLoadedEvent;
 import edu.utah.ece.async.sboldesigner.sbol.editor.event.FocusInEvent;
@@ -1246,23 +1247,23 @@ public class SBOLDesign {
 	}
 
 	public void uploadDesign() throws SynBioHubException, SBOLValidationException, URIException {
-		ArrayList<Registry> list = new ArrayList<Registry>();
+		// create a list of registries
+		ArrayList<Registry> registryList = new ArrayList<Registry>();
 		for (Registry r : Registries.get()) {
 			if (!r.isPath()) {
-				list.add(r);
+				registryList.add(r);
 			}
 		}
-
-		Object[] options = list.toArray();
-
-		if (options.length == 0) {
+		Object[] registryOptions = registryList.toArray();
+		if (registryOptions.length == 0) {
 			JOptionPane.showMessageDialog(panel, "There are no instances of SynBioHub in the registries list.");
 			return;
 		}
 
+		// ask user to select a registry
 		Registry registry = (Registry) JOptionPane.showInputDialog(panel,
 				"Please select the SynBioHub instance you want to upload the current design to.", "Upload",
-				JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
+				JOptionPane.QUESTION_MESSAGE, null, registryOptions, registryOptions[0]);
 		if (registry == null) {
 			return;
 		}
@@ -1279,7 +1280,7 @@ public class SBOLDesign {
 			}
 		}
 
-		// potentially log in to this registry
+		// potentially login to this registry
 		SynBioHubFrontends frontends = new SynBioHubFrontends();
 		if (!frontends.hasFrontend(registry.getLocation())) {
 			JOptionPane.showMessageDialog(panel, "You are not logged in to " + registry + ". Please log in.");
@@ -1292,7 +1293,22 @@ public class SBOLDesign {
 			frontends.addFrontend(registry.getLocation(), frontend);
 		}
 
-		UploadDialog uploadDialog = new UploadDialog(panel.getParent(), registry, uploadDoc);
+		// upload to new collection or existing collection
+		String[] uploadOptions = { "New Collection", "Existing Collection" };
+		int uploadChoice = JOptionPane.showOptionDialog(panel,
+				"Upload design to new collection or existing collection of " + registry + " ?", "Upload Design",
+				JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, uploadOptions, uploadOptions[0]);
+		switch (uploadChoice) {
+		case JOptionPane.CLOSED_OPTION:
+			return;
+		case 0:
+			UploadNewDialog uploadNewDialog = new UploadNewDialog(panel.getParent(), registry, uploadDoc);
+			return;
+		case 1:
+			UploadExistingDialog uploadExistingDialog = new UploadExistingDialog(panel.getParent(), registry,
+					uploadDoc);
+			return;
+		}
 	}
 
 	public BufferedImage getSnapshot() {
