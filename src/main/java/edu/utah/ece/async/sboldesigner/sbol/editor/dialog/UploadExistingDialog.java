@@ -67,7 +67,7 @@ public class UploadExistingDialog extends JDialog implements ActionListener, Lis
 		super(JOptionPane.getFrameForComponent(parent), TITLE + title(registry), true);
 		this.parent = parent;
 		this.registry = registry;
-		this.toBeUploaded = toBeUploaded;
+		this.toBeUploaded = uploadDoc;
 
 		cancelButton.registerKeyboardAction(this, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0),
 				JComponent.WHEN_IN_FOCUSED_WINDOW);
@@ -89,7 +89,7 @@ public class UploadExistingDialog extends JDialog implements ActionListener, Lis
 		collections = new JList<IdentifiedMetadata>(setupListModel());
 		collections.addListSelectionListener(this);
 		collections.setCellRenderer(new MyListCellRenderer());
-		collections.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+		collections.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		collections.setLayoutOrientation(JList.VERTICAL);
 		collections.setVisibleRowCount(5);
 		JScrollPane collectionsScroller = new JScrollPane(collections);
@@ -161,15 +161,6 @@ public class UploadExistingDialog extends JDialog implements ActionListener, Lis
 		return model;
 	}
 
-	private String getSelectedCollections(JList<IdentifiedMetadata> col) {
-		StringBuilder result = new StringBuilder();
-		for (IdentifiedMetadata collection : col.getSelectedValuesList()) {
-			result.append(collection.getUri());
-			result.append(",");
-		}
-		return result.length() > 0 ? result.substring(0, result.length() - 1) : "";
-	}
-
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == cancelButton) {
@@ -199,17 +190,17 @@ public class UploadExistingDialog extends JDialog implements ActionListener, Lis
 		SynBioHubFrontend frontend = frontends.getFrontend(registry.getLocation());
 
 		IdentifiedMetadata selectedCollection = collections.getSelectedValue();
-		
-		// TODO how should I call submit?
-		// "2" should be changed to option selected, "2" for merge/prevent, "3" for merge/overwrite
-		frontend.submit(selectedCollection.getDisplayId().replace("_collection",""), selectedCollection.getVersion(), 
-				selectedCollection.getName(), selectedCollection.getDescription(), "", 
-				"", "2", toBeUploaded);
+
+		// TODO
+		// "2" should be changed to option selected, "2" for merge/prevent, "3"
+		// for merge/overwrite
+		frontend.submit(selectedCollection.getDisplayId().replace("_collection", ""), selectedCollection.getVersion(),
+				selectedCollection.getName(), selectedCollection.getDescription(), "", "", "2", toBeUploaded);
 		JOptionPane.showMessageDialog(parent, "Upload successful!");
 	}
 
 	@Override
 	public void valueChanged(ListSelectionEvent e) {
-		uploadButton.setEnabled(!getSelectedCollections(collections).equals(""));
+		uploadButton.setEnabled(!collections.isSelectionEmpty());
 	}
 }
