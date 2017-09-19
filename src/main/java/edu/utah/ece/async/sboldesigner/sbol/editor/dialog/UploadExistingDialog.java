@@ -152,7 +152,10 @@ public class UploadExistingDialog extends JDialog implements ActionListener, Lis
 		}
 
 		for (IdentifiedMetadata collection : results) {
-			model.addElement(collection);
+			// don't add collections that have "/public" in the URI.
+			if (!collection.getUri().contains("/public/")) {
+				model.addElement(collection);
+			}
 		}
 		return model;
 	}
