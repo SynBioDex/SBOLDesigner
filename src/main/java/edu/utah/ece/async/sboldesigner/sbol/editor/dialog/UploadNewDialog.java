@@ -213,7 +213,7 @@ public class UploadNewDialog extends JDialog implements ActionListener, Document
 
 		String option = Integer.toString(options.getSelectedIndex());
 		frontend.submit(submissionId.getText(), version.getText(), name.getText(), description.getText(),
-				citations.getText(), null, option, toBeUploaded);
+				citations.getText(), "", option, toBeUploaded);
 		JOptionPane.showMessageDialog(parent, "Upload successful!");
 	}
 

@@ -29,6 +29,7 @@ import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import org.sbolstandard.core2.SBOLConversionException;
 import org.sbolstandard.core2.SBOLDocument;
 import org.synbiohub.frontend.IdentifiedMetadata;
 import org.synbiohub.frontend.SearchCriteria;
@@ -197,8 +198,13 @@ public class UploadExistingDialog extends JDialog implements ActionListener, Lis
 		}
 		SynBioHubFrontend frontend = frontends.getFrontend(registry.getLocation());
 
+		IdentifiedMetadata selectedCollection = collections.getSelectedValue();
+		
 		// TODO how should I call submit?
-		frontend.submit(null, null, null, null, null, getSelectedCollections(collections), null, toBeUploaded);
+		// "2" should be changed to option selected, "2" for merge/prevent, "3" for merge/overwrite
+		frontend.submit(selectedCollection.getDisplayId().replace("_collection",""), selectedCollection.getVersion(), 
+				selectedCollection.getName(), selectedCollection.getDescription(), "", 
+				"", "2", toBeUploaded);
 		JOptionPane.showMessageDialog(parent, "Upload successful!");
 	}
 
