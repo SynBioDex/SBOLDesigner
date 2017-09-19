@@ -150,7 +150,7 @@ public enum RegistryPreferencesTab implements PreferencesTab {
 		final JButton loginButton = new JButton("Login");
 		loginButton.setActionCommand(Action.LOGIN.toString());
 		loginButton.addActionListener(listener);
-		loginButton.setEnabled(true);
+		loginButton.setEnabled(false);
 
 		final JButton restoreButton = new JButton("Restore defaults");
 		restoreButton.setActionCommand(Action.RESTORE.toString());
@@ -163,6 +163,7 @@ public enum RegistryPreferencesTab implements PreferencesTab {
 				// Everything can be removed/edited except Built-In parts.
 				removeButton.setEnabled(table.getSelectedRow() >= 2);
 				editButton.setEnabled(table.getSelectedRow() >= 2);
+				loginButton.setEnabled(table.getSelectedRow() >= 0);
 			}
 		});
 
