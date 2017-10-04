@@ -512,7 +512,7 @@ public class SBOLDesignerPanel extends JPanel {
 		if (askForURIPrefix) {
 			setURIprefix(doc);
 		}
-		editor.getDesign().load(doc);
+		editor.getDesign().load(doc, null);
 		if (detachCurrentFile) {
 			setCurrentFile(null);
 		}
@@ -555,7 +555,7 @@ public class SBOLDesignerPanel extends JPanel {
 	void openDocument(DocumentIO documentIO) throws SBOLValidationException, IOException, SBOLConversionException {
 		SBOLDocument doc = documentIO.read();
 		doc.setDefaultURIprefix(SBOLEditorPreferences.INSTANCE.getUserInfo().getURI().toString());
-		if (editor.getDesign().load(doc)) {
+		if (editor.getDesign().load(doc, null)) {
 			setCurrentFile(documentIO);
 		}
 	}

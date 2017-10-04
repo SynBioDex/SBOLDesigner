@@ -425,9 +425,9 @@ public class SBOLDesign {
 
 	/**
 	 * Loads the given SBOLDocument. Returns true if the design was successfully
-	 * loaded.
+	 * loaded. If rootUri is not null, use that rootUri as the root part.
 	 */
-	public boolean load(SBOLDocument doc) throws SBOLValidationException {
+	public boolean load(SBOLDocument doc, URI rootUri) throws SBOLValidationException {
 		if (doc == null) {
 			JOptionPane.showMessageDialog(panel, "No document to load.", "Load error", JOptionPane.ERROR_MESSAGE);
 			return false;
@@ -455,13 +455,17 @@ public class SBOLDesign {
 			break;
 		default:
 			// There are multiple root CDs
-			doc = new RootInputDialog(panel, doc).getInput();
-			if (doc == null) {
-				return false;
+			if (rootUri == null) {
+				doc = new RootInputDialog(panel, doc).getInput();
+				if (doc == null) {
+					return false;
+				}
+				rootCD = SBOLUtils.getRootCD(doc);
+			} else {
+				rootCD = doc.getComponentDefinition(rootUri);
 			}
 			doc.setDefaultURIprefix(SBOLEditorPreferences.INSTANCE.getUserInfo().getURI().toString());
 			design = doc;
-			rootCD = SBOLUtils.getRootCD(doc);
 			break;
 		}
 
