@@ -122,16 +122,44 @@ public class Part {
 		return smallImage;
 	}
 
+
 	/**
 	 * Creates a CD in design using roles.
 	 */
-	public ComponentDefinition createComponentDefinition(SBOLDocument design) {
+	public ComponentDefinition createComponentDefinition(SBOLDocument design) 
+	{
+		return createComponentDefinition(design, ComponentDefinition.DNA);
+	}
+	
+	/**
+	 * Create a ComponentDefinition that will set the roleType base on the given ComponentDefinition Type.
+	 * @param design - The SBOL document that the ComponentDefinition will be created in.
+	 * @param compDefType - The type that the ComponentDefinition will be set to.
+	 * @return The ComponentDefinition that was created.
+	 */
+	public ComponentDefinition createComponentDefinition(SBOLDocument design, URI compDefType) {
 		// change list of roles to set of roles
 		Set<URI> setRoles = new HashSet<URI>(roles);
+		
 		// create ComponentDefinition using the following parameters
-		try {
+		try 
+		{
 			String uniqueId = SBOLUtils.getUniqueDisplayId(null, getDisplayId(), "1", "CD", design);
-			ComponentDefinition comp = design.createComponentDefinition(uniqueId, "1", ComponentDefinition.DNA);
+			ComponentDefinition comp = design.createComponentDefinition(uniqueId, "1", compDefType);
+			
+			if(compDefType.equals(ComponentDefinition.DNA))
+			{
+				setRoles.add(SequenceOntology.ENGINEERED_REGION);
+			}
+			else if(compDefType.equals(ComponentDefinition.RNA))
+			{
+				setRoles.add(SequenceOntology.MRNA);
+			}
+			else if(compDefType.equals(ComponentDefinition.SMALL_MOLECULE))
+			{
+				setRoles.add(ComponentDefinition.EFFECTOR);
+			}
+			
 			// If a CD is being created by a SEQUENCE_FEATURE part, replace
 			// SEQUENCE_FEATURE with ENGINEERED_REGION. SBOLDesigner creates
 			// ENGINEERED_REGIONs, not SEQUENCE_FEATUREs. However, GENERIC parts
@@ -143,7 +171,9 @@ public class Part {
 			}
 			comp.setRoles(setRoles);
 			return comp;
-		} catch (SBOLValidationException e) {
+		} 
+		catch (SBOLValidationException e) 
+		{
 			e.printStackTrace();
 			return null;
 		}
