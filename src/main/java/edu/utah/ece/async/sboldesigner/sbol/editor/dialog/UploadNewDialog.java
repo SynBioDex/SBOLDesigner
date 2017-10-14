@@ -22,6 +22,7 @@ import javax.swing.ButtonGroup;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
@@ -32,6 +33,7 @@ import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.ListCellRenderer;
@@ -75,18 +77,16 @@ public class UploadNewDialog extends JDialog implements ActionListener, Document
 	private Registry registry;
 	private SBOLDocument toBeUploaded;
 
-	private final JLabel info = new JLabel(
-			"Submission form for uploading to SynBioHub.  The options specify what actions to take for duplicate designs.  (*) indicates a required field");
+	private final JTextArea info = new JTextArea(
+			"SynBioHub organizes your uploads into collections. You can upload as many parts as you want into one collection, and then conveniently download them all together or share the collection as a whole with other people. If you've already made a collection, try again and select the Existing Collection option. If you haven't, fill out the form below to create a new one. If you're submitting the same thing twice because you've changed things, tick the overwrite box below to overwrite previous versions with what you're uploading now. If this is the first time you have made this submission, you can ignore this. (*) indicates a required field");
 	private final JButton uploadButton = new JButton("Upload");
 	private final JButton cancelButton = new JButton("Cancel");
-	private final JComboBox<String> options = new JComboBox<>(new String[] { "Prevent Submission",
-			"Overwrite Submission", "Merge and Prevent if member of collection exists",
-			"Merge and Replace if member of collection exists" });
 	private final JTextField submissionId = new JTextField("");
 	private final JTextField version = new JTextField("");
 	private final JTextField name = new JTextField("");
 	private final JTextField description = new JTextField("");
 	private final JTextField citations = new JTextField("");
+	private final JCheckBox overwrite = new JCheckBox("");
 
 	public UploadNewDialog(final Component parent, Registry registry, SBOLDocument toBeUploaded) {
 		super(JOptionPane.getFrameForComponent(parent), TITLE + title(registry), true);
@@ -94,21 +94,7 @@ public class UploadNewDialog extends JDialog implements ActionListener, Document
 		this.registry = registry;
 		this.toBeUploaded = toBeUploaded;
 
-		// Remove objects that should already be found in this registry
-		// for (TopLevel topLevel : this.toBeUploaded.getTopLevels()) {
-		// String identity = topLevel.getIdentity().toString();
-		// String registryPrefix = registry.getUriPrefix();
-		// if ((!registryPrefix.equals("") &&
-		// identity.startsWith(registryPrefix))
-		// || (registryPrefix.equals("") &&
-		// identity.startsWith(registry.getLocation()))) {
-		// try {
-		// this.toBeUploaded.removeTopLevel(topLevel);
-		// } catch (SBOLValidationException e) {
-		// e.printStackTrace();
-		// }
-		// }
-		// }
+		this.setMinimumSize(new Dimension(800, 500));
 
 		// set default values
 		PersonInfo userInfo = SBOLEditorPreferences.INSTANCE.getUserInfo();
@@ -121,11 +107,17 @@ public class UploadNewDialog extends JDialog implements ActionListener, Document
 			return;
 		}
 
+		info.setWrapStyleWord(true);
+		info.setLineWrap(true);
+		info.setEditable(false);
+		info.setOpaque(false);
+		info.setHighlighter(null);
 		ComponentDefinition root = toBeUploaded.getRootComponentDefinitions().iterator().next();
 		submissionId.setText(root.getDisplayId());
 		version.setText("1");
 		name.setText(root.isSetName() ? root.getName() : root.getDisplayId());
 		description.setText(root.isSetDescription() ? root.getDescription() : "");
+		overwrite.setSelected(false);
 
 		cancelButton.registerKeyboardAction(this, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0),
 				JComponent.WHEN_IN_FOCUSED_WINDOW);
@@ -167,11 +159,12 @@ public class UploadNewDialog extends JDialog implements ActionListener, Document
 
 		FormBuilder builder = new FormBuilder();
 		builder.add("", new JLabel(" "));
-		builder.add("Submission ID *", submissionId);
-		builder.add("Version *", version);
-		builder.add("Name *", name);
-		builder.add("Description *", description);
-		builder.add("Options (if existing)", options);
+		builder.add("Collection ID *", submissionId);
+		builder.add("Collection Version *", version);
+		builder.add("Collection Name *", name);
+		builder.add("Collection Description *", description);
+		builder.add("Citations (optional)", citations);
+		builder.add("Overwrite", overwrite);
 		JPanel panel = builder.build();
 		panel.setAlignmentX(LEFT_ALIGNMENT);
 
@@ -211,7 +204,7 @@ public class UploadNewDialog extends JDialog implements ActionListener, Document
 		}
 		SynBioHubFrontend frontend = frontends.getFrontend(registry.getLocation());
 
-		String option = Integer.toString(options.getSelectedIndex());
+		String option = overwrite.isSelected() ? "1" : "0";
 		frontend.submit(submissionId.getText(), version.getText(), name.getText(), description.getText(),
 				citations.getText(), "", option, toBeUploaded);
 		JOptionPane.showMessageDialog(parent, "Upload successful!");
