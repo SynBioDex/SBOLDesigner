@@ -16,6 +16,7 @@ import javax.swing.BoxLayout;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
@@ -58,9 +59,11 @@ public class UploadExistingDialog extends JDialog implements ActionListener, Lis
 	private Registry registry;
 	private SBOLDocument toBeUploaded;
 
-	private final JLabel info = new JLabel("Select an existing collection(s) to upload the design into.");
+	private final JLabel info = new JLabel(
+			"Select an existing collection(s) to upload the design into.  If Overwrite is selected, the uploaded part will overwrite any parts that have the same URI in the selected collection.");
 	private final JButton uploadButton = new JButton("Upload");
 	private final JButton cancelButton = new JButton("Cancel");
+	private final JCheckBox overwrite = new JCheckBox("");
 	private JList<IdentifiedMetadata> collections = null;
 
 	public UploadExistingDialog(final Component parent, Registry registry, SBOLDocument uploadDoc) {
@@ -99,8 +102,10 @@ public class UploadExistingDialog extends JDialog implements ActionListener, Lis
 		JPanel mainPanel = new JPanel();
 		mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.PAGE_AXIS));
 		mainPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-		mainPanel.add(new JLabel("Collections:"));
+		mainPanel.add(new JLabel("Collections"));
 		mainPanel.add(collectionsScroller);
+		mainPanel.add(new JLabel("Overwrite"));
+		mainPanel.add(overwrite);
 
 		Container contentPane = getContentPane();
 		contentPane.add(info, BorderLayout.PAGE_START);
@@ -191,11 +196,9 @@ public class UploadExistingDialog extends JDialog implements ActionListener, Lis
 
 		IdentifiedMetadata selectedCollection = collections.getSelectedValue();
 
-		// TODO
-		// "2" should be changed to option selected, "2" for merge/prevent, "3"
-		// for merge/overwrite
+		String option = overwrite.isSelected() ? "3" : "2";
 		frontend.submit(selectedCollection.getDisplayId().replace("_collection", ""), selectedCollection.getVersion(),
-				selectedCollection.getName(), selectedCollection.getDescription(), "", "", "2", toBeUploaded);
+				selectedCollection.getName(), selectedCollection.getDescription(), "", "", option, toBeUploaded);
 		JOptionPane.showMessageDialog(parent, "Upload successful!");
 	}
 
