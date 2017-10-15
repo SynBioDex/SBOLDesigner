@@ -12,6 +12,8 @@ import javax.swing.JOptionPane;
 import javax.swing.SwingWorker;
 
 import org.synbiohub.frontend.IdentifiedMetadata;
+import org.synbiohub.frontend.SearchCriteria;
+import org.synbiohub.frontend.SearchQuery;
 import org.synbiohub.frontend.SynBioHubException;
 import org.synbiohub.frontend.SynBioHubFrontend;
 
@@ -69,8 +71,37 @@ public class SynBioHubQuery extends SwingWorker<Object, Object> {
 		}
 
 		// fetch parts
-		identified.addAll(getTableMetadata(null,
-				synBioHub.getMatchingComponentDefinitionMetadata(null, roles, types, collections, 0, 10000)));
+		SearchQuery query = new SearchQuery();
+		query.setOffset(0);
+		query.setLimit(10000);
+
+		for (URI role : roles) {
+			SearchCriteria criteria = new SearchCriteria();
+			criteria.setKey("role");
+			criteria.setValue(role.toString());
+			query.addCriteria(criteria);
+		}
+
+		for (URI type : types) {
+			SearchCriteria criteria = new SearchCriteria();
+			criteria.setKey("type");
+			criteria.setValue(type.toString());
+			query.addCriteria(criteria);
+		}
+
+		for (URI collection : collections) {
+			SearchCriteria criteria = new SearchCriteria();
+			criteria.setKey("collection");
+			criteria.setValue(collection.toString());
+			query.addCriteria(criteria);
+		}
+
+		SearchCriteria criteria = new SearchCriteria();
+		criteria.setKey("objectType");
+		criteria.setValue("ComponentDefinition");
+		query.addCriteria(criteria);
+
+		identified.addAll(getTableMetadata(null, synBioHub.search(query)));
 
 		return identified;
 	}
