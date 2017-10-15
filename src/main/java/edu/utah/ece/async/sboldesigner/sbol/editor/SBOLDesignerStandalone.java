@@ -17,14 +17,26 @@ package edu.utah.ece.async.sboldesigner.sbol.editor;
 
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.KeyManagementException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
 import java.util.prefs.Preferences;
 
 import javax.imageio.ImageIO;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManagerFactory;
 import javax.swing.JFrame;
 import javax.swing.UIManager;
 
@@ -60,7 +72,7 @@ public class SBOLDesignerStandalone extends JFrame {
 		// set behavior for close operation
 		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		if (System.getProperty("os.name").toLowerCase().startsWith("mac os")) {
-			//Application app = Application.getApplication();
+			// Application app = Application.getApplication();
 			// app.setQuitHandler(new QuitHandler() {
 			// public void handleQuitRequestWith(QuitEvent event, QuitResponse
 			// response) {
@@ -104,6 +116,29 @@ public class SBOLDesignerStandalone extends JFrame {
 	private static void setup() {
 		setupLogging();
 		setupLookAndFeel();
+		setupSynBioHubCertificate();
+	}
+
+	private static void setupSynBioHubCertificate() {
+		try {
+			BufferedInputStream is = new BufferedInputStream(
+					SBOLDesignerStandalone.class.getResourceAsStream("/letsEncryptCert.cer"));
+
+			X509Certificate ca = (X509Certificate) CertificateFactory.getInstance("X.509").generateCertificate(is);
+
+			KeyStore ks = KeyStore.getInstance(KeyStore.getDefaultType());
+			ks.load(null, null);
+			ks.setCertificateEntry(Integer.toString(1), ca);
+
+			TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+			tmf.init(ks);
+
+			SSLContext context = SSLContext.getInstance("TLS");
+			context.init(null, tmf.getTrustManagers(), null);
+		} catch (KeyManagementException | NoSuchAlgorithmException | KeyStoreException | CertificateException
+				| IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	private static void setupLookAndFeel() {
