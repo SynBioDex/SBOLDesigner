@@ -498,14 +498,14 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 		}
 
 		if (registryChanged) {
-			// display only "allCollections"
-			IdentifiedMetadata allCollections = new IdentifiedMetadata();
-			allCollections.setName("All Collections");
-			allCollections.setDisplayId("All Collections");
-			allCollections.setUri("");
+			// display only "rootCollections"
+			IdentifiedMetadata rootCollections = new IdentifiedMetadata();
+			rootCollections.setName("Root Collections");
+			rootCollections.setDisplayId("Root Collections");
+			rootCollections.setUri("");
 			collectionSelection.removeAllItems();
-			collectionSelection.addItem(allCollections);
-			collectionSelection.setSelectedItem(allCollections);
+			collectionSelection.addItem(rootCollections);
+			collectionSelection.setSelectedItem(rootCollections);
 			collectionSelection.addActionListener(collectionSelectionListener);
 			return;
 		}
