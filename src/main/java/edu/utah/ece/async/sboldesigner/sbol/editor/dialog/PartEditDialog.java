@@ -16,6 +16,7 @@
 package edu.utah.ece.async.sboldesigner.sbol.editor.dialog;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Cursor;
@@ -33,6 +34,7 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -45,12 +47,14 @@ import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
+import javax.swing.ListCellRenderer;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.xml.namespace.QName;
@@ -108,6 +112,8 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 	private final JLabel URIlink = new JLabel();
 	private final JLabel derivedFrom = new JLabel();
 	private final JTextArea sequenceField = new JTextArea(10, 80);
+	private final JComboBox<String> sequenceEncoding = new JComboBox<String>(
+			new String[] { "IUPAC_DNA", "IUPAC_PROTEIN", "IUPAC_RNA", "SMILES" });
 
 	/**
 	 * Returns the ComponentDefinition edited by PartEditDialog. Null if the
@@ -219,6 +225,14 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 			}
 		});
 
+		sequenceEncoding.addActionListener(this);
+		if (!CD.getSequences().isEmpty()) {
+			Sequence s = CD.getSequences().iterator().next();
+			sequenceEncoding.setSelectedItem(sequenceEncodingString(s.getEncoding()));
+		} else {
+			sequenceEncoding.setSelectedItem("IUPAC_DNA");
+		}
+
 		// put the controlsPane together
 		// some fields are optional
 		FormBuilder builder = new FormBuilder();
@@ -248,6 +262,7 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 			});
 			builder.add("Derived from", derivedFrom);
 		}
+		builder.add("Sequence encoding", sequenceEncoding);
 		JPanel controlsPane = builder.build();
 
 		JScrollPane tableScroller = new JScrollPane(sequenceField);
@@ -256,7 +271,7 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 
 		JPanel tablePane = new JPanel();
 		tablePane.setLayout(new BoxLayout(tablePane, BoxLayout.PAGE_AXIS));
-		JLabel label = new JLabel("DNA sequence");
+		JLabel label = new JLabel("Sequence");
 		label.setLabelFor(sequenceField);
 		tablePane.add(label);
 		tablePane.add(Box.createRigidArea(new Dimension(0, 5)));
@@ -265,7 +280,7 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 
 		sequenceField.setLineWrap(true);
 		sequenceField.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
-		Sequence seq = CD.getSequenceByEncoding(Sequence.IUPAC_DNA);
+		Sequence seq = CD.getSequences().isEmpty() ? null : CD.getSequences().iterator().next();
 		if (seq != null && !seq.getElements().isEmpty()) {
 			sequenceField.setText(seq.getElements());
 		}
@@ -471,12 +486,15 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 	public void actionPerformed(ActionEvent e) {
 		boolean keepVisible = false;
 		if (e.getSource().equals(roleSelection) || e.getSource().equals(roleRefinement)
-				|| e.getSource().equals(typeSelection)) {
+				|| e.getSource().equals(typeSelection) || e.getSource().equals(sequenceEncoding)) {
 			if (canEdit) {
 				saveButton.setEnabled(true);
 			}
 			if (e.getSource().equals(roleSelection)) {
 				updateRoleRefinement();
+			}
+			if (e.getSource().equals(sequenceEncoding)) {
+				validateSequenceEncoding(sequenceEncodingURI((String) sequenceEncoding.getSelectedItem()));
 			}
 			return;
 		}
@@ -540,6 +558,40 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 		for (String s : SBOLUtils.createRefinements((Part) roleSelection.getSelectedItem())) {
 			roleRefinement.addItem(s);
 		}
+	}
+
+	private void validateSequenceEncoding(URI encoding) {
+		if ((encoding == Sequence.IUPAC_DNA || encoding == Sequence.IUPAC_RNA)
+				&& !(CD.containsType(ComponentDefinition.DNA) || CD.containsType(ComponentDefinition.RNA))) {
+			JOptionPane.showMessageDialog(parent,
+					"Warning! If the sequence is DNA or RNA, then the part should be of type DNA or RNA.");
+		}
+		if (encoding == Sequence.IUPAC_PROTEIN && !CD.containsType(ComponentDefinition.PROTEIN)) {
+			JOptionPane.showMessageDialog(parent,
+					"Warning! If the sequence is PROTEIN, then the part should be of type PROTEIN.");
+		}
+		if (encoding == Sequence.SMILES && !CD.containsType(ComponentDefinition.SMALL_MOLECULE)) {
+			JOptionPane.showMessageDialog(parent,
+					"Warning! If the sequence is SMILES, then the part should be of type SMALL_MOLECULE.");
+		}
+	}
+
+	private String sequenceEncodingString(URI encoding) {
+		HashMap<URI, String> map = new HashMap<>();
+		map.put(Sequence.IUPAC_RNA, "IUPAC_RNA");
+		map.put(Sequence.IUPAC_DNA, "IUPAC_DNA");
+		map.put(Sequence.IUPAC_PROTEIN, "IUPAC_PROTEIN");
+		map.put(Sequence.SMILES, "SMILES");
+		return map.containsKey(encoding) ? map.get(encoding) : encoding.toString();
+	}
+
+	private URI sequenceEncodingURI(String encoding) {
+		HashMap<String, URI> map = new HashMap<>();
+		map.put("IUPAC_RNA", Sequence.IUPAC_RNA);
+		map.put("IUPAC_DNA", Sequence.IUPAC_DNA);
+		map.put("IUPAC_PROTEIN", Sequence.IUPAC_PROTEIN);
+		map.put("SMILES", Sequence.SMILES);
+		return map.containsKey(encoding) ? map.get(encoding) : URI.create(encoding);
 	}
 
 	private void openAnnotationHandler() {
@@ -659,13 +711,15 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 		String seq = sequenceField.getText();
 		if (seq == null || seq.isEmpty()) {
 			CD.clearSequences();
-		} else if (CD.getSequences().isEmpty()
-				|| !Objects.equal(CD.getSequences().iterator().next().getElements(), seq)) {
+		} else if (CD.getSequences().isEmpty() || !Objects.equal(CD.getSequences().iterator().next().getElements(), seq)
+				|| !Objects.equal(CD.getSequences().iterator().next().getEncoding(),
+						sequenceEncodingURI((String) sequenceEncoding.getSelectedItem()))) {
 			CD.clearSequences();
 			String uniqueId = SBOLUtils.getUniqueDisplayId(null, CD.getDisplayId() + "Sequence", CD.getVersion(),
 					"Sequence", design);
-			Sequence dnaSeq = design.createSequence(uniqueId, CD.getVersion(), seq, Sequence.IUPAC_DNA);
-			CD.addSequence(dnaSeq);
+			Sequence sequence = design.createSequence(uniqueId, CD.getVersion(), seq,
+					sequenceEncodingURI((String) sequenceEncoding.getSelectedItem()));
+			CD.addSequence(sequence);
 		}
 
 		addSBOLDesignerAnnotation(CD);
