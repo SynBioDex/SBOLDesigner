@@ -24,6 +24,7 @@ import java.io.File;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -131,13 +132,19 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 	private SBOLDocument workingDoc;
 	private JComboBox<Types> typeSelection;
 	private JComboBox<IdentifiedMetadata> collectionSelection;
+	private boolean updateCollection = true;
 	private ActionListener collectionSelectionListener = new ActionListener() {
 		@Override
 		public void actionPerformed(ActionEvent event) {
-			updateCollectionSelection(false, null);
-			updateTable();
+			// only update collectionSelection when we aren't programmatically
+			// modifying it in collectionSelectionListener
+			if (updateCollection) {
+				updateCollectionSelection(false, null);
+				updateTable();
+			}
 		}
 	};
+	private static HashMap<Registry, ArrayList<IdentifiedMetadata>> collectionPaths = new HashMap<>();
 
 	private JTable table;
 	private JLabel tableLabel;
@@ -487,16 +494,16 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 	}
 
 	private void updateCollectionSelection(boolean registryChanged, IdentifiedMetadata newCollection) {
-		collectionSelection.removeActionListener(collectionSelectionListener);
 		collectionSelection.setEnabled(isMetadata());
 		if (!isMetadata()) {
-			collectionSelection.addActionListener(collectionSelectionListener);
 			return;
 		}
 		if (synBioHub == null) {
 			synBioHub = createSynBioHubFrontend(location, uriPrefix);
 		}
+		Registry registry = (Registry) registrySelection.getSelectedItem();
 
+		updateCollection = false;
 		if (registryChanged) {
 			// display only "rootCollections"
 			IdentifiedMetadata rootCollections = new IdentifiedMetadata();
@@ -506,20 +513,31 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 			collectionSelection.removeAllItems();
 			collectionSelection.addItem(rootCollections);
 			collectionSelection.setSelectedItem(rootCollections);
-			collectionSelection.addActionListener(collectionSelectionListener);
-			return;
-		}
 
-		if (newCollection != null) {
-			collectionSelection.addItem(newCollection);
-			collectionSelection.setSelectedItem(newCollection);
+			// restore/create cached collection path
+			if (collectionPaths.containsKey(registry)) {
+				for (IdentifiedMetadata collection : collectionPaths.get(registry)) {
+					collectionSelection.addItem(collection);
+					collectionSelection.setSelectedItem(collection);
+				}
+			} else {
+				collectionPaths.put(registry, new ArrayList<>());
+			}
 		} else {
-			while (collectionSelection.getSelectedIndex() + 1 < collectionSelection.getItemCount()) {
-				collectionSelection.removeItemAt(collectionSelection.getSelectedIndex() + 1);
+			// clicked on different collection
+			if (newCollection != null) {
+				collectionSelection.addItem(newCollection);
+				collectionSelection.setSelectedItem(newCollection);
+				collectionPaths.get(registry).add(newCollection);
+			} else {
+				while (collectionSelection.getSelectedIndex() + 1 < collectionSelection.getItemCount()) {
+					collectionSelection.removeItemAt(collectionSelection.getSelectedIndex() + 1);
+					collectionPaths.get(registry).remove(collectionSelection.getSelectedIndex());
+				}
 			}
 		}
 
-		collectionSelection.addActionListener(collectionSelectionListener);
+		updateCollection = true;
 	}
 
 	private void updateRoleRefinement() {
