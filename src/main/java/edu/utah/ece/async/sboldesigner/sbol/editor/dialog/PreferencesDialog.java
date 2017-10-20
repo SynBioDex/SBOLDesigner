@@ -149,7 +149,7 @@ public class PreferencesDialog extends JDialog implements ActionListener {
 		setVisible(false);
 	}
 
-	interface PreferencesTab {
+	public interface PreferencesTab {
 		String getTitle();
 
 		String getDescription();
