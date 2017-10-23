@@ -686,6 +686,11 @@ public class SBOLDesignerPanel extends JPanel {
 
 	void saveIntoNewFile() throws FileNotFoundException, SBOLValidationException, SBOLConversionException, IOException {
 		SBOLDocument doc = editor.getDesign().createDocument();
+
+		if (SBOLUtils.rootCalledUnamedPart(doc, this)) {
+			return;
+		}
+
 		documentIO.write(doc);
 		updateEnabledButtons(false);
 	}
@@ -699,6 +704,10 @@ public class SBOLDesignerPanel extends JPanel {
 		// the document we are saving
 		SBOLDocument currentDesign = design.createDocument();
 		ComponentDefinition currentRootCD = SBOLUtils.getRootCD(currentDesign);
+
+		if (SBOLUtils.rootCalledUnamedPart(currentDesign, this)) {
+			return;
+		}
 
 		int selection;
 		if (currentRootCD.getVersion() == null || currentRootCD.getVersion().equals("")) {

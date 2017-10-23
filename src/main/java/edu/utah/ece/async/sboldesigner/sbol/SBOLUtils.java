@@ -27,6 +27,7 @@ import java.util.prefs.Preferences;
 
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import org.sbolstandard.core2.Component;
@@ -255,6 +256,23 @@ public class SBOLUtils {
 				Iterators.filter(doc.getRootComponentDefinitions().iterator(), ComponentDefinition.class), null);
 	}
 
+	/*
+	 * Returns whether the user canceled whatever operation to rename
+	 * UnamedPart.
+	 */
+	public static boolean rootCalledUnamedPart(SBOLDocument doc, JPanel panel) {
+		// if UnnamedPart still, remind user to rename
+		if (SBOLUtils.getRootCD(doc).getDisplayId().equals("UnnamedPart")) {
+			int cancel = JOptionPane.showOptionDialog(panel,
+					"The root part is still called \"UnnamedPart\".  Would you like to cancel and rename this part?",
+					null, JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, null, null);
+			if (cancel == JOptionPane.YES_OPTION) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	/**
 	 * Pass in the nucleotides and the SBOLDocument you want to create the
 	 * Sequence in.
@@ -463,7 +481,7 @@ public class SBOLUtils {
 				} else if (tl instanceof GenericTopLevel) {
 					if (!design.removeGenericTopLevel(design.getGenericTopLevel(tl.getIdentity()))) {
 						throw new Exception("ERROR: " + tl.getDisplayId() + " didn't get removed");
-					}	
+					}
 				}
 			}
 		}

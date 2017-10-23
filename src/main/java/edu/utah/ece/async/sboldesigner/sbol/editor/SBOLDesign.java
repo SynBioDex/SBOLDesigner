@@ -158,7 +158,7 @@ public class SBOLDesign {
 	};
 
 	public final SBOLEditorAction UPLOAD = new SBOLEditorAction("Upload design",
-			"Upload the current design into an SBOL Stack instance", "upload.png") {
+			"Upload the current design into a SynBioHub instance", "upload.png") {
 		@Override
 		protected void perform() {
 			try {
@@ -1274,14 +1274,8 @@ public class SBOLDesign {
 
 		SBOLDocument uploadDoc = createDocument();
 
-		// if UnnamedPart still, remind user to rename
-		if (uploadDoc.getRootComponentDefinitions().iterator().next().getDisplayId().equals("UnnamedPart")) {
-			int cancel = JOptionPane.showOptionDialog(panel,
-					"The root part is still called \"UnnamedPart\".  Would you like to cancel and rename this part?",
-					null, JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, null, null);
-			if (cancel == JOptionPane.YES_OPTION) {
-				return;
-			}
+		if (SBOLUtils.rootCalledUnamedPart(uploadDoc, panel)) {
+			return;
 		}
 
 		// potentially login to this registry
