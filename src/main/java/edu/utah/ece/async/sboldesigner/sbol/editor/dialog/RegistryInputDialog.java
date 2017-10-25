@@ -151,6 +151,9 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 	private JLabel tableLabel;
 	private JScrollPane scroller;
 	private JCheckBox importSubparts;
+	// Determines whether the table should be refreshed when a user types in
+	// filter text. This is true when the results from SynBioHubQuery exceeds
+	// the QUERY_LIMIT.
 	private boolean refreshSearch = false;
 
 	private static SynBioHubFrontend synBioHub;
