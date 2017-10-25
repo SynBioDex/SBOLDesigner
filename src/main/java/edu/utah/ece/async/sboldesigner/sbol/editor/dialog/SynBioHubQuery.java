@@ -108,7 +108,7 @@ public class SynBioHubQuery extends SwingWorker<Object, Object> {
 		if (filterText != null) {
 			SearchCriteria filterTextCriteria = new SearchCriteria();
 			// TODO what's the key here?
-			filterTextCriteria.setKey("filterText");
+			filterTextCriteria.setKey("name");
 			filterTextCriteria.setValue(filterText);
 			query.addCriteria(filterTextCriteria);
 		}
