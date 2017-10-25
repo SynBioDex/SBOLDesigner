@@ -21,16 +21,19 @@ import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.RegistryInputDialog.Ta
 
 public class SynBioHubQuery extends SwingWorker<Object, Object> {
 
+	public static int QUERY_LIMIT = 10000;
+
 	SynBioHubFrontend synBioHub;
 	Set<URI> roles;
 	Set<URI> types;
 	Set<URI> collections;
+	String filterText;
 	TableUpdater tableUpdater;
 	ArrayList<TableMetadata> identified;
 	LoadingDialog loading;
 
 	public SynBioHubQuery(SynBioHubFrontend synbiohub, Set<URI> roles, Set<URI> types, Set<URI> collections,
-			TableUpdater tableUpdater, Component parent) throws IOException {
+			String filterText, TableUpdater tableUpdater, Component parent) throws IOException {
 		this.synBioHub = synbiohub;
 		this.roles = roles;
 		this.types = types;
@@ -42,6 +45,7 @@ public class SynBioHubQuery extends SwingWorker<Object, Object> {
 			}
 		}
 		this.collections = collections;
+		this.filterText = filterText;
 		this.tableUpdater = tableUpdater;
 		this.loading = new LoadingDialog(parent);
 		this.identified = new ArrayList<TableMetadata>();
@@ -73,7 +77,7 @@ public class SynBioHubQuery extends SwingWorker<Object, Object> {
 		// fetch parts
 		SearchQuery query = new SearchQuery();
 		query.setOffset(0);
-		query.setLimit(10000);
+		query.setLimit(QUERY_LIMIT);
 
 		for (URI role : roles) {
 			SearchCriteria criteria = new SearchCriteria();
@@ -96,10 +100,18 @@ public class SynBioHubQuery extends SwingWorker<Object, Object> {
 			query.addCriteria(criteria);
 		}
 
-		SearchCriteria criteria = new SearchCriteria();
-		criteria.setKey("objectType");
-		criteria.setValue("ComponentDefinition");
-		query.addCriteria(criteria);
+		SearchCriteria objectTypeCriteria = new SearchCriteria();
+		objectTypeCriteria.setKey("objectType");
+		objectTypeCriteria.setValue("ComponentDefinition");
+		query.addCriteria(objectTypeCriteria);
+
+		if (filterText != null) {
+			SearchCriteria filterTextCriteria = new SearchCriteria();
+			// TODO what's the key here?
+			filterTextCriteria.setKey("filterText");
+			filterTextCriteria.setValue(filterText);
+			query.addCriteria(filterTextCriteria);
+		}
 
 		identified.addAll(getTableMetadata(null, synBioHub.search(query)));
 

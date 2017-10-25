@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.regex.PatternSyntaxException;
 
+import javax.naming.directory.SearchResult;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
@@ -149,8 +150,8 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 	private JTable table;
 	private JLabel tableLabel;
 	private JScrollPane scroller;
-
 	private JCheckBox importSubparts;
+	private boolean refreshSearch = false;
 
 	private static SynBioHubFrontend synBioHub;
 
@@ -263,17 +264,29 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 		filterSelection.getDocument().addDocumentListener(new DocumentListener() {
 			@Override
 			public void removeUpdate(DocumentEvent paramDocumentEvent) {
-				updateFilter(filterSelection.getText());
+				if (refreshSearch) {
+					searchParts(part, synBioHub, filterSelection.getText());
+				} else {
+					updateFilter(filterSelection.getText());
+				}
 			}
 
 			@Override
 			public void insertUpdate(DocumentEvent paramDocumentEvent) {
-				updateFilter(filterSelection.getText());
+				if (refreshSearch) {
+					searchParts(part, synBioHub, filterSelection.getText());
+				} else {
+					updateFilter(filterSelection.getText());
+				}
 			}
 
 			@Override
 			public void changedUpdate(DocumentEvent paramDocumentEvent) {
-				updateFilter(filterSelection.getText());
+				if (refreshSearch) {
+					searchParts(part, synBioHub, filterSelection.getText());
+				} else {
+					updateFilter(filterSelection.getText());
+				}
 			}
 		});
 		builder.add("Filter parts", filterSelection);
@@ -391,10 +404,15 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 		}
 	}
 
-	/**
-	 * Queries synbiohub for CDs matching the role(s) of the part
-	 */
 	private void searchParts(Part part, SynBioHubFrontend synbiohub) {
+		searchParts(part, synbiohub, null);
+	}
+
+	/**
+	 * Queries SynBioHub for CDs matching the role(s), type(s), and
+	 * collection(s) of the part. Also filters by the filterText.
+	 */
+	private void searchParts(Part part, SynBioHubFrontend synbiohub, String filterText) {
 		try {
 			if (!isMetadata()) {
 				throw new Exception("Incorrect state.  url is a path");
@@ -415,7 +433,7 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 				Set<URI> setCollections = new HashSet<URI>(Arrays.asList(URI.create(selectedCollection.getUri())));
 				Set<URI> setRoles = new HashSet<URI>(part.getRoles());
 				Set<URI> setTypes = SBOLUtils.convertTypesToSet((Types) typeSelection.getSelectedItem());
-				SynBioHubQuery query = new SynBioHubQuery(synbiohub, setRoles, setTypes, setCollections,
+				SynBioHubQuery query = new SynBioHubQuery(synbiohub, setRoles, setTypes, setCollections, filterText,
 						new TableUpdater(), this);
 				// non-blocking: will update using the TableUpdater
 				query.execute();
@@ -580,6 +598,7 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 			ComponentDefinitionTableModel tableModel = new ComponentDefinitionTableModel(components);
 			table = new JTable(tableModel);
 			tableLabel.setText("Matching parts (" + components.size() + ")");
+			refreshSearch = false;
 			TableRowSorter<TableModel> sorter = new TableRowSorter<TableModel>(tableModel);
 			table.setRowSorter(sorter);
 			setWidthAsPercentages(table, tableModel.getWidths());
@@ -658,9 +677,13 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 			TableMetadataTableModel tableModel = new TableMetadataTableModel(identified);
 			table = new JTable(tableModel);
 			tableLabel.setText("Matching parts (" + identified.size() + ")");
+
+			refreshSearch = identified.size() >= SynBioHubQuery.QUERY_LIMIT;
+
 			TableRowSorter<TableModel> sorter = new TableRowSorter<TableModel>(tableModel);
 			table.setRowSorter(sorter);
 			setWidthAsPercentages(table, tableModel.getWidths());
+
 			table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 			table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
 				@Override
@@ -668,6 +691,7 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 					setSelectAllowed(table.getSelectedRow() >= 0);
 				}
 			});
+
 			table.addMouseListener(new MouseAdapter() {
 				public void mouseClicked(MouseEvent e) {
 					if (e.getClickCount() == 2 && table.getSelectedRow() >= 0) {
@@ -675,6 +699,7 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 					}
 				}
 			});
+
 			scroller.setViewportView(table);
 		}
 	}
