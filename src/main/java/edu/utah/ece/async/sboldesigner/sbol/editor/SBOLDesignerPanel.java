@@ -54,7 +54,6 @@ import org.synbiohub.frontend.SynBioHubFrontend;
 import com.adamtaft.eb.EventHandler;
 import com.google.common.base.Strings;
 import com.google.common.base.Supplier;
-
 import edu.utah.ece.async.sboldesigner.sbol.SBOLUtils;
 import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.AboutDialog;
 //import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.BOOSTDialog;
@@ -73,8 +72,6 @@ import edu.utah.ece.async.sboldesigner.sbol.editor.io.DocumentIO;
 import edu.utah.ece.async.sboldesigner.sbol.editor.io.FileDocumentIO;
 import edu.utah.ece.async.sboldesigner.sbol.editor.io.RVTDocumentIO;
 import edu.utah.ece.async.sboldesigner.sbol.editor.io.ReadOnlyDocumentIO;
-import edu.utah.ece.async.sboldesigner.sbol.editor.sparql.RDFInput;
-import edu.utah.ece.async.sboldesigner.sbol.editor.sparql.SPARQLEndpoint;
 import edu.utah.ece.async.sboldesigner.versioning.Branch;
 import edu.utah.ece.async.sboldesigner.versioning.Infos;
 import edu.utah.ece.async.sboldesigner.versioning.PersonInfo;
@@ -434,6 +431,8 @@ public class SBOLDesignerPanel extends JPanel {
 						"xml", "rdf", "sbol", "gb", "gbk", "fasta"));
 
 		initGUI();
+		WebOfRegistries wors = new WebOfRegistries();
+		wors.initRegistries();
 
 		editor.getEventBus().subscribe(this);
 	}
