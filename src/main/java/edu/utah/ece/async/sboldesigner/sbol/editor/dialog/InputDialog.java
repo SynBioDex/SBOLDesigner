@@ -31,10 +31,13 @@ import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 
+import org.synbiohub.frontend.SynBioHubFrontend;
+
 import com.google.common.base.Throwables;
 
 import edu.utah.ece.async.sboldesigner.sbol.editor.Registries;
 import edu.utah.ece.async.sboldesigner.sbol.editor.Registry;
+import edu.utah.ece.async.sboldesigner.sbol.editor.SynBioHubFrontends;
 import edu.utah.ece.async.sboldesigner.swing.AbstractListTableModel;
 import edu.utah.ece.async.sboldesigner.swing.FormBuilder;
 
@@ -46,7 +49,8 @@ public abstract class InputDialog<T> extends JDialog {
 	protected final ActionListener actionListener = new DialogActionListener();
 
 	protected JComboBox<Registry> registrySelection = null;
-	private JButton cancelButton, selectButton, optionsButton;
+	protected JButton loginButton;
+	private JButton cancelButton, selectButton;
 	/**
 	 * The location (either url(http://) or path) of the registry
 	 */
@@ -90,9 +94,9 @@ public abstract class InputDialog<T> extends JDialog {
 		buttonPanel.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0));
 
 		if (registrySelection != null) {
-			optionsButton = new JButton("Options");
-			optionsButton.addActionListener(actionListener);
-			buttonPanel.add(optionsButton);
+			loginButton = new JButton("Login");
+			loginButton.addActionListener(actionListener);
+			buttonPanel.add(loginButton);
 		}
 
 		buttonPanel.add(Box.createHorizontalStrut(200));
@@ -235,7 +239,6 @@ public abstract class InputDialog<T> extends JDialog {
 				final Registry registry = (Registry) registrySelection.getSelectedItem();
 				if (registry == null) {
 					location = null;
-					location = null;
 				} else {
 					int selectedIndex = registrySelection.getSelectedIndex();
 					// if (registryType != RegistryType.PART) {
@@ -252,13 +255,33 @@ public abstract class InputDialog<T> extends JDialog {
 						registryChanged();
 					}
 				});
-			} else if (source == optionsButton) {
+			} else if (source == loginButton) {
+				// loginButton used to be optionsButton, and this is how options were shown.
+				/*
 				PreferencesDialog.showPreferences(InputDialog.this, RegistryPreferencesTab.INSTANCE.getTitle());
 				registrySelection.removeAllItems();
 				for (Registry r : Registries.get()) {
 					registrySelection.addItem(r);
 				}
 				registrySelection.setSelectedIndex(Registries.get().getPartRegistryIndex());
+				*/
+
+				final Registry registry = (Registry) registrySelection.getSelectedItem();
+				RegistryLoginDialog loginDialog = new RegistryLoginDialog(getParent(), registry.getLocation(),
+						registry.getUriPrefix());
+				SynBioHubFrontend frontend = loginDialog.getSynBioHubFrontend();
+				if (frontend == null) {
+					return;
+				}
+				SynBioHubFrontends frontends = new SynBioHubFrontends();
+				frontends.addFrontend(registry.getLocation(), frontend);
+
+				SwingUtilities.invokeLater(new Runnable() {
+					@Override
+					public void run() {
+						registryChanged();
+					}
+				});
 			} else if (source == cancelButton) {
 				canceled = true;
 				setVisible(false);

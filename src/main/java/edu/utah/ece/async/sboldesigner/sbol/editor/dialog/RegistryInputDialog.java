@@ -510,6 +510,7 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 		if (isMetadata()) {
 			synBioHub = createSynBioHubFrontend(location, uriPrefix);
 		}
+		loginButton.setEnabled(isMetadata());
 		updateCollectionSelection(true, null);
 		updateTable();
 	}
