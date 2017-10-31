@@ -105,9 +105,8 @@ public class SynBioHubQuery extends SwingWorker<Object, Object> {
 		objectTypeCriteria.setValue("ComponentDefinition");
 		query.addCriteria(objectTypeCriteria);
 
-		if (filterText != null) {
+		if (filterText != null && filterText != "") {
 			SearchCriteria filterTextCriteria = new SearchCriteria();
-			// TODO what's the key here?
 			filterTextCriteria.setKey("name");
 			filterTextCriteria.setValue(filterText);
 			query.addCriteria(filterTextCriteria);
@@ -144,6 +143,6 @@ public class SynBioHubQuery extends SwingWorker<Object, Object> {
 	@Override
 	protected void done() {
 		loading.stop();
-		tableUpdater.updateTable(identified);
+		tableUpdater.updateTable(identified, filterText);
 	}
 }

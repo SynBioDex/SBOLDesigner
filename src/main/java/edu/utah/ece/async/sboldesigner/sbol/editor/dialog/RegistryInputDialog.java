@@ -151,10 +151,18 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 	private JLabel tableLabel;
 	private JScrollPane scroller;
 	private JCheckBox importSubparts;
-	// Determines whether the table should be refreshed when a user types in
-	// filter text. This is true when the results from SynBioHubQuery exceeds
-	// the QUERY_LIMIT.
+
+	final JTextField filterSelection = new JTextField();
+	/*
+	 * Determines whether the table should be refreshed when a user types in
+	 * filter text. This is true when the results from SynBioHubQuery exceeds
+	 * the QUERY_LIMIT.
+	 */
 	private boolean refreshSearch = false;
+	/*
+	 * Stores the filter text that caused the current ArrayList<TableMetadata>.
+	 */
+	private String cacheKey = "";
 
 	private static SynBioHubFrontend synBioHub;
 
@@ -236,6 +244,7 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 		roleSelection.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent event) {
+				part = (Part) roleSelection.getSelectedItem();
 				updateRoleRefinement();
 				updateTable();
 			}
@@ -263,29 +272,32 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 		builder.add("", importSubparts);
 
 		// set up the filter
-		final JTextField filterSelection = new JTextField();
 		filterSelection.getDocument().addDocumentListener(new DocumentListener() {
 			@Override
 			public void removeUpdate(DocumentEvent paramDocumentEvent) {
-				if (refreshSearch) {
-					searchParts(part, synBioHub, filterSelection.getText());
-				} else {
-					updateFilter(filterSelection.getText());
-				}
+				searchOrFilterTable();
 			}
 
 			@Override
 			public void insertUpdate(DocumentEvent paramDocumentEvent) {
-				if (refreshSearch) {
-					searchParts(part, synBioHub, filterSelection.getText());
-				} else {
-					updateFilter(filterSelection.getText());
-				}
+				searchOrFilterTable();
 			}
 
 			@Override
 			public void changedUpdate(DocumentEvent paramDocumentEvent) {
-				if (refreshSearch) {
+				searchOrFilterTable();
+			}
+
+			private void searchOrFilterTable() {
+				/*
+				 * System.out.println();
+				 * System.out.println("searchOrFilterTable");
+				 * System.out.println("refreshSearch: " + refreshSearch);
+				 * System.out.println("cacheKey: " + cacheKey);
+				 * System.out.println("filter: " + filterSelection.getText());
+				 */
+				if ((refreshSearch || filterSelection.getText().equals("")
+						|| !filterSelection.getText().contains(cacheKey)) && isMetadata()) {
 					searchParts(part, synBioHub, filterSelection.getText());
 				} else {
 					updateFilter(filterSelection.getText());
@@ -326,7 +338,7 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 		}
 
 		if (isMetadata()) {
-			searchParts(part, synBioHub);
+			searchParts(part, synBioHub, filterSelection.getText());
 			TableMetadataTableModel tableModel = new TableMetadataTableModel(new ArrayList<TableMetadata>());
 			panel = createTablePanel(tableModel, "Matching parts (" + tableModel.getRowCount() + ")");
 		} else {
@@ -405,10 +417,6 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 			registries.save();
 			return null;
 		}
-	}
-
-	private void searchParts(Part part, SynBioHubFrontend synbiohub) {
-		searchParts(part, synbiohub, null);
 	}
 
 	/**
@@ -595,7 +603,7 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 		}
 
 		if (isMetadata()) {
-			searchParts(part, synBioHub);
+			searchParts(part, synBioHub, filterSelection.getText());
 		} else {
 			List<ComponentDefinition> components = searchParts(part);
 			components = SBOLUtils.getCDOfType(components, (Types) typeSelection.getSelectedItem());
@@ -677,12 +685,26 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 	 * SBOLStackQuery thread update the table.
 	 */
 	public class TableUpdater {
-		public void updateTable(ArrayList<TableMetadata> identified) {
+		public void updateTable(ArrayList<TableMetadata> identified, String filterText) {
+			if (!filterSelection.getText().equals(filterText)) {
+				// don't update if the filterSelection text has changed.
+				return;
+			}
+
 			TableMetadataTableModel tableModel = new TableMetadataTableModel(identified);
 			table = new JTable(tableModel);
 			tableLabel.setText("Matching parts (" + identified.size() + ")");
 
 			refreshSearch = identified.size() >= SynBioHubQuery.QUERY_LIMIT;
+			if (filterText != null && !refreshSearch) {
+				cacheKey = filterText;
+			}
+			/*
+			 * System.out.println(); System.out.println("TableUpdater");
+			 * System.out.println("refreshSearch: " + refreshSearch);
+			 * System.out.println("cacheKey: " + cacheKey); System.out.println(
+			 * "filter: " + filterSelection.getText());
+			 */
 
 			TableRowSorter<TableModel> sorter = new TableRowSorter<TableModel>(tableModel);
 			table.setRowSorter(sorter);
