@@ -541,7 +541,7 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 				CD = null;
 			}
 		} catch (Exception e1) {
-			JOptionPane.showMessageDialog(getParent(), "What you have entered is invalid. " + e1.getMessage());
+			MessageDialog.showMessage(getParent(), "What you have entered is invalid", Arrays.asList(e1.getMessage()));
 			e1.printStackTrace();
 			keepVisible = true;
 		}
