@@ -189,14 +189,14 @@ public class UploadNewDialog extends JDialog implements ActionListener, Document
 				uploadDesign();
 				setVisible(false);
 				return;
-			} catch (SynBioHubException | IOException e1) {
+			} catch (SynBioHubException e1) {
 				MessageDialog.showMessage(parent, "Uploading failed", Arrays.asList(e1.getMessage().split("\"|,")));
 				toBeUploaded.clearRegistries();
 			}
 		}
 	}
 
-	private void uploadDesign() throws SynBioHubException, IOException {
+	private void uploadDesign() throws SynBioHubException {
 		SynBioHubFrontends frontends = new SynBioHubFrontends();
 		if (!frontends.hasFrontend(registry.getLocation())) {
 			JOptionPane.showMessageDialog(parent,
@@ -207,13 +207,8 @@ public class UploadNewDialog extends JDialog implements ActionListener, Document
 
 		String option = overwrite.isSelected() ? "1" : "0";
 
-		LoadingDialog loadingDialog = new LoadingDialog(parent);
-		loadingDialog.start();
-
 		frontend.submit(submissionId.getText(), version.getText(), name.getText(), description.getText(),
 				citations.getText(), "", option, toBeUploaded);
-
-		loadingDialog.stop();
 
 		JOptionPane.showMessageDialog(parent, "Upload successful!");
 	}
