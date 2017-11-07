@@ -7,6 +7,7 @@ import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -178,14 +179,14 @@ public class UploadExistingDialog extends JDialog implements ActionListener, Lis
 				uploadDesign();
 				setVisible(false);
 				return;
-			} catch (SynBioHubException e1) {
+			} catch (SynBioHubException | IOException e1) {
 				MessageDialog.showMessage(parent, "Uploading failed", Arrays.asList(e1.getMessage().split("\"|,")));
 				toBeUploaded.clearRegistries();
 			}
 		}
 	}
 
-	private void uploadDesign() throws SynBioHubException {
+	private void uploadDesign() throws SynBioHubException, IOException {
 		SynBioHubFrontends frontends = new SynBioHubFrontends();
 		if (!frontends.hasFrontend(registry.getLocation())) {
 			JOptionPane.showMessageDialog(parent,
@@ -197,8 +198,15 @@ public class UploadExistingDialog extends JDialog implements ActionListener, Lis
 		IdentifiedMetadata selectedCollection = collections.getSelectedValue();
 
 		String option = overwrite.isSelected() ? "3" : "2";
+
+		LoadingDialog loadingDialog = new LoadingDialog(parent);
+		loadingDialog.start();
+
 		frontend.submit(selectedCollection.getDisplayId().replace("_collection", ""), selectedCollection.getVersion(),
 				selectedCollection.getName(), selectedCollection.getDescription(), "", "", option, toBeUploaded);
+		
+		loadingDialog.stop();
+
 		JOptionPane.showMessageDialog(parent, "Upload successful!");
 	}
 
