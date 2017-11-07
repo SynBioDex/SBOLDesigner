@@ -100,6 +100,7 @@ public class RegistryLoginDialog extends JDialog implements ActionListener {
 			frontend = new SynBioHubFrontend(backendUrl, uriPrefix);
 			try {
 				frontend.login(username.getText(), new String(password.getPassword()));
+				JOptionPane.showMessageDialog(parent, "Login successful!");
 			} catch (SynBioHubException e1) {
 				MessageDialog.showMessage(parent, "Login failed", Arrays.asList(e1.getMessage().split("\"|,")));
 				frontend = null;
