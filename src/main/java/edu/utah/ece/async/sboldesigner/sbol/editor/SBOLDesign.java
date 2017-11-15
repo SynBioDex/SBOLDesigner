@@ -42,6 +42,8 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.net.URI;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -66,13 +68,19 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.KeyStroke;
 import javax.swing.SwingConstants;
+import javax.xml.namespace.QName;
 
 import org.apache.commons.httpclient.URIException;
+import org.joda.time.DateTime;
 import org.synbiohub.frontend.SynBioHubException;
 import org.synbiohub.frontend.SynBioHubFrontend;
 import org.sbolstandard.core2.AccessType;
+import org.sbolstandard.core2.Activity;
+import org.sbolstandard.core2.Annotation;
+import org.sbolstandard.core2.Association;
 import org.sbolstandard.core2.ComponentDefinition;
 import org.sbolstandard.core2.Cut;
+import org.sbolstandard.core2.GenericTopLevel;
 import org.sbolstandard.core2.Identified;
 import org.sbolstandard.core2.Location;
 import org.sbolstandard.core2.OrientationType;
@@ -84,6 +92,7 @@ import org.sbolstandard.core2.SBOLValidationException;
 import org.sbolstandard.core2.Sequence;
 import org.sbolstandard.core2.SequenceAnnotation;
 import org.sbolstandard.core2.SequenceOntology;
+import org.sbolstandard.core2.TopLevel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -1343,6 +1352,9 @@ public class SBOLDesign {
 		SBOLDocument doc = new SBOLDocument();
 		doc = design.createRecursiveCopy(rootComp);
 		doc.setDefaultURIprefix(SBOLEditorPreferences.INSTANCE.getUserInfo().getURI().toString());
+
+		ProvenanceUtil.createProvenance(doc);
+
 		return doc;
 	}
 
