@@ -582,34 +582,6 @@ public class SBOLDesign {
 		return true;
 	}
 
-	private void addScarsForUncoveredSequences() throws SBOLValidationException {
-		Map<Integer, Sequence> uncoveredSequences = findUncoveredSequences();
-		int insertCount = 0;
-		int lastIndex = elements.size();
-		for (Entry<Integer, Sequence> entry : uncoveredSequences.entrySet()) {
-			int index = entry.getKey();
-			Sequence seq = entry.getValue();
-			if (index >= 0) {
-				int updateIndex = index + insertCount;
-				DesignElement e = elements.get(updateIndex);
-				e.getCD().clearSequences();
-				e.getCD().addSequence(seq);
-			} else {
-				int insertIndex = -index - 1 + insertCount++;
-
-				addCD(Parts.SCAR, false);
-
-				DesignElement e = elements.get(lastIndex);
-				e.getCD().clearSequences();
-				e.getCD().addSequence(seq);
-
-				moveElement(lastIndex++, insertIndex);
-			}
-		}
-
-		createDocument();
-	}
-
 	private Map<Integer, Sequence> findUncoveredSequences() {
 		return SBOLUtils.findUncoveredSequences(canvasCD,
 				Lists.transform(elements, new Function<DesignElement, SequenceAnnotation>() {
@@ -975,8 +947,8 @@ public class SBOLDesign {
 			 * sequence = comp.getSequences().iterator().next().getElements();
 			 * sb.append("<b>Sequence Length:</b> "
 			 * ).append(sequence.length()).append("<br>"); sb.append(
-			 * "<b>Sequence:</b> ").append(CharSequenceUtil.shorten(sequence, 25));
-			 * sb.append("<br>"); }
+			 * "<b>Sequence:</b> ").append(CharSequenceUtil.shorten(sequence,
+			 * 25)); sb.append("<br>"); }
 			 */
 		} else {
 			sb.append("<b>Feature</b><br>");
@@ -1250,15 +1222,16 @@ public class SBOLDesign {
 		URI role = selectedCD.getRoles().iterator().next();
 		Types type = SBOLUtils
 				.convertURIsToType(new HashSet<URI>(Arrays.asList(selectedCD.getTypes().iterator().next())));
-		SBOLDocument selection = null;
-		selection = new RegistryInputDialog(panel.getParent(), part, type, role).getInput();
+
+		ComponentDefinitionWrapper root = new ComponentDefinitionWrapper();
+		SBOLDocument selection = new RegistryInputDialog(panel.getParent(), root, part, type, role).getInput();
 
 		if (selection != null) {
 			SBOLUtils.insertTopLevels(selection, design);
 			if (!confirmEditable()) {
 				return;
 			}
-			replaceCD(selectedElement.getCD(), SBOLUtils.getRootCD(selection));
+			replaceCD(selectedElement.getCD(), root.cd);
 		}
 	}
 
@@ -1284,9 +1257,10 @@ public class SBOLDesign {
 			return;
 		}
 
-		SBOLDocument uploadDoc = createDocument();
+		ComponentDefinitionWrapper root = new ComponentDefinitionWrapper();
+		SBOLDocument uploadDoc = createDocument(root);
 
-		if (SBOLUtils.rootCalledUnamedPart(uploadDoc, panel)) {
+		if (SBOLUtils.rootCalledUnamedPart(root.cd, panel)) {
 			return;
 		}
 
@@ -1340,9 +1314,10 @@ public class SBOLDesign {
 	}
 
 	/**
-	 * Creates a document based off of the root CD
+	 * Creates a document based off of the root CD. The rootComp will be put in
+	 * root.
 	 */
-	public SBOLDocument createDocument() throws SBOLValidationException {
+	public SBOLDocument createDocument(ComponentDefinitionWrapper root) throws SBOLValidationException {
 		ComponentDefinition rootComp = parentCDs.isEmpty() ? canvasCD : parentCDs.getLast();
 		// updatecanvasCD on every level of the tree
 		while (canvasCD != rootComp) {
@@ -1355,6 +1330,9 @@ public class SBOLDesign {
 		SBOLDocument doc = new SBOLDocument();
 		doc = design.createRecursiveCopy(rootComp);
 		rootComp = doc.getComponentDefinition(rootComp.getIdentity());
+		if (root != null) {
+			root.cd = rootComp;
+		}
 		doc.setDefaultURIprefix(SBOLEditorPreferences.INSTANCE.getUserInfo().getURI().toString());
 
 		ProvenanceUtil.createProvenance(doc, rootComp);

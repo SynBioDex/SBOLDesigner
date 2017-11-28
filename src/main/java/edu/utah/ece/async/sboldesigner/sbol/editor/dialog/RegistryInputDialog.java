@@ -164,30 +164,37 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 	 */
 	private String cacheKey = "";
 
+	private ComponentDefinitionWrapper root;
+
 	private static SynBioHubFrontend synBioHub;
 
 	/**
 	 * For when the working document is known and preferences node shouldn't be
 	 * used
 	 */
-	public RegistryInputDialog(final Component parent, final Part part, Types type, URI refinementRole,
-			SBOLDocument workingDoc) {
+	public RegistryInputDialog(final Component parent, ComponentDefinitionWrapper root, final Part part, Types type,
+			URI refinementRole, SBOLDocument workingDoc) {
 		super(parent, TITLE);
 		this.workingDoc = workingDoc;
-		setup(part, type, refinementRole);
+		setup(root, part, type, refinementRole);
 	}
 
 	/**
 	 * For when the working document is unknown and preferences node should be
 	 * used
 	 */
-	public RegistryInputDialog(final Component parent, final Part part, Types type, URI refinementRole) {
+	public RegistryInputDialog(final Component parent, ComponentDefinitionWrapper root, final Part part, Types type,
+			URI refinementRole) {
 		super(parent, TITLE);
 		this.workingDoc = null;
-		setup(part, type, refinementRole);
+		setup(root, part, type, refinementRole);
 	}
 
-	private void setup(final Part part, Types type, URI refinementRole) {
+	/**
+	 * root, if not null, will reference the root CD that was selected.
+	 */
+	private void setup(ComponentDefinitionWrapper root, final Part part, Types type, URI refinementRole) {
+		this.root = root;
 		this.part = part;
 		this.refinementRole = refinementRole;
 		this.type = type;
@@ -506,6 +513,11 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 				// Leaving this as is for now.
 				doc = doc.createRecursiveCopy(comp);
 			}
+
+			if (root != null) {
+				root.cd = doc.getComponentDefinition(comp.getIdentity());
+			}
+
 			return doc;
 		} catch (Exception e) {
 			JOptionPane.showMessageDialog(null, "Getting this selection failed: " + e.getMessage());

@@ -54,6 +54,7 @@ import com.google.common.base.Supplier;
 import edu.utah.ece.async.sboldesigner.sbol.SBOLUtils;
 import edu.utah.ece.async.sboldesigner.sbol.WebOfRegistriesUtil;
 import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.AboutDialog;
+import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.ComponentDefinitionWrapper;
 import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.MessageDialog;
 import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.PreferencesDialog;
 import edu.utah.ece.async.sboldesigner.sbol.editor.event.DesignChangedEvent;
@@ -376,7 +377,7 @@ public class SBOLDesignerPanel extends JPanel {
 			}
 			Preferences.userRoot().node("path").put("path", file.getPath());
 			String fileName = file.getName();
-			SBOLDocument doc = editor.getDesign().createDocument();
+			SBOLDocument doc = editor.getDesign().createDocument(null);
 
 			switch (format) {
 			case JOptionPane.CLOSED_OPTION:
@@ -480,9 +481,10 @@ public class SBOLDesignerPanel extends JPanel {
 	}
 
 	void saveIntoNewFile() throws FileNotFoundException, SBOLValidationException, SBOLConversionException, IOException {
-		SBOLDocument doc = editor.getDesign().createDocument();
+		ComponentDefinitionWrapper root = new ComponentDefinitionWrapper();
+		SBOLDocument doc = editor.getDesign().createDocument(root);
 
-		if (SBOLUtils.rootCalledUnamedPart(doc, this)) {
+		if (SBOLUtils.rootCalledUnamedPart(root.cd, this)) {
 			return;
 		}
 
@@ -496,11 +498,13 @@ public class SBOLDesignerPanel extends JPanel {
 	void saveIntoExistingFile() throws Exception {
 		// the document we are saving into
 		SBOLDocument doc = documentIO.read();
-		// the document we are saving
-		SBOLDocument currentDesign = design.createDocument();
-		ComponentDefinition currentRootCD = SBOLUtils.getRootCD(currentDesign);
 
-		if (SBOLUtils.rootCalledUnamedPart(currentDesign, this)) {
+		// the document we are saving
+		ComponentDefinitionWrapper root = new ComponentDefinitionWrapper();
+		SBOLDocument currentDesign = design.createDocument(root);
+		ComponentDefinition currentRootCD = root.cd;
+
+		if (SBOLUtils.rootCalledUnamedPart(currentRootCD, this)) {
 			return;
 		}
 

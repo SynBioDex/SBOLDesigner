@@ -210,7 +210,7 @@ public class SBOLDesignerPlugin extends SBOLDesignerPanel {
 		File file = new File(exportFileName);
 		Preferences.userRoot().node("path").put("path", file.getPath());
 		String fileName = file.getName();
-		SBOLDocument doc = editor.getDesign().createDocument();
+		SBOLDocument doc = editor.getDesign().createDocument(null);
 		switch (fileType) {
 		// case JOptionPane.CLOSED_OPTION:
 		// break;

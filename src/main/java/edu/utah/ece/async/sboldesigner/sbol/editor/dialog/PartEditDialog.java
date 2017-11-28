@@ -609,7 +609,7 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 		Types type = (Types) typeSelection.getSelectedItem();
 
 		// User selects the CD
-		SBOLDocument selection = new RegistryInputDialog(this.getParent(), part, type, role).getInput();
+		SBOLDocument selection = new RegistryInputDialog(this.getParent(), null, part, type, role).getInput();
 		if (selection == null) {
 			return false;
 		} else {

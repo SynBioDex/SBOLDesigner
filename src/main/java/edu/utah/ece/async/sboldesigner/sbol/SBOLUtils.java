@@ -30,6 +30,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
+import org.sbolstandard.core2.Activity;
 import org.sbolstandard.core2.Component;
 import org.sbolstandard.core2.ComponentDefinition;
 import org.sbolstandard.core2.GenericTopLevel;
@@ -251,18 +252,13 @@ public class SBOLUtils {
 		return (seq == null) ? null : seq.getElements();
 	}
 
-	public static ComponentDefinition getRootCD(SBOLDocument doc) {
-		return Iterators.getOnlyElement(
-				Iterators.filter(doc.getRootComponentDefinitions().iterator(), ComponentDefinition.class), null);
-	}
-
-	/*
+	/**
 	 * Returns whether the user canceled whatever operation to rename
 	 * UnamedPart.
 	 */
-	public static boolean rootCalledUnamedPart(SBOLDocument doc, JPanel panel) {
+	public static boolean rootCalledUnamedPart(ComponentDefinition root, JPanel panel) {
 		// if UnnamedPart still, remind user to rename
-		if (SBOLUtils.getRootCD(doc).getDisplayId().equals("UnnamedPart")) {
+		if (root.getDisplayId().equals("UnnamedPart")) {
 			int cancel = JOptionPane.showOptionDialog(panel,
 					"The root part is still called \"UnnamedPart\".  Would you like to cancel and rename this part?",
 					null, JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, null, null);
@@ -470,19 +466,7 @@ public class SBOLUtils {
 	public static void insertTopLevels(SBOLDocument doc, SBOLDocument design) throws Exception {
 		for (TopLevel tl : doc.getTopLevels()) {
 			if (design.getTopLevel(tl.getIdentity()) != null) {
-				if (tl instanceof ComponentDefinition) {
-					if (!design.removeComponentDefinition(design.getComponentDefinition(tl.getIdentity()))) {
-						throw new Exception("ERROR: " + tl.getDisplayId() + " didn't get removed");
-					}
-				} else if (tl instanceof Sequence) {
-					if (!design.removeSequence(design.getSequence(tl.getIdentity()))) {
-						throw new Exception("ERROR: " + tl.getDisplayId() + " didn't get removed");
-					}
-				} else if (tl instanceof GenericTopLevel) {
-					if (!design.removeGenericTopLevel(design.getGenericTopLevel(tl.getIdentity()))) {
-						throw new Exception("ERROR: " + tl.getDisplayId() + " didn't get removed");
-					}
-				}
+				design.removeTopLevel(design.getTopLevel(tl.getIdentity()));
 			}
 		}
 		design.createCopy(doc);
