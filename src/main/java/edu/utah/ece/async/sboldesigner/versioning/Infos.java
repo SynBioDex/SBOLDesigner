@@ -22,8 +22,6 @@ import org.openrdf.model.URI;
 
 import com.google.common.base.Preconditions;
 
-import edu.utah.ece.async.sboldesigner.versioning.sparql.Terms;
-
 public class Infos {	
 	public static PersonInfo forPerson(String uri) {
 		return forPerson(Terms.uri(uri), "", null);

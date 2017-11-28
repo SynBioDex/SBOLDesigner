@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package edu.utah.ece.async.sboldesigner.versioning.sparql;
+package edu.utah.ece.async.sboldesigner.versioning;
 
 import java.util.Calendar;
 import java.util.UUID;

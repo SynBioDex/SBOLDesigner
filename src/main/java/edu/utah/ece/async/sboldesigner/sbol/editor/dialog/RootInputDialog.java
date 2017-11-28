@@ -58,14 +58,19 @@ public class RootInputDialog extends InputDialog<SBOLDocument> {
 
 	private SBOLDocument doc;
 
+	private ComponentDefinitionWrapper root;
+
 	/**
 	 * this.getInput() returns an SBOLDocument with a single rootCD selected
 	 * from the rootCDs in doc.
+	 * 
+	 * Root will reference the root CD that was selected.
 	 */
-	public RootInputDialog(final Component parent, SBOLDocument doc) {
+	public RootInputDialog(final Component parent, SBOLDocument doc, ComponentDefinitionWrapper root) {
 		super(parent, TITLE);
 
 		this.doc = doc;
+		this.root = root;
 	}
 
 	@Override
@@ -188,7 +193,9 @@ public class RootInputDialog extends InputDialog<SBOLDocument> {
 		try {
 			int row = table.convertRowIndexToModel(table.getSelectedRow());
 			ComponentDefinition comp = ((ComponentDefinitionTableModel) table.getModel()).getElement(row);
-			return doc.createRecursiveCopy(comp);
+			SBOLDocument newDoc = doc.createRecursiveCopy(comp);
+			root.cd = newDoc.getComponentDefinition(comp.getIdentity());
+			return newDoc;
 		} catch (SBOLValidationException e) {
 			JOptionPane.showMessageDialog(null, "This ComponentDefinition cannot be imported: " + e.getMessage());
 			e.printStackTrace();

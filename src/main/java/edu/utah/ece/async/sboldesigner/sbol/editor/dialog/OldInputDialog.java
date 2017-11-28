@@ -52,7 +52,6 @@ import com.google.common.collect.Iterables;
 import edu.utah.ece.async.sboldesigner.sbol.CharSequences;
 import edu.utah.ece.async.sboldesigner.sbol.editor.Registries;
 import edu.utah.ece.async.sboldesigner.sbol.editor.Registry;
-import edu.utah.ece.async.sboldesigner.sbol.editor.sparql.SPARQLEndpoint;
 import edu.utah.ece.async.sboldesigner.swing.AbstractListTableModel;
 import edu.utah.ece.async.sboldesigner.swing.ComboBoxRenderer;
 import edu.utah.ece.async.sboldesigner.swing.FormBuilder;
@@ -96,8 +95,6 @@ public abstract class OldInputDialog<T> extends JDialog {
 
 	private FormBuilder builder = new FormBuilder();
 
-	protected SPARQLEndpoint endpoint;
-
 	protected boolean canceled = true;
 
 	protected OldInputDialog(final Component parent, String title, RegistryType registryType) {
@@ -113,9 +110,6 @@ public abstract class OldInputDialog<T> extends JDialog {
 			if (registries.size() == 0) {
 				JOptionPane.showMessageDialog(this,
 						"No parts registries are defined.\nPlease click 'Options' and add a parts registry.");
-				endpoint = null;
-			} else {
-				endpoint = registries.get(selectedRegistry).createEndpoint();
 			}
 
 			registrySelection = new JComboBox(Iterables.toArray(registries, Registry.class));
@@ -296,16 +290,11 @@ public abstract class OldInputDialog<T> extends JDialog {
 			Object source = e.getSource();
 			if (source == registrySelection) {
 				final Registry registry = (Registry) registrySelection.getSelectedItem();
-				if (registry == null) {
-					endpoint = null;
+				int selectedIndex = registrySelection.getSelectedIndex();
+				if (registryType != RegistryType.PART) {
+					Registries.get().setPartRegistryIndex(selectedIndex);
 				} else {
-					int selectedIndex = registrySelection.getSelectedIndex();
-					if (registryType != RegistryType.PART) {
-						Registries.get().setPartRegistryIndex(selectedIndex);
-					} else {
-						Registries.get().setVersionRegistryIndex(selectedIndex);
-					}
-					endpoint = registry.createEndpoint();
+					Registries.get().setVersionRegistryIndex(selectedIndex);
 				}
 				SwingUtilities.invokeLater(new Runnable() {
 					@Override

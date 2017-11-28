@@ -42,7 +42,7 @@ import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.PreferencesDialog.Pref
 import edu.utah.ece.async.sboldesigner.swing.FormBuilder;
 import edu.utah.ece.async.sboldesigner.versioning.Infos;
 import edu.utah.ece.async.sboldesigner.versioning.PersonInfo;
-import edu.utah.ece.async.sboldesigner.versioning.sparql.Terms;
+import edu.utah.ece.async.sboldesigner.versioning.Terms;
 
 public enum UserInfoTab implements PreferencesTab {
 	INSTANCE;

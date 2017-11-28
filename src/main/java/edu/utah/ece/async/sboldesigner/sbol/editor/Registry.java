@@ -19,10 +19,6 @@ import java.io.Serializable;
 
 import com.google.common.base.Preconditions;
 
-import edu.utah.ece.async.sboldesigner.sbol.editor.sparql.LocalEndpoint;
-import edu.utah.ece.async.sboldesigner.sbol.editor.sparql.SPARQLEndpoint;
-import edu.utah.ece.async.sboldesigner.sbol.editor.sparql.StardogEndpoint;
-
 public class Registry implements Serializable {
 	private final String name;
 	private final String description;
@@ -83,10 +79,6 @@ public class Registry implements Serializable {
 		int result = 1;
 		result = prime * result + ((location == null) ? 0 : location.hashCode());
 		return result;
-	}
-
-	public SPARQLEndpoint createEndpoint() {
-		return this.getLocation().equals("N/A") ? new LocalEndpoint(location) : new StardogEndpoint(location);
 	}
 
 	@Override
