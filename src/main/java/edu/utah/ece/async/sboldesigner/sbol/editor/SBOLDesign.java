@@ -104,8 +104,10 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
+import edu.utah.ece.async.sboldesigner.sbol.ProvenanceUtil;
 import edu.utah.ece.async.sboldesigner.sbol.SBOLUtils;
 import edu.utah.ece.async.sboldesigner.sbol.SBOLUtils.Types;
+import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.ComponentDefinitionWrapper;
 import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.MessageDialog;
 import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.PartEditDialog;
 import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.RegistryInputDialog;
@@ -465,11 +467,12 @@ public class SBOLDesign {
 		default:
 			// There are multiple root CDs
 			if (rootUri == null) {
-				doc = new RootInputDialog(panel, doc).getInput();
-				if (doc == null) {
+				ComponentDefinitionWrapper root = new ComponentDefinitionWrapper();
+				doc = new RootInputDialog(panel, doc, root).getInput();
+				rootCD = root.cd;
+				if (doc == null || rootCD == null) {
 					return false;
 				}
-				rootCD = SBOLUtils.getRootCD(doc);
 			} else {
 				rootCD = doc.getComponentDefinition(rootUri);
 			}
@@ -972,7 +975,7 @@ public class SBOLDesign {
 			 * sequence = comp.getSequences().iterator().next().getElements();
 			 * sb.append("<b>Sequence Length:</b> "
 			 * ).append(sequence.length()).append("<br>"); sb.append(
-			 * "<b>Sequence:</b> ").append(CharSequences.shorten(sequence, 25));
+			 * "<b>Sequence:</b> ").append(CharSequenceUtil.shorten(sequence, 25));
 			 * sb.append("<br>"); }
 			 */
 		} else {
@@ -1351,9 +1354,10 @@ public class SBOLDesign {
 
 		SBOLDocument doc = new SBOLDocument();
 		doc = design.createRecursiveCopy(rootComp);
+		rootComp = doc.getComponentDefinition(rootComp.getIdentity());
 		doc.setDefaultURIprefix(SBOLEditorPreferences.INSTANCE.getUserInfo().getURI().toString());
 
-		ProvenanceUtil.createProvenance(doc);
+		ProvenanceUtil.createProvenance(doc, rootComp);
 
 		return doc;
 	}

@@ -1,4 +1,4 @@
-package edu.utah.ece.async.sboldesigner.sbol.editor;
+package edu.utah.ece.async.sboldesigner.sbol;
 
 import org.sbolstandard.core2.GenericTopLevel;
 import java.net.URI;
@@ -17,6 +17,8 @@ import org.sbolstandard.core2.SBOLDocument;
 import org.sbolstandard.core2.SBOLValidationException;
 import org.sbolstandard.core2.TopLevel;
 
+import edu.utah.ece.async.sboldesigner.sbol.editor.SBOLEditorPreferences;
+
 public class ProvenanceUtil {
 
 	/*
@@ -24,9 +26,9 @@ public class ProvenanceUtil {
 	 * of every TopLevel. If an SBOLDesignerActivity already exists, updates the
 	 * end time.
 	 */
-	public static void createProvenance(SBOLDocument doc) throws SBOLValidationException {
+	public static void createProvenance(SBOLDocument doc, ComponentDefinition root) throws SBOLValidationException {
 		// Create the activity
-		Activity activity = doc.createActivity("SBOLDesignerActivity", "1");
+		Activity activity = doc.createActivity(root.getDisplayId() + "_Activity", "1");
 		activity.setEndedAtTime(DateTime.now());
 
 		// Set the creator
@@ -35,7 +37,7 @@ public class ProvenanceUtil {
 
 		// Create the qualifiedAssociation
 		URI designerURI = URI.create("https://synbiohub.org/public/SBOL_Software/SBOLDesigner/2.2");
-		Association association = activity.createAssociation(activity.getIdentity() + "Association", designerURI);
+		Association association = activity.createAssociation("Association", designerURI);
 		association.addRole(URI.create("http://sbols.org/v2#sequenceEditor"));
 
 		// Link with all TopLevels
@@ -43,18 +45,18 @@ public class ProvenanceUtil {
 			boolean exists = false;
 
 			// Update existing Activities
-			for (URI uri : tl.getWasDerivedFroms()) {
-				TopLevel derivedFrom = doc.getTopLevel(uri);
-				if (derivedFrom != null && derivedFrom.getDisplayId().contains("SBOLDesignerActivity")
-						&& derivedFrom instanceof Activity) {
-					((Activity) derivedFrom).setEndedAtTime(activity.getEndedAtTime());
+			for (URI uri : tl.getWasGeneratedBys()) {
+				TopLevel generatedBy = doc.getTopLevel(uri);
+				if (generatedBy != null && generatedBy.getDisplayId().contains("SBOLDesignerActivity")
+						&& generatedBy instanceof Activity) {
+					((Activity) generatedBy).setEndedAtTime(activity.getEndedAtTime());
 					exists = true;
 				}
 			}
 
 			// Attach if there is no existing Activity
 			if (!exists) {
-				tl.addWasDerivedFrom(activity.getIdentity());
+				tl.addWasGeneratedBy(activity.getIdentity());
 			}
 		}
 	}
