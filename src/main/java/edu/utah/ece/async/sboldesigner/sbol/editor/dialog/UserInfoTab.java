@@ -73,7 +73,7 @@ public enum UserInfoTab implements PreferencesTab {
 		name = builder.addTextField("Full name", info == null ? null : info.getName());
 		email = builder.addTextField("Email",
 				info == null || info.getEmail() == null ? null : info.getEmail().getLocalName());
-		uri = builder.addTextField("Namespace [required]", info == null ? null : info.getURI().stringValue());
+		uri = builder.addTextField("Owner's domain [required]", info == null ? null : info.getURI().stringValue());
 		JPanel formPanel = builder.build();
 
 		JButton deleteInfo = new JButton("Delete user info");
@@ -109,7 +109,7 @@ public enum UserInfoTab implements PreferencesTab {
 
 		if (hasNamespaceCollision(uri.getText())) {
 			JOptionPane.showMessageDialog(getComponent(),
-					"The user namespace cannot conflict with an existing Registry namespace.  Please try http://www.dummy.org instead.");
+					"The user's domain namespace cannot conflict with an existing Registry namespace.  Please try http://www.dummy.org instead.");
 			return;
 		}
 

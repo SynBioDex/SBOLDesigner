@@ -523,8 +523,8 @@ public class SBOLDesign {
 
 	private boolean confirmEditable() throws SBOLValidationException {
 		if (readOnly.contains(ReadOnly.REGISTRY_COMPONENT)) {
-			JOptionPane.showMessageDialog(panel, canvasCD.getDisplayId()
-					+ " doesn't belong in your namespace.  Please edit it and/or its parents \nand choose \"yes\" to creating an editable copy while re-saving it.");
+			MessageDialog.showMessage(panel, "This part is read only", Arrays.asList(canvasCD.getDisplayId()
+					+ " is not owned by you.  Please edit it and/or its parents and choose \"yes\" to creating an editable copy while re-saving it."));
 			return false;
 		}
 

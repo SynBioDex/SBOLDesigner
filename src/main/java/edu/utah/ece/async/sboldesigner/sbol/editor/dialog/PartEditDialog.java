@@ -770,8 +770,8 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 	public static ComponentDefinition confirmEditing(Component parent, ComponentDefinition comp, SBOLDocument design)
 			throws SBOLValidationException {
 		int result = JOptionPane.showConfirmDialog(parent,
-				"The part '" + comp.getDisplayId() + "' doesn't belong to your\n"
-						+ "namespace and cannot be edited.\n\n" + "Do you want to create an editable copy of\n"
+				"The part '" + comp.getDisplayId() + "' is not owned by you \n"
+						+ "and cannot be edited.\n\n" + "Do you want to create an editable copy of\n"
 						+ "this part and save your changes?",
 				"Edit registry part", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
 
