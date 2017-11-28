@@ -75,7 +75,7 @@ import org.sbolstandard.core2.SequenceOntology;
 import com.google.common.base.Objects;
 import com.google.common.collect.Iterables;
 
-import edu.utah.ece.async.sboldesigner.sbol.CharSequences;
+import edu.utah.ece.async.sboldesigner.sbol.CharSequenceUtil;
 import edu.utah.ece.async.sboldesigner.sbol.SBOLUtils;
 import edu.utah.ece.async.sboldesigner.sbol.SBOLUtils.Types;
 import edu.utah.ece.async.sboldesigner.sbol.editor.Part;
@@ -161,7 +161,7 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 			title = (uri == null) ? null : uri.toString();
 		}
 
-		return (title == null) ? "" : CharSequences.shorten(title, 20).toString();
+		return (title == null) ? "" : CharSequenceUtil.shorten(title, 20).toString();
 	}
 
 	private PartEditDialog(final Component parent, final ComponentDefinition CD, boolean canEdit, SBOLDocument design) {

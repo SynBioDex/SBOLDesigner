@@ -41,11 +41,11 @@ import javax.swing.table.TableRowSorter;
 
 import org.synbiohub.frontend.SynBioHubFrontend;
 
+import edu.utah.ece.async.sboldesigner.sbol.WebOfRegistriesUtil;
 import edu.utah.ece.async.sboldesigner.sbol.editor.Images;
 import edu.utah.ece.async.sboldesigner.sbol.editor.Registries;
 import edu.utah.ece.async.sboldesigner.sbol.editor.Registry;
 import edu.utah.ece.async.sboldesigner.sbol.editor.SynBioHubFrontends;
-import edu.utah.ece.async.sboldesigner.sbol.editor.WebOfRegistries;
 import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.PreferencesDialog.PreferencesTab;
 
 public enum RegistryPreferencesTab implements PreferencesTab {
@@ -114,7 +114,7 @@ public enum RegistryPreferencesTab implements PreferencesTab {
 					break;
 				case RESTORE:
 					model.restoreDefaults();
-					WebOfRegistries wors = new WebOfRegistries();
+					WebOfRegistriesUtil wors = new WebOfRegistriesUtil();
 					wors.initRegistries();
 					Registries.get().save();
 					break;

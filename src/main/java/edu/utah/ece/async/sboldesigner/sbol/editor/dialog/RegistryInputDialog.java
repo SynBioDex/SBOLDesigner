@@ -59,7 +59,7 @@ import org.sbolstandard.core2.SequenceOntology;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 
-import edu.utah.ece.async.sboldesigner.sbol.CharSequences;
+import edu.utah.ece.async.sboldesigner.sbol.CharSequenceUtil;
 import edu.utah.ece.async.sboldesigner.sbol.SBOLUtils;
 import edu.utah.ece.async.sboldesigner.sbol.SBOLUtils.Types;
 import edu.utah.ece.async.sboldesigner.sbol.editor.Part;
@@ -85,7 +85,7 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 				sb.append(registry.getName());
 				if (!registry.getLocation().equals("N/A")) {
 					sb.append(" (");
-					sb.append(CharSequences.shorten(registry.getLocation(), 30));
+					sb.append(CharSequenceUtil.shorten(registry.getLocation(), 30));
 					sb.append(")");
 				}
 			}

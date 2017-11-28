@@ -49,7 +49,7 @@ import javax.swing.table.TableRowSorter;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Iterables;
 
-import edu.utah.ece.async.sboldesigner.sbol.CharSequences;
+import edu.utah.ece.async.sboldesigner.sbol.CharSequenceUtil;
 import edu.utah.ece.async.sboldesigner.sbol.editor.Registries;
 import edu.utah.ece.async.sboldesigner.sbol.editor.Registry;
 import edu.utah.ece.async.sboldesigner.swing.AbstractListTableModel;
@@ -73,7 +73,7 @@ public abstract class OldInputDialog<T> extends JDialog {
 				sb.append(registry.getName());
 				if (!registry.equals(Registry.BUILT_IN) && !registry.equals(Registry.WORKING_DOCUMENT)) {
 					sb.append(" (");
-					sb.append(CharSequences.shorten(registry.getLocation(), 30));
+					sb.append(CharSequenceUtil.shorten(registry.getLocation(), 30));
 					sb.append(")");
 				}
 			}

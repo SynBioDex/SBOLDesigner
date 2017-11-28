@@ -49,7 +49,7 @@ import org.synbiohub.frontend.SearchQuery;
 import org.synbiohub.frontend.SynBioHubException;
 import org.synbiohub.frontend.SynBioHubFrontend;
 
-import edu.utah.ece.async.sboldesigner.sbol.CharSequences;
+import edu.utah.ece.async.sboldesigner.sbol.CharSequenceUtil;
 import edu.utah.ece.async.sboldesigner.sbol.editor.Registry;
 import edu.utah.ece.async.sboldesigner.sbol.editor.SBOLEditorPreferences;
 import edu.utah.ece.async.sboldesigner.sbol.editor.SynBioHubFrontends;
@@ -71,7 +71,7 @@ public class UploadNewDialog extends JDialog implements ActionListener, Document
 		} else if (registry.getLocation() != null) {
 			title = title + registry.getLocation();
 		}
-		return CharSequences.shorten(title, 20).toString();
+		return CharSequenceUtil.shorten(title, 20).toString();
 	}
 
 	private Component parent;

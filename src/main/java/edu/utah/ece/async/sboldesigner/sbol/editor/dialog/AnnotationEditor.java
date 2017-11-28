@@ -38,7 +38,7 @@ import org.sbolstandard.core2.Annotation;
 import org.sbolstandard.core2.ComponentDefinition;
 import org.sbolstandard.core2.Identified;
 
-import edu.utah.ece.async.sboldesigner.sbol.CharSequences;
+import edu.utah.ece.async.sboldesigner.sbol.CharSequenceUtil;
 import edu.utah.ece.async.sboldesigner.swing.AbstractListTableModel;
 
 public class AnnotationEditor extends JDialog implements ActionListener {
@@ -63,7 +63,7 @@ public class AnnotationEditor extends JDialog implements ActionListener {
 			title = (uri == null) ? null : uri.toString();
 		}
 
-		return (title == null) ? "" : CharSequences.shorten(title, 20).toString();
+		return (title == null) ? "" : CharSequenceUtil.shorten(title, 20).toString();
 	}
 
 	public AnnotationEditor(final Component parent, ComponentDefinition CD) {
