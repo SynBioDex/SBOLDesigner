@@ -19,15 +19,13 @@ import static edu.utah.ece.async.sboldesigner.sbol.editor.SBOLEditorAction.DIVID
 import static edu.utah.ece.async.sboldesigner.sbol.editor.SBOLEditorAction.SPACER;
 
 import java.awt.BorderLayout;
-import java.awt.Component;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.util.Arrays;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
 import java.util.prefs.Preferences;
@@ -37,7 +35,6 @@ import javax.swing.Box;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
 import javax.swing.JToolBar;
 import javax.swing.UIManager;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -56,23 +53,11 @@ import com.google.common.base.Strings;
 import com.google.common.base.Supplier;
 import edu.utah.ece.async.sboldesigner.sbol.SBOLUtils;
 import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.AboutDialog;
-//import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.BOOSTDialog;
-import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.CheckoutDialog;
-import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.CreateBranchDialog;
-import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.CreateTagDialog;
-import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.CreateVersionDialog;
-import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.HistoryDialog;
-import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.MergeBranchDialog;
+import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.MessageDialog;
 import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.PreferencesDialog;
-import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.QueryVersionsDialog;
-import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.SwitchBranchDialog;
-import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.CheckoutDialog.CheckoutResult;
 import edu.utah.ece.async.sboldesigner.sbol.editor.event.DesignChangedEvent;
 import edu.utah.ece.async.sboldesigner.sbol.editor.io.DocumentIO;
 import edu.utah.ece.async.sboldesigner.sbol.editor.io.FileDocumentIO;
-import edu.utah.ece.async.sboldesigner.sbol.editor.io.RVTDocumentIO;
-import edu.utah.ece.async.sboldesigner.sbol.editor.io.ReadOnlyDocumentIO;
-import edu.utah.ece.async.sboldesigner.versioning.Branch;
 import edu.utah.ece.async.sboldesigner.versioning.Infos;
 import edu.utah.ece.async.sboldesigner.versioning.PersonInfo;
 
@@ -171,7 +156,8 @@ public class SBOLDesignerPanel extends JPanel {
 			try {
 				save();
 			} catch (Exception e) {
-				JOptionPane.showMessageDialog(null, "There was a problem saving this design: " + e.getMessage());
+				MessageDialog.showMessage(null, "There was a problem saving this design",
+						Arrays.asList(e.getMessage()));
 				e.printStackTrace();
 			}
 		}
@@ -230,168 +216,6 @@ public class SBOLDesignerPanel extends JPanel {
 		}
 	};
 
-	private final SBOLEditorAction NEW_VERSION = new SBOLEditorAction("New", "Create a new versioned design",
-			"newRepository.png") {
-		@Override
-		protected void perform() {
-			DocumentIO rvtIO = new CreateVersionDialog(SBOLDesignerPanel.this).getInput();
-			if (rvtIO != null) {
-				setCurrentFile(rvtIO);
-			}
-		}
-	}.precondition(CONFIRM_SAVE);
-	private final SBOLEditorAction CHECKOUT = new SBOLEditorAction("Checkout", "Checks out a version", "checkout.gif") {
-		@Override
-		protected void perform() {
-			try {
-				CheckoutResult result = new CheckoutDialog(SBOLDesignerPanel.this).getInput();
-				if (result != null) {
-					DocumentIO newIO = result.getDocumentIO();
-					if (result.isInsert()) {
-						ComponentDefinition newComponent = SBOLUtils.getRootCD(newIO.read());
-						design.addCD(newComponent);
-					} else {
-						openDocument(newIO);
-					}
-				}
-			} catch (SBOLValidationException | IOException | SBOLConversionException e) {
-				JOptionPane.showMessageDialog(null, "There was a problem checking out this design: " + e.getMessage());
-				e.printStackTrace();
-			}
-		}
-	}.precondition(CONFIRM_SAVE);
-
-	private final SBOLEditorAction COMMIT = new SBOLEditorAction("Commit",
-			"Commits the current design as a new version", "commit.gif") {
-		@Override
-		protected void perform() {
-			if (documentIO == null || !(documentIO instanceof RVTDocumentIO)) {
-				DocumentIO rvtIO = new CreateVersionDialog(SBOLDesignerPanel.this).getInput();
-				if (rvtIO == null) {
-					return;
-				}
-				setCurrentFile(rvtIO);
-			}
-			try {
-				save();
-			} catch (Exception e) {
-				JOptionPane.showMessageDialog(null, "There was a problem commiting this design: " + e.getMessage());
-				e.printStackTrace();
-			}
-		}
-	};
-
-	private final SBOLEditorAction BRANCH = new SBOLEditorAction("Branch",
-			"Commits the current design as a new version", "newBranch.gif") {
-		@Override
-		protected void perform() {
-			RVTDocumentIO rvtIO = ((RVTDocumentIO) documentIO);
-			CreateBranchDialog dialog = new CreateBranchDialog(SBOLDesignerPanel.this);
-			String branchName = dialog.getInput();
-			if (branchName != null) {
-				DocumentIO newIO = rvtIO.createBranch(branchName, dialog.getBranchMessage());
-				setCurrentFile(newIO);
-			}
-		}
-	}.precondition(CONFIRM_SAVE);
-
-	private final SBOLEditorAction MERGE = new SBOLEditorAction("Merge", "Commits the current design as a new version",
-			"merge.gif") {
-		@Override
-		protected void perform() {
-			try {
-				RVTDocumentIO rvtIO = ((RVTDocumentIO) documentIO);
-				MergeBranchDialog dialog = new MergeBranchDialog(SBOLDesignerPanel.this, rvtIO.getBranch());
-				Branch branch = dialog.getInput();
-				if (branch != null) {
-					DocumentIO newIO = rvtIO.mergeBranch(branch, dialog.getMergeMessage());
-					openDocument(newIO);
-				}
-			} catch (SBOLValidationException | IOException | SBOLConversionException e) {
-				JOptionPane.showMessageDialog(null, "There was a problem merging this design: " + e.getMessage());
-				e.printStackTrace();
-			}
-		}
-	}.precondition(CONFIRM_SAVE);
-
-	private final SBOLEditorAction SWITCH = new SBOLEditorAction("Switch",
-			"Commits the current design as a new version", "switchBranch.gif") {
-		@Override
-		protected void perform() {
-			try {
-				RVTDocumentIO rvtIO = ((RVTDocumentIO) documentIO);
-				Branch branch = new SwitchBranchDialog(SBOLDesignerPanel.this, rvtIO.getBranch()).getInput();
-				if (branch != null) {
-					DocumentIO newIO = rvtIO.switchBranch(branch);
-					openDocument(newIO);
-				}
-			} catch (SBOLValidationException | IOException | SBOLConversionException e) {
-				JOptionPane.showMessageDialog(null, "There was a problem switching this design: " + e.getMessage());
-				e.printStackTrace();
-			}
-		}
-	}.precondition(CONFIRM_SAVE);
-
-	private final SBOLEditorAction TAG = new SBOLEditorAction("Tag", "Tag the current version", "tag.png") {
-		@Override
-		protected void perform() {
-			RVTDocumentIO rvtIO = ((RVTDocumentIO) documentIO);
-			CreateTagDialog dialog = new CreateTagDialog(SBOLDesignerPanel.this);
-			String tagName = dialog.getInput();
-			if (tagName != null) {
-				rvtIO.createTag(tagName, dialog.getTagMessage());
-			}
-		}
-	}.precondition(CONFIRM_SAVE);
-
-	// private final SBOLEditorAction VALIDATE = new
-	// SBOLEditorAction("Validate", "Validate the current design",
-	// "validate.gif") {
-	// @Override
-	// protected void perform() {
-	// RVTDocumentIO rvtIO = ((RVTDocumentIO) documentIO);
-	// SPARQLEndpoint endpoint = rvtIO.getBranch().getEndpoint();
-	// try {
-	// endpoint.validate(RDFInput.forURL(SBOLUtils.class.getResource("constraints.ttl")),
-	// rvtIO.getBranch().getHead().getURI().toString());
-	// } catch (Exception e) {
-	// JOptionPane.showMessageDialog(null, "There was a problem validating this
-	// design: " + e.getMessage());
-	// e.printStackTrace();
-	// }
-	//
-	// }
-	// }.precondition(CONFIRM_SAVE);
-
-	private final SBOLEditorAction QUERY_VERSION = new SBOLEditorAction("Query", "Query the version repository",
-			"queryVersion.png") {
-		@Override
-		protected void perform() {
-			new QueryVersionsDialog(SBOLDesignerPanel.this).getInput();
-		}
-	};
-
-	private final SBOLEditorAction HISTORY = new SBOLEditorAction("History",
-			"Commits the current design as a new version", "history.gif") {
-		@Override
-		protected void perform() {
-			try {
-				DocumentIO docIO = HistoryDialog.show(SBOLDesignerPanel.this, (RVTDocumentIO) documentIO);
-				if (docIO != null) {
-					if (docIO instanceof ReadOnlyDocumentIO) {
-						SBOLDocument doc = docIO.read();
-						ComponentDefinition comp = SBOLUtils.getRootCD(doc);
-						design.addCD(comp);
-					} else if (confirmSave()) {
-						openDocument(docIO);
-					}
-				}
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
-	};
-
 	final SBOLEditor editor = new SBOLEditor(true);
 	final SBOLDesign design = editor.getDesign();
 
@@ -405,11 +229,6 @@ public class SBOLDesignerPanel extends JPanel {
 			.add(design.EDIT_CANVAS, design.EDIT, design.FIND, design.UPLOAD, design.DELETE, design.FLIP, DIVIDER)
 			.add(design.HIDE_SCARS, design.ADD_SCARS, DIVIDER).add(design.FOCUS_IN, design.FOCUS_OUT, DIVIDER, SNAPSHOT)
 			.add(PREFERENCES).add(SPACER, INFO);
-
-	private final SBOLEditorActions VERSION_ACTIONS = new SBOLEditorActions().add(NEW_VERSION, DIVIDER)
-			.add(CHECKOUT, COMMIT, TAG, DIVIDER)
-			.addIf(SBOLEditorPreferences.INSTANCE.isBranchingEnabled(), BRANCH, SWITCH, MERGE, DIVIDER)
-			.add(QUERY_VERSION, HISTORY);
 
 	JFileChooser fc;
 
@@ -458,8 +277,6 @@ public class SBOLDesignerPanel extends JPanel {
 	}
 
 	private JToolBar createActionBar() {
-		final JPopupMenu versionMenu = createVersionMenu();
-
 		JToolBar toolbar = new JToolBar();
 		toolbar.setFloatable(false);
 		toolbar.setAlignmentX(LEFT_ALIGNMENT);
@@ -473,32 +290,10 @@ public class SBOLDesignerPanel extends JPanel {
 			} else {
 				AbstractButton button = action.createButton();
 				toolbar.add(button);
-				if (action == VERSION) {
-					button.addMouseListener(new MouseAdapter() {
-						public void mousePressed(MouseEvent e) {
-							Component c = e.getComponent();
-							versionMenu.show(c, 0, c.getY() + c.getHeight());
-						}
-					});
-				}
 			}
 		}
 		// toolbar.add(Box.createHorizontalGlue());
 		return toolbar;
-	}
-
-	JPopupMenu createVersionMenu() {
-		final JPopupMenu popup = new JPopupMenu();
-
-		for (SBOLEditorAction action : VERSION_ACTIONS) {
-			if (action == DIVIDER) {
-				popup.addSeparator();
-			} else {
-				popup.add(action.createMenuItem());
-			}
-		}
-
-		return popup;
 	}
 
 	/**
@@ -825,22 +620,6 @@ public class SBOLDesignerPanel extends JPanel {
 	}
 
 	void updateEnabledButtons(boolean designChanged) {
-		// enable version actions only if this is a versioned design
-		boolean versionedDesign = (documentIO instanceof RVTDocumentIO);
-
-		for (SBOLEditorAction action : VERSION_ACTIONS) {
-			action.setEnabled(versionedDesign);
-		}
-
-		// new and checkout actions are always enabled
-		NEW_VERSION.setEnabled(true);
-		CHECKOUT.setEnabled(true);
-		QUERY_VERSION.setEnabled(true);
-
-		// commit enabled is design changed or it is not versioned so you can
-		// load a design from a file and save it in the version registry
-		COMMIT.setEnabled(designChanged || !versionedDesign);
-
 		// save and export is enabled only if the design changed
 		SAVE.setEnabled(designChanged);
 	}

@@ -5,7 +5,7 @@
 			<attribute name="maven.pomderived" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry excluding="edu/utah/ece/async/sboldesigner/sbol/editor/dialog/BOOSTDialog.java" kind="src" output="target/classes" path="src/main/java">
+	<classpathentry excluding="edu/utah/ece/async/sboldesigner/sbol/editor/dialog/BOOSTDialog.java|edu/utah/ece/async/sboldesigner/sbol/editor/dialog/HistoryDialog.java|edu/utah/ece/async/sboldesigner/sbol/editor/dialog/CheckoutDialog.java|edu/utah/ece/async/sboldesigner/sbol/editor/dialog/CreateBranchDialog.java|edu/utah/ece/async/sboldesigner/sbol/editor/dialog/CreateTagDialog.java|edu/utah/ece/async/sboldesigner/sbol/editor/dialog/CreateVersionDialog.java|edu/utah/ece/async/sboldesigner/sbol/editor/dialog/MergeBranchDialog.java|edu/utah/ece/async/sboldesigner/sbol/editor/dialog/QueryVersionsDialog.java|edu/utah/ece/async/sboldesigner/sbol/editor/dialog/SwitchBranchDialog.java|edu/utah/ece/async/sboldesigner/sbol/editor/dialog/VersioningPreferencesTab.java" kind="src" output="target/classes" path="src/main/java">
 		<attributes>
 			<attribute name="optional" value="true"/>
 			<attribute name="maven.pomderived" value="true"/>

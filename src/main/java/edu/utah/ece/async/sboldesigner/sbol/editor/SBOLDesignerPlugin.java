@@ -138,8 +138,6 @@ public class SBOLDesignerPlugin extends SBOLDesignerPanel {
 	}
 
 	private JToolBar createActionBar() {
-		final JPopupMenu versionMenu = createVersionMenu();
-
 		JToolBar toolbar = new JToolBar();
 		toolbar.setFloatable(false);
 		toolbar.setAlignmentX(LEFT_ALIGNMENT);
@@ -153,14 +151,6 @@ public class SBOLDesignerPlugin extends SBOLDesignerPanel {
 			} else {
 				AbstractButton button = action.createButton();
 				toolbar.add(button);
-				if (action == VERSION) {
-					button.addMouseListener(new MouseAdapter() {
-						public void mousePressed(MouseEvent e) {
-							Component c = e.getComponent();
-							versionMenu.show(c, 0, c.getY() + c.getHeight());
-						}
-					});
-				}
 			}
 		}
 		// toolbar.add(Box.createHorizontalGlue());
