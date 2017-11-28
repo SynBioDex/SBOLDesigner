@@ -20,8 +20,8 @@ package edu.utah.ece.async.sboldesigner.sbol;
  * 
  * @author Evren Sirin
  */
-public class CharSequences {
-	private CharSequences() {}
+public class CharSequenceUtil {
+	private CharSequenceUtil() {}
 	
 	public static CharSequence shorten(final CharSequence seq, final int maxLength) {
 		int length = seq.length();

@@ -1,4 +1,4 @@
-package edu.utah.ece.async.sboldesigner.sbol.editor;
+package edu.utah.ece.async.sboldesigner.sbol;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -18,7 +18,10 @@ import org.apache.commons.io.IOUtils;
 
 import com.google.gson.Gson;
 
-public class WebOfRegistries {
+import edu.utah.ece.async.sboldesigner.sbol.editor.Registries;
+import edu.utah.ece.async.sboldesigner.sbol.editor.Registry;
+
+public class WebOfRegistriesUtil {
 
 	public void initRegistries() {
 		try {

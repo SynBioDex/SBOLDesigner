@@ -52,6 +52,7 @@ import com.adamtaft.eb.EventHandler;
 import com.google.common.base.Strings;
 import com.google.common.base.Supplier;
 import edu.utah.ece.async.sboldesigner.sbol.SBOLUtils;
+import edu.utah.ece.async.sboldesigner.sbol.WebOfRegistriesUtil;
 import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.AboutDialog;
 import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.MessageDialog;
 import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.PreferencesDialog;
@@ -250,7 +251,7 @@ public class SBOLDesignerPanel extends JPanel {
 						"xml", "rdf", "sbol", "gb", "gbk", "fasta"));
 
 		initGUI();
-		WebOfRegistries wors = new WebOfRegistries();
+		WebOfRegistriesUtil wors = new WebOfRegistriesUtil();
 		wors.initRegistries();
 
 		editor.getEventBus().subscribe(this);
