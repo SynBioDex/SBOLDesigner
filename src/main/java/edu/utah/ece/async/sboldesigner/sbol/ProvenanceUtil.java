@@ -21,48 +21,79 @@ import edu.utah.ece.async.sboldesigner.sbol.editor.SBOLEditorPreferences;
 
 public class ProvenanceUtil {
 
-	/*
+	/**
 	 * Adds an SBOLDesignerActivity -> SBOLDesignerAgent to the wasDerivedFrom
-	 * of every TopLevel. If an SBOLDesignerActivity already exists, updates the
-	 * end time.
+	 * of every TopLevel that doesn't have an Activity. If an
+	 * SBOLDesignerActivity already exists on the root, updates the end time.
 	 */
 	public static void createProvenance(SBOLDocument doc, ComponentDefinition root) throws SBOLValidationException {
-		// Create the activity
-		Activity activity = doc.createActivity(root.getDisplayId() + "_Activity", "1");
+		// Create or get the activity
+		String activityId = root.getDisplayId() + "_SBOLDesignerActivity";
+		Activity activity = null;
+		for (Activity a : doc.getActivities()) {
+			if (root.getWasDerivedFroms().contains(a) && a.getDisplayId().equals(activityId)) {
+				activity = a;
+				break;
+			}
+		}
+
+		if (activity == null) {
+			activity = doc.createActivity(activityId, "1");
+		}
+
+		// Set the ended at time
 		activity.setEndedAtTime(DateTime.now());
 
 		// Set the creator
 		String creator = SBOLEditorPreferences.INSTANCE.getUserInfo().getName();
-		activity.createAnnotation(new QName("http://purl.org/dc/elements/1.1/", "creator", "dc"), creator);
+		boolean hasCreator = false;
+		for (Annotation a : activity.getAnnotations()) {
+			if (a.getQName().getLocalPart().equals("creator") && a.isStringValue()
+					&& a.getStringValue().equals(creator)) {
+				hasCreator = true;
+				break;
+			}
+		}
+		if (!hasCreator) {
+			activity.createAnnotation(new QName("http://purl.org/dc/elements/1.1/", "creator", "dc"), creator);
+		}
 
 		// Create the qualifiedAssociation
 		URI designerURI = URI.create("https://synbiohub.org/public/SBOL_Software/SBOLDesigner/2.2");
-		Association association = activity.createAssociation("Association", designerURI);
-		association.addRole(URI.create("http://sbols.org/v2#sequenceEditor"));
+		boolean hasAssociation = false;
+		for (Association a : activity.getAssociations()) {
+			if (a.getAgent().equals(designerURI)) {
+				hasAssociation = true;
+				break;
+			}
+		}
+		if (!hasAssociation) {
+			Association association = activity.createAssociation("Association", designerURI);
+			association.addRole(URI.create("http://sbols.org/v2#sequenceEditor"));
+		}
 
 		// Link with all TopLevels
 		for (TopLevel tl : doc.getTopLevels()) {
-			boolean exists = false;
+			boolean hasActivity = false;
 
-			// Update existing Activities
+			// Check if hasActivity
 			for (URI uri : tl.getWasGeneratedBys()) {
 				TopLevel generatedBy = doc.getTopLevel(uri);
-				if (generatedBy != null && generatedBy.getDisplayId().contains("SBOLDesignerActivity")
+				if (generatedBy != null && generatedBy.getDisplayId().contains("_SBOLDesignerActivity")
 						&& generatedBy instanceof Activity) {
-					((Activity) generatedBy).setEndedAtTime(activity.getEndedAtTime());
-					exists = true;
+					hasActivity = true;
 				}
 			}
 
 			// Attach if there is no existing Activity
-			if (!exists) {
+			if (!hasActivity) {
 				tl.addWasGeneratedBy(activity.getIdentity());
 			}
 		}
 	}
 
 	/*
-	 * The old version of createProvenance.
+	 * The old broken version of createProvenance.
 	 */
 	private void addSBOLDesignerAnnotation(ComponentDefinition cd, SBOLDocument design) throws SBOLValidationException {
 		// get/create SBOLDesigner agent
