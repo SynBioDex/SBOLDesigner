@@ -58,7 +58,7 @@ public class RootInputDialog extends InputDialog<SBOLDocument> {
 
 	private SBOLDocument doc;
 
-	private ComponentDefinitionWrapper root;
+	private ComponentDefinitionBox root;
 
 	/**
 	 * this.getInput() returns an SBOLDocument with a single rootCD selected
@@ -66,7 +66,7 @@ public class RootInputDialog extends InputDialog<SBOLDocument> {
 	 * 
 	 * Root will reference the root CD that was selected.
 	 */
-	public RootInputDialog(final Component parent, SBOLDocument doc, ComponentDefinitionWrapper root) {
+	public RootInputDialog(final Component parent, SBOLDocument doc, ComponentDefinitionBox root) {
 		super(parent, TITLE);
 
 		this.doc = doc;

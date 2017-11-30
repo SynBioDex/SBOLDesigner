@@ -54,7 +54,7 @@ import com.google.common.base.Supplier;
 import edu.utah.ece.async.sboldesigner.sbol.SBOLUtils;
 import edu.utah.ece.async.sboldesigner.sbol.WebOfRegistriesUtil;
 import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.AboutDialog;
-import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.ComponentDefinitionWrapper;
+import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.ComponentDefinitionBox;
 import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.MessageDialog;
 import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.PreferencesDialog;
 import edu.utah.ece.async.sboldesigner.sbol.editor.event.DesignChangedEvent;
@@ -481,7 +481,7 @@ public class SBOLDesignerPanel extends JPanel {
 	}
 
 	void saveIntoNewFile() throws FileNotFoundException, SBOLValidationException, SBOLConversionException, IOException {
-		ComponentDefinitionWrapper root = new ComponentDefinitionWrapper();
+		ComponentDefinitionBox root = new ComponentDefinitionBox();
 		SBOLDocument doc = editor.getDesign().createDocument(root);
 
 		if (SBOLUtils.rootCalledUnamedPart(root.cd, this)) {
@@ -500,7 +500,7 @@ public class SBOLDesignerPanel extends JPanel {
 		SBOLDocument doc = documentIO.read();
 
 		// the document we are saving
-		ComponentDefinitionWrapper root = new ComponentDefinitionWrapper();
+		ComponentDefinitionBox root = new ComponentDefinitionBox();
 		SBOLDocument currentDesign = design.createDocument(root);
 		ComponentDefinition currentRootCD = root.cd;
 

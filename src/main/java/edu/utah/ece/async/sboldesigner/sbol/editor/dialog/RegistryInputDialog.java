@@ -164,7 +164,7 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 	 */
 	private String cacheKey = "";
 
-	private ComponentDefinitionWrapper root;
+	private ComponentDefinitionBox root;
 
 	private static SynBioHubFrontend synBioHub;
 
@@ -172,7 +172,7 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 	 * For when the working document is known and preferences node shouldn't be
 	 * used
 	 */
-	public RegistryInputDialog(final Component parent, ComponentDefinitionWrapper root, final Part part, Types type,
+	public RegistryInputDialog(final Component parent, ComponentDefinitionBox root, final Part part, Types type,
 			URI refinementRole, SBOLDocument workingDoc) {
 		super(parent, TITLE);
 		this.workingDoc = workingDoc;
@@ -183,7 +183,7 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 	 * For when the working document is unknown and preferences node should be
 	 * used
 	 */
-	public RegistryInputDialog(final Component parent, ComponentDefinitionWrapper root, final Part part, Types type,
+	public RegistryInputDialog(final Component parent, ComponentDefinitionBox root, final Part part, Types type,
 			URI refinementRole) {
 		super(parent, TITLE);
 		this.workingDoc = null;
@@ -193,7 +193,7 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 	/**
 	 * root, if not null, will reference the root CD that was selected.
 	 */
-	private void setup(ComponentDefinitionWrapper root, final Part part, Types type, URI refinementRole) {
+	private void setup(ComponentDefinitionBox root, final Part part, Types type, URI refinementRole) {
 		this.root = root;
 		this.part = part;
 		this.refinementRole = refinementRole;

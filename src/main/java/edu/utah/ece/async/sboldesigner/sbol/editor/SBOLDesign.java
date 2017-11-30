@@ -107,7 +107,7 @@ import com.google.common.collect.Sets;
 import edu.utah.ece.async.sboldesigner.sbol.ProvenanceUtil;
 import edu.utah.ece.async.sboldesigner.sbol.SBOLUtils;
 import edu.utah.ece.async.sboldesigner.sbol.SBOLUtils.Types;
-import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.ComponentDefinitionWrapper;
+import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.ComponentDefinitionBox;
 import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.MessageDialog;
 import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.PartEditDialog;
 import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.RegistryInputDialog;
@@ -467,7 +467,7 @@ public class SBOLDesign {
 		default:
 			// There are multiple root CDs
 			if (rootUri == null) {
-				ComponentDefinitionWrapper root = new ComponentDefinitionWrapper();
+				ComponentDefinitionBox root = new ComponentDefinitionBox();
 				doc = new RootInputDialog(panel, doc, root).getInput();
 				rootCD = root.cd;
 				if (doc == null || rootCD == null) {
@@ -1223,7 +1223,7 @@ public class SBOLDesign {
 		Types type = SBOLUtils
 				.convertURIsToType(new HashSet<URI>(Arrays.asList(selectedCD.getTypes().iterator().next())));
 
-		ComponentDefinitionWrapper root = new ComponentDefinitionWrapper();
+		ComponentDefinitionBox root = new ComponentDefinitionBox();
 		SBOLDocument selection = new RegistryInputDialog(panel.getParent(), root, part, type, role).getInput();
 
 		if (selection != null) {
@@ -1257,7 +1257,7 @@ public class SBOLDesign {
 			return;
 		}
 
-		ComponentDefinitionWrapper root = new ComponentDefinitionWrapper();
+		ComponentDefinitionBox root = new ComponentDefinitionBox();
 		SBOLDocument uploadDoc = createDocument(root);
 
 		if (SBOLUtils.rootCalledUnamedPart(root.cd, panel)) {
@@ -1317,7 +1317,7 @@ public class SBOLDesign {
 	 * Creates a document based off of the root CD. The rootComp will be put in
 	 * root.
 	 */
-	public SBOLDocument createDocument(ComponentDefinitionWrapper root) throws SBOLValidationException {
+	public SBOLDocument createDocument(ComponentDefinitionBox root) throws SBOLValidationException {
 		ComponentDefinition rootComp = parentCDs.isEmpty() ? canvasCD : parentCDs.getLast();
 		// updatecanvasCD on every level of the tree
 		while (canvasCD != rootComp) {
