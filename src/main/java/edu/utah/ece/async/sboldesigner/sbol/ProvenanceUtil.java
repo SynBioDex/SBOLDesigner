@@ -86,7 +86,7 @@ public class ProvenanceUtil {
 			}
 
 			// Attach if there is no existing Activity
-			if (!hasActivity) {
+			if (!hasActivity && !(tl instanceof Activity)) {
 				tl.addWasGeneratedBy(activity.getIdentity());
 			}
 		}
