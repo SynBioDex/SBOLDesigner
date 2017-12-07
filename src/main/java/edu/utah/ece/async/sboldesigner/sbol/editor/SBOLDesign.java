@@ -512,7 +512,7 @@ public class SBOLDesign {
 	}
 
 	private void detectReadOnly() {
-		if (SBOLUtils.isRegistryComponent(canvasCD)) {
+		if (SBOLUtils.notInNamespace(canvasCD)) {
 			readOnly.add(ReadOnly.REGISTRY_COMPONENT);
 		}
 
@@ -1346,7 +1346,7 @@ public class SBOLDesign {
 	 */
 	private void updateCanvasCD() {
 		// should not allow updating of CDs outside our namespace
-		if (SBOLUtils.isRegistryComponent(canvasCD)) {
+		if (SBOLUtils.notInNamespace(canvasCD)) {
 			return;
 		}
 

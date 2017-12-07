@@ -283,8 +283,8 @@ public class SBOLUtils {
 		}
 	}
 
-	public static boolean isRegistryComponent(ComponentDefinition comp) {
-		URI uri = comp.getIdentity();
+	public static boolean notInNamespace(TopLevel tl) {
+		URI uri = tl.getIdentity();
 		return uri != null
 				&& !uri.toString().startsWith(SBOLEditorPreferences.INSTANCE.getUserInfo().getURI().toString());
 	}

@@ -660,7 +660,7 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 	 * Fills in a CD and Sequence based on this dialog's state.
 	 */
 	private void saveButtonHandler() throws SBOLValidationException {
-		if (SBOLUtils.isRegistryComponent(CD)) {
+		if (SBOLUtils.notInNamespace(CD)) {
 			// Rename CD and use that
 			CD = confirmEditing(getParent(), CD, design);
 			if (CD == null) {

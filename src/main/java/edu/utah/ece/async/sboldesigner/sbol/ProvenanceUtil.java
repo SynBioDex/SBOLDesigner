@@ -74,6 +74,11 @@ public class ProvenanceUtil {
 
 		// Link with all TopLevels
 		for (TopLevel tl : doc.getTopLevels()) {
+			// check if in namespace
+			if (SBOLUtils.notInNamespace(tl)) {
+				continue;
+			}
+
 			boolean hasActivity = false;
 
 			// Check if hasActivity
