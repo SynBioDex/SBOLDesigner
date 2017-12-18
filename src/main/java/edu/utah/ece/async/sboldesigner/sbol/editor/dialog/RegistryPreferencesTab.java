@@ -72,9 +72,33 @@ public enum RegistryPreferencesTab implements PreferencesTab {
 		final JTable table = new JTable(tableModel);
 		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
+		final JButton addButton = new JButton("Add");
+		addButton.setActionCommand(Action.ADD.toString());
+
+		final JButton editButton = new JButton("Edit");
+		editButton.setActionCommand(Action.EDIT.toString());
+		editButton.setEnabled(false);
+
+		final JButton removeButton = new JButton("Remove");
+		removeButton.setActionCommand(Action.REMOVE.toString());
+		removeButton.setEnabled(false);
+
+		final JButton loginButton = new JButton("Login");
+		loginButton.setActionCommand(Action.LOGIN.toString());
+		loginButton.setEnabled(false);
+
+		final JButton logoutButton = new JButton("Logout");
+		logoutButton.setActionCommand(Action.LOGOUT.toString());
+		logoutButton.setEnabled(false);
+
+		final JButton restoreButton = new JButton("Restore defaults");
+		restoreButton.setActionCommand(Action.RESTORE.toString());
+		restoreButton.setEnabled(true);
+
 		ActionListener listener = new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				RegistryTableModel model = (RegistryTableModel) table.getModel();
+				int row = table.convertRowIndexToModel(table.getSelectedRow());
 				Action action = Action.valueOf(e.getActionCommand());
 				switch (action) {
 				case ADD:
@@ -85,12 +109,10 @@ public enum RegistryPreferencesTab implements PreferencesTab {
 					}
 					break;
 				case REMOVE:
-					int row = table.convertRowIndexToModel(table.getSelectedRow());
 					model.remove(row);
 					Registries.get().save();
 					break;
 				case LOGIN:
-					row = table.convertRowIndexToModel(table.getSelectedRow());
 					Registry r = model.getComponent(row);
 
 					if (r.isPath()) {
@@ -111,6 +133,23 @@ public enum RegistryPreferencesTab implements PreferencesTab {
 						frontends.removeFrontend(r.getLocation());
 					}
 					frontends.addFrontend(r.getLocation(), frontend);
+
+					loginButton.setEnabled(canLogin(r));
+					logoutButton.setEnabled(canLogout(r));
+					break;
+				case LOGOUT:
+					r = model.getComponent(row);
+
+					frontends = new SynBioHubFrontends();
+					if (frontends.hasFrontend(r.getLocation())) {
+						frontends.removeFrontend(r.getLocation());
+						JOptionPane.showMessageDialog(null, "Logout successful!");
+					} else {
+						JOptionPane.showMessageDialog(null, "Logout unsuccessful.  You are currently not logged in.");
+					}
+
+					loginButton.setEnabled(canLogin(r));
+					logoutButton.setEnabled(canLogout(r));
 					break;
 				case RESTORE:
 					model.restoreDefaults();
@@ -119,7 +158,6 @@ public enum RegistryPreferencesTab implements PreferencesTab {
 					Registries.get().save();
 					break;
 				case EDIT:
-					row = table.convertRowIndexToModel(table.getSelectedRow());
 					if (row > model.getRowCount()) {
 						return;
 					} else {
@@ -136,37 +174,25 @@ public enum RegistryPreferencesTab implements PreferencesTab {
 			}
 		};
 
-		final JButton addButton = new JButton("Add");
-		addButton.setActionCommand(Action.ADD.toString());
 		addButton.addActionListener(listener);
-
-		final JButton editButton = new JButton("Edit");
-		editButton.setActionCommand(Action.EDIT.toString());
 		editButton.addActionListener(listener);
-		editButton.setEnabled(false);
-
-		final JButton removeButton = new JButton("Remove");
-		removeButton.setActionCommand(Action.REMOVE.toString());
 		removeButton.addActionListener(listener);
-		removeButton.setEnabled(false);
-
-		final JButton loginButton = new JButton("Login");
-		loginButton.setActionCommand(Action.LOGIN.toString());
 		loginButton.addActionListener(listener);
-		loginButton.setEnabled(false);
-
-		final JButton restoreButton = new JButton("Restore defaults");
-		restoreButton.setActionCommand(Action.RESTORE.toString());
+		logoutButton.addActionListener(listener);
 		restoreButton.addActionListener(listener);
-		restoreButton.setEnabled(true);
 
 		table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
 			@Override
 			public void valueChanged(ListSelectionEvent event) {
+				RegistryTableModel model = (RegistryTableModel) table.getModel();
+				int row = table.convertRowIndexToModel(table.getSelectedRow());
+				Registry r = model.getComponent(row);
+
 				// Everything can be removed/edited except Built-In parts.
 				removeButton.setEnabled(table.getSelectedRow() >= 2);
 				editButton.setEnabled(table.getSelectedRow() >= 2);
-				loginButton.setEnabled(table.getSelectedRow() >= 0);
+				loginButton.setEnabled(table.getSelectedRow() >= 0 && !r.isPath() && canLogin(r));
+				logoutButton.setEnabled(table.getSelectedRow() >= 0 && !r.isPath() && canLogout(r));
 			}
 		});
 
@@ -195,6 +221,7 @@ public enum RegistryPreferencesTab implements PreferencesTab {
 		buttonPane.add(editButton);
 		buttonPane.add(removeButton);
 		buttonPane.add(loginButton);
+		buttonPane.add(logoutButton);
 		buttonPane.add(Box.createHorizontalGlue());
 		buttonPane.add(restoreButton);
 
@@ -202,6 +229,16 @@ public enum RegistryPreferencesTab implements PreferencesTab {
 		contentPane.add(tablePane, BorderLayout.CENTER);
 		contentPane.add(buttonPane, BorderLayout.SOUTH);
 		return contentPane;
+	}
+
+	private boolean canLogin(Registry r) {
+		SynBioHubFrontends frontends = new SynBioHubFrontends();
+		return !frontends.hasFrontend(r.getLocation());
+	}
+
+	private boolean canLogout(Registry r) {
+		SynBioHubFrontends frontends = new SynBioHubFrontends();
+		return frontends.hasFrontend(r.getLocation());
 	}
 
 	@Override
@@ -214,7 +251,7 @@ public enum RegistryPreferencesTab implements PreferencesTab {
 	}
 
 	private static enum Action {
-		ADD, REMOVE, LOGIN, RESTORE, EDIT
+		ADD, REMOVE, LOGIN, LOGOUT, RESTORE, EDIT
 	}
 
 	private static class RegistryTableModel extends AbstractTableModel {
