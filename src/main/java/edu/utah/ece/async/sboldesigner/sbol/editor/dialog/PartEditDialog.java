@@ -105,6 +105,7 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 	private final JButton importCD;
 	private final JButton importFromRegistry;
 	private final JButton openAnnotations;
+	private final JButton openVariants;
 	private final JTextField displayId = new JTextField();
 	private final JTextField name = new JTextField();
 	private final JTextField version = new JTextField();
@@ -190,6 +191,8 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 		importCD.addActionListener(this);
 		openAnnotations = new JButton("Open annotations");
 		openAnnotations.addActionListener(this);
+		openVariants = new JButton("Open variants");
+		openVariants.addActionListener(this);
 
 		typeSelection.setSelectedItem(SBOLUtils.convertURIsToType(CD.getTypes()));
 		typeSelection.addActionListener(this);
@@ -293,6 +296,7 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 		buttonPane.add(importCD);
 		buttonPane.add(importSequence);
 		buttonPane.add(openAnnotations);
+		buttonPane.add(openVariants);
 		buttonPane.add(Box.createHorizontalStrut(100));
 		buttonPane.add(Box.createHorizontalGlue());
 		buttonPane.add(cancelButton);
@@ -342,6 +346,8 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 		importCD.addActionListener(this);
 		openAnnotations = new JButton("Open annotations");
 		openAnnotations.addActionListener(this);
+		openVariants = new JButton("Open variants");
+		openVariants.addActionListener(this);
 
 		typeSelection.setSelectedItem(SBOLUtils.convertURIsToType(CD.getTypes()));
 		typeSelection.addActionListener(this);
@@ -459,6 +465,7 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 		buttonPane.add(importCD);
 		buttonPane.add(importSequence);
 		buttonPane.add(openAnnotations);
+		buttonPane.add(openVariants);
 		buttonPane.add(Box.createHorizontalStrut(100));
 		buttonPane.add(Box.createHorizontalGlue());
 		buttonPane.add(cancelButton);
@@ -531,6 +538,11 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 			openAnnotationHandler();
 			return;
 		}
+		
+		if (e.getSource() == openVariants) {
+			openVariantHandler();
+			return;
+		}
 
 		try {
 			if (e.getSource().equals(saveButton)) {
@@ -596,6 +608,10 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 
 	private void openAnnotationHandler() {
 		new AnnotationEditor(parent, CD);
+	}
+
+	private void openVariantHandler() {
+		new VariantEditor(parent, CD, design);
 	}
 
 	/**
