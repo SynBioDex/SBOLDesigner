@@ -39,8 +39,10 @@ public class Parts {
 
 	private static final List<Part> PARTS_LIST = Lists.newArrayList();
 
-	public static final Part GENERIC = createPart("Generic", "Gen", "generic.png", ImageType.SHORT_OVER_BASELINE,
-			SequenceOntology.SEQUENCE_FEATURE);
+	public static final Part UNSPECIFIED = createPart("Unspecified", "IDK", "unspecified.png",
+			ImageType.TALL_OVER_BASELINE, SequenceOntology.SEQUENCE_FEATURE);
+	public static final Part COMPOSITE = createPart("Composite", "Comp", "composite.png", ImageType.SHORT_OVER_BASELINE,
+			SequenceOntology.ENGINEERED_REGION);
 	public static final Part PROMOTER = createPart("Promoter", "Pro", "promoter.png", ImageType.TALL_OVER_BASELINE,
 			SequenceOntology.PROMOTER);
 	public static final Part RBS = createPart("Ribosome Binding Site", "RBS", "translational-start-site.png",
@@ -75,6 +77,8 @@ public class Parts {
 			ImageType.CENTERED_ON_BASELINE, "SO:0001933");
 	public static final Part THREEOH = createPart("3' Overhang", "_3OH", "three-prime-overhang.png",
 			ImageType.CENTERED_ON_BASELINE, "SO:0001932");
+	public static final Part NO_GLYPH_ASSIGNED = createPart("No Glyph Assigned", "NGA", "no-glyph-assigned.png",
+			ImageType.TALL_OVER_BASELINE, "SO:0000000");
 	public static final Part CIRCULAR = createPart("Circular Backbone", "Circular", "blank-backbone.png",
 			ImageType.CENTERED_ON_BASELINE, "SO:0000755");
 
@@ -125,10 +129,10 @@ public class Parts {
 
 		SequenceOntology so = new SequenceOntology();
 		for (Part part : PARTS.values()) {
-			if (part == GENERIC) {
-				// GENERIC has role SequenceFeature, which all other roles
+			if (part == UNSPECIFIED) {
+				// UNSPECIFIED has role SequenceFeature, which all other roles
 				// inherit from. Must therefore skip and let forComponent return
-				// GENERIC if nothing else matches.
+				// UNSPECIFIED if nothing else matches.
 				continue;
 			}
 			if (so.isDescendantOf(role, part.getRole())) {
@@ -148,7 +152,7 @@ public class Parts {
 		} else if (identified instanceof SequenceAnnotation) {
 			roles = ((SequenceAnnotation) identified).getRoles();
 		} else {
-			return GENERIC;
+			return UNSPECIFIED;
 		}
 		if (!roles.isEmpty()) {
 			for (URI role : roles) {
@@ -160,10 +164,6 @@ public class Parts {
 			}
 		}
 
-		return result != null ? result : GENERIC;
-	}
-
-	public static Part generic(URI role) {
-		return new Part("", "", "generic.png", ImageType.CENTERED_ON_BASELINE, role);
+		return result != null ? result : UNSPECIFIED;
 	}
 }

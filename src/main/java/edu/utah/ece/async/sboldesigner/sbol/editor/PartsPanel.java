@@ -71,7 +71,7 @@ public class PartsPanel extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent event) {
 				try {
-					design.addCD(part, part == Parts.GENERIC);
+					design.addCD(part, part == Parts.UNSPECIFIED);
 				} catch (SBOLValidationException e) {
 					JOptionPane.showMessageDialog(null, "There was an error: " + e.getMessage());
 					e.printStackTrace();

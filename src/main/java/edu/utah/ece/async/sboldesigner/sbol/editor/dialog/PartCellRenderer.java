@@ -35,9 +35,9 @@ public class PartCellRenderer extends ComboBoxRenderer<Part> {
 	}
 
 	private static class InvisibleIcon implements Icon {
-		private static final int DEFAULT_WIDTH = Parts.GENERIC.getImage().getWidth(null);
+		private static final int DEFAULT_WIDTH = Parts.COMPOSITE.getImage().getWidth(null);
 
-		private static final int DEFAULT_HEIGHT = Parts.GENERIC.getImage().getHeight(null);
+		private static final int DEFAULT_HEIGHT = Parts.COMPOSITE.getImage().getHeight(null);
 
 		public int getIconHeight() {
 			return DEFAULT_HEIGHT;
