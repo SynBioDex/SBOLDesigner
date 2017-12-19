@@ -53,6 +53,8 @@ public class Parts {
 			ImageType.SHORT_OVER_BASELINE, SequenceOntology.TERMINATOR);
 	public static final Part ORI = createPart("Origin of Replication", "Ori", "origin-of-replication.png",
 			ImageType.CENTERED_ON_BASELINE, SequenceOntology.ORIGIN_OF_REPLICATION);
+	public static final Part ORIT = createPart("Origin of Transfer", "OriT", "origin-of-transfer.png",
+			ImageType.CENTERED_ON_BASELINE, "SO:0000724");
 	public static final Part PBS = createPart("Primer Binding Site", "PBS", "primer-binding-site.png",
 			ImageType.SHORT_OVER_BASELINE, SequenceOntology.PRIMER_BINDING_SITE);
 	public static final Part CUT = createPart("Sticky End Restriction Enzyme Cleavage Site", "CUT",
