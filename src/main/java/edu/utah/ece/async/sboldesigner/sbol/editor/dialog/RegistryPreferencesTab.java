@@ -142,10 +142,18 @@ public enum RegistryPreferencesTab implements PreferencesTab {
 
 					frontends = new SynBioHubFrontends();
 					if (frontends.hasFrontend(r.getLocation())) {
-						frontends.removeFrontend(r.getLocation());
-						JOptionPane.showMessageDialog(null, "Logout successful!");
+						frontend = frontends.getFrontend(r.getLocation());
+						int choice = JOptionPane.showConfirmDialog(getComponent(),
+								"Are you sure you want to logout of " + frontend.getUsername() + "?", "Confirm logout",
+								JOptionPane.YES_NO_OPTION);
+
+						if (choice == JOptionPane.YES_OPTION) {
+							frontends.removeFrontend(r.getLocation());
+							JOptionPane.showMessageDialog(getComponent(), "Logout successful!");
+						}
 					} else {
-						JOptionPane.showMessageDialog(null, "Logout unsuccessful.  You are currently not logged in.");
+						JOptionPane.showMessageDialog(getComponent(),
+								"Logout unsuccessful.  You are currently not logged in.");
 					}
 
 					loginButton.setEnabled(canLogin(r));
