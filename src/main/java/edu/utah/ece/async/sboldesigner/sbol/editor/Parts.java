@@ -41,8 +41,8 @@ public class Parts {
 
 	public static final Part UNSPECIFIED = createPart("Unspecified", "IDK", "unspecified.png",
 			ImageType.TALL_OVER_BASELINE, SequenceOntology.SEQUENCE_FEATURE);
-	public static final Part COMPOSITE = createPart("Composite", "Comp", "composite.png", ImageType.CENTERED_ON_BASELINE,
-			SequenceOntology.ENGINEERED_REGION);
+	public static final Part COMPOSITE = createPart("Composite", "Comp", "composite.png",
+			ImageType.CENTERED_ON_BASELINE, SequenceOntology.ENGINEERED_REGION);
 	public static final Part PROMOTER = createPart("Promoter", "Pro", "promoter.png", ImageType.TALL_OVER_BASELINE,
 			SequenceOntology.PROMOTER);
 	public static final Part RBS = createPart("Ribosome Binding Site", "RBS", "translational-start-site.png",
@@ -77,10 +77,10 @@ public class Parts {
 			ImageType.CENTERED_ON_BASELINE, "SO:0001933");
 	public static final Part THREEOH = createPart("3' Overhang", "_3OH", "three-prime-overhang.png",
 			ImageType.CENTERED_ON_BASELINE, "SO:0001932");
-	public static final Part APTAMER = createPart("Aptamer", "Apt", "aptamer.png", ImageType.TALL_OVER_BASELINE,
+	public static final Part APTAMER = createPart("Aptamer", "APT", "aptamer.png", ImageType.TALL_OVER_BASELINE,
 			"SO:0000031");
-	public static final Part NON_CODING_RNA_GENE = createPart("Non-Coding RNA Gene", "RNAG", "non-coding-rna-gene.png", ImageType.SHORT_OVER_BASELINE,
-			"SO:0001263");
+	public static final Part NON_CODING_RNA_GENE = createPart("Non-Coding RNA Gene", "gRNA", "non-coding-rna-gene.png",
+			ImageType.SHORT_OVER_BASELINE, "SO:0001263");
 	public static final Part NO_GLYPH_ASSIGNED = createPart("No Glyph Assigned", "NGA", "no-glyph-assigned.png",
 			ImageType.TALL_OVER_BASELINE, "SO:0000000");
 	public static final Part CIRCULAR = createPart("Circular Backbone", "Circular", "blank-backbone.png",
