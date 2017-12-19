@@ -61,7 +61,7 @@ public class Parts {
 			ImageType.CENTERED_ON_BASELINE, "SO:0001953");
 	public static final Part OP = createPart("Operator", "Op", "operator.png", ImageType.CENTERED_ON_BASELINE,
 			SequenceOntology.OPERATOR);
-	public static final Part INS = createPart("Insulator", "Ins", "insulator.png", ImageType.CENTERED_ON_BASELINE,
+	public static final Part INS = createPart("Insulator", "Ins", "insulator.png", ImageType.SHORT_OVER_BASELINE,
 			SequenceOntology.INSULATOR);
 	public static final Part RSE = createPart("RNA Stability Element", "RSE", "rna-stability-element.png",
 			ImageType.SHORT_OVER_BASELINE, "SO:0001957");
