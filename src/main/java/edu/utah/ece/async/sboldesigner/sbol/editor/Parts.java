@@ -83,8 +83,10 @@ public class Parts {
 			"SO:0000031");
 	public static final Part NON_CODING_RNA_GENE = createPart("Non-Coding RNA Gene", "gRNA", "non-coding-rna-gene.png",
 			ImageType.SHORT_OVER_BASELINE, "SO:0001263");
-	public static final Part POLYA = createPart("PolyA Site", "PolyA", "poly-a-site.png",
-			ImageType.SHORT_OVER_BASELINE, "SO:0000553");
+	public static final Part POLYA = createPart("PolyA Site", "PolyA", "poly-a-site.png", ImageType.SHORT_OVER_BASELINE,
+			"SO:0000553");
+	public static final Part SRS = createPart("Specific Recombination Site", "SRS", "specific-recombination-site.png",
+			ImageType.CENTERED_ON_BASELINE, "SO:0000299");
 	public static final Part NO_GLYPH_ASSIGNED = createPart("No Glyph Assigned", "NGA", "no-glyph-assigned.png",
 			ImageType.TALL_OVER_BASELINE, "SO:0000000");
 	public static final Part CIRCULAR = createPart("Circular Backbone", "Circular", "blank-backbone.png",
