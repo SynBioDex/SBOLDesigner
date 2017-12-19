@@ -66,7 +66,7 @@ public class SBOLDesignerStandalone extends JFrame {
 
 		setContentPane(panel);
 		setLocationRelativeTo(null);
-		setSize(800, 600);
+		setSize(1280, 720);
 		setIconImage(ImageIO.read(getClass().getResourceAsStream("/images/icon.png")));
 
 		// set behavior for close operation
