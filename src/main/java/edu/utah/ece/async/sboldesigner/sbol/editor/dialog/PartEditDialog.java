@@ -538,7 +538,7 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 			openAnnotationHandler();
 			return;
 		}
-		
+
 		if (e.getSource() == openVariants) {
 			openVariantHandler();
 			return;
@@ -625,13 +625,14 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 		Types type = (Types) typeSelection.getSelectedItem();
 
 		// User selects the CD
-		SBOLDocument selection = new RegistryInputDialog(this.getParent(), null, part, type, role).getInput();
+		ComponentDefinitionBox root = new ComponentDefinitionBox();
+		SBOLDocument selection = new RegistryInputDialog(this.getParent(), root, part, type, role).getInput();
 		if (selection == null) {
 			return false;
 		} else {
-			this.CD = selection.getRootComponentDefinitions().iterator().next();
 			// copy the rest of the design into design
 			SBOLUtils.insertTopLevels(selection, design);
+			this.CD = root.cd;
 			return true;
 		}
 	}
@@ -786,9 +787,8 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 	public static ComponentDefinition confirmEditing(Component parent, ComponentDefinition comp, SBOLDocument design)
 			throws SBOLValidationException {
 		int result = JOptionPane.showConfirmDialog(parent,
-				"The part '" + comp.getDisplayId() + "' is not owned by you \n"
-						+ "and cannot be edited.\n\n" + "Do you want to create an editable copy of\n"
-						+ "this part and save your changes?",
+				"The part '" + comp.getDisplayId() + "' is not owned by you \n" + "and cannot be edited.\n\n"
+						+ "Do you want to create an editable copy of\n" + "this part and save your changes?",
 				"Edit registry part", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
 
 		if (result == JOptionPane.NO_OPTION) {
