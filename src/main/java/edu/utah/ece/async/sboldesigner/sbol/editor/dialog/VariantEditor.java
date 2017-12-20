@@ -19,6 +19,7 @@ import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
@@ -48,6 +49,7 @@ import edu.utah.ece.async.sboldesigner.sbol.CharSequenceUtil;
 import edu.utah.ece.async.sboldesigner.sbol.SBOLUtils;
 import edu.utah.ece.async.sboldesigner.sbol.editor.Parts;
 import edu.utah.ece.async.sboldesigner.swing.AbstractListTableModel;
+import edu.utah.ece.async.sboldesigner.swing.FormBuilder;
 
 public class VariantEditor extends JDialog implements ActionListener {
 	private static final String TITLE = "Combinatorial Design Variants: ";
@@ -56,6 +58,8 @@ public class VariantEditor extends JDialog implements ActionListener {
 	private ComponentDefinition variableCD;
 	private SBOLDocument design;
 	private Component parent;
+	private final JComboBox<OperatorType> operatorSelection = new JComboBox<>(OperatorType.values());
+	private final JComboBox<StrategyType> strategySelection = new JComboBox<>(StrategyType.values());
 	private final JButton addButton = new JButton("Add Variant");
 	private final JButton removeButton = new JButton("Remove Variant");
 	private final JButton closeButton = new JButton("Close");
@@ -84,6 +88,17 @@ public class VariantEditor extends JDialog implements ActionListener {
 		this.parent = parent;
 		this.design = design;
 
+		operatorSelection.setSelectedItem(getOperator());
+		operatorSelection.addActionListener(this);
+
+		strategySelection.setSelectedItem(getStrategy());
+		strategySelection.addActionListener(this);
+
+		FormBuilder builder = new FormBuilder();
+		builder.add("Select which operator you want to apply to the variants", operatorSelection);
+		builder.add("Select which strategy you want to apply to the combinatorial design", strategySelection);
+		JPanel optionPane = builder.build();
+
 		addButton.addActionListener(this);
 		addButton.setEnabled(true);
 		removeButton.addActionListener(this);
@@ -105,6 +120,7 @@ public class VariantEditor extends JDialog implements ActionListener {
 		JPanel tablePane = initMainPanel();
 
 		Container contentPane = getContentPane();
+		contentPane.add(optionPane, BorderLayout.PAGE_START);
 		contentPane.add(tablePane, BorderLayout.CENTER);
 		contentPane.add(buttonPane, BorderLayout.PAGE_END);
 		((JComponent) contentPane).setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
@@ -112,6 +128,34 @@ public class VariantEditor extends JDialog implements ActionListener {
 		pack();
 		setLocationRelativeTo(parent);
 		this.setVisible(true);
+	}
+
+	private StrategyType getStrategy() {
+		CombinatorialDerivation derivation = getCombinatorialDerivation(derivationCD);
+		if (derivation == null || !derivation.isSetStrategy()) {
+			return StrategyType.ENUMERATE;
+		}
+
+		return derivation.getStrategy();
+	}
+
+	private OperatorType getOperator() {
+		CombinatorialDerivation derivation = getCombinatorialDerivation(derivationCD);
+		if (derivation == null) {
+			return OperatorType.ONE;
+		}
+
+		org.sbolstandard.core2.Component link = getComponentLink(derivationCD, variableCD);
+		if (link == null) {
+			return OperatorType.ONE;
+		}
+
+		VariableComponent variable = getVariableComponent(derivation, link);
+		if (variable == null) {
+			return OperatorType.ONE;
+		}
+
+		return variable.getOperator();
 	}
 
 	protected JPanel initMainPanel() {
@@ -218,7 +262,7 @@ public class VariantEditor extends JDialog implements ActionListener {
 				return link;
 			}
 		}
-		
+
 		return null;
 	}
 
@@ -247,7 +291,6 @@ public class VariantEditor extends JDialog implements ActionListener {
 		return variants;
 	}
 
-	// TODO add selection of strategytype and operatortype
 	private void addVariant(ComponentDefinition variant) throws Exception {
 		CombinatorialDerivation derivation = getCombinatorialDerivation(derivationCD);
 		if (derivation == null) {
@@ -255,7 +298,7 @@ public class VariantEditor extends JDialog implements ActionListener {
 					derivationCD.getDisplayId() + "_CombinatorialDerivation", derivationCD.getVersion(),
 					"CombinatorialDerivation", design);
 			derivation = design.createCombinatorialDerivation(uniqueId, derivationCD.getIdentity(),
-					StrategyType.ENUMERATE);
+					(StrategyType) strategySelection.getSelectedItem());
 		}
 
 		org.sbolstandard.core2.Component link = getComponentLink(derivationCD, variableCD);
@@ -267,7 +310,8 @@ public class VariantEditor extends JDialog implements ActionListener {
 		if (variable == null) {
 			String uniqueId = SBOLUtils.getUniqueDisplayId(null, derivation, link.getDisplayId() + "_VariableComponent",
 					link.getVersion(), "VariableComponent", design);
-			variable = derivation.createVariableComponent(uniqueId, link.getIdentity(), OperatorType.ONE);
+			variable = derivation.createVariableComponent(uniqueId, link.getIdentity(),
+					(OperatorType) operatorSelection.getSelectedItem());
 		}
 
 		variable.addVariant(variant.getIdentity());
@@ -283,7 +327,7 @@ public class VariantEditor extends JDialog implements ActionListener {
 		if (link == null) {
 			return;
 		}
-		
+
 		VariableComponent variable = getVariableComponent(derivation, link);
 		if (variable == null) {
 			return;
@@ -294,36 +338,88 @@ public class VariantEditor extends JDialog implements ActionListener {
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		if (e.getSource() == closeButton) {
-			setVisible(false);
-			return;
-		}
-
-		if (e.getSource() == addButton) {
-			ComponentDefinitionBox root = new ComponentDefinitionBox();
-			SBOLDocument selection = new RegistryInputDialog(parent, root, Parts.forIdentified(variableCD),
-					SBOLUtils.Types.DNA, null, design).getInput();
-
-			if (selection == null) {
+		try {
+			if (e.getSource() == operatorSelection) {
+				setOperator((OperatorType) operatorSelection.getSelectedItem());
 				return;
 			}
 
-			try {
-				SBOLUtils.insertTopLevels(selection, design);
-				addVariant(root.cd);
-			} catch (Exception e1) {
-				e1.printStackTrace();
+			if (e.getSource() == strategySelection) {
+				setStrategy((StrategyType) strategySelection.getSelectedItem());
+				return;
 			}
 
-			updateTable();
+			if (e.getSource() == closeButton) {
+				setVisible(false);
+				return;
+			}
+
+			if (e.getSource() == addButton) {
+				ComponentDefinitionBox root = new ComponentDefinitionBox();
+				SBOLDocument selection = new RegistryInputDialog(parent, root, Parts.forIdentified(variableCD),
+						SBOLUtils.Types.DNA, null, design).getInput();
+
+				if (selection == null) {
+					return;
+				}
+
+				SBOLUtils.insertTopLevels(selection, design);
+				addVariant(root.cd);
+
+				updateTable();
+				return;
+			}
+
+			if (e.getSource() == removeButton) {
+				int row = table.convertRowIndexToModel(table.getSelectedRow());
+				ComponentDefinition variant = ((ComponentDefinitionTableModel) table.getModel()).getElement(row);
+				removeVariant(variant);
+				updateTable();
+				return;
+			}
+		} catch (Exception e1) {
+			e1.printStackTrace();
+		}
+	}
+
+	private void setStrategy(StrategyType strategy) throws SBOLValidationException {
+		CombinatorialDerivation derivation = getCombinatorialDerivation(derivationCD);
+
+		if (derivation == null) {
+			String uniqueId = SBOLUtils.getUniqueDisplayId(null, null,
+					derivationCD.getDisplayId() + "_CombinatorialDerivation", derivationCD.getVersion(),
+					"CombinatorialDerivation", design);
+			derivation = design.createCombinatorialDerivation(uniqueId, derivationCD.getIdentity(), strategy);
+			return;
 		}
 
-		if (e.getSource() == removeButton) {
-			int row = table.convertRowIndexToModel(table.getSelectedRow());
-			ComponentDefinition variant = ((ComponentDefinitionTableModel) table.getModel()).getElement(row);
-			removeVariant(variant);
-			updateTable();
+		derivation.setStrategy(strategy);
+	}
+
+	private void setOperator(OperatorType operator) throws Exception {
+		CombinatorialDerivation derivation = getCombinatorialDerivation(derivationCD);
+		if (derivation == null) {
+			String uniqueId = SBOLUtils.getUniqueDisplayId(null, null,
+					derivationCD.getDisplayId() + "_CombinatorialDerivation", derivationCD.getVersion(),
+					"CombinatorialDerivation", design);
+			derivation = design.createCombinatorialDerivation(uniqueId, derivationCD.getIdentity(),
+					(StrategyType) strategySelection.getSelectedItem());
 		}
+
+		org.sbolstandard.core2.Component link = getComponentLink(derivationCD, variableCD);
+		if (link == null) {
+			throw new Exception("derivationCD does not have a component to variableCD");
+		}
+
+		VariableComponent variable = getVariableComponent(derivation, link);
+		if (variable == null) {
+			String uniqueId = SBOLUtils.getUniqueDisplayId(null, derivation, link.getDisplayId() + "_VariableComponent",
+					link.getVersion(), "VariableComponent", design);
+			variable = derivation.createVariableComponent(uniqueId, link.getIdentity(), operator);
+			return;
+		}
+
+		variable.setOperator(operator);
 	}
 
 	private void updateTable() {
