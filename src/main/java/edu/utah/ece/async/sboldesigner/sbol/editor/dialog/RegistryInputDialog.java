@@ -169,6 +169,25 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 	private static SynBioHubFrontend synBioHub;
 
 	/**
+	 * For when the working document is known and the root is not needed.
+	 */
+	public RegistryInputDialog(final Component parent, final Part part, Types type, URI refinementRole,
+			SBOLDocument workingDoc) {
+		super(parent, TITLE);
+		this.workingDoc = workingDoc;
+		setup(null, part, type, refinementRole);
+	}
+
+	/**
+	 * For when the working document is unknown and the root is not needed.
+	 */
+	public RegistryInputDialog(final Component parent, final Part part, Types type, URI refinementRole) {
+		super(parent, TITLE);
+		this.workingDoc = null;
+		setup(null, part, type, refinementRole);
+	}
+
+	/**
 	 * For when the working document is known and preferences node shouldn't be
 	 * used
 	 */

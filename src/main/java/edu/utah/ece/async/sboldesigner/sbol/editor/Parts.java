@@ -43,6 +43,7 @@ public class Parts {
 			ImageType.TALL_OVER_BASELINE, SequenceOntology.SEQUENCE_FEATURE);
 	public static final Part COMPOSITE = createPart("Composite", "Comp", "composite.png",
 			ImageType.CENTERED_ON_BASELINE, SequenceOntology.ENGINEERED_REGION);
+	public static final Part GENERIC = COMPOSITE; // For compatibility with older releases of SBOLDesigner
 	public static final Part PROMOTER = createPart("Promoter", "Pro", "promoter.png", ImageType.TALL_OVER_BASELINE,
 			SequenceOntology.PROMOTER);
 	public static final Part RBS = createPart("Ribosome Binding Site", "RBS", "translational-start-site.png",
