@@ -90,6 +90,7 @@ import edu.utah.ece.async.sboldesigner.swing.FormBuilder;
 public class PartEditDialog extends JDialog implements ActionListener, DocumentListener {
 	private static final String TITLE = "Part: ";
 
+	private ComponentDefinition parentCD;
 	private ComponentDefinition CD;
 	private SequenceAnnotation SA;
 	private SBOLDocument design;
@@ -120,10 +121,10 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 	 * Returns the ComponentDefinition edited by PartEditDialog. Null if the
 	 * dialog throws an exception. Also pass in the design.
 	 */
-	public static ComponentDefinition editPart(Component parent, ComponentDefinition CD, boolean enableSave,
+	public static ComponentDefinition editPart(Component parent, ComponentDefinition parentCD, ComponentDefinition CD, boolean enableSave,
 			boolean canEdit, SBOLDocument design) {
 		try {
-			PartEditDialog dialog = new PartEditDialog(parent, CD, canEdit, design);
+			PartEditDialog dialog = new PartEditDialog(parent, parentCD, CD, canEdit, design);
 			dialog.saveButton.setEnabled(enableSave);
 			dialog.setVisible(true);
 			return dialog.CD;
@@ -165,9 +166,10 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 		return (title == null) ? "" : CharSequenceUtil.shorten(title, 20).toString();
 	}
 
-	private PartEditDialog(final Component parent, final ComponentDefinition CD, boolean canEdit, SBOLDocument design) {
+	private PartEditDialog(final Component parent, final ComponentDefinition parentCD, final ComponentDefinition CD, boolean canEdit, SBOLDocument design) {
 		super(JOptionPane.getFrameForComponent(parent), TITLE + title(CD), true);
 
+		this.parentCD = parentCD;
 		this.CD = CD;
 		this.design = design;
 		this.canEdit = canEdit;
@@ -611,7 +613,12 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 	}
 
 	private void openVariantHandler() {
-		new VariantEditor(parent, CD, design);
+		if (parentCD == null) {
+			JOptionPane.showMessageDialog(parent, "This part has no parent, and therefore can't have any variants.");
+			return;
+		}
+
+		new VariantEditor(parent, parentCD, CD, design);
 	}
 
 	/**
@@ -688,7 +695,7 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 		if (design.getComponentDefinition(displayId.getText(), version.getText()) != null) {
 			CD = design.getComponentDefinition(displayId.getText(), version.getText());
 		} else {
-			String uniqueId = SBOLUtils.getUniqueDisplayId(null, displayId.getText(), version.getText(), "CD", design);
+			String uniqueId = SBOLUtils.getUniqueDisplayId(null, null, displayId.getText(), version.getText(), "CD", design);
 			CD = (ComponentDefinition) design.createCopy(CD, uniqueId, version.getText());
 		}
 
@@ -731,7 +738,7 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 				|| !Objects.equal(CD.getSequences().iterator().next().getEncoding(),
 						sequenceEncodingURI((String) sequenceEncoding.getSelectedItem()))) {
 			CD.clearSequences();
-			String uniqueId = SBOLUtils.getUniqueDisplayId(null, CD.getDisplayId() + "Sequence", CD.getVersion(),
+			String uniqueId = SBOLUtils.getUniqueDisplayId(null, null, CD.getDisplayId() + "Sequence", CD.getVersion(),
 					"Sequence", design);
 			Sequence sequence = design.createSequence(uniqueId, CD.getVersion(), seq,
 					sequenceEncodingURI((String) sequenceEncoding.getSelectedItem()));

@@ -35,9 +35,14 @@ import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 
+import org.sbolstandard.core2.CombinatorialDerivation;
 import org.sbolstandard.core2.ComponentDefinition;
 import org.sbolstandard.core2.Identified;
+import org.sbolstandard.core2.OperatorType;
 import org.sbolstandard.core2.SBOLDocument;
+import org.sbolstandard.core2.SBOLValidationException;
+import org.sbolstandard.core2.StrategyType;
+import org.sbolstandard.core2.VariableComponent;
 
 import edu.utah.ece.async.sboldesigner.sbol.CharSequenceUtil;
 import edu.utah.ece.async.sboldesigner.sbol.SBOLUtils;
@@ -47,7 +52,8 @@ import edu.utah.ece.async.sboldesigner.swing.AbstractListTableModel;
 public class VariantEditor extends JDialog implements ActionListener {
 	private static final String TITLE = "Combinatorial Design Variants: ";
 
-	private ComponentDefinition CD;
+	private ComponentDefinition derivationCD;
+	private ComponentDefinition variableCD;
 	private SBOLDocument design;
 	private Component parent;
 	private final JButton addButton = new JButton("Add Variant");
@@ -70,9 +76,11 @@ public class VariantEditor extends JDialog implements ActionListener {
 		return (title == null) ? "" : CharSequenceUtil.shorten(title, 20).toString();
 	}
 
-	public VariantEditor(Component parent, ComponentDefinition CD, SBOLDocument design) {
-		super(JOptionPane.getFrameForComponent(parent), TITLE + title(CD), true);
-		this.CD = CD;
+	public VariantEditor(Component parent, ComponentDefinition derivationCD, ComponentDefinition variableCD,
+			SBOLDocument design) {
+		super(JOptionPane.getFrameForComponent(parent), TITLE + title(variableCD), true);
+		this.derivationCD = derivationCD;
+		this.variableCD = variableCD;
 		this.parent = parent;
 		this.design = design;
 
@@ -182,17 +190,106 @@ public class VariantEditor extends JDialog implements ActionListener {
 		}
 	}
 
-	private List<ComponentDefinition> getVariants() {
-		// TODO get variants
-		return new ArrayList<ComponentDefinition>(design.getComponentDefinitions());
+	private CombinatorialDerivation getCombinatorialDerivation(ComponentDefinition derivationCD) {
+		for (CombinatorialDerivation derivation : design.getCombinatorialDerivations()) {
+			if (derivation.getTemplateURI() == derivationCD.getIdentity()) {
+				return derivation;
+			}
+		}
+
+		return null;
 	}
 
-	private void addVariant(ComponentDefinition variant) {
-		// TODO add variant
+	private VariableComponent getVariableComponent(CombinatorialDerivation derivation,
+			org.sbolstandard.core2.Component link) {
+		for (VariableComponent variable : derivation.getVariableComponents()) {
+			if (variable.getVariable() == link.getIdentity()) {
+				return variable;
+			}
+		}
+
+		return null;
+	}
+
+	private org.sbolstandard.core2.Component getComponentLink(ComponentDefinition derivationCD,
+			ComponentDefinition variableCD) {
+		for (org.sbolstandard.core2.Component link : derivationCD.getComponents()) {
+			if (link.getDefinitionURI() == variableCD.getIdentity()) {
+				return link;
+			}
+		}
+		
+		return null;
+	}
+
+	private List<ComponentDefinition> getVariants() {
+		ArrayList<ComponentDefinition> variants = new ArrayList<>();
+
+		CombinatorialDerivation derivation = getCombinatorialDerivation(derivationCD);
+		if (derivation == null) {
+			return variants;
+		}
+
+		org.sbolstandard.core2.Component link = getComponentLink(derivationCD, variableCD);
+		if (link == null) {
+			return variants;
+		}
+
+		VariableComponent variable = getVariableComponent(derivation, link);
+		if (variable == null) {
+			return variants;
+		}
+
+		for (URI cd : variable.getVariants()) {
+			variants.add(design.getComponentDefinition(cd));
+		}
+
+		return variants;
+	}
+
+	// TODO add selection of strategytype and operatortype
+	private void addVariant(ComponentDefinition variant) throws Exception {
+		CombinatorialDerivation derivation = getCombinatorialDerivation(derivationCD);
+		if (derivation == null) {
+			String uniqueId = SBOLUtils.getUniqueDisplayId(null, null,
+					derivationCD.getDisplayId() + "_CombinatorialDerivation", derivationCD.getVersion(),
+					"CombinatorialDerivation", design);
+			derivation = design.createCombinatorialDerivation(uniqueId, derivationCD.getIdentity(),
+					StrategyType.ENUMERATE);
+		}
+
+		org.sbolstandard.core2.Component link = getComponentLink(derivationCD, variableCD);
+		if (link == null) {
+			throw new Exception("derivationCD does not have a component to variableCD");
+		}
+
+		VariableComponent variable = getVariableComponent(derivation, link);
+		if (variable == null) {
+			String uniqueId = SBOLUtils.getUniqueDisplayId(null, derivation, link.getDisplayId() + "_VariableComponent",
+					link.getVersion(), "VariableComponent", design);
+			variable = derivation.createVariableComponent(uniqueId, link.getIdentity(), OperatorType.ONE);
+		}
+
+		variable.addVariant(variant.getIdentity());
 	}
 
 	private void removeVariant(ComponentDefinition variant) {
-		// TODO remove variant
+		CombinatorialDerivation derivation = getCombinatorialDerivation(derivationCD);
+		if (derivation == null) {
+			return;
+		}
+
+		org.sbolstandard.core2.Component link = getComponentLink(derivationCD, variableCD);
+		if (link == null) {
+			return;
+		}
+		
+		VariableComponent variable = getVariableComponent(derivation, link);
+		if (variable == null) {
+			return;
+		}
+
+		variable.removeVariant(variant);
 	}
 
 	@Override
@@ -204,7 +301,7 @@ public class VariantEditor extends JDialog implements ActionListener {
 
 		if (e.getSource() == addButton) {
 			ComponentDefinitionBox root = new ComponentDefinitionBox();
-			SBOLDocument selection = new RegistryInputDialog(parent, root, Parts.forIdentified(CD),
+			SBOLDocument selection = new RegistryInputDialog(parent, root, Parts.forIdentified(variableCD),
 					SBOLUtils.Types.DNA, null, design).getInput();
 
 			if (selection == null) {
@@ -213,11 +310,11 @@ public class VariantEditor extends JDialog implements ActionListener {
 
 			try {
 				SBOLUtils.insertTopLevels(selection, design);
+				addVariant(root.cd);
 			} catch (Exception e1) {
 				e1.printStackTrace();
 			}
 
-			addVariant(root.cd);
 			updateTable();
 		}
 

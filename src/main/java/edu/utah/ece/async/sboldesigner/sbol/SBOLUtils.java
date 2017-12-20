@@ -31,6 +31,7 @@ import javax.swing.JPanel;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import org.sbolstandard.core2.Activity;
+import org.sbolstandard.core2.CombinatorialDerivation;
 import org.sbolstandard.core2.Component;
 import org.sbolstandard.core2.ComponentDefinition;
 import org.sbolstandard.core2.GenericTopLevel;
@@ -59,7 +60,7 @@ public class SBOLUtils {
 	 * dataType is a TopLevel), the type of object, and the SBOLDocument
 	 * containing the design.
 	 */
-	public static String getUniqueDisplayId(ComponentDefinition comp, String displayId, String version, String dataType,
+	public static String getUniqueDisplayId(ComponentDefinition comp, CombinatorialDerivation derivation, String displayId, String version, String dataType,
 			SBOLDocument design) {
 		// if can get using some displayId, then try the next number
 		switch (dataType) {
@@ -121,6 +122,24 @@ public class SBOLUtils {
 				// This will always return Range, Range2, Range3... etc,
 				// skipping Range1
 				return i == 1 ? displayId : displayId + i;
+			}
+		case "CombinatorialDerivation":
+			for (int i = 1; true; i++) {
+				if (i == 1 && design.getCombinatorialDerivation(displayId, version) == null) {
+					return displayId;
+				}
+				if (design.getComponentDefinition(displayId + i, version) == null) {
+					return displayId + i;
+				}
+			}
+		case "VariableComponent":
+			for (int i = 1; true; i++) {
+				if (i == 1 && derivation.getVariableComponent(displayId, version) == null) {
+					return displayId;
+				}
+				if (derivation.getVariableComponent(displayId + i, version) == null) {
+					return displayId + i;
+				}
 			}
 		default:
 			throw new IllegalArgumentException();
@@ -275,7 +294,7 @@ public class SBOLUtils {
 	 */
 	private static Sequence createSequence(String nucleotides, SBOLDocument design) {
 		try {
-			String uniqueId = SBOLUtils.getUniqueDisplayId(null, "Sequence", "1", "Sequence", design);
+			String uniqueId = SBOLUtils.getUniqueDisplayId(null, null, "Sequence", "1", "Sequence", design);
 			return design.createSequence(uniqueId, "1", nucleotides, Sequence.IUPAC_DNA);
 		} catch (SBOLValidationException e) {
 			e.printStackTrace();

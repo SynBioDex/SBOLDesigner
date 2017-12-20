@@ -130,7 +130,7 @@ public class Part {
 		Set<URI> setRoles = new HashSet<URI>(roles);
 		// create ComponentDefinition using the following parameters
 		try {
-			String uniqueId = SBOLUtils.getUniqueDisplayId(null, getDisplayId(), "1", "CD", design);
+			String uniqueId = SBOLUtils.getUniqueDisplayId(null, null, getDisplayId(), "1", "CD", design);
 			ComponentDefinition comp = design.createComponentDefinition(uniqueId, "1", ComponentDefinition.DNA);
 			comp.setRoles(setRoles);
 			return comp;
