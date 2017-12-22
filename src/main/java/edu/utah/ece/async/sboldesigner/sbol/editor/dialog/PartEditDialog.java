@@ -697,6 +697,7 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 			CD = design.getComponentDefinition(displayId.getText(), version.getText());
 		} else {
 			String uniqueId = SBOLUtils.getUniqueDisplayId(null, null, displayId.getText(), version.getText(), "CD", design);
+			// TODO doesn't change the combinatorial design reference, if existing
 			CD = (ComponentDefinition) design.createCopy(CD, uniqueId, version.getText());
 		}
 
