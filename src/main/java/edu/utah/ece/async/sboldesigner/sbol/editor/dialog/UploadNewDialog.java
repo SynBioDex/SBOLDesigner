@@ -205,8 +205,6 @@ public class UploadNewDialog extends JDialog implements ActionListener, Document
 		}
 		SynBioHubFrontend frontend = frontends.getFrontend(registry.getLocation());
 
-		//String option = overwrite.isSelected() ? "1" : "0";
-
 		frontend.submit(submissionId.getText(), version.getText(), name.getText(), description.getText(),
 				citations.getText(), overwrite.isSelected(), toBeUploaded);
 
