@@ -39,11 +39,12 @@ public class Parts {
 
 	private static final List<Part> PARTS_LIST = Lists.newArrayList();
 
+	// unspecified part is for parts without roles that get opened
 	public static final Part UNSPECIFIED = createPart("Unspecified", "IDK", "unspecified.png",
 			ImageType.TALL_OVER_BASELINE, new String[0]);
 	public static final Part COMPOSITE = createPart("Composite", "Com", "composite.png", ImageType.CENTERED_ON_BASELINE,
 			SequenceOntology.ENGINEERED_REGION);
-	// For compatibility with older releases of SBOLDesigner
+	// for compatibility with older releases of SBOLDesigner
 	public static final Part GENERIC = COMPOSITE;
 	public static final Part PROMOTER = createPart("Promoter", "Pro", "promoter.png", ImageType.TALL_OVER_BASELINE,
 			SequenceOntology.PROMOTER);
