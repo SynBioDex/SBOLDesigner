@@ -207,7 +207,7 @@ public class UploadNewDialog extends JDialog implements ActionListener, Document
 
 		//String option = overwrite.isSelected() ? "1" : "0";
 
-		frontend.submit(submissionId.getText(), version.getText(), name.getText(), description.getText(),
+		frontend.createCollection(submissionId.getText(), version.getText(), name.getText(), description.getText(),
 				citations.getText(), overwrite.isSelected(), toBeUploaded);
 
 		JOptionPane.showMessageDialog(parent, "Upload successful!");

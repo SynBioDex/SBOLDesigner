@@ -8,6 +8,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.io.IOException;
+import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
 
@@ -199,8 +200,7 @@ public class UploadExistingDialog extends JDialog implements ActionListener, Lis
 
 		//String option = overwrite.isSelected() ? "3" : "2";
 
-		frontend.submit(selectedCollection.getDisplayId().replace("_collection", ""), selectedCollection.getVersion(),
-				overwrite.isSelected(), toBeUploaded);
+		frontend.addToCollection(URI.create(selectedCollection.getUri()), overwrite.isSelected(), toBeUploaded);
 
 		JOptionPane.showMessageDialog(parent, "Upload successful!");
 	}
