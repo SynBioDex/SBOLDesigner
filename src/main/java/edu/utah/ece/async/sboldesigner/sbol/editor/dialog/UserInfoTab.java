@@ -84,6 +84,7 @@ public enum UserInfoTab implements PreferencesTab {
 				SBOLEditorPreferences.INSTANCE.saveUserInfo(userInfo);
 				name.setText(null);
 				email.setText(null);
+				uri.setText("http://dummy.org");
 			}
 		});
 		deleteInfo.setAlignmentX(Component.RIGHT_ALIGNMENT);
@@ -109,11 +110,12 @@ public enum UserInfoTab implements PreferencesTab {
 
 		if (hasNamespaceCollision(uri.getText())) {
 			JOptionPane.showMessageDialog(getComponent(),
-					"The user's domain namespace cannot conflict with an existing Registry namespace.  Please try http://www.dummy.org instead.");
+					"The user's domain namespace cannot conflict with an existing Registry namespace.\n"
+					+ "Please enter a valid domain for your organization (ex. http://dummy.org).");
 			return;
 		}
 
-		URI personURI = noURI ? Terms.uri("http://www.dummy.org") : Terms.uri(uri.getText());
+		URI personURI = noURI ? Terms.uri("http://dummy.org") : Terms.uri(uri.getText());
 		String personName = noName ? "" : name.getText();
 		URI personEmail = noEmail ? null : Terms.uri("mailto:" + email.getText());
 		PersonInfo info = Infos.forPerson(personURI, personName, personEmail);
@@ -133,7 +135,7 @@ public enum UserInfoTab implements PreferencesTab {
 				}
 
 				for (String variation : variations) {
-					if (newNamespace.equals(variation)) {
+					if (newNamespace.startsWith(variation)) {
 						return true;
 					}
 				}
