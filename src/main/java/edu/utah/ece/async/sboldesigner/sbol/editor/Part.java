@@ -126,13 +126,14 @@ public class Part {
 	 * Creates a CD in design using roles.
 	 */
 	public ComponentDefinition createComponentDefinition(SBOLDocument design) {
-		// change list of roles to set of roles
-		Set<URI> setRoles = new HashSet<URI>(roles);
-		// create ComponentDefinition using the following parameters
 		try {
 			String uniqueId = SBOLUtils.getUniqueDisplayId(null, getDisplayId(), "1", "CD", design);
 			ComponentDefinition comp = design.createComponentDefinition(uniqueId, "1", ComponentDefinition.DNA);
-			comp.setRoles(setRoles);
+
+			for (URI role : roles) {
+				comp.addRole(role);
+			}
+
 			return comp;
 		} catch (SBOLValidationException e) {
 			e.printStackTrace();

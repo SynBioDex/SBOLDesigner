@@ -39,11 +39,12 @@ public class Parts {
 
 	private static final List<Part> PARTS_LIST = Lists.newArrayList();
 
+	// unspecified part is for parts without roles that get opened
 	public static final Part UNSPECIFIED = createPart("Unspecified", "IDK", "unspecified.png",
-			ImageType.TALL_OVER_BASELINE, SequenceOntology.SEQUENCE_FEATURE);
+			ImageType.TALL_OVER_BASELINE, new String[0]);
 	public static final Part COMPOSITE = createPart("Composite", "Com", "composite.png", ImageType.CENTERED_ON_BASELINE,
 			SequenceOntology.ENGINEERED_REGION);
-	// For compatibility with older releases of SBOLDesigner
+	// for compatibility with older releases of SBOLDesigner
 	public static final Part GENERIC = COMPOSITE;
 	public static final Part PROMOTER = createPart("Promoter", "Pro", "promoter.png", ImageType.TALL_OVER_BASELINE,
 			SequenceOntology.PROMOTER);
@@ -90,9 +91,7 @@ public class Parts {
 	public static final Part SRS = createPart("Specific Recombination Site", "SRS", "specific-recombination-site.png",
 			ImageType.CENTERED_ON_BASELINE, "SO:0000299");
 	public static final Part NO_GLYPH_ASSIGNED = createPart("No Glyph Assigned", "NGA", "no-glyph-assigned.png",
-			ImageType.TALL_OVER_BASELINE, "SO:0000001");
-	public static final Part OMITTED_DETAIL = createPart("Omitted Detail", "OD", "omitted-detail.png",
-			ImageType.CENTERED_ON_BASELINE, "SO:0000000");
+			ImageType.TALL_OVER_BASELINE, SequenceOntology.SEQUENCE_FEATURE);
 	public static final Part CIRCULAR = createPart("Circular Backbone", "Cir", "blank-backbone.png",
 			ImageType.CENTERED_ON_BASELINE, "SO:0000755");
 

@@ -46,7 +46,10 @@ public class PartsPanel extends JPanel {
 		design = editor.getDesign();
 
 		for (Part part : Parts.all()) {
-			addPartButton(part);
+			// don't show the un specified part in the parts panel
+			if (part != Parts.UNSPECIFIED) {
+				addPartButton(part);
+			}
 		}
 
 		editor.getEventBus().subscribe(this);
