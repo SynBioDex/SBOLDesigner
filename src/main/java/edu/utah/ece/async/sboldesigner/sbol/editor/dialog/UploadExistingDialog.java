@@ -196,8 +196,6 @@ public class UploadExistingDialog extends JDialog implements ActionListener, Lis
 
 		IdentifiedMetadata selectedCollection = collections.getSelectedValue();
 
-		//String option = overwrite.isSelected() ? "3" : "2";
-
 		frontend.addToCollection(URI.create(selectedCollection.getUri()), overwrite.isSelected(), toBeUploaded);
 
 		JOptionPane.showMessageDialog(parent, "Upload successful!");
