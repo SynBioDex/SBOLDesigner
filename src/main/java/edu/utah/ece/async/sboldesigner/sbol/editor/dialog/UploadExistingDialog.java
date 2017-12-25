@@ -7,7 +7,7 @@ import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
-import java.io.IOException;
+import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
 
@@ -31,7 +31,6 @@ import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import org.sbolstandard.core2.SBOLConversionException;
 import org.sbolstandard.core2.SBOLDocument;
 import org.synbiohub.frontend.IdentifiedMetadata;
 import org.synbiohub.frontend.SearchCriteria;
@@ -197,8 +196,9 @@ public class UploadExistingDialog extends JDialog implements ActionListener, Lis
 
 		IdentifiedMetadata selectedCollection = collections.getSelectedValue();
 
-		frontend.submit(selectedCollection.getDisplayId().replace("_collection", ""), selectedCollection.getVersion(),
-				overwrite.isSelected(), toBeUploaded);
+		//String option = overwrite.isSelected() ? "3" : "2";
+
+		frontend.addToCollection(URI.create(selectedCollection.getUri()), overwrite.isSelected(), toBeUploaded);
 
 		JOptionPane.showMessageDialog(parent, "Upload successful!");
 	}
