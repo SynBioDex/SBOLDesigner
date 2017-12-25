@@ -94,6 +94,8 @@ public class Parts {
 			ImageType.TALL_OVER_BASELINE, SequenceOntology.SEQUENCE_FEATURE);
 	public static final Part CIRCULAR = createPart("Circular Backbone", "Cir", "blank-backbone.png",
 			ImageType.CENTERED_ON_BASELINE, "SO:0000755");
+	public static final Part SIGNATURE = createPart("Signature", "Sig", "signature.png",
+			ImageType.TALL_OVER_BASELINE, "SO:0001978");
 
 	private static Iterable<Part> SORTED_PARTS;
 
