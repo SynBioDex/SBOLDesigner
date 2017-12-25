@@ -61,21 +61,13 @@ public class Parts {
 	public static final Part PBS = createPart("Primer Binding Site", "PBS", "primer-binding-site.png",
 			ImageType.SHORT_OVER_BASELINE, SequenceOntology.PRIMER_BINDING_SITE);
 	public static final Part CUT = createPart("Sticky End Restriction Enzyme Cleavage Site", "CUT",
-			"restriction-enzyme-recognition-site.png", ImageType.CENTERED_ON_BASELINE, "SO:0001692");
+			"cut.png", ImageType.CENTERED_ON_BASELINE, "SO:0001692");
 	public static final Part SCAR = createPart("Assembly Scar", "Scar", "assembly-junction.png",
 			ImageType.CENTERED_ON_BASELINE, "SO:0001953");
 	public static final Part OP = createPart("Operator", "Op", "operator.png", ImageType.CENTERED_ON_BASELINE,
 			SequenceOntology.OPERATOR);
 	public static final Part INS = createPart("Insulator", "Ins", "insulator.png", ImageType.SHORT_OVER_BASELINE,
 			SequenceOntology.INSULATOR);
-	public static final Part RSE = createPart("RNA Stability Element", "RSE", "rna-stability-element.png",
-			ImageType.SHORT_OVER_BASELINE, "SO:0001957");
-	public static final Part PSE = createPart("Protein Stability Element", "PSE", "protein-stability-element.png",
-			ImageType.SHORT_OVER_BASELINE, "SO:0001955");
-	public static final Part RS = createPart("Ribonuclease Site", "RS", "ribonuclease-site.png",
-			ImageType.SHORT_OVER_BASELINE, "SO:0001977");
-	public static final Part PS = createPart("Protease Site", "PS", "protease-site.png", ImageType.SHORT_OVER_BASELINE,
-			"SO:0001956");
 	public static final Part BRS = createPart("Blunt Restriction Site", "BRS", "blunt-restriction-site.png",
 			ImageType.CENTERED_ON_BASELINE, "SO:0001691");
 	public static final Part FIVEOH = createPart("5' Overhang", "_5OH", "five-prime-overhang.png",
@@ -94,8 +86,23 @@ public class Parts {
 			ImageType.TALL_OVER_BASELINE, SequenceOntology.SEQUENCE_FEATURE);
 	public static final Part CIRCULAR = createPart("Circular Backbone", "Cir", "blank-backbone.png",
 			ImageType.CENTERED_ON_BASELINE, "SO:0000755");
-	public static final Part SIGNATURE = createPart("Signature", "Sig", "signature.png",
-			ImageType.TALL_OVER_BASELINE, "SO:0001978");
+	public static final Part SIGNATURE = createPart("Signature", "Sig", "signature.png", ImageType.TALL_OVER_BASELINE,
+			"SO:0001978");
+	public static final Part BS = createPart("Base", "BS", "base.png", ImageType.SHORT_OVER_BASELINE, "SO:0001236");
+	public static final Part JUN = createPart("Junction", "Jun", "junction.png", ImageType.SHORT_OVER_BASELINE,
+			"SO:0000699");
+	public static final Part AA = createPart("Amino Acid", "AA", "amino-acid.png", ImageType.SHORT_OVER_BASELINE,
+			"SO:0001237");
+	public static final Part RERS = createPart("Restriction Enzyme Recognition Site", "RERS",
+			"restriction-enzyme-recognition-site.png", ImageType.SHORT_OVER_BASELINE, "SO:0001687");
+	public static final Part RS = createPart("Ribonuclease Site", "RS", "ribonuclease-site.png",
+			ImageType.SHORT_OVER_BASELINE, "SO:0001977");
+	public static final Part PS = createPart("Protease Site", "PS", "protease-site.png", ImageType.SHORT_OVER_BASELINE,
+			"SO:0001956");
+	public static final Part RSE = createPart("RNA Stability Element", "RSE", "rna-stability-element.png",
+			ImageType.SHORT_OVER_BASELINE, "SO:0001957");
+	public static final Part PSE = createPart("Protein Stability Element", "PSE", "protein-stability-element.png",
+			ImageType.SHORT_OVER_BASELINE, "SO:0001955");
 
 	private static Iterable<Part> SORTED_PARTS;
 
