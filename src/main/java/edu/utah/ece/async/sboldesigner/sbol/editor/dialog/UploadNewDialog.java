@@ -6,46 +6,25 @@ import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
-import javax.swing.ButtonGroup;
-import javax.swing.DefaultListCellRenderer;
-import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
-import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JPasswordField;
-import javax.swing.JRadioButton;
-import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
-import javax.swing.ListCellRenderer;
-import javax.swing.ListModel;
-import javax.swing.ListSelectionModel;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
-import org.synbiohub.frontend.IdentifiedMetadata;
-import org.synbiohub.frontend.SearchCriteria;
-import org.synbiohub.frontend.SearchQuery;
 import org.synbiohub.frontend.SynBioHubException;
 import org.synbiohub.frontend.SynBioHubFrontend;
 
@@ -58,8 +37,6 @@ import edu.utah.ece.async.sboldesigner.versioning.PersonInfo;
 
 import org.sbolstandard.core2.ComponentDefinition;
 import org.sbolstandard.core2.SBOLDocument;
-import org.sbolstandard.core2.SBOLValidationException;
-import org.sbolstandard.core2.TopLevel;
 
 public class UploadNewDialog extends JDialog implements ActionListener, DocumentListener {
 	private static final String TITLE = "Upload Design: ";
@@ -205,7 +182,7 @@ public class UploadNewDialog extends JDialog implements ActionListener, Document
 		}
 		SynBioHubFrontend frontend = frontends.getFrontend(registry.getLocation());
 
-		frontend.submit(submissionId.getText(), version.getText(), name.getText(), description.getText(),
+		frontend.createCollection(submissionId.getText(), version.getText(), name.getText(), description.getText(),
 				citations.getText(), overwrite.isSelected(), toBeUploaded);
 
 		JOptionPane.showMessageDialog(parent, "Upload successful!");
