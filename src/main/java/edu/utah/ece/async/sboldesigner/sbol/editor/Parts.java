@@ -42,10 +42,8 @@ public class Parts {
 	// unspecified part is for parts without roles that get opened
 	public static final Part UNSPECIFIED = createPart("Unspecified", "IDK", "unspecified.png",
 			ImageType.TALL_OVER_BASELINE, new String[0]);
-	public static final Part COMPOSITE = createPart("Composite", "Com", "composite.png", ImageType.CENTERED_ON_BASELINE,
-			SequenceOntology.ENGINEERED_REGION);
-	// for compatibility with older releases of SBOLDesigner
-	public static final Part GENERIC = COMPOSITE;
+	public static final Part GENERIC = createPart("Engineered Region", "Gen", "engineered-region.png",
+			ImageType.SHORT_OVER_BASELINE, SequenceOntology.ENGINEERED_REGION);
 	public static final Part PROMOTER = createPart("Promoter", "Pro", "promoter.png", ImageType.TALL_OVER_BASELINE,
 			SequenceOntology.PROMOTER);
 	public static final Part RBS = createPart("Ribosome Binding Site", "RBS", "translational-start-site.png",

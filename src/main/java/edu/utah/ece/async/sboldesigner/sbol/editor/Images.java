@@ -18,6 +18,7 @@ package edu.utah.ece.async.sboldesigner.sbol.editor;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Toolkit;
@@ -151,6 +152,16 @@ public class Images {
 		AffineTransform tx = AffineTransform.getScaleInstance(-1, -1);
 		tx.translate(-image.getWidth(null), -image.getHeight(null));
 		return applyTransform(image, tx);
+	}
+
+	public static Image overlay(Image base, Image overlay, int w, int h) {
+		BufferedImage combined = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
+
+		Graphics g = combined.getGraphics();
+		g.drawImage(base, 0, 0, null);
+		g.drawImage(overlay, 0, 0, null);
+
+		return combined;
 	}
 
 	public static BufferedImage applyTransform(Image image, AffineTransform tx) {

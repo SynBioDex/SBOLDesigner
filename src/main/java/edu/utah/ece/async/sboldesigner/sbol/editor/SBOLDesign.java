@@ -824,7 +824,7 @@ public class SBOLDesign {
 	}
 
 	private void setupIcons(final JLabel button, final DesignElement e) {
-		Image image = e.getPart().getImage(e.getOrientation());
+		Image image = e.getPart().getImage(e.getOrientation(), e.isComposite());
 		Image selectedImage = Images.createBorderedImage(image, Color.LIGHT_GRAY);
 		button.setIcon(new ImageIcon(image));
 		button.setDisabledIcon(new ImageIcon(selectedImage));
@@ -1592,6 +1592,16 @@ public class SBOLDesign {
 
 		Part getPart() {
 			return part;
+		}
+
+		public boolean isComposite() {
+			ComponentDefinition cd = component.getDefinition();
+
+			if (cd == null) {
+				return false;
+			}
+
+			return !cd.getComponents().isEmpty();
 		}
 
 		/**

@@ -15,6 +15,7 @@
 
 package edu.utah.ece.async.sboldesigner.sbol.editor;
 
+import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.net.URI;
@@ -65,7 +66,9 @@ public class Part {
 	private final String displayId;
 	private final List<URI> roles;
 	private final Image positiveImage;
+	private final Image positiveCompositeImage;
 	private final Image negativeImage;
+	private final Image negativeCompositeImage;
 	private final Image smallImage;
 
 	public Part(String name, String displayId) {
@@ -81,13 +84,19 @@ public class Part {
 		this.displayId = displayId;
 		this.roles = ImmutableList.copyOf(roles);
 		if (imageFileName == null) {
-			positiveImage = negativeImage = smallImage = null;
+			positiveImage = positiveCompositeImage = negativeImage = negativeCompositeImage = smallImage = null;
 		} else {
 			BufferedImage image = Images.toBufferedImage(Images.getPartImage(imageFileName));
-			this.positiveImage = Images.scaleImageToWidth(image, IMG_WIDTH);
-			this.negativeImage = Images.rotate180(positiveImage);
+			BufferedImage scaledCompositeOverlay = Images
+					.toBufferedImage(Images.scaleImageToWidth(Images.getPartImage("composite-overlay.png"), IMG_WIDTH));
+
 			this.smallImage = Images.scaleImageToWidth(image.getSubimage(0, image.getHeight() / imageType.cropRatio,
 					image.getWidth(), image.getHeight() / 2), 24);
+			this.positiveImage = Images.scaleImageToWidth(image, IMG_WIDTH);
+			this.positiveCompositeImage = Images.overlay(positiveImage, scaledCompositeOverlay, IMG_WIDTH, IMG_HEIGHT);
+			this.negativeImage = Images.rotate180(positiveImage);
+			this.negativeCompositeImage = Images.overlay(negativeImage, Images.rotate180(scaledCompositeOverlay),
+					IMG_WIDTH, IMG_HEIGHT);
 		}
 	}
 
@@ -110,8 +119,12 @@ public class Part {
 	/**
 	 * Returns the image for the part that can be used in the SBOL design.
 	 */
-	public Image getImage(OrientationType orientation) {
-		return orientation == OrientationType.REVERSECOMPLEMENT ? negativeImage : positiveImage;
+	public Image getImage(OrientationType orientation, boolean composite) {
+		if (orientation == OrientationType.REVERSECOMPLEMENT) {
+			return composite ? negativeCompositeImage : negativeImage;
+		} else {
+			return composite ? positiveCompositeImage : positiveImage;
+		}
 	}
 
 	/**
