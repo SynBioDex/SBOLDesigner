@@ -59,9 +59,10 @@ public class SBOLUtils {
 	 * dataType isn't a TopLevel), the displayId you want, the version (if
 	 * dataType is a TopLevel), the type of object, and the SBOLDocument
 	 * containing the design.
+	 * @throws SBOLValidationException 
 	 */
 	public static String getUniqueDisplayId(ComponentDefinition comp, CombinatorialDerivation derivation, String displayId, String version, String dataType,
-			SBOLDocument design) {
+			SBOLDocument design) throws SBOLValidationException {
 		// if can get using some displayId, then try the next number
 		switch (dataType) {
 		case "CD":
@@ -128,16 +129,16 @@ public class SBOLUtils {
 				if (i == 1 && design.getCombinatorialDerivation(displayId, version) == null) {
 					return displayId;
 				}
-				if (design.getComponentDefinition(displayId + i, version) == null) {
+				if (design.getCombinatorialDerivation(displayId + i, version) == null) {
 					return displayId + i;
 				}
 			}
 		case "VariableComponent":
 			for (int i = 1; true; i++) {
-				if (i == 1 && derivation.getVariableComponent(displayId, version) == null) {
+				if (i == 1 && derivation.getVariableComponent(displayId) == null) {
 					return displayId;
 				}
-				if (derivation.getVariableComponent(displayId + i, version) == null) {
+				if (derivation.getVariableComponent(displayId + i) == null) {
 					return displayId + i;
 				}
 			}

@@ -1051,13 +1051,13 @@ public class SBOLDesign {
 		}
 	}
 
-	private void deleteCombinatorialDesign(ComponentDefinition cd, org.sbolstandard.core2.Component component) {
+	private void deleteCombinatorialDesign(ComponentDefinition cd, org.sbolstandard.core2.Component component) throws SBOLValidationException {
 		CombinatorialDerivation derivationToRemoveFrom = null;
 		VariableComponent variableToBeRemoved = null;
 
 		for (CombinatorialDerivation derivation : design.getCombinatorialDerivations()) {
 			for (VariableComponent variable : derivation.getVariableComponents()) {
-				if (variable.getVariable() == component.getIdentity()) {
+				if (variable.getVariable() == component) {
 					derivationToRemoveFrom = derivation;
 					variableToBeRemoved = variable;
 					break;
@@ -1073,10 +1073,10 @@ public class SBOLDesign {
 			return;
 		}
 		
-		derivationToRemoveFrom.removeVariableComponent(variableToBeRemoved.getIdentity());
+		derivationToRemoveFrom.removeVariableComponent(variableToBeRemoved);
 
 		if (derivationToRemoveFrom.getVariableComponents().isEmpty()) {
-			design.removeCombinatorialDerivation(derivationToRemoveFrom.getIdentity());
+			design.removeCombinatorialDerivation(derivationToRemoveFrom);
 		}
 	}
 

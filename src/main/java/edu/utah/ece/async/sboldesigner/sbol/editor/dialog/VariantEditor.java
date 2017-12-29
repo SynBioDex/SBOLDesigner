@@ -247,7 +247,7 @@ public class VariantEditor extends JDialog implements ActionListener {
 	private VariableComponent getVariableComponent(CombinatorialDerivation derivation,
 			org.sbolstandard.core2.Component link) {
 		for (VariableComponent variable : derivation.getVariableComponents()) {
-			if (variable.getVariable() == link.getIdentity()) {
+			if (variable.getVariable() == link) {
 				return variable;
 			}
 		}
@@ -284,7 +284,7 @@ public class VariantEditor extends JDialog implements ActionListener {
 			return variants;
 		}
 
-		for (URI cd : variable.getVariants()) {
+		for (URI cd : variable.getVariantURIs()) {
 			variants.add(design.getComponentDefinition(cd));
 		}
 
@@ -309,9 +309,9 @@ public class VariantEditor extends JDialog implements ActionListener {
 		VariableComponent variable = getVariableComponent(derivation, link);
 		if (variable == null) {
 			String uniqueId = SBOLUtils.getUniqueDisplayId(null, derivation, link.getDisplayId() + "_VariableComponent",
-					link.getVersion(), "VariableComponent", design);
-			variable = derivation.createVariableComponent(uniqueId, link.getIdentity(),
-					(OperatorType) operatorSelection.getSelectedItem());
+					null, "VariableComponent", design);
+			variable = derivation.createVariableComponent(uniqueId, (OperatorType) operatorSelection.getSelectedItem(),
+					link);
 		}
 
 		variable.addVariant(variant.getIdentity());
@@ -414,8 +414,8 @@ public class VariantEditor extends JDialog implements ActionListener {
 		VariableComponent variable = getVariableComponent(derivation, link);
 		if (variable == null) {
 			String uniqueId = SBOLUtils.getUniqueDisplayId(null, derivation, link.getDisplayId() + "_VariableComponent",
-					link.getVersion(), "VariableComponent", design);
-			variable = derivation.createVariableComponent(uniqueId, link.getIdentity(), operator);
+					null, "VariableComponent", design);
+			variable = derivation.createVariableComponent(uniqueId, operator, link);
 			return;
 		}
 
