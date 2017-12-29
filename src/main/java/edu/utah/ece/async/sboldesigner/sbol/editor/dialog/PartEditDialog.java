@@ -60,6 +60,7 @@ import javax.swing.event.DocumentListener;
 import javax.xml.namespace.QName;
 
 import org.sbolstandard.core2.Annotation;
+import org.sbolstandard.core2.CombinatorialDerivation;
 import org.sbolstandard.core2.ComponentDefinition;
 import org.sbolstandard.core2.Cut;
 import org.sbolstandard.core2.GenericTopLevel;
@@ -121,8 +122,8 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 	 * Returns the ComponentDefinition edited by PartEditDialog. Null if the
 	 * dialog throws an exception. Also pass in the design.
 	 */
-	public static ComponentDefinition editPart(Component parent, ComponentDefinition parentCD, ComponentDefinition CD, boolean enableSave,
-			boolean canEdit, SBOLDocument design) {
+	public static ComponentDefinition editPart(Component parent, ComponentDefinition parentCD, ComponentDefinition CD,
+			boolean enableSave, boolean canEdit, SBOLDocument design) {
 		try {
 			PartEditDialog dialog = new PartEditDialog(parent, parentCD, CD, canEdit, design);
 			dialog.saveButton.setEnabled(enableSave);
@@ -166,7 +167,8 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 		return (title == null) ? "" : CharSequenceUtil.shorten(title, 20).toString();
 	}
 
-	private PartEditDialog(final Component parent, final ComponentDefinition parentCD, final ComponentDefinition CD, boolean canEdit, SBOLDocument design) {
+	private PartEditDialog(final Component parent, final ComponentDefinition parentCD, final ComponentDefinition CD,
+			boolean canEdit, SBOLDocument design) {
 		super(JOptionPane.getFrameForComponent(parent), TITLE + title(CD), true);
 
 		this.parentCD = parentCD;
@@ -696,9 +698,17 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 		if (design.getComponentDefinition(displayId.getText(), version.getText()) != null) {
 			CD = design.getComponentDefinition(displayId.getText(), version.getText());
 		} else {
-			String uniqueId = SBOLUtils.getUniqueDisplayId(null, null, displayId.getText(), version.getText(), "CD", design);
-			// TODO doesn't change the combinatorial design reference, if existing
+			String uniqueId = SBOLUtils.getUniqueDisplayId(null, null, displayId.getText(), version.getText(), "CD",
+					design);
+			URI oldIdentity = CD.getIdentity();
 			CD = (ComponentDefinition) design.createCopy(CD, uniqueId, version.getText());
+
+			// update derivation references
+			for (CombinatorialDerivation derivation : design.getCombinatorialDerivations()) {
+				if (derivation.getTemplateURI() == oldIdentity) {
+					derivation.setTemplate(CD);
+				}
+			}
 		}
 
 		if (name.getText().length() == 0) {
