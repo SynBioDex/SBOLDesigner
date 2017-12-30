@@ -297,8 +297,8 @@ public class VariantEditor extends JDialog implements ActionListener {
 			String uniqueId = SBOLUtils.getUniqueDisplayId(null, null,
 					derivationCD.getDisplayId() + "_CombinatorialDerivation", derivationCD.getVersion(),
 					"CombinatorialDerivation", design);
-			derivation = design.createCombinatorialDerivation(uniqueId, derivationCD.getIdentity(),
-					(StrategyType) strategySelection.getSelectedItem());
+			derivation = design.createCombinatorialDerivation(uniqueId, derivationCD.getIdentity());
+			derivation.setStrategy((StrategyType) strategySelection.getSelectedItem());
 		}
 
 		org.sbolstandard.core2.Component link = getComponentLink(derivationCD, variableCD);
@@ -389,8 +389,7 @@ public class VariantEditor extends JDialog implements ActionListener {
 			String uniqueId = SBOLUtils.getUniqueDisplayId(null, null,
 					derivationCD.getDisplayId() + "_CombinatorialDerivation", derivationCD.getVersion(),
 					"CombinatorialDerivation", design);
-			derivation = design.createCombinatorialDerivation(uniqueId, derivationCD.getIdentity(), strategy);
-			return;
+			derivation = design.createCombinatorialDerivation(uniqueId, derivationCD.getIdentity());
 		}
 
 		derivation.setStrategy(strategy);
@@ -402,8 +401,8 @@ public class VariantEditor extends JDialog implements ActionListener {
 			String uniqueId = SBOLUtils.getUniqueDisplayId(null, null,
 					derivationCD.getDisplayId() + "_CombinatorialDerivation", derivationCD.getVersion(),
 					"CombinatorialDerivation", design);
-			derivation = design.createCombinatorialDerivation(uniqueId, derivationCD.getIdentity(),
-					(StrategyType) strategySelection.getSelectedItem());
+			derivation = design.createCombinatorialDerivation(uniqueId, derivationCD.getIdentity());
+			derivation.setStrategy((StrategyType) strategySelection.getSelectedItem());
 		}
 
 		org.sbolstandard.core2.Component link = getComponentLink(derivationCD, variableCD);
