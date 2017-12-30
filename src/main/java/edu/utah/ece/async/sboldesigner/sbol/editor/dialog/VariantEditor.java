@@ -236,7 +236,7 @@ public class VariantEditor extends JDialog implements ActionListener {
 
 	private CombinatorialDerivation getCombinatorialDerivation(ComponentDefinition derivationCD) {
 		for (CombinatorialDerivation derivation : design.getCombinatorialDerivations()) {
-			if (derivation.getTemplateURI() == derivationCD.getIdentity()) {
+			if (derivation.getTemplateURI().equals(derivationCD.getIdentity())) {
 				return derivation;
 			}
 		}
@@ -247,7 +247,7 @@ public class VariantEditor extends JDialog implements ActionListener {
 	private VariableComponent getVariableComponent(CombinatorialDerivation derivation,
 			org.sbolstandard.core2.Component link) {
 		for (VariableComponent variable : derivation.getVariableComponents()) {
-			if (variable.getVariable() == link) {
+			if (variable.getVariable().equals(link)) {
 				return variable;
 			}
 		}
@@ -258,7 +258,7 @@ public class VariantEditor extends JDialog implements ActionListener {
 	private org.sbolstandard.core2.Component getComponentLink(ComponentDefinition derivationCD,
 			ComponentDefinition variableCD) {
 		for (org.sbolstandard.core2.Component link : derivationCD.getComponents()) {
-			if (link.getDefinitionURI() == variableCD.getIdentity()) {
+			if (link.getDefinitionURI().equals(variableCD.getIdentity())) {
 				return link;
 			}
 		}

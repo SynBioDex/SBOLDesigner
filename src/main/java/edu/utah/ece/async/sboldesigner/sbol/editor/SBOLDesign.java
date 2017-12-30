@@ -1051,28 +1051,29 @@ public class SBOLDesign {
 		}
 	}
 
-	private void deleteCombinatorialDesign(ComponentDefinition cd, org.sbolstandard.core2.Component component) throws SBOLValidationException {
+	private void deleteCombinatorialDesign(ComponentDefinition cd, org.sbolstandard.core2.Component component)
+			throws SBOLValidationException {
 		CombinatorialDerivation derivationToRemoveFrom = null;
 		VariableComponent variableToBeRemoved = null;
 
 		for (CombinatorialDerivation derivation : design.getCombinatorialDerivations()) {
 			for (VariableComponent variable : derivation.getVariableComponents()) {
-				if (variable.getVariable() == component) {
+				if (variable.getVariable().equals(component)) {
 					derivationToRemoveFrom = derivation;
 					variableToBeRemoved = variable;
 					break;
 				}
 			}
-			
+
 			if (derivationToRemoveFrom != null && variableToBeRemoved != null) {
 				break;
 			}
 		}
-		
+
 		if (derivationToRemoveFrom == null || variableToBeRemoved == null) {
 			return;
 		}
-		
+
 		derivationToRemoveFrom.removeVariableComponent(variableToBeRemoved);
 
 		if (derivationToRemoveFrom.getVariableComponents().isEmpty()) {
@@ -1238,7 +1239,8 @@ public class SBOLDesign {
 			return;
 		}
 
-		ComponentDefinition editedCD = PartEditDialog.editPart(panel.getParent(), getCanvasCD(), originalCD, false, true, design);
+		ComponentDefinition editedCD = PartEditDialog.editPart(panel.getParent(), getCanvasCD(), originalCD, false,
+				true, design);
 
 		if (editedCD != null) {
 			// if the CD type or the displyId has been edited we need to
@@ -1361,6 +1363,8 @@ public class SBOLDesign {
 
 		SBOLDocument doc = new SBOLDocument();
 		doc = design.createRecursiveCopy(rootComp);
+		copyReferencedCombinatorialDerivations(doc, design);
+
 		rootComp = doc.getComponentDefinition(rootComp.getIdentity());
 		if (root != null) {
 			root.cd = rootComp;
@@ -1370,6 +1374,15 @@ public class SBOLDesign {
 		ProvenanceUtil.createProvenance(doc, rootComp);
 
 		return doc;
+	}
+
+	private void copyReferencedCombinatorialDerivations(SBOLDocument toDoc, SBOLDocument fromDoc)
+			throws SBOLValidationException {
+		for (CombinatorialDerivation derivation : fromDoc.getCombinatorialDerivations()) {
+			if (toDoc.getComponentDefinitions().contains(derivation.getTemplate())) {
+				fromDoc.createRecursiveCopy(toDoc, derivation);
+			}
+		}
 	}
 
 	/**
@@ -1434,8 +1447,8 @@ public class SBOLDesign {
 					if (option == 0) {
 						// use the old sequence provided it was there
 						if (oldSeq != null) {
-							String uniqueId = SBOLUtils.getUniqueDisplayId(null, null, canvasCD.getDisplayId() + "Sequence",
-									canvasCD.getVersion(), "Sequence", design);
+							String uniqueId = SBOLUtils.getUniqueDisplayId(null, null,
+									canvasCD.getDisplayId() + "Sequence", canvasCD.getVersion(), "Sequence", design);
 							oldSeq = design.createSequence(uniqueId, canvasCD.getVersion(), oldSeq.getElements(),
 									Sequence.IUPAC_DNA);
 							canvasCD.addSequence(oldSeq);
@@ -1528,8 +1541,8 @@ public class SBOLDesign {
 
 			if (subject == null || object == null)
 				continue;
-			String uniqueId = SBOLUtils.getUniqueDisplayId(canvasCD, null, "SequenceConstraint", null, "SequenceConstraint",
-					design);
+			String uniqueId = SBOLUtils.getUniqueDisplayId(canvasCD, null, "SequenceConstraint", null,
+					"SequenceConstraint", design);
 			canvasCD.createSequenceConstraint(uniqueId, RestrictionType.PRECEDES, subject.getIdentity(),
 					object.getIdentity());
 		}
@@ -1599,8 +1612,8 @@ public class SBOLDesign {
 
 		private static SequenceAnnotation createSeqAnn(ComponentDefinition parentCD, SBOLDocument design)
 				throws SBOLValidationException {
-			String uniqueId = SBOLUtils.getUniqueDisplayId(parentCD, null, parentCD.getDisplayId() + "SequenceAnnotation", "",
-					"SequenceAnnotation", design);
+			String uniqueId = SBOLUtils.getUniqueDisplayId(parentCD, null,
+					parentCD.getDisplayId() + "SequenceAnnotation", "", "SequenceAnnotation", design);
 			return parentCD.createSequenceAnnotation(uniqueId, "GenericLocation", OrientationType.INLINE);
 		}
 

@@ -705,7 +705,7 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 
 			// update derivation references
 			for (CombinatorialDerivation derivation : design.getCombinatorialDerivations()) {
-				if (derivation.getTemplateURI() == oldIdentity) {
+				if (derivation.getTemplateURI().equals(oldIdentity)) {
 					derivation.setTemplate(CD.getIdentity());
 				}
 			}
