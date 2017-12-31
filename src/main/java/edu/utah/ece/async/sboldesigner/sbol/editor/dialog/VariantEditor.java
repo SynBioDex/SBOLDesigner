@@ -294,10 +294,7 @@ public class VariantEditor extends JDialog implements ActionListener {
 	private void addVariant(ComponentDefinition variant) throws Exception {
 		CombinatorialDerivation derivation = getCombinatorialDerivation(derivationCD);
 		if (derivation == null) {
-			String uniqueId = SBOLUtils.getUniqueDisplayId(null, null,
-					derivationCD.getDisplayId() + "_CombinatorialDerivation", derivationCD.getVersion(),
-					"CombinatorialDerivation", design);
-			derivation = design.createCombinatorialDerivation(uniqueId, derivationCD.getIdentity());
+			derivation = createCombinatorialDerivation(derivationCD);
 			derivation.setStrategy((StrategyType) strategySelection.getSelectedItem());
 		}
 
@@ -308,13 +305,29 @@ public class VariantEditor extends JDialog implements ActionListener {
 
 		VariableComponent variable = getVariableComponent(derivation, link);
 		if (variable == null) {
-			String uniqueId = SBOLUtils.getUniqueDisplayId(null, derivation, link.getDisplayId() + "_VariableComponent",
-					null, "VariableComponent", design);
-			variable = derivation.createVariableComponent(uniqueId, (OperatorType) operatorSelection.getSelectedItem(),
-					link);
+			variable = createVariableComponent(derivation, (OperatorType) operatorSelection.getSelectedItem(), link);
 		}
 
 		variable.addVariant(variant.getIdentity());
+	}
+
+	private CombinatorialDerivation createCombinatorialDerivation(ComponentDefinition derivationCD)
+			throws SBOLValidationException {
+		CombinatorialDerivation derivation;
+		String uniqueId = SBOLUtils.getUniqueDisplayId(null, null,
+				derivationCD.getDisplayId() + "_CombinatorialDerivation", derivationCD.getVersion(),
+				"CombinatorialDerivation", design);
+		derivation = design.createCombinatorialDerivation(uniqueId, derivationCD.getIdentity());
+		return derivation;
+	}
+
+	private VariableComponent createVariableComponent(CombinatorialDerivation derivation, OperatorType operator,
+			org.sbolstandard.core2.Component link) throws SBOLValidationException {
+		VariableComponent variable;
+		String uniqueId = SBOLUtils.getUniqueDisplayId(null, derivation, link.getDisplayId() + "_VariableComponent",
+				null, "VariableComponent", design);
+		variable = derivation.createVariableComponent(uniqueId, operator, link);
+		return variable;
 	}
 
 	private void removeVariant(ComponentDefinition variant) {
@@ -386,10 +399,7 @@ public class VariantEditor extends JDialog implements ActionListener {
 		CombinatorialDerivation derivation = getCombinatorialDerivation(derivationCD);
 
 		if (derivation == null) {
-			String uniqueId = SBOLUtils.getUniqueDisplayId(null, null,
-					derivationCD.getDisplayId() + "_CombinatorialDerivation", derivationCD.getVersion(),
-					"CombinatorialDerivation", design);
-			derivation = design.createCombinatorialDerivation(uniqueId, derivationCD.getIdentity());
+			derivation = createCombinatorialDerivation(derivationCD);
 		}
 
 		derivation.setStrategy(strategy);
@@ -398,10 +408,7 @@ public class VariantEditor extends JDialog implements ActionListener {
 	private void setOperator(OperatorType operator) throws Exception {
 		CombinatorialDerivation derivation = getCombinatorialDerivation(derivationCD);
 		if (derivation == null) {
-			String uniqueId = SBOLUtils.getUniqueDisplayId(null, null,
-					derivationCD.getDisplayId() + "_CombinatorialDerivation", derivationCD.getVersion(),
-					"CombinatorialDerivation", design);
-			derivation = design.createCombinatorialDerivation(uniqueId, derivationCD.getIdentity());
+			derivation = createCombinatorialDerivation(derivationCD);
 			derivation.setStrategy((StrategyType) strategySelection.getSelectedItem());
 		}
 
@@ -412,9 +419,7 @@ public class VariantEditor extends JDialog implements ActionListener {
 
 		VariableComponent variable = getVariableComponent(derivation, link);
 		if (variable == null) {
-			String uniqueId = SBOLUtils.getUniqueDisplayId(null, derivation, link.getDisplayId() + "_VariableComponent",
-					null, "VariableComponent", design);
-			variable = derivation.createVariableComponent(uniqueId, operator, link);
+			variable = createVariableComponent(derivation, operator, link);
 			return;
 		}
 
