@@ -313,21 +313,17 @@ public class VariantEditor extends JDialog implements ActionListener {
 
 	private CombinatorialDerivation createCombinatorialDerivation(ComponentDefinition derivationCD)
 			throws SBOLValidationException {
-		CombinatorialDerivation derivation;
 		String uniqueId = SBOLUtils.getUniqueDisplayId(null, null,
 				derivationCD.getDisplayId() + "_CombinatorialDerivation", derivationCD.getVersion(),
 				"CombinatorialDerivation", design);
-		derivation = design.createCombinatorialDerivation(uniqueId, derivationCD.getIdentity());
-		return derivation;
+		return design.createCombinatorialDerivation(uniqueId, derivationCD.getIdentity());
 	}
 
 	private VariableComponent createVariableComponent(CombinatorialDerivation derivation, OperatorType operator,
 			org.sbolstandard.core2.Component link) throws SBOLValidationException {
-		VariableComponent variable;
 		String uniqueId = SBOLUtils.getUniqueDisplayId(null, derivation, link.getDisplayId() + "_VariableComponent",
 				null, "VariableComponent", design);
-		variable = derivation.createVariableComponent(uniqueId, operator, link);
-		return variable;
+		return derivation.createVariableComponent(uniqueId, operator, link);
 	}
 
 	private void removeVariant(ComponentDefinition variant) {
