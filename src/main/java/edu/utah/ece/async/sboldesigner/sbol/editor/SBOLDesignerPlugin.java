@@ -199,12 +199,11 @@ public class SBOLDesignerPlugin extends SBOLDesignerPanel {
 		}
 		return true;
 	}
-	
-	public void uploadSBOL(java.awt.Component panel) throws URIException, SynBioHubException, SBOLValidationException 
-	{
+
+	public void uploadSBOL(java.awt.Component panel) throws URIException, SynBioHubException, SBOLValidationException {
 		ComponentDefinitionBox root = new ComponentDefinitionBox();
 		SBOLDocument uploadDoc = editor.getDesign().createDocument(root);
-		SBOLDesign.uploadDesign(panel,uploadDoc,null);
+		SBOLDesign.uploadDesign(panel, uploadDoc, null);
 	}
 
 	public void exportSBOL(String exportFileName, String fileType)

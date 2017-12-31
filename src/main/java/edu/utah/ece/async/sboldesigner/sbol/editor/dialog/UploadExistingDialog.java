@@ -78,8 +78,9 @@ public class UploadExistingDialog extends JDialog implements ActionListener, Lis
 		super(JOptionPane.getFrameForComponent(parent), TITLE + title(registry), true);
 		CreateUploadExistingDialog(parent, registry, null, uploadFile);
 	}
-	
-	private void CreateUploadExistingDialog(final Component parent, Registry registry, SBOLDocument uploadDoc, File uploadFile) {
+
+	private void CreateUploadExistingDialog(final Component parent, Registry registry, SBOLDocument uploadDoc,
+			File uploadFile) {
 		this.parent = parent;
 		this.registry = registry;
 		this.toBeUploaded = uploadDoc;
@@ -193,7 +194,7 @@ public class UploadExistingDialog extends JDialog implements ActionListener, Lis
 				return;
 			} catch (SynBioHubException | IOException e1) {
 				MessageDialog.showMessage(parent, "Uploading failed", Arrays.asList(e1.getMessage().split("\"|,")));
-				if (toBeUploaded!=null) {
+				if (toBeUploaded != null) {
 					toBeUploaded.clearRegistries();
 				}
 			}

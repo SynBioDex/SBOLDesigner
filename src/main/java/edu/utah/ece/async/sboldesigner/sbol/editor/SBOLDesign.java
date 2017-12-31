@@ -180,7 +180,7 @@ public class SBOLDesign {
 				if (SBOLUtils.rootCalledUnamedPart(root.cd, panel)) {
 					return;
 				}
-				uploadDesign(panel,uploadDoc,null);
+				uploadDesign(panel, uploadDoc, null);
 			} catch (SBOLValidationException | SynBioHubException | URIException e) {
 				JOptionPane.showMessageDialog(panel, "There was a problem uploading the design: " + e.getMessage());
 				e.printStackTrace();
@@ -1242,7 +1242,8 @@ public class SBOLDesign {
 		}
 	}
 
-	public static void uploadDesign(Component panel, SBOLDocument uploadDoc, File uploadFile) throws SynBioHubException, SBOLValidationException, URIException {
+	public static void uploadDesign(Component panel, SBOLDocument uploadDoc, File uploadFile)
+			throws SynBioHubException, SBOLValidationException, URIException {
 		// create a list of registries
 		ArrayList<Registry> registryList = new ArrayList<Registry>();
 		for (Registry r : Registries.get()) {
@@ -1286,16 +1287,16 @@ public class SBOLDesign {
 		case JOptionPane.CLOSED_OPTION:
 			return;
 		case 0:
-			if (uploadDoc!=null) {
+			if (uploadDoc != null) {
 				new UploadNewDialog(panel.getParent(), registry, uploadDoc);
 			} else {
 				new UploadNewDialog(panel.getParent(), registry, uploadFile);
 			}
 			return;
 		case 1:
-			if (uploadDoc!=null) {
+			if (uploadDoc != null) {
 				new UploadExistingDialog(panel.getParent(), registry, uploadDoc);
-			} else{
+			} else {
 				new UploadExistingDialog(panel.getParent(), registry, uploadFile);
 			}
 			return;

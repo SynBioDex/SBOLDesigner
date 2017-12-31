@@ -78,8 +78,8 @@ public class UploadNewDialog extends JDialog implements ActionListener, Document
 		super(JOptionPane.getFrameForComponent(parent), TITLE + title(registry), true);
 		CreateUploadNewDialog(parent, registry, toBeUploaded, null);
 	}
-	
-	private void CreateUploadNewDialog(final Component parent, Registry registry, SBOLDocument toBeUploaded, 
+
+	private void CreateUploadNewDialog(final Component parent, Registry registry, SBOLDocument toBeUploaded,
 			File toBeUploadedFile) {
 		this.parent = parent;
 		this.registry = registry;
@@ -184,7 +184,7 @@ public class UploadNewDialog extends JDialog implements ActionListener, Document
 				return;
 			} catch (SynBioHubException | IOException e1) {
 				MessageDialog.showMessage(parent, "Uploading failed", Arrays.asList(e1.getMessage().split("\"|,")));
-				if (toBeUploaded!=null) {
+				if (toBeUploaded != null) {
 					toBeUploaded.clearRegistries();
 				}
 			}
