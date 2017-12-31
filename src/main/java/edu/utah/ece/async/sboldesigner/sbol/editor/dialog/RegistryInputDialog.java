@@ -530,7 +530,9 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 				// isMetaData check. I guess in
 				// this case, we would need to still do the recursive copy.
 				// Leaving this as is for now.
-				doc = doc.createRecursiveCopy(comp);
+				SBOLDocument newDoc = doc.createRecursiveCopy(comp);
+				SBOLUtils.copyReferencedCombinatorialDerivations(newDoc, doc);
+				doc = newDoc;
 			}
 
 			if (root != null) {

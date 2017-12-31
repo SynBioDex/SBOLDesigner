@@ -661,7 +661,9 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 				return false;
 			case 1:
 				CD = CDs[0];
-				SBOLUtils.insertTopLevels(doc.createRecursiveCopy(CD), design);
+				SBOLDocument newDoc = doc.createRecursiveCopy(CD);
+				SBOLUtils.copyReferencedCombinatorialDerivations(newDoc, doc);
+				SBOLUtils.insertTopLevels(newDoc, design);
 				return true;
 			default:
 				Part criteria = roleSelection.getSelectedItem().equals("None") ? PartInputDialog.ALL_PARTS

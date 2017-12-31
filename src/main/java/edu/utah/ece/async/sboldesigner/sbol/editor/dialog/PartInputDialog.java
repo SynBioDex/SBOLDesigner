@@ -145,7 +145,9 @@ public class PartInputDialog extends InputDialog<SBOLDocument> {
 			int row = table.convertRowIndexToModel(table.getSelectedRow());
 			ComponentDefinition comp = ((ComponentDefinitionTableModel) table.getModel()).getElement(row);
 			if (importSubparts.isSelected()) {
-				return doc.createRecursiveCopy(comp);
+				SBOLDocument newDoc = doc.createRecursiveCopy(comp);
+				SBOLUtils.copyReferencedCombinatorialDerivations(newDoc, doc);
+				return newDoc;
 			} else {
 				// only insert the CD and it's sequence (if it exists)
 				SBOLDocument newDoc = new SBOLDocument();

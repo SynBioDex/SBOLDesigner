@@ -160,9 +160,13 @@ public class SBOLDesignerPlugin extends SBOLDesignerPanel {
 	void openDocument(DocumentIO documentIO) throws SBOLValidationException, IOException, SBOLConversionException {
 		SBOLDocument doc = documentIO.read();
 		doc.setDefaultURIprefix(URIprefix);
+
 		if (rootURI != null) {
-			doc = doc.createRecursiveCopy(doc.getComponentDefinition(rootURI));
+			SBOLDocument newDoc = doc.createRecursiveCopy(doc.getComponentDefinition(rootURI));
+			SBOLUtils.copyReferencedCombinatorialDerivations(newDoc, doc);
+			doc = newDoc;
 		}
+
 		if (editor.getDesign().load(doc, rootURI)) {
 			setCurrentFile(documentIO);
 		}

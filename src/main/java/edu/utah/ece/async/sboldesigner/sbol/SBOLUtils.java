@@ -492,6 +492,15 @@ public class SBOLUtils {
 		design.createCopy(doc);
 	}
 
+	public static void copyReferencedCombinatorialDerivations(SBOLDocument toDoc, SBOLDocument fromDoc)
+			throws SBOLValidationException {
+		for (CombinatorialDerivation derivation : fromDoc.getCombinatorialDerivations()) {
+			if (toDoc.getComponentDefinitions().contains(derivation.getTemplate())) {
+				fromDoc.createRecursiveCopy(toDoc, derivation);
+			}
+		}
+	}
+
 	/**
 	 * Returns an int that represents the passed in version. 0 if version isn't
 	 * a number.

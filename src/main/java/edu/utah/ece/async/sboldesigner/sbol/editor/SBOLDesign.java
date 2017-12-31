@@ -1363,7 +1363,7 @@ public class SBOLDesign {
 
 		SBOLDocument doc = new SBOLDocument();
 		doc = design.createRecursiveCopy(rootComp);
-		copyReferencedCombinatorialDerivations(doc, design);
+		SBOLUtils.copyReferencedCombinatorialDerivations(doc, design);
 
 		rootComp = doc.getComponentDefinition(rootComp.getIdentity());
 		if (root != null) {
@@ -1374,15 +1374,6 @@ public class SBOLDesign {
 		ProvenanceUtil.createProvenance(doc, rootComp);
 
 		return doc;
-	}
-
-	private void copyReferencedCombinatorialDerivations(SBOLDocument toDoc, SBOLDocument fromDoc)
-			throws SBOLValidationException {
-		for (CombinatorialDerivation derivation : fromDoc.getCombinatorialDerivations()) {
-			if (toDoc.getComponentDefinitions().contains(derivation.getTemplate())) {
-				fromDoc.createRecursiveCopy(toDoc, derivation);
-			}
-		}
 	}
 
 	/**
