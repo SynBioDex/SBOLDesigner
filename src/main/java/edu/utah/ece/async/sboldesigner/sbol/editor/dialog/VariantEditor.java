@@ -1,5 +1,14 @@
 package edu.utah.ece.async.sboldesigner.sbol.editor.dialog;
 
+import org.sbolstandard.core2.CombinatorialDerivation;
+import org.sbolstandard.core2.ComponentDefinition;
+import org.sbolstandard.core2.Identified;
+import org.sbolstandard.core2.OperatorType;
+import org.sbolstandard.core2.SBOLDocument;
+import org.sbolstandard.core2.SBOLValidationException;
+import org.sbolstandard.core2.StrategyType;
+import org.sbolstandard.core2.VariableComponent;
+
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Container;
@@ -35,15 +44,6 @@ import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
-
-import org.sbolstandard.core2.CombinatorialDerivation;
-import org.sbolstandard.core2.ComponentDefinition;
-import org.sbolstandard.core2.Identified;
-import org.sbolstandard.core2.OperatorType;
-import org.sbolstandard.core2.SBOLDocument;
-import org.sbolstandard.core2.SBOLValidationException;
-import org.sbolstandard.core2.StrategyType;
-import org.sbolstandard.core2.VariableComponent;
 
 import edu.utah.ece.async.sboldesigner.sbol.CharSequenceUtil;
 import edu.utah.ece.async.sboldesigner.sbol.SBOLUtils;
@@ -311,19 +311,44 @@ public class VariantEditor extends JDialog implements ActionListener {
 		variable.addVariant(variant.getIdentity());
 	}
 
-	private CombinatorialDerivation createCombinatorialDerivation(ComponentDefinition derivationCD)
-			throws SBOLValidationException {
-		String uniqueId = SBOLUtils.getUniqueDisplayId(null, null,
-				derivationCD.getDisplayId() + "_CombinatorialDerivation", derivationCD.getVersion(),
-				"CombinatorialDerivation", design);
-		return design.createCombinatorialDerivation(uniqueId, derivationCD.getIdentity());
-	}
-
 	private VariableComponent createVariableComponent(CombinatorialDerivation derivation, OperatorType operator,
 			org.sbolstandard.core2.Component link) throws SBOLValidationException {
 		String uniqueId = SBOLUtils.getUniqueDisplayId(null, derivation, link.getDisplayId() + "_VariableComponent",
 				null, "VariableComponent", design);
 		return derivation.createVariableComponent(uniqueId, operator, link);
+	}
+
+	private CombinatorialDerivation createCombinatorialDerivation(ComponentDefinition derivationCD)
+			throws SBOLValidationException {
+		String uniqueId = SBOLUtils.getUniqueDisplayId(null, null,
+				derivationCD.getDisplayId() + "_CombinatorialDerivation", derivationCD.getVersion(),
+				"CombinatorialDerivation", design);
+		CombinatorialDerivation derivation = design.createCombinatorialDerivation(uniqueId, derivationCD.getIdentity());
+
+		addAsNestedDerivation(derivationCD, derivation);
+
+		return derivation;
+	}
+
+	private void addAsNestedDerivation(ComponentDefinition derivationCD, CombinatorialDerivation derivation)
+			throws SBOLValidationException {
+		for (ComponentDefinition parentCD : design.getComponentDefinitions()) {
+			for (org.sbolstandard.core2.Component link : parentCD.getComponents()) {
+				if (link.getDefinition().equals(derivationCD)) {
+					CombinatorialDerivation parentDerivation = getCombinatorialDerivation(parentCD);
+
+					if (parentDerivation != null) {
+						VariableComponent variable = getVariableComponent(parentDerivation, link);
+
+						if (variable == null) {
+							variable = createVariableComponent(parentDerivation, OperatorType.ZEROORMORE, link);
+						}
+
+						variable.addVariantDerivation(derivation.getIdentity());
+					}
+				}
+			}
+		}
 	}
 
 	private void removeVariant(ComponentDefinition variant) {
