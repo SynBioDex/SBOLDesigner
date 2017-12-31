@@ -497,9 +497,9 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 				if (synBioHub == null) {
 					synBioHub = createSynBioHubFrontend(location, uriPrefix);
 				}
-				if (compMeta.isCollection) {
-					return new SBOLDocument();
-				}
+//				if (compMeta.isCollection) {
+//					return new SBOLDocument();
+//				}
 				document = synBioHub.getSBOL(URI.create(compMeta.identified.getUri()));
 				comp = document.getComponentDefinition(URI.create(compMeta.identified.getUri()));
 				if (comp == null) {
@@ -513,31 +513,34 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 				comp = ((ComponentDefinitionTableModel) table.getModel()).getElement(row);
 			}
 
-			SBOLDocument doc = new SBOLDocument();
-			if (!importSubparts.isSelected()) {
-				// remove all dependencies
-				// TODO: this looks problematic. Maybe we should remove this
-				// option.
-				comp.clearSequenceConstraints();
-				comp.clearSequenceAnnotations();
-				comp.clearComponents();
-				doc.createCopy(comp);
-				if (comp.getSequenceByEncoding(Sequence.IUPAC_DNA) != null) {
-					doc.createCopy(comp.getSequenceByEncoding(Sequence.IUPAC_DNA));
-				}
-			} else {
-				// TODO: could change to copy document, but not sure about the
-				// isMetaData check. I guess in
-				// this case, we would need to still do the recursive copy.
-				// Leaving this as is for now.
-				doc = doc.createRecursiveCopy(comp);
-			}
+			// TODO: Michael CHECK ME
+//			SBOLDocument doc = new SBOLDocument();
+//			if (!importSubparts.isSelected()) {
+//				// remove all dependencies
+//				// TODO: this looks problematic. Maybe we should remove this
+//				// option.
+//				comp.clearSequenceConstraints();
+//				comp.clearSequenceAnnotations();
+//				comp.clearComponents();
+//				doc.createCopy(comp);
+//				if (comp.getSequenceByEncoding(Sequence.IUPAC_DNA) != null) {
+//					doc.createCopy(comp.getSequenceByEncoding(Sequence.IUPAC_DNA));
+//				}
+//			} else {
+//				// TODO: could change to copy document, but not sure about the
+//				// isMetaData check. I guess in
+//				// this case, we would need to still do the recursive copy.
+//				// Leaving this as is for now.
+//				doc = doc.createRecursiveCopy(comp);
+//			}
 
 			if (root != null) {
-				root.cd = doc.getComponentDefinition(comp.getIdentity());
+				root.cd = document.getComponentDefinition(comp.getIdentity());
+//				root.cd = doc.getComponentDefinition(comp.getIdentity());
 			}
 
-			return doc;
+			return document;
+			//return doc;
 		} catch (Exception e) {
 			JOptionPane.showMessageDialog(null, "Getting this selection failed: " + e.getMessage());
 			return null;
@@ -656,7 +659,7 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 		table.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(MouseEvent e) {
 				if (e.getClickCount() == 2 && table.getSelectedRow() >= 0) {
-					handleTableSelection();
+					handleTableSelection(false);
 				}
 			}
 		});
@@ -664,12 +667,12 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 	}
 
 	@Override
-	protected void handleTableSelection() {
+	protected void handleTableSelection(boolean select) {
 		// handle collection selected
 		if (isMetadata()) {
 			int row = table.convertRowIndexToModel(table.getSelectedRow());
 			TableMetadata meta = ((TableMetadataTableModel) table.getModel()).getElement(row);
-			if (meta.isCollection) {
+			if (meta.isCollection && !select) {
 				updateCollectionSelection(false, meta.identified);
 				updateTable();
 				return;
@@ -752,7 +755,7 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 			table.addMouseListener(new MouseAdapter() {
 				public void mouseClicked(MouseEvent e) {
 					if (e.getClickCount() == 2 && table.getSelectedRow() >= 0) {
-						handleTableSelection();
+						handleTableSelection(false);
 					}
 				}
 			});
