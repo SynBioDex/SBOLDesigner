@@ -32,19 +32,23 @@ import java.util.prefs.Preferences;
 import javax.swing.AbstractButton;
 import javax.swing.Box;
 import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JToolBar;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
+import org.apache.commons.httpclient.URIException;
 import org.sbolstandard.core2.SBOLConversionException;
 import org.sbolstandard.core2.SBOLDocument;
 import org.sbolstandard.core2.SBOLValidationException;
 import org.sbolstandard.core2.SBOLWriter;
+import org.synbiohub.frontend.SynBioHubException;
 
 import com.adamtaft.eb.EventHandler;
 
 import edu.utah.ece.async.sboldesigner.sbol.SBOLUtils;
+import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.ComponentDefinitionBox;
 import edu.utah.ece.async.sboldesigner.sbol.editor.event.DesignChangedEvent;
 import edu.utah.ece.async.sboldesigner.sbol.editor.io.DocumentIO;
 import edu.utah.ece.async.sboldesigner.sbol.editor.io.FileDocumentIO;
@@ -60,7 +64,7 @@ import edu.utah.ece.async.sboldesigner.versioning.PersonInfo;
 public class SBOLDesignerPlugin extends SBOLDesignerPanel {
 
 	SBOLEditorActions TOOLBAR_ACTIONS = new SBOLEditorActions()
-			.add(design.EDIT_CANVAS, design.EDIT, design.FIND, design.UPLOAD, design.DELETE, design.FLIP, DIVIDER)
+			.add(design.EDIT_CANVAS, design.EDIT, design.FIND, design.DELETE, design.FLIP, DIVIDER)
 			.add(design.HIDE_SCARS, design.ADD_SCARS, DIVIDER).add(design.FOCUS_IN, design.FOCUS_OUT, DIVIDER, SNAPSHOT)
 			.add(SPACER, INFO);
 
@@ -194,6 +198,13 @@ public class SBOLDesignerPlugin extends SBOLDesignerPanel {
 			saveIntoExistingFile();
 		}
 		return true;
+	}
+	
+	public void uploadSBOL(java.awt.Component panel) throws URIException, SynBioHubException, SBOLValidationException 
+	{
+		ComponentDefinitionBox root = new ComponentDefinitionBox();
+		SBOLDocument uploadDoc = editor.getDesign().createDocument(root);
+		SBOLDesign.uploadDesign(panel,uploadDoc,null);
 	}
 
 	public void exportSBOL(String exportFileName, String fileType)
