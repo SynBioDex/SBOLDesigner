@@ -83,7 +83,7 @@ public abstract class InputDialog<T> extends JDialog {
 	protected void registryChanged() {
 	}
 
-	protected void handleTableSelection() {
+	protected void handleTableSelection(boolean select) {
 		canceled = false;
 		setVisible(false);
 	}
@@ -197,7 +197,7 @@ public abstract class InputDialog<T> extends JDialog {
 		table.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(MouseEvent e) {
 				if (e.getClickCount() == 2 && table.getSelectedRow() >= 0) {
-					handleTableSelection();
+					handleTableSelection(false);
 				}
 			}
 		});
@@ -286,7 +286,7 @@ public abstract class InputDialog<T> extends JDialog {
 				canceled = true;
 				setVisible(false);
 			} else if (source == selectButton) {
-				handleTableSelection();
+				handleTableSelection(true);
 			}
 		}
 	}

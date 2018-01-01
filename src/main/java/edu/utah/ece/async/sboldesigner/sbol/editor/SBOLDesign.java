@@ -41,6 +41,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.net.URI;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -175,7 +176,13 @@ public class SBOLDesign {
 		@Override
 		protected void perform() {
 			try {
-				uploadDesign();
+				ComponentDefinitionBox root = new ComponentDefinitionBox();
+				SBOLDocument uploadDoc = createDocument(root);
+
+				if (SBOLUtils.rootCalledUnamedPart(root.cd, panel)) {
+					return;
+				}
+				uploadDesign(panel, uploadDoc, null);
 			} catch (SBOLValidationException | SynBioHubException | URIException e) {
 				JOptionPane.showMessageDialog(panel, "There was a problem uploading the design: " + e.getMessage());
 				e.printStackTrace();
@@ -1269,7 +1276,8 @@ public class SBOLDesign {
 		}
 	}
 
-	public void uploadDesign() throws SynBioHubException, SBOLValidationException, URIException {
+	public static void uploadDesign(Component panel, SBOLDocument uploadDoc, File uploadFile)
+			throws SynBioHubException, SBOLValidationException, URIException {
 		// create a list of registries
 		ArrayList<Registry> registryList = new ArrayList<Registry>();
 		for (Registry r : Registries.get()) {
@@ -1288,13 +1296,6 @@ public class SBOLDesign {
 				"Please select the SynBioHub instance you want to upload the current design to.", "Upload",
 				JOptionPane.QUESTION_MESSAGE, null, registryOptions, registryOptions[0]);
 		if (registry == null) {
-			return;
-		}
-
-		ComponentDefinitionBox root = new ComponentDefinitionBox();
-		SBOLDocument uploadDoc = createDocument(root);
-
-		if (SBOLUtils.rootCalledUnamedPart(root.cd, panel)) {
 			return;
 		}
 
@@ -1320,11 +1321,18 @@ public class SBOLDesign {
 		case JOptionPane.CLOSED_OPTION:
 			return;
 		case 0:
-			UploadNewDialog uploadNewDialog = new UploadNewDialog(panel.getParent(), registry, uploadDoc);
+			if (uploadDoc != null) {
+				new UploadNewDialog(panel.getParent(), registry, uploadDoc);
+			} else {
+				new UploadNewDialog(panel.getParent(), registry, uploadFile);
+			}
 			return;
 		case 1:
-			UploadExistingDialog uploadExistingDialog = new UploadExistingDialog(panel.getParent(), registry,
-					uploadDoc);
+			if (uploadDoc != null) {
+				new UploadExistingDialog(panel.getParent(), registry, uploadDoc);
+			} else {
+				new UploadExistingDialog(panel.getParent(), registry, uploadFile);
+			}
 			return;
 		}
 	}

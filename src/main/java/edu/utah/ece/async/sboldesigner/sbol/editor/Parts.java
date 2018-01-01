@@ -52,6 +52,10 @@ public class Parts {
 			SequenceOntology.CDS);
 	public static final Part TERMINATOR = createPart("Terminator", "Ter", "terminator.png",
 			ImageType.SHORT_OVER_BASELINE, SequenceOntology.TERMINATOR);
+	public static final Part CIRCULAR = createPart("Circular Backbone", "Cir", "blank-backbone.png",
+			ImageType.CENTERED_ON_BASELINE, "SO:0000755");
+	public static final Part NON_CODING_RNA_GENE = createPart("Non-Coding RNA Gene", "gRNA", "non-coding-rna-gene.png",
+			ImageType.SHORT_OVER_BASELINE, "SO:0001263");
 	public static final Part ORI = createPart("Origin of Replication", "Ori", "origin-of-replication.png",
 			ImageType.CENTERED_ON_BASELINE, SequenceOntology.ORIGIN_OF_REPLICATION);
 	public static final Part ORIT = createPart("Origin of Transfer", "OriT", "origin-of-transfer.png",
@@ -74,16 +78,12 @@ public class Parts {
 			ImageType.CENTERED_ON_BASELINE, "SO:0001932");
 	public static final Part APTAMER = createPart("Aptamer", "APT", "aptamer.png", ImageType.TALL_OVER_BASELINE,
 			"SO:0000031");
-	public static final Part NON_CODING_RNA_GENE = createPart("Non-Coding RNA Gene", "gRNA", "non-coding-rna-gene.png",
-			ImageType.SHORT_OVER_BASELINE, "SO:0001263");
 	public static final Part POLYA = createPart("PolyA Site", "PolyA", "poly-a-site.png", ImageType.SHORT_OVER_BASELINE,
 			"SO:0000553");
 	public static final Part SRS = createPart("Specific Recombination Site", "SRS", "specific-recombination-site.png",
 			ImageType.CENTERED_ON_BASELINE, "SO:0000299");
 	public static final Part NO_GLYPH_ASSIGNED = createPart("No Glyph Assigned", "NGA", "no-glyph-assigned.png",
 			ImageType.TALL_OVER_BASELINE, SequenceOntology.SEQUENCE_FEATURE);
-	public static final Part CIRCULAR = createPart("Circular Backbone", "Cir", "blank-backbone.png",
-			ImageType.CENTERED_ON_BASELINE, "SO:0000755");
 	public static final Part SIGNATURE = createPart("Signature", "Sig", "signature.png", ImageType.TALL_OVER_BASELINE,
 			"SO:0001978");
 	public static final Part BS = createPart("Base", "BS", "base.png", ImageType.SHORT_OVER_BASELINE, "SO:0001236");

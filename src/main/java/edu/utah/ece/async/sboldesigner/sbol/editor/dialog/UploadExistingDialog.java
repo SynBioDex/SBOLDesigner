@@ -7,6 +7,8 @@ import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.io.File;
+import java.io.IOException;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
@@ -58,6 +60,7 @@ public class UploadExistingDialog extends JDialog implements ActionListener, Lis
 	private Component parent;
 	private Registry registry;
 	private SBOLDocument toBeUploaded;
+	private File toBeUploadedFile;
 
 	private final JLabel info = new JLabel(
 			"Select an existing collection(s) to upload the design into.  If Overwrite is selected, the uploaded part will overwrite any parts that have the same URI in the selected collection.");
@@ -68,9 +71,20 @@ public class UploadExistingDialog extends JDialog implements ActionListener, Lis
 
 	public UploadExistingDialog(final Component parent, Registry registry, SBOLDocument uploadDoc) {
 		super(JOptionPane.getFrameForComponent(parent), TITLE + title(registry), true);
+		CreateUploadExistingDialog(parent, registry, uploadDoc, null);
+	}
+
+	public UploadExistingDialog(final Component parent, Registry registry, File uploadFile) {
+		super(JOptionPane.getFrameForComponent(parent), TITLE + title(registry), true);
+		CreateUploadExistingDialog(parent, registry, null, uploadFile);
+	}
+
+	private void CreateUploadExistingDialog(final Component parent, Registry registry, SBOLDocument uploadDoc,
+			File uploadFile) {
 		this.parent = parent;
 		this.registry = registry;
 		this.toBeUploaded = uploadDoc;
+		this.toBeUploadedFile = uploadFile;
 
 		cancelButton.registerKeyboardAction(this, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0),
 				JComponent.WHEN_IN_FOCUSED_WINDOW);
@@ -178,14 +192,16 @@ public class UploadExistingDialog extends JDialog implements ActionListener, Lis
 				uploadDesign();
 				setVisible(false);
 				return;
-			} catch (SynBioHubException e1) {
+			} catch (SynBioHubException | IOException e1) {
 				MessageDialog.showMessage(parent, "Uploading failed", Arrays.asList(e1.getMessage().split("\"|,")));
-				toBeUploaded.clearRegistries();
+				if (toBeUploaded != null) {
+					toBeUploaded.clearRegistries();
+				}
 			}
 		}
 	}
 
-	private void uploadDesign() throws SynBioHubException {
+	private void uploadDesign() throws SynBioHubException, IOException {
 		SynBioHubFrontends frontends = new SynBioHubFrontends();
 		if (!frontends.hasFrontend(registry.getLocation())) {
 			JOptionPane.showMessageDialog(parent,
@@ -196,7 +212,11 @@ public class UploadExistingDialog extends JDialog implements ActionListener, Lis
 
 		IdentifiedMetadata selectedCollection = collections.getSelectedValue();
 
-		frontend.addToCollection(URI.create(selectedCollection.getUri()), overwrite.isSelected(), toBeUploaded);
+		if (toBeUploaded != null) {
+			frontend.addToCollection(URI.create(selectedCollection.getUri()), overwrite.isSelected(), toBeUploaded);
+		} else {
+			frontend.addToCollection(URI.create(selectedCollection.getUri()), overwrite.isSelected(), toBeUploadedFile);
+		}
 
 		JOptionPane.showMessageDialog(parent, "Upload successful!");
 	}

@@ -150,7 +150,6 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 	private JTable table;
 	private JLabel tableLabel;
 	private JScrollPane scroller;
-	private JCheckBox importSubparts;
 
 	final JTextField filterSelection = new JTextField();
 	/*
@@ -167,6 +166,15 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 	private ComponentDefinitionBox root;
 
 	private static SynBioHubFrontend synBioHub;
+
+	private boolean allowCollectionSelection = false;
+
+	/**
+	 * Allows a collection to be selected.
+	 */
+	public void allowCollectionSelection() {
+		allowCollectionSelection = true;
+	}
 
 	/**
 	 * For when the working document is known and the root is not needed.
@@ -291,11 +299,6 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 		roleRefinement.addActionListener(roleRefinementListener);
 		builder.add("Role refinement", roleRefinement);
 		updateContext();
-
-		// set up the import subparts checkbox
-		importSubparts = new JCheckBox("Import with subcomponents");
-		importSubparts.setSelected(true);
-		builder.add("", importSubparts);
 
 		// set up the filter
 		filterSelection.getDocument().addDocumentListener(new DocumentListener() {
@@ -494,17 +497,22 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 
 			if (isMetadata()) {
 				TableMetadata compMeta = ((TableMetadataTableModel) table.getModel()).getElement(row);
+
 				if (synBioHub == null) {
 					synBioHub = createSynBioHubFrontend(location, uriPrefix);
 				}
-				if (compMeta.isCollection) {
+
+				if (compMeta.isCollection && !allowCollectionSelection) {
+					JOptionPane.showMessageDialog(getParent(), "Selecting collections is not allowed");
 					return new SBOLDocument();
 				}
+
 				document = synBioHub.getSBOL(URI.create(compMeta.identified.getUri()));
 				comp = document.getComponentDefinition(URI.create(compMeta.identified.getUri()));
+
 				if (comp == null) {
-					// TODO: if cannot find it then return root component
-					// definition from document
+					// if cannot find it then return root component definition
+					// from document
 					for (ComponentDefinition cd : document.getRootComponentDefinitions()) {
 						comp = cd;
 					}
@@ -513,33 +521,11 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 				comp = ((ComponentDefinitionTableModel) table.getModel()).getElement(row);
 			}
 
-			SBOLDocument doc = new SBOLDocument();
-			if (!importSubparts.isSelected()) {
-				// remove all dependencies
-				// TODO: this looks problematic. Maybe we should remove this
-				// option.
-				comp.clearSequenceConstraints();
-				comp.clearSequenceAnnotations();
-				comp.clearComponents();
-				doc.createCopy(comp);
-				if (comp.getSequenceByEncoding(Sequence.IUPAC_DNA) != null) {
-					doc.createCopy(comp.getSequenceByEncoding(Sequence.IUPAC_DNA));
-				}
-			} else {
-				// TODO: could change to copy document, but not sure about the
-				// isMetaData check. I guess in
-				// this case, we would need to still do the recursive copy.
-				// Leaving this as is for now.
-				SBOLDocument newDoc = doc.createRecursiveCopy(comp);
-				SBOLUtils.copyReferencedCombinatorialDerivations(newDoc, doc);
-				doc = newDoc;
-			}
-
 			if (root != null) {
-				root.cd = doc.getComponentDefinition(comp.getIdentity());
+				root.cd = document.getComponentDefinition(comp.getIdentity());
 			}
 
-			return doc;
+			return document;
 		} catch (Exception e) {
 			JOptionPane.showMessageDialog(null, "Getting this selection failed: " + e.getMessage());
 			return null;
@@ -658,7 +644,7 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 		table.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(MouseEvent e) {
 				if (e.getClickCount() == 2 && table.getSelectedRow() >= 0) {
-					handleTableSelection();
+					handleTableSelection(false);
 				}
 			}
 		});
@@ -666,12 +652,12 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 	}
 
 	@Override
-	protected void handleTableSelection() {
+	protected void handleTableSelection(boolean select) {
 		// handle collection selected
 		if (isMetadata()) {
 			int row = table.convertRowIndexToModel(table.getSelectedRow());
 			TableMetadata meta = ((TableMetadataTableModel) table.getModel()).getElement(row);
-			if (meta.isCollection) {
+			if (meta.isCollection && (!select || !allowCollectionSelection)) {
 				updateCollectionSelection(false, meta.identified);
 				updateTable();
 				return;
@@ -754,7 +740,7 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 			table.addMouseListener(new MouseAdapter() {
 				public void mouseClicked(MouseEvent e) {
 					if (e.getClickCount() == 2 && table.getSelectedRow() >= 0) {
-						handleTableSelection();
+						handleTableSelection(false);
 					}
 				}
 			});

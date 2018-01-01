@@ -7,6 +7,8 @@ import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
 
 import javax.swing.BorderFactory;
@@ -54,6 +56,7 @@ public class UploadNewDialog extends JDialog implements ActionListener, Document
 	private Component parent;
 	private Registry registry;
 	private SBOLDocument toBeUploaded;
+	private File toBeUploadedFile;
 
 	private final JTextArea info = new JTextArea(
 			"SynBioHub organizes your uploads into collections. You can upload as many parts as you want into one collection, and then conveniently download them all together or share the collection as a whole with other people. If you've already made a collection, try again and select the Existing Collection option. If you haven't, fill out the form below to create a new one. If you're submitting the same thing twice because you've changed things, tick the overwrite box below to overwrite previous versions with what you're uploading now. If this is the first time you have made this submission, you can ignore this. (*) indicates a required field");
@@ -66,11 +69,22 @@ public class UploadNewDialog extends JDialog implements ActionListener, Document
 	private final JTextField citations = new JTextField("");
 	private final JCheckBox overwrite = new JCheckBox("");
 
+	public UploadNewDialog(final Component parent, Registry registry, File toBeUploadedFile) {
+		super(JOptionPane.getFrameForComponent(parent), TITLE + title(registry), true);
+		CreateUploadNewDialog(parent, registry, null, toBeUploadedFile);
+	}
+
 	public UploadNewDialog(final Component parent, Registry registry, SBOLDocument toBeUploaded) {
 		super(JOptionPane.getFrameForComponent(parent), TITLE + title(registry), true);
+		CreateUploadNewDialog(parent, registry, toBeUploaded, null);
+	}
+
+	private void CreateUploadNewDialog(final Component parent, Registry registry, SBOLDocument toBeUploaded,
+			File toBeUploadedFile) {
 		this.parent = parent;
 		this.registry = registry;
 		this.toBeUploaded = toBeUploaded;
+		this.toBeUploadedFile = toBeUploadedFile;
 
 		this.setMinimumSize(new Dimension(800, 500));
 
@@ -90,11 +104,13 @@ public class UploadNewDialog extends JDialog implements ActionListener, Document
 		info.setEditable(false);
 		info.setOpaque(false);
 		info.setHighlighter(null);
-		ComponentDefinition root = toBeUploaded.getRootComponentDefinitions().iterator().next();
-		submissionId.setText(root.getDisplayId());
+		if (toBeUploaded != null) {
+			ComponentDefinition root = toBeUploaded.getRootComponentDefinitions().iterator().next();
+			submissionId.setText(root.getDisplayId());
+			name.setText(root.isSetName() ? root.getName() : root.getDisplayId());
+			description.setText(root.isSetDescription() ? root.getDescription() : "");
+		}
 		version.setText("1");
-		name.setText(root.isSetName() ? root.getName() : root.getDisplayId());
-		description.setText(root.isSetDescription() ? root.getDescription() : "");
 		overwrite.setSelected(false);
 
 		cancelButton.registerKeyboardAction(this, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0),
@@ -166,14 +182,16 @@ public class UploadNewDialog extends JDialog implements ActionListener, Document
 				uploadDesign();
 				setVisible(false);
 				return;
-			} catch (SynBioHubException e1) {
+			} catch (SynBioHubException | IOException e1) {
 				MessageDialog.showMessage(parent, "Uploading failed", Arrays.asList(e1.getMessage().split("\"|,")));
-				toBeUploaded.clearRegistries();
+				if (toBeUploaded != null) {
+					toBeUploaded.clearRegistries();
+				}
 			}
 		}
 	}
 
-	private void uploadDesign() throws SynBioHubException {
+	private void uploadDesign() throws SynBioHubException, IOException {
 		SynBioHubFrontends frontends = new SynBioHubFrontends();
 		if (!frontends.hasFrontend(registry.getLocation())) {
 			JOptionPane.showMessageDialog(parent,
@@ -182,8 +200,13 @@ public class UploadNewDialog extends JDialog implements ActionListener, Document
 		}
 		SynBioHubFrontend frontend = frontends.getFrontend(registry.getLocation());
 
-		frontend.createCollection(submissionId.getText(), version.getText(), name.getText(), description.getText(),
-				citations.getText(), overwrite.isSelected(), toBeUploaded);
+		if (toBeUploaded != null) {
+			frontend.createCollection(submissionId.getText(), version.getText(), name.getText(), description.getText(),
+					citations.getText(), overwrite.isSelected(), toBeUploaded);
+		} else {
+			frontend.createCollection(submissionId.getText(), version.getText(), name.getText(), description.getText(),
+					citations.getText(), overwrite.isSelected(), toBeUploadedFile);
+		}
 
 		JOptionPane.showMessageDialog(parent, "Upload successful!");
 	}
