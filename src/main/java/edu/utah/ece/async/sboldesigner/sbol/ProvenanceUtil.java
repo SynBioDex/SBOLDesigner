@@ -31,7 +31,7 @@ public class ProvenanceUtil {
 		String activityId = root.getDisplayId() + "_SBOLDesignerActivity";
 		Activity activity = null;
 		for (Activity a : doc.getActivities()) {
-			if (root.getWasDerivedFroms().contains(a) && a.getDisplayId().equals(activityId)) {
+			if (root.getWasGeneratedBys().contains(a.getIdentity()) && a.getDisplayId().equals(activityId)) {
 				activity = a;
 				break;
 			}
@@ -62,7 +62,7 @@ public class ProvenanceUtil {
 		URI designerURI = URI.create("https://synbiohub.org/public/SBOL_Software/SBOLDesigner/2.2");
 		boolean hasAssociation = false;
 		for (Association a : activity.getAssociations()) {
-			if (a.getAgent().equals(designerURI)) {
+			if (a.getAgent() != null && a.getAgent().getIdentity().equals(designerURI)) {
 				hasAssociation = true;
 				break;
 			}
