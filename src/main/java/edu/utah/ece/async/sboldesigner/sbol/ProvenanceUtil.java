@@ -62,7 +62,7 @@ public class ProvenanceUtil {
 		URI designerURI = URI.create("https://synbiohub.org/public/SBOL_Software/SBOLDesigner/2.2");
 		boolean hasAssociation = false;
 		for (Association a : activity.getAssociations()) {
-			if (a.getAgent() != null && a.getAgent().getIdentity().equals(designerURI)) {
+			if (a.getAgentURI() != null && a.getAgentURI().equals(designerURI)) {
 				hasAssociation = true;
 				break;
 			}
