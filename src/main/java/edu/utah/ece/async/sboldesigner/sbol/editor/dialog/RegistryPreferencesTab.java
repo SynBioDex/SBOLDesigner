@@ -98,7 +98,6 @@ public enum RegistryPreferencesTab implements PreferencesTab {
 		ActionListener listener = new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				RegistryTableModel model = (RegistryTableModel) table.getModel();
-				int row = table.convertRowIndexToModel(table.getSelectedRow());
 				Action action = Action.valueOf(e.getActionCommand());
 				switch (action) {
 				case ADD:
@@ -109,10 +108,12 @@ public enum RegistryPreferencesTab implements PreferencesTab {
 					}
 					break;
 				case REMOVE:
+					int row = table.convertRowIndexToModel(table.getSelectedRow());
 					model.remove(row);
 					Registries.get().save();
 					break;
 				case LOGIN:
+					row = table.convertRowIndexToModel(table.getSelectedRow());
 					Registry r = model.getComponent(row);
 
 					if (r.isPath()) {
@@ -138,6 +139,7 @@ public enum RegistryPreferencesTab implements PreferencesTab {
 					logoutButton.setEnabled(canLogout(r));
 					break;
 				case LOGOUT:
+					row = table.convertRowIndexToModel(table.getSelectedRow());
 					r = model.getComponent(row);
 
 					frontends = new SynBioHubFrontends();
@@ -166,6 +168,7 @@ public enum RegistryPreferencesTab implements PreferencesTab {
 					Registries.get().save();
 					break;
 				case EDIT:
+					row = table.convertRowIndexToModel(table.getSelectedRow());
 					if (row > model.getRowCount()) {
 						return;
 					} else {
@@ -192,15 +195,18 @@ public enum RegistryPreferencesTab implements PreferencesTab {
 		table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
 			@Override
 			public void valueChanged(ListSelectionEvent event) {
-				RegistryTableModel model = (RegistryTableModel) table.getModel();
-				int row = table.convertRowIndexToModel(table.getSelectedRow());
-				Registry r = model.getComponent(row);
-
-				// Everything can be removed/edited except Built-In parts.
+				// Everything can be removed/edited except Built-In parts and Working document.
 				removeButton.setEnabled(table.getSelectedRow() >= 2);
 				editButton.setEnabled(table.getSelectedRow() >= 2);
-				loginButton.setEnabled(table.getSelectedRow() >= 0 && !r.isPath() && canLogin(r));
-				logoutButton.setEnabled(table.getSelectedRow() >= 0 && !r.isPath() && canLogout(r));
+
+				int selectedRow = table.getSelectedRow();
+				if (selectedRow >= 0) {
+					int row = table.convertRowIndexToModel(table.getSelectedRow());
+					RegistryTableModel model = (RegistryTableModel) table.getModel();
+					Registry r = model.getComponent(row);
+					loginButton.setEnabled(table.getSelectedRow() >= 0 && !r.isPath() && canLogin(r));
+					logoutButton.setEnabled(table.getSelectedRow() >= 0 && !r.isPath() && canLogout(r));
+				}
 			}
 		});
 
