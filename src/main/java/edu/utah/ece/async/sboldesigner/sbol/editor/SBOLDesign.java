@@ -1604,7 +1604,7 @@ public class SBOLDesign {
 
 		private static org.sbolstandard.core2.Component createComponent(ComponentDefinition parentCD,
 				ComponentDefinition childCD, SBOLDocument design) throws SBOLValidationException {
-			String uniqueId = SBOLUtils.getUniqueDisplayId(parentCD, null, childCD.getDisplayId() + "Component", "",
+			String uniqueId = SBOLUtils.getUniqueDisplayId(parentCD, null, childCD.getDisplayId() + "_Component", "1",
 					"Component", design);
 			return parentCD.createComponent(uniqueId, AccessType.PUBLIC, childCD.getIdentity());
 		}
@@ -1612,7 +1612,7 @@ public class SBOLDesign {
 		private static SequenceAnnotation createSeqAnn(ComponentDefinition parentCD, SBOLDocument design)
 				throws SBOLValidationException {
 			String uniqueId = SBOLUtils.getUniqueDisplayId(parentCD, null,
-					parentCD.getDisplayId() + "SequenceAnnotation", "", "SequenceAnnotation", design);
+					parentCD.getDisplayId() + "_SequenceAnnotation", "1", "SequenceAnnotation", design);
 			return parentCD.createSequenceAnnotation(uniqueId, "GenericLocation", OrientationType.INLINE);
 		}
 

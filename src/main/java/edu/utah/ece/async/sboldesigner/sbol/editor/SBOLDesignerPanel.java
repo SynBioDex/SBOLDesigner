@@ -51,6 +51,8 @@ import org.synbiohub.frontend.SynBioHubFrontend;
 import com.adamtaft.eb.EventHandler;
 import com.google.common.base.Strings;
 import com.google.common.base.Supplier;
+
+import edu.utah.ece.async.sboldesigner.sbol.CombinatorialDesignUtil;
 import edu.utah.ece.async.sboldesigner.sbol.SBOLUtils;
 import edu.utah.ece.async.sboldesigner.sbol.WebOfRegistriesUtil;
 import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.AboutDialog;
@@ -357,18 +359,17 @@ public class SBOLDesignerPanel extends JPanel {
 	}
 
 	private void export() throws FileNotFoundException, SBOLConversionException, IOException, SBOLValidationException {
-		String[] formats = { "GenBank", "FASTA", "SBOL 1.1", "SBOL 2.0", "Cancel" }; // ,
-																						// "BOOST
-																						// Optimized
-																						// File"
-																						// };
+		String[] formats = { "GenBank", "FASTA", "SBOL 1.1", "SBOL 2.0", "Combinatorial Design", "Cancel" };
+
 		int format = JOptionPane.showOptionDialog(this, "Please select an export format", "Export",
 				JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, formats, "Cancel");
-		if (format == JOptionPane.CLOSED_OPTION || format == 4) {
+		if (format == JOptionPane.CLOSED_OPTION || format == 5) {
 			return;
 		}
+
 		fc.setSelectedFile(SBOLUtils.setupFile());
 		int returnVal = fc.showSaveDialog(this);
+
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
 			File file = fc.getSelectedFile();
 			if (file.exists()) {
@@ -411,6 +412,15 @@ public class SBOLDesignerPanel extends JPanel {
 				SBOLWriter.write(doc, new FileOutputStream(file));
 				break;
 			case 4:
+				// Combinatorial Design
+				if (!fileName.contains(".")) {
+					file = new File(file + ".xml");
+				}
+				doc = CombinatorialDesignUtil.createCombinatorialDesign(doc);
+				if (doc != null) {
+					SBOLWriter.write(doc, new FileOutputStream(file));
+				}
+			case 5:
 				// BOOST Optimized SBOL 2.0
 				// BOOSTDialog boostDialog = new BOOSTDialog(getParent(), file,
 				// doc);
