@@ -341,7 +341,7 @@ public class VariantEditor extends JDialog implements ActionListener {
 						VariableComponent variable = getVariableComponent(parentDerivation, link);
 
 						if (variable == null) {
-							variable = createVariableComponent(parentDerivation, OperatorType.ZEROORMORE, link);
+							variable = createVariableComponent(parentDerivation, OperatorType.ONE, link);
 						}
 
 						variable.addVariantDerivation(derivation.getIdentity());
