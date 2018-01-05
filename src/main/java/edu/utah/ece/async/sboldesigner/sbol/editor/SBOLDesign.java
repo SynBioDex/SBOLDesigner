@@ -1498,7 +1498,7 @@ public class SBOLDesign {
 			// if a sequence exists, give seqAnn a Range
 			Sequence seq = e.getCD().getSequenceByEncoding(Sequence.IUPAC_DNA);
 			if (seq != null) {
-				String uniqueId = SBOLUtils.getUniqueDisplayId(canvasCD, null, e.seqAnn.getDisplayId() + "Range", null,
+				String uniqueId = SBOLUtils.getUniqueDisplayId(canvasCD, null, e.seqAnn.getDisplayId() + "_Range", null,
 						"Range", design);
 				int start = position;
 				int end = seq.getElements().length() + start - 1;
@@ -1540,8 +1540,8 @@ public class SBOLDesign {
 
 			if (subject == null || object == null)
 				continue;
-			String uniqueId = SBOLUtils.getUniqueDisplayId(canvasCD, null, "SequenceConstraint", null,
-					"SequenceConstraint", design);
+			String uniqueId = SBOLUtils.getUniqueDisplayId(canvasCD, null,
+					canvasCD.getDisplayId() + "_SequenceConstraint", null, "SequenceConstraint", design);
 			canvasCD.createSequenceConstraint(uniqueId, RestrictionType.PRECEDES, subject.getIdentity(),
 					object.getIdentity());
 		}
