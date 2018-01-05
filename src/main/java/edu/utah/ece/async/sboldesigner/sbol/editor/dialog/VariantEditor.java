@@ -351,7 +351,7 @@ public class VariantEditor extends JDialog implements ActionListener {
 		}
 	}
 
-	private void removeVariant(ComponentDefinition variant) {
+	private void removeVariant(ComponentDefinition variant) throws SBOLValidationException {
 		CombinatorialDerivation derivation = getCombinatorialDerivation(derivationCD);
 		if (derivation == null) {
 			return;
@@ -368,6 +368,14 @@ public class VariantEditor extends JDialog implements ActionListener {
 		}
 
 		variable.removeVariant(variant);
+		
+		if (variable.getVariants().isEmpty()) {
+			derivation.removeVariableComponent(variable);
+			
+			if (derivation.getVariableComponents().isEmpty()) {
+				design.removeCombinatorialDerivation(derivation);
+			}
+		}
 	}
 
 	@Override
