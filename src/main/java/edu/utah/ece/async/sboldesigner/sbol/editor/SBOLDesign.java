@@ -1639,6 +1639,10 @@ public class SBOLDesign {
 		}
 
 		public boolean isComposite() {
+			if (component == null) {
+				return false;
+			}
+
 			ComponentDefinition cd = component.getDefinition();
 
 			if (cd == null) {

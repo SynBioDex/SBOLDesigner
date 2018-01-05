@@ -2,6 +2,7 @@ package edu.utah.ece.async.sboldesigner.sbol;
 
 import java.net.URI;
 import java.util.HashSet;
+import java.util.concurrent.ThreadLocalRandom;
 
 import javax.swing.JOptionPane;
 
@@ -15,6 +16,7 @@ import org.sbolstandard.core2.RestrictionType;
 import org.sbolstandard.core2.SBOLDocument;
 import org.sbolstandard.core2.SBOLValidationException;
 import org.sbolstandard.core2.SequenceConstraint;
+import org.sbolstandard.core2.StrategyType;
 import org.sbolstandard.core2.TopLevel;
 import org.sbolstandard.core2.VariableComponent;
 
@@ -55,15 +57,25 @@ public class CombinatorialDesignUtil {
 		Derivation[] options = getDerivations(doc);
 
 		Derivation selection = (Derivation) JOptionPane.showInputDialog(null,
-				"Select a combinatorial derivation to enumerate", "Create Combinatorial Design",
+				"Select a combinatorial derivation to sample or enumerate", "Create Combinatorial Design",
 				JOptionPane.DEFAULT_OPTION, null, options, options[0]);
 		if (selection == null) {
 			return null;
 		}
 
+		CombinatorialDerivation derivation = selection.derivation;
+
+		HashSet<ComponentDefinition> enumeration = enumerate(doc, selection.derivation);
+
 		SBOLDocument generated = new SBOLDocument();
-		for (ComponentDefinition CD : enumerate(doc, selection.derivation)) {
-			doc.createRecursiveCopy(generated, CD);
+
+		if (derivation.isSetStrategy() && derivation.getStrategy() == StrategyType.SAMPLE) {
+			ComponentDefinition[] a = enumeration.toArray(new ComponentDefinition[0]);
+			doc.createRecursiveCopy(generated, a[ThreadLocalRandom.current().nextInt(a.length)]);
+		} else {
+			for (ComponentDefinition CD : enumeration) {
+				doc.createRecursiveCopy(generated, CD);
+			}
 		}
 
 		return generated;
