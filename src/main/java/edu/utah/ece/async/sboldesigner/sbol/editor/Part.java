@@ -39,13 +39,13 @@ import edu.utah.ece.async.sboldesigner.sbol.SBOLUtils;
  */
 public class Part {
 	/**
-	 * Describes the type of the image for the part. The SBOL visual images have
-	 * 1x2 width/height ratio so they can be places above or below the baseline
-	 * without alignment issues. But this means images have a lot of empty space
-	 * and they are not ideal to use as a toolbar or a button icon. We use the
-	 * image type to describe the visual orientation of the image associated
-	 * with a part so we can automatically crop the image to exclude the extra
-	 * empty space.
+	 * Describes the type of the largeImage for the part. The SBOL visual images
+	 * have 1x2 width/height ratio so they can be places above or below the
+	 * baseline without alignment issues. But this means images have a lot of
+	 * empty space and they are not ideal to use as a toolbar or a button icon.
+	 * We use the largeImage type to describe the visual orientation of the
+	 * largeImage associated with a part so we can automatically crop the
+	 * largeImage to exclude the extra empty space.
 	 * 
 	 * @author Evren Sirin
 	 */
@@ -65,10 +65,7 @@ public class Part {
 	private final String name;
 	private final String displayId;
 	private final List<URI> roles;
-	private final Image positiveImage;
-	private final Image positiveCompositeImage;
-	private final Image negativeImage;
-	private final Image negativeCompositeImage;
+	private final Image largeImage;
 	private final Image smallImage;
 
 	public Part(String name, String displayId) {
@@ -84,19 +81,13 @@ public class Part {
 		this.displayId = displayId;
 		this.roles = ImmutableList.copyOf(roles);
 		if (imageFileName == null) {
-			positiveImage = positiveCompositeImage = negativeImage = negativeCompositeImage = smallImage = null;
+			largeImage = smallImage = null;
 		} else {
 			BufferedImage image = Images.toBufferedImage(Images.getPartImage(imageFileName));
-			BufferedImage scaledCompositeOverlay = Images
-					.toBufferedImage(Images.scaleImageToWidth(Images.getPartImage("composite-overlay.png"), IMG_WIDTH));
 
 			this.smallImage = Images.scaleImageToWidth(image.getSubimage(0, image.getHeight() / imageType.cropRatio,
 					image.getWidth(), image.getHeight() / 2), 24);
-			this.positiveImage = Images.scaleImageToWidth(image, IMG_WIDTH);
-			this.positiveCompositeImage = Images.overlay(positiveImage, scaledCompositeOverlay, IMG_WIDTH, IMG_HEIGHT);
-			this.negativeImage = Images.rotate180(positiveImage);
-			this.negativeCompositeImage = Images.overlay(negativeImage, Images.rotate180(scaledCompositeOverlay),
-					IMG_WIDTH, IMG_HEIGHT);
+			this.largeImage = Images.scaleImageToWidth(image, IMG_WIDTH);
 		}
 	}
 
@@ -119,17 +110,31 @@ public class Part {
 	/**
 	 * Returns the image for the part that can be used in the SBOL design.
 	 */
-	public Image getImage(OrientationType orientation, boolean composite) {
-		if (orientation == OrientationType.REVERSECOMPLEMENT) {
-			return composite ? negativeCompositeImage : negativeImage;
-		} else {
-			return composite ? positiveCompositeImage : positiveImage;
+	public Image getImage(OrientationType orientation, boolean composite, boolean hasVariants) {
+		Image image = this.largeImage;
+
+		if (composite) {
+			BufferedImage scaledCompositeOverlay = Images
+					.toBufferedImage(Images.scaleImageToWidth(Images.getPartImage("composite-overlay.png"), IMG_WIDTH));
+			image = Images.overlay(image, scaledCompositeOverlay, IMG_WIDTH, IMG_HEIGHT);
 		}
+
+		if (hasVariants) {
+			BufferedImage scaledVariantOverlay = Images
+					.toBufferedImage(Images.scaleImageToWidth(Images.getPartImage("variant-overlay.png"), IMG_WIDTH));
+			image = Images.overlay(image, scaledVariantOverlay, IMG_WIDTH, IMG_HEIGHT);
+		}
+
+		if (orientation == OrientationType.REVERSECOMPLEMENT) {
+			image = Images.rotate180(image);
+		}
+
+		return image;
 	}
 
 	/**
-	 * Returns the image for the part with extra empty space cropped which makes
-	 * it suitable to be used in a toolbar, button, etc.
+	 * Returns the largeImage for the part with extra empty space cropped which
+	 * makes it suitable to be used in a toolbar, button, etc.
 	 */
 	public Image getImage() {
 		return smallImage;

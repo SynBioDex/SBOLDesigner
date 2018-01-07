@@ -107,6 +107,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
+import edu.utah.ece.async.sboldesigner.sbol.CombinatorialDesignUtil;
 import edu.utah.ece.async.sboldesigner.sbol.ProvenanceUtil;
 import edu.utah.ece.async.sboldesigner.sbol.SBOLUtils;
 import edu.utah.ece.async.sboldesigner.sbol.SBOLUtils.Types;
@@ -832,8 +833,8 @@ public class SBOLDesign {
 		fireDesignChangedEvent();
 	}
 
-	private void setupIcons(final JLabel button, final DesignElement e) {
-		Image image = e.getPart().getImage(e.getOrientation(), e.isComposite());
+	private void setupIcons(final JLabel button, final DesignElement e) throws SBOLValidationException {
+		Image image = e.getPart().getImage(e.getOrientation(), e.isComposite(), e.hasVariants(design, canvasCD));
 		Image selectedImage = Images.createBorderedImage(image, Color.LIGHT_GRAY);
 		button.setIcon(new ImageIcon(image));
 		button.setDisabledIcon(new ImageIcon(selectedImage));
@@ -851,7 +852,7 @@ public class SBOLDesign {
 		}
 	}
 
-	private JLabel createComponentButton(final DesignElement e) {
+	private JLabel createComponentButton(final DesignElement e) throws SBOLValidationException {
 		final JLabel button = new JLabel();
 		setupIcons(button, e);
 		button.setVerticalAlignment(JLabel.TOP);
@@ -1253,7 +1254,12 @@ public class SBOLDesign {
 			// if the CD type or the displyId has been edited we need to
 			// update the component view so we'll replace it with the new CD
 			replaceCD(originalCD, editedCD);
+		} else {
+			// update how the glyph is drawn
+			DesignElement e = elements.get(getElementIndex(originalCD));
+			setupIcons(buttons.get(e), e);
 		}
+
 		fireDesignChangedEvent();
 	}
 
@@ -1625,8 +1631,9 @@ public class SBOLDesign {
 		}
 
 		ComponentDefinition getCD() {
-			if (component == null)
+			if (component == null) {
 				return null;
+			}
 			return component.getDefinition();
 		}
 
@@ -1639,17 +1646,33 @@ public class SBOLDesign {
 		}
 
 		public boolean isComposite() {
-			if (component == null) {
-				return false;
-			}
-
-			ComponentDefinition cd = component.getDefinition();
+			ComponentDefinition cd = getCD();
 
 			if (cd == null) {
 				return false;
 			}
 
 			return !cd.getComponents().isEmpty();
+		}
+
+		public boolean hasVariants(SBOLDocument design, ComponentDefinition canvasCD) throws SBOLValidationException {
+			ComponentDefinition cd = getCD();
+
+			if (cd == null) {
+				return false;
+			}
+
+			for (CombinatorialDerivation derivation : design.getCombinatorialDerivations()) {
+				if (derivation.getTemplate().equals(canvasCD)) {
+					for (VariableComponent vc : derivation.getVariableComponents()) {
+						if (vc.getVariable().equals(component)) {
+							return true;
+						}
+					}
+				}
+			}
+
+			return false;
 		}
 
 		/**
