@@ -95,8 +95,8 @@ public class VariantEditor extends JDialog implements ActionListener {
 		strategySelection.addActionListener(this);
 
 		FormBuilder builder = new FormBuilder();
-		builder.add("Select which operator you want to apply to the variants", operatorSelection);
-		builder.add("Select which strategy you want to apply to the combinatorial design", strategySelection);
+		builder.add("Variant operator", operatorSelection);
+		builder.add("Derivation strategy", strategySelection);
 		JPanel optionPane = builder.build();
 
 		addButton.addActionListener(this);
@@ -368,10 +368,10 @@ public class VariantEditor extends JDialog implements ActionListener {
 		}
 
 		variable.removeVariant(variant);
-		
+
 		if (variable.getVariants().isEmpty()) {
 			derivation.removeVariableComponent(variable);
-			
+
 			if (derivation.getVariableComponents().isEmpty()) {
 				design.removeCombinatorialDerivation(derivation);
 			}
