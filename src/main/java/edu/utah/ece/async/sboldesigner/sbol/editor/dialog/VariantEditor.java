@@ -62,7 +62,7 @@ public class VariantEditor extends JDialog implements ActionListener {
 	private final JComboBox<StrategyType> strategySelection = new JComboBox<>(StrategyType.values());
 	private final JButton addButton = new JButton("Add Variant");
 	private final JButton removeButton = new JButton("Remove Variant");
-	private final JButton closeButton = new JButton("Close");
+	private final JButton closeButton = new JButton("Save");
 	private JTable table;
 	private JLabel tableLabel;
 	private JScrollPane scroller;
