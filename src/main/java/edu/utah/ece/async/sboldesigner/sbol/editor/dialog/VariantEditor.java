@@ -59,13 +59,43 @@ public class VariantEditor extends JDialog implements ActionListener {
 	private SBOLDocument design;
 	private Component parent;
 	private final JComboBox<OperatorType> operatorSelection = new JComboBox<>(OperatorType.values());
-	private final JComboBox<StrategyType> strategySelection = new JComboBox<>(StrategyType.values());
+	private final JComboBox<Strategy> strategySelection = new JComboBox<>(getStrategies());
 	private final JButton addButton = new JButton("Add Variant");
 	private final JButton removeButton = new JButton("Remove Variant");
 	private final JButton closeButton = new JButton("Save");
 	private JTable table;
 	private JLabel tableLabel;
 	private JScrollPane scroller;
+
+	private class Strategy {
+		StrategyType type;
+
+		public Strategy(StrategyType type) {
+			this.type = type;
+		}
+
+		@Override
+		public String toString() {
+			if (type == null) {
+				return "None";
+			}
+
+			return type.toString();
+		}
+	}
+
+	private Strategy[] getStrategies() {
+		StrategyType[] values = StrategyType.values();
+
+		Strategy[] a = new Strategy[values.length + 1];
+		a[0] = new Strategy(null);
+
+		for (int i = 0; i < values.length; i++) {
+			a[i + 1] = new Strategy(values[i]);
+		}
+
+		return a;
+	}
 
 	private static String title(Identified comp) {
 		String title = comp.getDisplayId();
@@ -91,7 +121,7 @@ public class VariantEditor extends JDialog implements ActionListener {
 		operatorSelection.setSelectedItem(getOperator());
 		operatorSelection.addActionListener(this);
 
-		strategySelection.setSelectedItem(getStrategy());
+		strategySelection.setSelectedIndex(getStrategy() == null ? 0 : getStrategy() == StrategyType.ENUMERATE ? 1 : 2);
 		strategySelection.addActionListener(this);
 
 		FormBuilder builder = new FormBuilder();
@@ -133,7 +163,7 @@ public class VariantEditor extends JDialog implements ActionListener {
 	private StrategyType getStrategy() {
 		CombinatorialDerivation derivation = getCombinatorialDerivation(derivationCD);
 		if (derivation == null || !derivation.isSetStrategy()) {
-			return StrategyType.ENUMERATE;
+			return null;
 		}
 
 		return derivation.getStrategy();
@@ -295,7 +325,6 @@ public class VariantEditor extends JDialog implements ActionListener {
 		CombinatorialDerivation derivation = getCombinatorialDerivation(derivationCD);
 		if (derivation == null) {
 			derivation = createCombinatorialDerivation(derivationCD);
-			derivation.setStrategy((StrategyType) strategySelection.getSelectedItem());
 		}
 
 		org.sbolstandard.core2.Component link = getComponentLink(derivationCD, variableCD);
@@ -325,7 +354,13 @@ public class VariantEditor extends JDialog implements ActionListener {
 				"CombinatorialDerivation", design);
 		CombinatorialDerivation derivation = design.createCombinatorialDerivation(uniqueId, derivationCD.getIdentity());
 
+		StrategyType strategy = ((Strategy) strategySelection.getSelectedItem()).type;
+		if (strategy != null) {
+			derivation.setStrategy(strategy);
+		}
+
 		addAsNestedDerivation(derivationCD, derivation);
+		addNestedDerivations();
 
 		return derivation;
 	}
@@ -349,6 +384,10 @@ public class VariantEditor extends JDialog implements ActionListener {
 				}
 			}
 		}
+	}
+
+	private void addNestedDerivations() {
+		// TODO Auto-generated method stub
 	}
 
 	private void removeVariant(ComponentDefinition variant) throws SBOLValidationException {
@@ -387,7 +426,7 @@ public class VariantEditor extends JDialog implements ActionListener {
 			}
 
 			if (e.getSource() == strategySelection) {
-				setStrategy((StrategyType) strategySelection.getSelectedItem());
+				setStrategy(((Strategy) strategySelection.getSelectedItem()).type);
 				return;
 			}
 
@@ -431,14 +470,17 @@ public class VariantEditor extends JDialog implements ActionListener {
 			derivation = createCombinatorialDerivation(derivationCD);
 		}
 
-		derivation.setStrategy(strategy);
+		if (strategy == null) {
+			derivation.unsetStrategy();
+		} else {
+			derivation.setStrategy(strategy);
+		}
 	}
 
 	private void setOperator(OperatorType operator) throws Exception {
 		CombinatorialDerivation derivation = getCombinatorialDerivation(derivationCD);
 		if (derivation == null) {
 			derivation = createCombinatorialDerivation(derivationCD);
-			derivation.setStrategy((StrategyType) strategySelection.getSelectedItem());
 		}
 
 		org.sbolstandard.core2.Component link = getComponentLink(derivationCD, variableCD);

@@ -64,18 +64,31 @@ public class CombinatorialDesignUtil {
 		}
 
 		CombinatorialDerivation derivation = selection.derivation;
-
 		HashSet<ComponentDefinition> enumeration = enumerate(doc, selection.derivation);
+
+		if (!derivation.isSetStrategy()) {
+			int choice = JOptionPane.showOptionDialog(null,
+					"The strategy property is not set.  Would you like to enumerate or sample?",
+					"Combinatorial Design Strategy", JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null,
+					StrategyType.values(), StrategyType.values()[0]);
+			if (choice == JOptionPane.CLOSED_OPTION) {
+				return null;
+			}
+
+			derivation.setStrategy(StrategyType.values()[choice]);
+		}
 
 		SBOLDocument generated = new SBOLDocument();
 
-		if (derivation.isSetStrategy() && derivation.getStrategy() == StrategyType.SAMPLE) {
+		if (derivation.getStrategy() == StrategyType.SAMPLE) {
 			ComponentDefinition[] a = enumeration.toArray(new ComponentDefinition[0]);
 			doc.createRecursiveCopy(generated, a[ThreadLocalRandom.current().nextInt(a.length)]);
-		} else {
+		} else if (derivation.getStrategy() == StrategyType.ENUMERATE) {
 			for (ComponentDefinition CD : enumeration) {
 				doc.createRecursiveCopy(generated, CD);
 			}
+		} else {
+			throw new IllegalArgumentException();
 		}
 
 		return generated;
