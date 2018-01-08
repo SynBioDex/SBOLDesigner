@@ -205,7 +205,8 @@ public class SBOLDesign {
 			try {
 				expandCombinatorial();
 			} catch (SBOLValidationException | FileNotFoundException | SBOLConversionException e) {
-				JOptionPane.showMessageDialog(panel, "There was a problem uploading the design: " + e.getMessage());
+				JOptionPane.showMessageDialog(panel,
+						"There was a problem performing the combinatorial design expansion: " + e.getMessage());
 				e.printStackTrace();
 			}
 		}

@@ -20,6 +20,8 @@ import org.sbolstandard.core2.StrategyType;
 import org.sbolstandard.core2.TopLevel;
 import org.sbolstandard.core2.VariableComponent;
 
+import edu.utah.ece.async.sboldesigner.sbol.editor.SBOLEditorPreferences;
+
 public class CombinatorialExpansionUtil {
 
 	private static URI generatedByDerivationURI;
@@ -82,6 +84,7 @@ public class CombinatorialExpansionUtil {
 		}
 
 		SBOLDocument generated = new SBOLDocument();
+		generated.setDefaultURIprefix(SBOLEditorPreferences.INSTANCE.getUserInfo().getURI().toString());
 
 		if (derivation.getStrategy() == StrategyType.SAMPLE) {
 			ComponentDefinition[] a = enumeration.toArray(new ComponentDefinition[0]);
@@ -93,6 +96,8 @@ public class CombinatorialExpansionUtil {
 		} else {
 			throw new IllegalArgumentException();
 		}
+
+		ProvenanceUtil.createProvenance(generated, generated.getRootComponentDefinitions().iterator().next());
 
 		return generated;
 	}
