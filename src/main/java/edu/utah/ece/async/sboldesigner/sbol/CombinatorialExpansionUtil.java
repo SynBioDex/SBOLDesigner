@@ -22,6 +22,8 @@ import org.sbolstandard.core2.VariableComponent;
 
 public class CombinatorialExpansionUtil {
 
+	private static URI generatedByDerivationURI;
+
 	private static Derivation[] getDerivations(SBOLDocument doc) {
 		Derivation[] derivations = new Derivation[doc.getCombinatorialDerivations().size()];
 
@@ -64,6 +66,7 @@ public class CombinatorialExpansionUtil {
 		}
 
 		CombinatorialDerivation derivation = selection.derivation;
+		generatedByDerivationURI = derivation.getIdentity();
 		HashSet<ComponentDefinition> enumeration = enumerate(doc, selection.derivation);
 
 		if (!derivation.isSetStrategy()) {
@@ -102,6 +105,7 @@ public class CombinatorialExpansionUtil {
 				template.getVersion(), "CD", doc);
 		ComponentDefinition copy = (ComponentDefinition) doc.createCopy(template, uniqueId, template.getVersion());
 		copy.addWasDerivedFrom(template.getIdentity());
+		copy.addWasGeneratedBy(generatedByDerivationURI);
 
 		copy.clearSequenceAnnotations();
 
@@ -161,6 +165,7 @@ public class CombinatorialExpansionUtil {
 						"1", "Component", null);
 				Component link = newParent.createComponent(uniqueId, AccessType.PUBLIC, child.getIdentity());
 				link.addWasDerivedFrom(originalComponent.getIdentity());
+				link.addWasGeneratedBy(generatedByDerivationURI);
 
 				// create a new 'prev precedes link' constraint
 				Component oldPrev = getBeforeComponent(originalTemplate, originalComponent);
