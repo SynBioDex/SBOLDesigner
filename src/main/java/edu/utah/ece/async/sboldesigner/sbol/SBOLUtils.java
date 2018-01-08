@@ -59,10 +59,11 @@ public class SBOLUtils {
 	 * dataType isn't a TopLevel), the displayId you want, the version (if
 	 * dataType is a TopLevel), the type of object, and the SBOLDocument
 	 * containing the design.
-	 * @throws SBOLValidationException 
+	 * 
+	 * @throws SBOLValidationException
 	 */
-	public static String getUniqueDisplayId(ComponentDefinition comp, CombinatorialDerivation derivation, String displayId, String version, String dataType,
-			SBOLDocument design) throws SBOLValidationException {
+	public static String getUniqueDisplayId(ComponentDefinition comp, CombinatorialDerivation derivation,
+			String displayId, String version, String dataType, SBOLDocument design) throws SBOLValidationException {
 		// if can get using some displayId, then try the next number
 		switch (dataType) {
 		case "CD":
@@ -261,6 +262,37 @@ public class SBOLUtils {
 	public static File setupFile() {
 		String path = Preferences.userRoot().node("path").get("path", "");
 		return new File(path);
+	}
+
+	public static JFileChooser setupFC() {
+		JFileChooser fc = new JFileChooser(SBOLUtils.setupFile());
+		fc.setMultiSelectionEnabled(false);
+		fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
+		fc.setAcceptAllFileFilterUsed(true);
+		fc.setFileFilter(
+				new FileNameExtensionFilter("SBOL file (*.xml, *.rdf, *.sbol), GenBank (*.gb, *.gbk), FASTA (*.fasta)",
+						"xml", "rdf", "sbol", "gb", "gbk", "fasta"));
+
+		return fc;
+	}
+
+	public static File selectFile(java.awt.Component parent, JFileChooser fc) {
+		fc.setSelectedFile(SBOLUtils.setupFile());
+		int returnVal = fc.showSaveDialog(parent);
+
+		if (returnVal != JFileChooser.APPROVE_OPTION) {
+			return null;
+		}
+
+		File file = fc.getSelectedFile();
+		if (file.exists()) {
+			JOptionPane.showMessageDialog(parent, "You cannot select this file, it already exists.");
+			return null;
+		}
+
+		Preferences.userRoot().node("path").put("path", file.getPath());
+
+		return file;
 	}
 
 	private static String getNucleotides(ComponentDefinition comp) {

@@ -19,6 +19,7 @@ import static edu.utah.ece.async.sboldesigner.sbol.editor.SBOLEditorAction.DIVID
 import static edu.utah.ece.async.sboldesigner.sbol.editor.SBOLEditorAction.SPACER;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -230,11 +231,12 @@ public class SBOLDesignerPanel extends JPanel {
 	SBOLEditorActions TOOLBAR_ACTIONS = new SBOLEditorActions()
 			.add(NEW_DOCUMENT, OPEN_DOCUMENT, NEW_PART, OPEN_PART, SAVE, EXPORT, DIVIDER)
 			.addIf(SBOLEditorPreferences.INSTANCE.isVersioningEnabled(), VERSION, DIVIDER)
-			.add(design.EDIT_CANVAS, design.EDIT, design.FIND, design.UPLOAD, design.DELETE, design.FLIP, DIVIDER)
+			.add(design.EDIT_CANVAS, design.EDIT, design.DELETE, design.FLIP, design.FIND, design.UPLOAD,
+					design.COMBINATORIAL, DIVIDER)
 			.add(design.HIDE_SCARS, design.ADD_SCARS, DIVIDER).add(design.FOCUS_IN, design.FOCUS_OUT, DIVIDER, SNAPSHOT)
 			.add(PREFERENCES).add(SPACER, INFO);
 
-	JFileChooser fc;
+	JFileChooser fc = SBOLUtils.setupFC();
 
 	DocumentIO documentIO;
 
@@ -244,14 +246,6 @@ public class SBOLDesignerPanel extends JPanel {
 		if (frame != null) {
 			this.frame = frame;
 		}
-
-		fc = new JFileChooser(SBOLUtils.setupFile());
-		fc.setMultiSelectionEnabled(false);
-		fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
-		fc.setAcceptAllFileFilterUsed(true);
-		fc.setFileFilter(
-				new FileNameExtensionFilter("SBOL file (*.xml, *.rdf, *.sbol), GenBank (*.gb, *.gbk), FASTA (*.fasta)",
-						"xml", "rdf", "sbol", "gb", "gbk", "fasta"));
 
 		initGUI();
 		WebOfRegistriesUtil wors = new WebOfRegistriesUtil();
@@ -359,75 +353,60 @@ public class SBOLDesignerPanel extends JPanel {
 	}
 
 	private void export() throws FileNotFoundException, SBOLConversionException, IOException, SBOLValidationException {
-		String[] formats = { "GenBank", "FASTA", "SBOL 1.1", "SBOL 2.0", "Combinatorial Design", "Cancel" };
+		String[] formats = { "GenBank", "FASTA", "SBOL 1.1", "SBOL 2.0", "Cancel" };
 
 		int format = JOptionPane.showOptionDialog(this, "Please select an export format", "Export",
 				JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, formats, "Cancel");
-		if (format == JOptionPane.CLOSED_OPTION || format == 5) {
+		if (format == JOptionPane.CLOSED_OPTION || format == 4) {
 			return;
 		}
 
-		fc.setSelectedFile(SBOLUtils.setupFile());
-		int returnVal = fc.showSaveDialog(this);
+		File file = SBOLUtils.selectFile(this, fc);
+		if (file == null) {
+			return;
+		}
+		String fileName = file.getName();
 
-		if (returnVal == JFileChooser.APPROVE_OPTION) {
-			File file = fc.getSelectedFile();
-			if (file.exists()) {
-				JOptionPane.showMessageDialog(this, "You cannot select this file, it already exists.");
-				return;
-			}
-			Preferences.userRoot().node("path").put("path", file.getPath());
-			String fileName = file.getName();
-			SBOLDocument doc = editor.getDesign().createDocument(null);
+		SBOLDocument doc = editor.getDesign().createDocument(null);
 
-			switch (format) {
-			case JOptionPane.CLOSED_OPTION:
-				break;
-			case 0:
-				// GenBank
-				if (!fileName.contains(".")) {
-					file = new File(file + ".gb");
-				}
-				SBOLWriter.write(doc, new FileOutputStream(file), SBOLDocument.GENBANK);
-				break;
-			case 1:
-				// FASTA
-				if (!fileName.contains(".")) {
-					file = new File(file + ".fasta");
-				}
-				SBOLWriter.write(doc, new FileOutputStream(file), SBOLDocument.FASTAformat);
-				break;
-			case 2:
-				// SBOL 1.1
-				if (!fileName.contains(".")) {
-					file = new File(file + ".xml");
-				}
-				SBOLWriter.write(doc, new FileOutputStream(file), SBOLDocument.RDFV1);
-				break;
-			case 3:
-				// SBOL 2.0
-				if (!fileName.contains(".")) {
-					file = new File(file + ".xml");
-				}
-				SBOLWriter.write(doc, new FileOutputStream(file));
-				break;
-			case 4:
-				// Combinatorial Design
-				if (!fileName.contains(".")) {
-					file = new File(file + ".xml");
-				}
-				doc = CombinatorialDesignUtil.createCombinatorialDesign(doc);
-				if (doc != null) {
-					SBOLWriter.write(doc, new FileOutputStream(file));
-				}
-			case 5:
-				// BOOST Optimized SBOL 2.0
-				// BOOSTDialog boostDialog = new BOOSTDialog(getParent(), file,
-				// doc);
-				break;
-			default:
-				break;
+		switch (format) {
+		case JOptionPane.CLOSED_OPTION:
+			break;
+		case 0:
+			// GenBank
+			if (!fileName.contains(".")) {
+				file = new File(file + ".gb");
 			}
+			SBOLWriter.write(doc, new FileOutputStream(file), SBOLDocument.GENBANK);
+			break;
+		case 1:
+			// FASTA
+			if (!fileName.contains(".")) {
+				file = new File(file + ".fasta");
+			}
+			SBOLWriter.write(doc, new FileOutputStream(file), SBOLDocument.FASTAformat);
+			break;
+		case 2:
+			// SBOL 1.1
+			if (!fileName.contains(".")) {
+				file = new File(file + ".xml");
+			}
+			SBOLWriter.write(doc, new FileOutputStream(file), SBOLDocument.RDFV1);
+			break;
+		case 3:
+			// SBOL 2.0
+			if (!fileName.contains(".")) {
+				file = new File(file + ".xml");
+			}
+			SBOLWriter.write(doc, new FileOutputStream(file));
+			break;
+		case 4:
+			// BOOST Optimized SBOL 2.0
+			// BOOSTDialog boostDialog = new BOOSTDialog(getParent(), file,
+			// doc);
+			break;
+		default:
+			break;
 		}
 	}
 

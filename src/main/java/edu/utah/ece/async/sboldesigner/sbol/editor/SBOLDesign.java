@@ -42,6 +42,8 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.net.URI;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -55,6 +57,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.prefs.Preferences;
 
 import javax.swing.Action;
 import javax.swing.BorderFactory;
@@ -63,6 +66,7 @@ import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
+import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -88,9 +92,11 @@ import org.sbolstandard.core2.Location;
 import org.sbolstandard.core2.OrientationType;
 import org.sbolstandard.core2.Range;
 import org.sbolstandard.core2.RestrictionType;
+import org.sbolstandard.core2.SBOLConversionException;
 import org.sbolstandard.core2.SBOLDocument;
 import org.sbolstandard.core2.SBOLValidate;
 import org.sbolstandard.core2.SBOLValidationException;
+import org.sbolstandard.core2.SBOLWriter;
 import org.sbolstandard.core2.Sequence;
 import org.sbolstandard.core2.SequenceAnnotation;
 import org.sbolstandard.core2.SequenceOntology;
@@ -183,8 +189,22 @@ public class SBOLDesign {
 				if (SBOLUtils.rootCalledUnamedPart(root.cd, panel)) {
 					return;
 				}
+
 				uploadDesign(panel, uploadDoc, null);
 			} catch (SBOLValidationException | SynBioHubException | URIException e) {
+				JOptionPane.showMessageDialog(panel, "There was a problem uploading the design: " + e.getMessage());
+				e.printStackTrace();
+			}
+		}
+	};
+
+	public final SBOLEditorAction COMBINATORIAL = new SBOLEditorAction("Expand combinatorial design",
+			"Expand the combinatorial design", "combinatorial.png") {
+		@Override
+		protected void perform() {
+			try {
+				expandCombinatorial();
+			} catch (SBOLValidationException | FileNotFoundException | SBOLConversionException e) {
 				JOptionPane.showMessageDialog(panel, "There was a problem uploading the design: " + e.getMessage());
 				e.printStackTrace();
 			}
@@ -1279,6 +1299,29 @@ public class SBOLDesign {
 				return;
 			}
 			replaceCD(selectedElement.getCD(), root.cd);
+		}
+	}
+
+	private void expandCombinatorial() throws SBOLValidationException, SBOLConversionException, FileNotFoundException {
+		ComponentDefinitionBox root = new ComponentDefinitionBox();
+		SBOLDocument doc = createDocument(root);
+
+		if (SBOLUtils.rootCalledUnamedPart(root.cd, panel)) {
+			return;
+		}
+
+		File file = SBOLUtils.selectFile(getPanel(), SBOLUtils.setupFC());
+		if (file == null) {
+			return;
+		}
+
+		doc = CombinatorialDesignUtil.createCombinatorialDesign(doc);
+
+		if (doc != null) {
+			if (!file.getName().contains(".")) {
+				file = new File(file + ".xml");
+			}
+			SBOLWriter.write(doc, new FileOutputStream(file));
 		}
 	}
 
