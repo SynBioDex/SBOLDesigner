@@ -20,7 +20,7 @@ import org.sbolstandard.core2.StrategyType;
 import org.sbolstandard.core2.TopLevel;
 import org.sbolstandard.core2.VariableComponent;
 
-public class CombinatorialDesignUtil {
+public class CombinatorialExpansionUtil {
 
 	private static Derivation[] getDerivations(SBOLDocument doc) {
 		Derivation[] derivations = new Derivation[doc.getCombinatorialDerivations().size()];

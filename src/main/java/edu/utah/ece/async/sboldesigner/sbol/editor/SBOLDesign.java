@@ -113,7 +113,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
-import edu.utah.ece.async.sboldesigner.sbol.CombinatorialDesignUtil;
+import edu.utah.ece.async.sboldesigner.sbol.CombinatorialExpansionUtil;
 import edu.utah.ece.async.sboldesigner.sbol.ProvenanceUtil;
 import edu.utah.ece.async.sboldesigner.sbol.SBOLUtils;
 import edu.utah.ece.async.sboldesigner.sbol.SBOLUtils.Types;
@@ -1315,7 +1315,7 @@ public class SBOLDesign {
 			return;
 		}
 
-		doc = CombinatorialDesignUtil.createCombinatorialDesign(doc);
+		doc = CombinatorialExpansionUtil.createCombinatorialDesign(doc);
 
 		if (doc != null) {
 			if (!file.getName().contains(".")) {

@@ -53,7 +53,7 @@ import com.adamtaft.eb.EventHandler;
 import com.google.common.base.Strings;
 import com.google.common.base.Supplier;
 
-import edu.utah.ece.async.sboldesigner.sbol.CombinatorialDesignUtil;
+import edu.utah.ece.async.sboldesigner.sbol.CombinatorialExpansionUtil;
 import edu.utah.ece.async.sboldesigner.sbol.SBOLUtils;
 import edu.utah.ece.async.sboldesigner.sbol.WebOfRegistriesUtil;
 import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.AboutDialog;
