@@ -31,9 +31,10 @@ public class SynBioHubQuery extends SwingWorker<Object, Object> {
 	TableUpdater tableUpdater;
 	ArrayList<TableMetadata> identified;
 	LoadingDialog loading;
+	String objectType;
 
 	public SynBioHubQuery(SynBioHubFrontend synbiohub, Set<URI> roles, Set<URI> types, Set<URI> collections,
-			String filterText, TableUpdater tableUpdater, Component parent) throws IOException {
+			String filterText, String objectType, TableUpdater tableUpdater, Component parent) throws IOException {
 		this.synBioHub = synbiohub;
 		this.roles = roles;
 		this.types = types;
@@ -46,6 +47,7 @@ public class SynBioHubQuery extends SwingWorker<Object, Object> {
 		}
 		this.collections = collections;
 		this.filterText = filterText;
+		this.objectType = objectType;
 		this.tableUpdater = tableUpdater;
 		this.loading = new LoadingDialog(parent);
 		this.identified = new ArrayList<TableMetadata>();
@@ -65,12 +67,14 @@ public class SynBioHubQuery extends SwingWorker<Object, Object> {
 		}
 
 		// collections aren't empty, or there aren't any root collections
-		for (URI collection : collections) {
-			try {
-				identified.addAll(getTableMetadata(synBioHub.getSubCollectionMetadata(collection), null));
-			} catch (SynBioHubException e1) {
-				JOptionPane.showMessageDialog(null, "There was a problem fetching collections: " + e1.getMessage());
-				e1.printStackTrace();
+		if (objectType != null && objectType !="" && objectType != "Collection") {
+			for (URI collection : collections) {
+				try {
+					identified.addAll(getTableMetadata(synBioHub.getSubCollectionMetadata(collection), null));
+				} catch (SynBioHubException e1) {
+					JOptionPane.showMessageDialog(null, "There was a problem fetching collections: " + e1.getMessage());
+					e1.printStackTrace();
+				}
 			}
 		}
 
@@ -99,17 +103,19 @@ public class SynBioHubQuery extends SwingWorker<Object, Object> {
 			criteria.setValue(collection.toString());
 			query.addCriteria(criteria);
 		}
-
-		SearchCriteria objectTypeCriteria = new SearchCriteria();
-		objectTypeCriteria.setKey("objectType");
-		objectTypeCriteria.setValue("ComponentDefinition");
-		query.addCriteria(objectTypeCriteria);
-
+		
 		if (filterText != null && filterText != "") {
 			SearchCriteria filterTextCriteria = new SearchCriteria();
 			filterTextCriteria.setKey("name");
 			filterTextCriteria.setValue(filterText);
 			query.addCriteria(filterTextCriteria);
+		}
+
+		if (objectType != null && objectType != "") {
+			SearchCriteria objectTypeCriteria = new SearchCriteria();
+			objectTypeCriteria.setKey("objectType");
+			objectTypeCriteria.setValue(objectType);
+			query.addCriteria(objectTypeCriteria);
 		}
 
 		identified.addAll(getTableMetadata(null, synBioHub.search(query)));

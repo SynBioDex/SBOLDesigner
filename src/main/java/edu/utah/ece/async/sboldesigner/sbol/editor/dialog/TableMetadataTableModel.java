@@ -13,9 +13,33 @@ class TableMetadataTableModel extends AbstractListTableModel<TableMetadata> {
 	}
 
 	public Object getField(TableMetadata component, int col) {
+		String type;
+		if (component.isCollection) {
+			type = "Collection";
+		} else if (component.identified.getType()==null) {
+			type = "Part";
+		} else if (component.identified.getType().endsWith("Collection")) {
+			type = "Collection";
+		} else if (component.identified.getType().endsWith("ComponentDefinition")) {
+			type = "Part";
+		} else if (component.identified.getType().endsWith("ModuleDefinition")) {
+			type = "Design";
+		} else if (component.identified.getType().endsWith("Model")) {
+			type = "Model";
+		} else if (component.identified.getType().endsWith("Sequence")) {
+			type = "Sequence";
+		} else if (component.identified.getType().endsWith("Attachment")) {
+			type = "Attachment";
+		} else if (component.identified.getType().endsWith("Implementation")) {
+			type = "Implementation";
+		} else if (component.identified.getType().endsWith("CombinatorialDerivation")) {
+			type = "Derivation";
+		} else {
+			type = "Other";
+		}
 		switch (col) {
 		case 0:
-			return component.isCollection ? "Collection" : "Part";
+			return type;
 		case 1:
 			return component.identified.getDisplayId();
 		case 2:
