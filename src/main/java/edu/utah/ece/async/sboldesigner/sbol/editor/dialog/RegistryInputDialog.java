@@ -168,12 +168,18 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 	private static SynBioHubFrontend synBioHub;
 
 	private boolean allowCollectionSelection = false;
+	
+	private String objectType = "ComponentDefinition";
 
 	/**
 	 * Allows a collection to be selected.
 	 */
 	public void allowCollectionSelection() {
 		allowCollectionSelection = true;
+	}
+	
+	public void setObjectType(String objectType) {
+		this.objectType = objectType;
 	}
 
 	/**
@@ -260,7 +266,9 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 				updateContext();
 			}
 		});
-		builder.add("Part type", typeSelection);
+		if (objectType == "ComponentDefinition") {
+			builder.add("Part type", typeSelection);
+		}
 
 		// set up collection selection
 		collectionSelection = new JComboBox<IdentifiedMetadata>();
@@ -283,8 +291,10 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 				updateTable();
 			}
 		});
-		builder.add("Part role", roleSelection);
-
+		if (objectType == "ComponentDefinition") {
+			builder.add("Part role", roleSelection);
+		}
+		
 		// set up the JComboBox for role refinement
 		roleRefinement = new JComboBox<String>();
 		updateRoleRefinement();
@@ -297,7 +307,9 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 			roleRefinement.setSelectedItem(roleName);
 		}
 		roleRefinement.addActionListener(roleRefinementListener);
-		builder.add("Role refinement", roleRefinement);
+		if (objectType == "ComponentDefinition") {
+			builder.add("Role refinement", roleRefinement);
+		}
 		updateContext();
 
 		// set up the filter
@@ -474,7 +486,7 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 				Set<URI> setRoles = new HashSet<URI>(part.getRoles());
 				Set<URI> setTypes = SBOLUtils.convertTypesToSet((Types) typeSelection.getSelectedItem());
 				SynBioHubQuery query = new SynBioHubQuery(synbiohub, setRoles, setTypes, setCollections, filterText,
-						new TableUpdater(), this);
+						objectType, new TableUpdater(), this);
 				// non-blocking: will update using the TableUpdater
 				query.execute();
 			}
