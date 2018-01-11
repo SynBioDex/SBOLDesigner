@@ -264,14 +264,14 @@ public class VariantEditor extends JDialog implements ActionListener {
 		}
 	}
 
+	private CombinatorialDerivation chosenDerivation = null;
+
 	private CombinatorialDerivation getCombinatorialDerivation(ComponentDefinition derivationCD) {
-		for (CombinatorialDerivation derivation : design.getCombinatorialDerivations()) {
-			if (derivation.getTemplateURI().equals(derivationCD.getIdentity())) {
-				return derivation;
-			}
+		if (chosenDerivation == null) {
+			chosenDerivation = CombinatorialDerivationInputDialog.pickCombinatorialDerivation(design, derivationCD);
 		}
 
-		return null;
+		return chosenDerivation;
 	}
 
 	private VariableComponent getVariableComponent(CombinatorialDerivation derivation,
@@ -362,6 +362,8 @@ public class VariantEditor extends JDialog implements ActionListener {
 		addAsNestedDerivation(derivationCD, derivation);
 		addNestedDerivations();
 
+		chosenDerivation = derivation;
+
 		return derivation;
 	}
 
@@ -413,6 +415,7 @@ public class VariantEditor extends JDialog implements ActionListener {
 
 			if (derivation.getVariableComponents().isEmpty()) {
 				design.removeCombinatorialDerivation(derivation);
+				chosenDerivation = null;
 			}
 		}
 	}

@@ -1,6 +1,7 @@
 package edu.utah.ece.async.sboldesigner.sbol;
 
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -21,55 +22,21 @@ import org.sbolstandard.core2.TopLevel;
 import org.sbolstandard.core2.VariableComponent;
 
 import edu.utah.ece.async.sboldesigner.sbol.editor.SBOLEditorPreferences;
+import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.CombinatorialDerivationInputDialog;
 
 public class CombinatorialExpansionUtil {
 
 	private static URI generatedByDerivationURI;
 
-	private static Derivation[] getDerivations(SBOLDocument doc) {
-		Derivation[] derivations = new Derivation[doc.getCombinatorialDerivations().size()];
-
-		int i = 0;
-		for (CombinatorialDerivation derivation : doc.getCombinatorialDerivations()) {
-			Derivation d = new Derivation(derivation);
-			derivations[i] = d;
-			i++;
-		}
-
-		return derivations;
-	}
-
-	private static class Derivation {
-		CombinatorialDerivation derivation;
-
-		public Derivation(CombinatorialDerivation derivation) {
-			this.derivation = derivation;
-		}
-
-		@Override
-		public String toString() {
-			return derivation.getDisplayId();
-		}
-	}
-
 	public static SBOLDocument createCombinatorialDesign(SBOLDocument doc) throws SBOLValidationException {
-		if (doc.getCombinatorialDerivations().isEmpty()) {
-			JOptionPane.showMessageDialog(null, "There are no combinatorial designs in this document.");
+		CombinatorialDerivation derivation = CombinatorialDerivationInputDialog.pickCombinatorialDerivation(doc, null);
+		if (derivation == null) {
+			JOptionPane.showMessageDialog(null, "There are no combinatorial designs");
 			return null;
 		}
 
-		Derivation[] options = getDerivations(doc);
-
-		Derivation selection = (Derivation) JOptionPane.showInputDialog(null,
-				"Select a combinatorial derivation to sample or enumerate", "Create Combinatorial Design",
-				JOptionPane.DEFAULT_OPTION, null, options, options[0]);
-		if (selection == null) {
-			return null;
-		}
-
-		CombinatorialDerivation derivation = selection.derivation;
 		generatedByDerivationURI = derivation.getIdentity();
-		HashSet<ComponentDefinition> enumeration = enumerate(doc, selection.derivation);
+		HashSet<ComponentDefinition> enumeration = enumerate(doc, derivation);
 
 		if (!derivation.isSetStrategy()) {
 			int choice = JOptionPane.showOptionDialog(null,
