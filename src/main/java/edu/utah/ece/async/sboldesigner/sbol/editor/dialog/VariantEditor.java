@@ -170,17 +170,7 @@ public class VariantEditor extends JDialog implements ActionListener {
 	}
 
 	private OperatorType getOperator() {
-		CombinatorialDerivation derivation = getCombinatorialDerivation(derivationCD);
-		if (derivation == null) {
-			return OperatorType.ONE;
-		}
-
-		org.sbolstandard.core2.Component link = getComponentLink(derivationCD, variableCD);
-		if (link == null) {
-			return OperatorType.ONE;
-		}
-
-		VariableComponent variable = getVariableComponent(derivation, link);
+		VariableComponent variable = getVariableComponent();
 		if (variable == null) {
 			return OperatorType.ONE;
 		}
@@ -274,6 +264,44 @@ public class VariantEditor extends JDialog implements ActionListener {
 		return chosenDerivation;
 	}
 
+	private VariableComponent getVariableComponent(OperatorType operator) throws Exception {
+		CombinatorialDerivation derivation = getCombinatorialDerivation(derivationCD);
+		if (derivation == null) {
+			derivation = createCombinatorialDerivation(derivationCD);
+		}
+
+		org.sbolstandard.core2.Component link = getComponentLink(derivationCD, variableCD);
+		if (link == null) {
+			throw new Exception("derivationCD does not have a component to variableCD");
+		}
+
+		VariableComponent variable = getVariableComponent(derivation, link);
+		if (variable == null) {
+			variable = createVariableComponent(derivation, operator, link);
+		}
+
+		return variable;
+	}
+
+	private VariableComponent getVariableComponent() {
+		CombinatorialDerivation derivation = getCombinatorialDerivation(derivationCD);
+		if (derivation == null) {
+			return null;
+		}
+
+		org.sbolstandard.core2.Component link = getComponentLink(derivationCD, variableCD);
+		if (link == null) {
+			return null;
+		}
+
+		VariableComponent variable = getVariableComponent(derivation, link);
+		if (variable == null) {
+			return null;
+		}
+
+		return variable;
+	}
+
 	private VariableComponent getVariableComponent(CombinatorialDerivation derivation,
 			org.sbolstandard.core2.Component link) {
 		for (VariableComponent variable : derivation.getVariableComponents()) {
@@ -299,17 +327,7 @@ public class VariantEditor extends JDialog implements ActionListener {
 	private List<ComponentDefinition> getVariants() {
 		ArrayList<ComponentDefinition> variants = new ArrayList<>();
 
-		CombinatorialDerivation derivation = getCombinatorialDerivation(derivationCD);
-		if (derivation == null) {
-			return variants;
-		}
-
-		org.sbolstandard.core2.Component link = getComponentLink(derivationCD, variableCD);
-		if (link == null) {
-			return variants;
-		}
-
-		VariableComponent variable = getVariableComponent(derivation, link);
+		VariableComponent variable = getVariableComponent();
 		if (variable == null) {
 			return variants;
 		}
@@ -322,21 +340,7 @@ public class VariantEditor extends JDialog implements ActionListener {
 	}
 
 	private void addVariant(ComponentDefinition variant) throws Exception {
-		CombinatorialDerivation derivation = getCombinatorialDerivation(derivationCD);
-		if (derivation == null) {
-			derivation = createCombinatorialDerivation(derivationCD);
-		}
-
-		org.sbolstandard.core2.Component link = getComponentLink(derivationCD, variableCD);
-		if (link == null) {
-			throw new Exception("derivationCD does not have a component to variableCD");
-		}
-
-		VariableComponent variable = getVariableComponent(derivation, link);
-		if (variable == null) {
-			variable = createVariableComponent(derivation, (OperatorType) operatorSelection.getSelectedItem(), link);
-		}
-
+		VariableComponent variable = getVariableComponent((OperatorType) operatorSelection.getSelectedItem());
 		variable.addVariant(variant.getIdentity());
 	}
 
@@ -388,22 +392,26 @@ public class VariantEditor extends JDialog implements ActionListener {
 		}
 	}
 
-	private void addNestedDerivations() {
-		// TODO Auto-generated method stub
+	private void addNestedDerivations() throws SBOLValidationException {
+		VariableComponent variable = getVariableComponent();
+		if (variable == null) {
+			return;
+		}
+
+		for (org.sbolstandard.core2.Component link : variableCD.getComponents()) {
+			ComponentDefinition child = link.getDefinition();
+			if (child != null) {
+				for (CombinatorialDerivation childDerivation : design.getCombinatorialDerivations()) {
+					if (childDerivation.getTemplate().equals(child)) {
+						variable.addVariantDerivation(childDerivation.getIdentity());
+					}
+				}
+			}
+		}
 	}
 
-	private void removeVariant(ComponentDefinition variant) throws SBOLValidationException {
-		CombinatorialDerivation derivation = getCombinatorialDerivation(derivationCD);
-		if (derivation == null) {
-			return;
-		}
-
-		org.sbolstandard.core2.Component link = getComponentLink(derivationCD, variableCD);
-		if (link == null) {
-			return;
-		}
-
-		VariableComponent variable = getVariableComponent(derivation, link);
+	private void removeVariant(ComponentDefinition variant) throws Exception {
+		VariableComponent variable = getVariableComponent();
 		if (variable == null) {
 			return;
 		}
@@ -411,6 +419,7 @@ public class VariantEditor extends JDialog implements ActionListener {
 		variable.removeVariant(variant);
 
 		if (variable.getVariants().isEmpty()) {
+			CombinatorialDerivation derivation = getCombinatorialDerivation(derivationCD);
 			derivation.removeVariableComponent(variable);
 
 			if (derivation.getVariableComponents().isEmpty()) {
@@ -481,22 +490,7 @@ public class VariantEditor extends JDialog implements ActionListener {
 	}
 
 	private void setOperator(OperatorType operator) throws Exception {
-		CombinatorialDerivation derivation = getCombinatorialDerivation(derivationCD);
-		if (derivation == null) {
-			derivation = createCombinatorialDerivation(derivationCD);
-		}
-
-		org.sbolstandard.core2.Component link = getComponentLink(derivationCD, variableCD);
-		if (link == null) {
-			throw new Exception("derivationCD does not have a component to variableCD");
-		}
-
-		VariableComponent variable = getVariableComponent(derivation, link);
-		if (variable == null) {
-			variable = createVariableComponent(derivation, operator, link);
-			return;
-		}
-
+		VariableComponent variable = getVariableComponent(operator);
 		variable.setOperator(operator);
 	}
 
