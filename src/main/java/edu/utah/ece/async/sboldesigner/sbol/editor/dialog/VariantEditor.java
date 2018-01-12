@@ -278,7 +278,6 @@ public class VariantEditor extends JDialog implements ActionListener {
 		if (derivation == null) {
 			derivation = createCombinatorialDerivation(derivationCD);
 		}
-		insertNestedDerivations(derivation, derivationCD, variableCD);
 
 		org.sbolstandard.core2.Component link = getComponentLink(derivationCD, variableCD);
 		if (link == null) {
@@ -298,7 +297,6 @@ public class VariantEditor extends JDialog implements ActionListener {
 		if (derivation == null) {
 			return null;
 		}
-		insertNestedDerivations(derivation, derivationCD, variableCD);
 
 		org.sbolstandard.core2.Component link = getComponentLink(derivationCD, variableCD);
 		if (link == null) {
