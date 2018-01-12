@@ -119,6 +119,11 @@ public class VariantEditor extends JDialog implements ActionListener {
 		this.parent = parent;
 		this.design = design;
 
+		CombinatorialDerivation derivation = getCombinatorialDerivation(derivationCD);
+		if (derivation != null) {
+			this.setTitle("Chosen combinatorial derivation: " + title(derivation));
+		}
+
 		try {
 			operatorSelection.setSelectedItem(getOperator());
 			operatorSelection.addActionListener(this);
@@ -362,8 +367,12 @@ public class VariantEditor extends JDialog implements ActionListener {
 
 	private CombinatorialDerivation createCombinatorialDerivation(ComponentDefinition derivationCD)
 			throws SBOLValidationException {
-		String uniqueId = SBOLUtils.getUniqueDisplayId(null, null,
-				derivationCD.getDisplayId() + "_CombinatorialDerivation", derivationCD.getVersion(),
+		return createCombinatorialDerivation(derivationCD, derivationCD.getDisplayId() + "_CombinatorialDerivation");
+	}
+
+	private CombinatorialDerivation createCombinatorialDerivation(ComponentDefinition derivationCD, String displayId)
+			throws SBOLValidationException {
+		String uniqueId = SBOLUtils.getUniqueDisplayId(null, null, displayId, derivationCD.getVersion(),
 				"CombinatorialDerivation", design);
 		CombinatorialDerivation derivation = design.createCombinatorialDerivation(uniqueId, derivationCD.getVersion(),
 				derivationCD.getIdentity());
@@ -373,17 +382,12 @@ public class VariantEditor extends JDialog implements ActionListener {
 			derivation.setStrategy(strategy);
 		}
 
-		insertNestedDerivations(derivation, derivationCD, variableCD);
+		addAsNestedDerivation(derivationCD, derivation);
+		addNestedDerivations(variableCD);
 
 		chosenDerivation = derivation;
 
 		return derivation;
-	}
-
-	private void insertNestedDerivations(CombinatorialDerivation derivation, ComponentDefinition derivationCD,
-			ComponentDefinition variableCD) throws SBOLValidationException {
-		addAsNestedDerivation(derivationCD, derivation);
-		addNestedDerivations(variableCD);
 	}
 
 	private void addAsNestedDerivation(ComponentDefinition derivationCD, CombinatorialDerivation derivation)
@@ -513,9 +517,17 @@ public class VariantEditor extends JDialog implements ActionListener {
 	}
 
 	private void addCombinatorialDerivation() throws SBOLValidationException {
-		CombinatorialDerivation newDerivation = createCombinatorialDerivation(derivationCD);
+		String displayId = JOptionPane.showInputDialog("What would you like the displayId to be?");
+		if (displayId == null) {
+			return;
+		}
+
+		CombinatorialDerivation newDerivation = createCombinatorialDerivation(derivationCD, displayId);
+
 		JOptionPane.showMessageDialog(parent,
 				"A new CombinatorialDerivation was created: " + newDerivation.getDisplayId());
+
+		setVisible(false);
 	}
 
 	private void updateTable() throws SBOLValidationException {
