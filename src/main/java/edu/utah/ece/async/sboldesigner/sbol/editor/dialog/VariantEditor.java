@@ -62,6 +62,7 @@ public class VariantEditor extends JDialog implements ActionListener {
 	private final JComboBox<Strategy> strategySelection = new JComboBox<>(getStrategies());
 	private final JButton addButton = new JButton("Add Variant");
 	private final JButton removeButton = new JButton("Remove Variant");
+	private final JButton newButton = new JButton("Add new Combinatorial Derivation");
 	private final JButton closeButton = new JButton("Save");
 	private JTable table;
 	private JLabel tableLabel;
@@ -133,6 +134,8 @@ public class VariantEditor extends JDialog implements ActionListener {
 		addButton.setEnabled(true);
 		removeButton.addActionListener(this);
 		removeButton.setEnabled(false);
+		newButton.addActionListener(this);
+		newButton.setEnabled(true);
 		closeButton.registerKeyboardAction(this, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0),
 				JComponent.WHEN_IN_FOCUSED_WINDOW);
 		closeButton.addActionListener(this);
@@ -143,6 +146,7 @@ public class VariantEditor extends JDialog implements ActionListener {
 		buttonPane.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 		buttonPane.add(addButton);
 		buttonPane.add(removeButton);
+		buttonPane.add(newButton);
 		buttonPane.add(Box.createHorizontalStrut(100));
 		buttonPane.add(Box.createHorizontalGlue());
 		buttonPane.add(closeButton);
@@ -249,7 +253,7 @@ public class VariantEditor extends JDialog implements ActionListener {
 			try {
 				Desktop.getDesktop().browse(variant.getIdentity());
 			} catch (IOException e1) {
-				JOptionPane.showMessageDialog(null, "The URI could not be opened: " + e1.getMessage());
+				JOptionPane.showMessageDialog(parent, "The URI could not be opened: " + e1.getMessage());
 			}
 		}
 	}
@@ -356,7 +360,8 @@ public class VariantEditor extends JDialog implements ActionListener {
 		String uniqueId = SBOLUtils.getUniqueDisplayId(null, null,
 				derivationCD.getDisplayId() + "_CombinatorialDerivation", derivationCD.getVersion(),
 				"CombinatorialDerivation", design);
-		CombinatorialDerivation derivation = design.createCombinatorialDerivation(uniqueId, derivationCD.getIdentity());
+		CombinatorialDerivation derivation = design.createCombinatorialDerivation(uniqueId, derivationCD.getVersion(),
+				derivationCD.getIdentity());
 
 		StrategyType strategy = ((Strategy) strategySelection.getSelectedItem()).type;
 		if (strategy != null) {
@@ -470,6 +475,11 @@ public class VariantEditor extends JDialog implements ActionListener {
 				updateTable();
 				return;
 			}
+
+			if (e.getSource() == newButton) {
+				addCombinatorialDerivation();
+				return;
+			}
 		} catch (Exception e1) {
 			e1.printStackTrace();
 		}
@@ -492,6 +502,12 @@ public class VariantEditor extends JDialog implements ActionListener {
 	private void setOperator(OperatorType operator) throws Exception {
 		VariableComponent variable = getVariableComponent(operator);
 		variable.setOperator(operator);
+	}
+
+	private void addCombinatorialDerivation() throws SBOLValidationException {
+		CombinatorialDerivation newDerivation = createCombinatorialDerivation(derivationCD);
+		JOptionPane.showMessageDialog(parent,
+				"A new CombinatorialDerivation was created: " + newDerivation.getDisplayId());
 	}
 
 	private void updateTable() {
