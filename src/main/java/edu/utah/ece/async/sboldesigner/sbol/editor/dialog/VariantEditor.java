@@ -36,6 +36,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
@@ -63,7 +64,9 @@ public class VariantEditor extends JDialog implements ActionListener {
 	private final JButton addButton = new JButton("Add Variant");
 	private final JButton removeButton = new JButton("Remove Variant");
 	private final JButton newButton = new JButton("Add new Combinatorial Derivation");
-	private final JButton closeButton = new JButton("Save");
+	private final JButton saveButton = new JButton("Save");
+	private final JTextField name = new JTextField();
+	private final JTextField description = new JTextField();
 	private JTable table;
 	private JLabel tableLabel;
 	private JScrollPane scroller;
@@ -119,11 +122,6 @@ public class VariantEditor extends JDialog implements ActionListener {
 		this.parent = parent;
 		this.design = design;
 
-		CombinatorialDerivation derivation = getCombinatorialDerivation(derivationCD);
-		if (derivation != null) {
-			this.setTitle("Chosen combinatorial derivation: " + title(derivation));
-		}
-
 		try {
 			operatorSelection.setSelectedItem(getOperator());
 			operatorSelection.addActionListener(this);
@@ -132,9 +130,18 @@ public class VariantEditor extends JDialog implements ActionListener {
 					.setSelectedIndex(getStrategy() == null ? 0 : getStrategy() == StrategyType.ENUMERATE ? 1 : 2);
 			strategySelection.addActionListener(this);
 
+			CombinatorialDerivation derivation = getCombinatorialDerivation(derivationCD);
+			if (derivation != null) {
+				this.setTitle("Chosen combinatorial derivation: " + title(derivation));
+				name.setText(derivation.getName());
+				description.setText(derivation.getDescription());
+			}
+
 			FormBuilder builder = new FormBuilder();
 			builder.add("Variant operator", operatorSelection);
 			builder.add("Derivation strategy", strategySelection);
+			builder.add("Derivation name", name);
+			builder.add("Derivation description", description);
 			JPanel optionPane = builder.build();
 
 			addButton.addActionListener(this);
@@ -143,10 +150,10 @@ public class VariantEditor extends JDialog implements ActionListener {
 			removeButton.setEnabled(false);
 			newButton.addActionListener(this);
 			newButton.setEnabled(true);
-			closeButton.registerKeyboardAction(this, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0),
+			saveButton.registerKeyboardAction(this, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0),
 					JComponent.WHEN_IN_FOCUSED_WINDOW);
-			closeButton.addActionListener(this);
-			getRootPane().setDefaultButton(closeButton);
+			saveButton.addActionListener(this);
+			getRootPane().setDefaultButton(saveButton);
 
 			JPanel buttonPane = new JPanel();
 			buttonPane.setLayout(new BoxLayout(buttonPane, BoxLayout.LINE_AXIS));
@@ -156,7 +163,7 @@ public class VariantEditor extends JDialog implements ActionListener {
 			buttonPane.add(newButton);
 			buttonPane.add(Box.createHorizontalStrut(100));
 			buttonPane.add(Box.createHorizontalGlue());
-			buttonPane.add(closeButton);
+			buttonPane.add(saveButton);
 
 			JPanel tablePane = initMainPanel();
 
@@ -459,7 +466,15 @@ public class VariantEditor extends JDialog implements ActionListener {
 				return;
 			}
 
-			if (e.getSource() == closeButton) {
+			if (e.getSource() == saveButton) {
+				if (chosenDerivation != null) {
+					chosenDerivation.setName(name.getText());
+				}
+
+				if (chosenDerivation != null) {
+					chosenDerivation.setDescription(description.getText());
+				}
+
 				setVisible(false);
 				return;
 			}
@@ -497,32 +512,58 @@ public class VariantEditor extends JDialog implements ActionListener {
 		}
 	}
 
-	private void setStrategy(StrategyType strategy) throws SBOLValidationException {
-		CombinatorialDerivation derivation = getCombinatorialDerivation(derivationCD);
+	private void setStrategy(StrategyType strategy) {
+		try {
+			CombinatorialDerivation derivation = getCombinatorialDerivation(derivationCD);
 
-		if (derivation == null) {
-			derivation = createCombinatorialDerivation(derivationCD);
-		}
+			if (derivation == null) {
+				derivation = createCombinatorialDerivation(derivationCD);
+			}
 
-		if (strategy == null) {
-			derivation.unsetStrategy();
-		} else {
-			derivation.setStrategy(strategy);
+			if (strategy == null) {
+				derivation.unsetStrategy();
+			} else {
+				derivation.setStrategy(strategy);
+			}
+		} catch (SBOLValidationException e) {
+			JOptionPane.showMessageDialog(parent, "Strategy cannot be enumerate when operators are *orMore");
+			e.printStackTrace();
+			setVisible(false);
 		}
 	}
 
-	private void setOperator(OperatorType operator) throws Exception {
-		VariableComponent variable = getVariableComponent(operator);
-		variable.setOperator(operator);
+	private void setOperator(OperatorType operator) {
+		try {
+			VariableComponent variable = getVariableComponent(operator);
+			variable.setOperator(operator);
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog(parent, "Operator cannot be *orMore when strategy is enumerate");
+			e.printStackTrace();
+			setVisible(false);
+		}
 	}
 
 	private void addCombinatorialDerivation() throws SBOLValidationException {
-		String displayId = JOptionPane.showInputDialog("What would you like the displayId to be?");
+		String displayId = JOptionPane.showInputDialog("What would you like the Display ID to be?");
 		if (displayId == null) {
 			return;
 		}
 
+		boolean setFields = false;
+		if (chosenDerivation == null) {
+			setFields = true;
+		}
+
 		CombinatorialDerivation newDerivation = createCombinatorialDerivation(derivationCD, displayId);
+
+		if (setFields) {
+			if (!name.getText().equals("")) {
+				newDerivation.setName(name.getText());
+			}
+			if (!description.getText().equals("")) {
+				newDerivation.setDescription(description.getText());
+			}
+		}
 
 		JOptionPane.showMessageDialog(parent,
 				"A new CombinatorialDerivation was created: " + newDerivation.getDisplayId());
