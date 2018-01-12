@@ -119,49 +119,54 @@ public class VariantEditor extends JDialog implements ActionListener {
 		this.parent = parent;
 		this.design = design;
 
-		operatorSelection.setSelectedItem(getOperator());
-		operatorSelection.addActionListener(this);
+		try {
+			operatorSelection.setSelectedItem(getOperator());
+			operatorSelection.addActionListener(this);
 
-		strategySelection.setSelectedIndex(getStrategy() == null ? 0 : getStrategy() == StrategyType.ENUMERATE ? 1 : 2);
-		strategySelection.addActionListener(this);
+			strategySelection
+					.setSelectedIndex(getStrategy() == null ? 0 : getStrategy() == StrategyType.ENUMERATE ? 1 : 2);
+			strategySelection.addActionListener(this);
 
-		FormBuilder builder = new FormBuilder();
-		builder.add("Variant operator", operatorSelection);
-		builder.add("Derivation strategy", strategySelection);
-		JPanel optionPane = builder.build();
+			FormBuilder builder = new FormBuilder();
+			builder.add("Variant operator", operatorSelection);
+			builder.add("Derivation strategy", strategySelection);
+			JPanel optionPane = builder.build();
 
-		addButton.addActionListener(this);
-		addButton.setEnabled(true);
-		removeButton.addActionListener(this);
-		removeButton.setEnabled(false);
-		newButton.addActionListener(this);
-		newButton.setEnabled(true);
-		closeButton.registerKeyboardAction(this, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0),
-				JComponent.WHEN_IN_FOCUSED_WINDOW);
-		closeButton.addActionListener(this);
-		getRootPane().setDefaultButton(closeButton);
+			addButton.addActionListener(this);
+			addButton.setEnabled(true);
+			removeButton.addActionListener(this);
+			removeButton.setEnabled(false);
+			newButton.addActionListener(this);
+			newButton.setEnabled(true);
+			closeButton.registerKeyboardAction(this, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0),
+					JComponent.WHEN_IN_FOCUSED_WINDOW);
+			closeButton.addActionListener(this);
+			getRootPane().setDefaultButton(closeButton);
 
-		JPanel buttonPane = new JPanel();
-		buttonPane.setLayout(new BoxLayout(buttonPane, BoxLayout.LINE_AXIS));
-		buttonPane.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-		buttonPane.add(addButton);
-		buttonPane.add(removeButton);
-		buttonPane.add(newButton);
-		buttonPane.add(Box.createHorizontalStrut(100));
-		buttonPane.add(Box.createHorizontalGlue());
-		buttonPane.add(closeButton);
+			JPanel buttonPane = new JPanel();
+			buttonPane.setLayout(new BoxLayout(buttonPane, BoxLayout.LINE_AXIS));
+			buttonPane.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+			buttonPane.add(addButton);
+			buttonPane.add(removeButton);
+			buttonPane.add(newButton);
+			buttonPane.add(Box.createHorizontalStrut(100));
+			buttonPane.add(Box.createHorizontalGlue());
+			buttonPane.add(closeButton);
 
-		JPanel tablePane = initMainPanel();
+			JPanel tablePane = initMainPanel();
 
-		Container contentPane = getContentPane();
-		contentPane.add(optionPane, BorderLayout.PAGE_START);
-		contentPane.add(tablePane, BorderLayout.CENTER);
-		contentPane.add(buttonPane, BorderLayout.PAGE_END);
-		((JComponent) contentPane).setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+			Container contentPane = getContentPane();
+			contentPane.add(optionPane, BorderLayout.PAGE_START);
+			contentPane.add(tablePane, BorderLayout.CENTER);
+			contentPane.add(buttonPane, BorderLayout.PAGE_END);
+			((JComponent) contentPane).setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-		pack();
-		setLocationRelativeTo(parent);
-		this.setVisible(true);
+			pack();
+			setLocationRelativeTo(parent);
+			this.setVisible(true);
+		} catch (SBOLValidationException e) {
+			e.printStackTrace();
+		}
 	}
 
 	private StrategyType getStrategy() {
@@ -173,7 +178,7 @@ public class VariantEditor extends JDialog implements ActionListener {
 		return derivation.getStrategy();
 	}
 
-	private OperatorType getOperator() {
+	private OperatorType getOperator() throws SBOLValidationException {
 		VariableComponent variable = getVariableComponent();
 		if (variable == null) {
 			return OperatorType.ONE;
@@ -182,7 +187,7 @@ public class VariantEditor extends JDialog implements ActionListener {
 		return variable.getOperator();
 	}
 
-	protected JPanel initMainPanel() {
+	protected JPanel initMainPanel() throws SBOLValidationException {
 		ComponentDefinitionTableModel tableModel = new ComponentDefinitionTableModel(getVariants());
 
 		JPanel panel = createTablePanel(tableModel, "Variant count (" + tableModel.getRowCount() + ")");
@@ -273,6 +278,7 @@ public class VariantEditor extends JDialog implements ActionListener {
 		if (derivation == null) {
 			derivation = createCombinatorialDerivation(derivationCD);
 		}
+		insertNestedDerivations(derivation, derivationCD, variableCD);
 
 		org.sbolstandard.core2.Component link = getComponentLink(derivationCD, variableCD);
 		if (link == null) {
@@ -287,11 +293,12 @@ public class VariantEditor extends JDialog implements ActionListener {
 		return variable;
 	}
 
-	private VariableComponent getVariableComponent() {
+	private VariableComponent getVariableComponent() throws SBOLValidationException {
 		CombinatorialDerivation derivation = getCombinatorialDerivation(derivationCD);
 		if (derivation == null) {
 			return null;
 		}
+		insertNestedDerivations(derivation, derivationCD, variableCD);
 
 		org.sbolstandard.core2.Component link = getComponentLink(derivationCD, variableCD);
 		if (link == null) {
@@ -328,7 +335,7 @@ public class VariantEditor extends JDialog implements ActionListener {
 		return null;
 	}
 
-	private List<ComponentDefinition> getVariants() {
+	private List<ComponentDefinition> getVariants() throws SBOLValidationException {
 		ArrayList<ComponentDefinition> variants = new ArrayList<>();
 
 		VariableComponent variable = getVariableComponent();
@@ -368,12 +375,17 @@ public class VariantEditor extends JDialog implements ActionListener {
 			derivation.setStrategy(strategy);
 		}
 
-		addAsNestedDerivation(derivationCD, derivation);
-		addNestedDerivations();
+		insertNestedDerivations(derivation, derivationCD, variableCD);
 
 		chosenDerivation = derivation;
 
 		return derivation;
+	}
+
+	private void insertNestedDerivations(CombinatorialDerivation derivation, ComponentDefinition derivationCD,
+			ComponentDefinition variableCD) throws SBOLValidationException {
+		addAsNestedDerivation(derivationCD, derivation);
+		addNestedDerivations(variableCD);
 	}
 
 	private void addAsNestedDerivation(ComponentDefinition derivationCD, CombinatorialDerivation derivation)
@@ -390,27 +402,25 @@ public class VariantEditor extends JDialog implements ActionListener {
 							variable = createVariableComponent(parentDerivation, OperatorType.ONE, link);
 						}
 
-						variable.addVariantDerivation(derivation.getIdentity());
+						if (!variable.getVariantDerivations().contains(derivation)) {
+							variable.addVariantDerivation(derivation.getIdentity());
+						}
 					}
 				}
 			}
 		}
 	}
 
-	private void addNestedDerivations() throws SBOLValidationException {
+	private void addNestedDerivations(ComponentDefinition variableCD) throws SBOLValidationException {
 		VariableComponent variable = getVariableComponent();
 		if (variable == null) {
 			return;
 		}
 
-		for (org.sbolstandard.core2.Component link : variableCD.getComponents()) {
-			ComponentDefinition child = link.getDefinition();
-			if (child != null) {
-				for (CombinatorialDerivation childDerivation : design.getCombinatorialDerivations()) {
-					if (childDerivation.getTemplate().equals(child)) {
-						variable.addVariantDerivation(childDerivation.getIdentity());
-					}
-				}
+		for (CombinatorialDerivation childDerivation : design.getCombinatorialDerivations()) {
+			if (childDerivation.getTemplate().equals(variableCD)
+					&& !variable.getVariantDerivations().contains(childDerivation)) {
+				variable.addVariantDerivation(childDerivation.getIdentity());
 			}
 		}
 	}
@@ -510,7 +520,7 @@ public class VariantEditor extends JDialog implements ActionListener {
 				"A new CombinatorialDerivation was created: " + newDerivation.getDisplayId());
 	}
 
-	private void updateTable() {
+	private void updateTable() throws SBOLValidationException {
 		ComponentDefinitionTableModel tableModel = new ComponentDefinitionTableModel(getVariants());
 		table.setModel(tableModel);
 		setWidthAsPercentages(table, tableModel.getWidths());
