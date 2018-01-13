@@ -26,8 +26,6 @@ import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.CombinatorialDerivatio
 
 public class CombinatorialExpansionUtil {
 
-	private static URI generatedByDerivationURI;
-
 	public static SBOLDocument createCombinatorialDesign(SBOLDocument doc) throws SBOLValidationException {
 		CombinatorialDerivation derivation = CombinatorialDerivationInputDialog.pickCombinatorialDerivation(doc, null);
 		if (derivation == null) {
@@ -35,7 +33,6 @@ public class CombinatorialExpansionUtil {
 			return null;
 		}
 
-		generatedByDerivationURI = derivation.getIdentity();
 		HashSet<ComponentDefinition> enumeration = enumerate(doc, derivation);
 
 		if (!derivation.isSetStrategy()) {
@@ -55,16 +52,17 @@ public class CombinatorialExpansionUtil {
 
 		if (derivation.getStrategy() == StrategyType.SAMPLE) {
 			ComponentDefinition[] a = enumeration.toArray(new ComponentDefinition[0]);
-			doc.createRecursiveCopy(generated, a[ThreadLocalRandom.current().nextInt(a.length)]);
+			ComponentDefinition sample = a[ThreadLocalRandom.current().nextInt(a.length)];
+			ProvenanceUtil.createProvenance(doc, sample, derivation);
+			doc.createRecursiveCopy(generated, sample);
 		} else if (derivation.getStrategy() == StrategyType.ENUMERATE) {
+			ProvenanceUtil.createProvenance(doc, enumeration.iterator().next(), derivation);
 			for (ComponentDefinition CD : enumeration) {
 				doc.createRecursiveCopy(generated, CD);
 			}
 		} else {
 			throw new IllegalArgumentException();
 		}
-
-		ProvenanceUtil.createProvenance(generated, generated.getRootComponentDefinitions().iterator().next());
 
 		return generated;
 	}
@@ -77,7 +75,6 @@ public class CombinatorialExpansionUtil {
 				template.getVersion(), "CD", doc);
 		ComponentDefinition copy = (ComponentDefinition) doc.createCopy(template, uniqueId, template.getVersion());
 		copy.addWasDerivedFrom(template.getIdentity());
-		copy.addWasGeneratedBy(generatedByDerivationURI);
 
 		copy.clearSequenceAnnotations();
 
@@ -137,7 +134,6 @@ public class CombinatorialExpansionUtil {
 						"1", "Component", null);
 				Component link = newParent.createComponent(uniqueId, AccessType.PUBLIC, child.getIdentity());
 				link.addWasDerivedFrom(originalComponent.getIdentity());
-				link.addWasGeneratedBy(generatedByDerivationURI);
 
 				// create a new 'prev precedes link' constraint
 				Component oldPrev = getBeforeComponent(originalTemplate, originalComponent);

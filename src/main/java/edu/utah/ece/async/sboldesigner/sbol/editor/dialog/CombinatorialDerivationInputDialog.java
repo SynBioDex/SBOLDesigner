@@ -27,7 +27,7 @@ public class CombinatorialDerivationInputDialog {
 		ArrayList<Derivation> derivations = new ArrayList<>();
 
 		for (CombinatorialDerivation derivation : doc.getCombinatorialDerivations()) {
-			if (derivation.getTemplate().equals(template)) {
+			if (template == null || derivation.getTemplate().equals(template)) {
 				Derivation d = new Derivation(derivation);
 				derivations.add(d);
 			}

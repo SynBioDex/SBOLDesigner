@@ -65,6 +65,7 @@ public class VariantEditor extends JDialog implements ActionListener {
 	private final JButton removeButton = new JButton("Remove Variant");
 	private final JButton newButton = new JButton("Add new Combinatorial Derivation");
 	private final JButton saveButton = new JButton("Save");
+	private final JTextField displayId = new JTextField();
 	private final JTextField name = new JTextField();
 	private final JTextField description = new JTextField();
 	private JTable table;
@@ -132,14 +133,16 @@ public class VariantEditor extends JDialog implements ActionListener {
 
 			CombinatorialDerivation derivation = getCombinatorialDerivation(derivationCD);
 			if (derivation != null) {
-				this.setTitle("Chosen combinatorial derivation: " + title(derivation));
+				displayId.setText(derivation.getDisplayId());
 				name.setText(derivation.getName());
 				description.setText(derivation.getDescription());
 			}
+			displayId.setEditable(false);
 
 			FormBuilder builder = new FormBuilder();
 			builder.add("Variant operator", operatorSelection);
 			builder.add("Derivation strategy", strategySelection);
+			builder.add("Derivation display ID", displayId);
 			builder.add("Derivation name", name);
 			builder.add("Derivation description", description);
 			JPanel optionPane = builder.build();
@@ -369,7 +372,7 @@ public class VariantEditor extends JDialog implements ActionListener {
 			org.sbolstandard.core2.Component link) throws SBOLValidationException {
 		String uniqueId = SBOLUtils.getUniqueDisplayId(null, derivation, link.getDisplayId() + "_VariableComponent",
 				null, "VariableComponent", design);
-		return derivation.createVariableComponent(uniqueId, operator, link);
+		return derivation.createVariableComponent(uniqueId, operator, link.getIdentity());
 	}
 
 	private CombinatorialDerivation createCombinatorialDerivation(ComponentDefinition derivationCD)
@@ -391,6 +394,8 @@ public class VariantEditor extends JDialog implements ActionListener {
 
 		addAsNestedDerivation(derivationCD, derivation);
 		addNestedDerivations(variableCD);
+
+		this.displayId.setText(displayId);
 
 		chosenDerivation = derivation;
 
