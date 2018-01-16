@@ -14,10 +14,12 @@ import org.joda.time.DateTime;
 import org.sbolstandard.core2.Activity;
 import org.sbolstandard.core2.Annotation;
 import org.sbolstandard.core2.Association;
+import org.sbolstandard.core2.CombinatorialDerivation;
 import org.sbolstandard.core2.ComponentDefinition;
 import org.sbolstandard.core2.SBOLDocument;
 import org.sbolstandard.core2.SBOLValidationException;
 import org.sbolstandard.core2.TopLevel;
+import org.sbolstandard.core2.Usage;
 
 import edu.utah.ece.async.sboldesigner.sbol.editor.SBOLEditorPreferences;
 
@@ -30,6 +32,8 @@ public class ProvenanceUtil {
 	public static void createProvenance(SBOLDocument doc, ComponentDefinition root) throws SBOLValidationException {
 		createProvenance(doc, root, null);
 	}
+
+	private static final URI SEQUENCE_EDITOR = URI.create("http://sbols.org/v2#sequenceEditor");
 
 	/**
 	 * Same as others, except usage will get added as a usage of the Activity.
@@ -57,7 +61,8 @@ public class ProvenanceUtil {
 		if (usage != null) {
 			String usageId = usage.getDisplayId() + "_Usage";
 			if (activity.getUsage(usageId) == null) {
-				activity.createUsage(usageId, usage.getIdentity());
+				Usage used = activity.createUsage(usageId, usage.getIdentity());
+				used.addRole(SEQUENCE_EDITOR);
 			}
 		}
 
@@ -86,13 +91,13 @@ public class ProvenanceUtil {
 		}
 		if (!hasAssociation) {
 			Association association = activity.createAssociation("Association", designerURI);
-			association.addRole(URI.create("http://sbols.org/v2#sequenceEditor"));
+			association.addRole(SEQUENCE_EDITOR);
 		}
 
 		// Link with all TopLevels
 		for (TopLevel tl : doc.getTopLevels()) {
 			// check if in namespace
-			if (SBOLUtils.notInNamespace(tl)) {
+			if (SBOLUtils.notInNamespace(tl) || tl instanceof Activity || tl instanceof CombinatorialDerivation) {
 				continue;
 			}
 
@@ -108,7 +113,7 @@ public class ProvenanceUtil {
 			}
 
 			// Attach if there is no existing Activity
-			if (!hasActivity && !(tl instanceof Activity)) {
+			if (!hasActivity) {
 				tl.addWasGeneratedBy(activity.getIdentity());
 			}
 		}
