@@ -1192,7 +1192,7 @@ public class SBOLDesign {
 	private void updateComponentReferences(URI originalIdentity, URI newIdentity) throws SBOLValidationException {
 		for (ComponentDefinition CD : design.getComponentDefinitions()) {
 			for (org.sbolstandard.core2.Component comp : CD.getComponents()) {
-				if (comp.getDefinition().getIdentity().equals(originalIdentity)) {
+				if (comp.getDefinitionURI().equals(originalIdentity)) {
 					comp.setDefinition(newIdentity);
 				}
 			}
