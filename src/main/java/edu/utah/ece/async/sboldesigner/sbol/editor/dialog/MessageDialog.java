@@ -16,7 +16,11 @@ public class MessageDialog {
 			sb.append(message);
 			sb.append("\n");
 		}
-		JTextArea jta = new JTextArea(sb.toString());
+		showMessage(parentComponent, title, sb.toString());
+	}
+
+	public static void showMessage(Component parentComponent, String title, String message) {
+		JTextArea jta = new JTextArea();
 		jta.setLineWrap(true);
 		jta.setWrapStyleWord(true);
 		JScrollPane jsp = new JScrollPane(jta) {

@@ -132,7 +132,7 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 			return dialog.CD;
 		} catch (Exception e) {
 			e.printStackTrace();
-			JOptionPane.showMessageDialog(parent, "Error editing component: " + e.getMessage());
+			MessageDialog.showMessage(parent, "Error", "Error editing component: " + e.getMessage());
 			return null;
 		}
 	}
@@ -150,7 +150,7 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 			return dialog.SA;
 		} catch (Exception e) {
 			e.printStackTrace();
-			JOptionPane.showMessageDialog(parent, "Error editing sequenceAnnotation: " + e.getMessage());
+			MessageDialog.showMessage(parent, "Error", "Error editing sequenceAnnotation: " + e.getMessage());
 			return null;
 		}
 	}
@@ -228,7 +228,7 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 				try {
 					Desktop.getDesktop().browse(CD.getIdentity());
 				} catch (IOException e1) {
-					JOptionPane.showMessageDialog(parent, "The URI could not be opened: " + e1.getMessage());
+					MessageDialog.showMessage(parent, "Error", "The URI could not be opened: " + e1.getMessage());
 				}
 			}
 		});
@@ -264,7 +264,7 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 					try {
 						Desktop.getDesktop().browse(CD.getWasDerivedFrom());
 					} catch (IOException e1) {
-						JOptionPane.showMessageDialog(parent, "The URI could not be opened: " + e1.getMessage());
+						MessageDialog.showMessage(parent, "Error", "The URI could not be opened: " + e1.getMessage());
 					}
 				}
 			});
@@ -383,7 +383,7 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 				try {
 					Desktop.getDesktop().browse(CD.getIdentity());
 				} catch (IOException e1) {
-					JOptionPane.showMessageDialog(parent, "The URI could not be opened: " + e1.getMessage());
+					MessageDialog.showMessage(parent, "Error", "The URI could not be opened: " + e1.getMessage());
 				}
 			}
 		});
@@ -411,7 +411,7 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 					try {
 						Desktop.getDesktop().browse(SA.getWasDerivedFrom());
 					} catch (IOException e1) {
-						JOptionPane.showMessageDialog(parent, "The URI could not be opened: " + e1.getMessage());
+						MessageDialog.showMessage(parent, "Error", "The URI could not be opened: " + e1.getMessage());
 					}
 				}
 			});
@@ -535,7 +535,7 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 				return;
 			}
 		} catch (Exception e1) {
-			JOptionPane.showMessageDialog(null, "This part cannot be imported: " + e1.getMessage());
+			MessageDialog.showMessage(parent, "Error", "This part cannot be imported: " + e1.getMessage());
 			e1.printStackTrace();
 		}
 
@@ -558,7 +558,7 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 				CD = null;
 			}
 		} catch (Exception e1) {
-			MessageDialog.showMessage(this, "What you have entered is invalid", Arrays.asList(e1.getMessage()));
+			MessageDialog.showMessage(this, "What you have entered is invalid", e1.getMessage());
 			e1.printStackTrace();
 			keepVisible = true;
 		}
