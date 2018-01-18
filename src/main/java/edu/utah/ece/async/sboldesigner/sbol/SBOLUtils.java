@@ -31,6 +31,7 @@ import javax.swing.JPanel;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import org.sbolstandard.core2.Activity;
+import org.sbolstandard.core2.CombinatorialDerivation;
 import org.sbolstandard.core2.Component;
 import org.sbolstandard.core2.ComponentDefinition;
 import org.sbolstandard.core2.GenericTopLevel;
@@ -58,9 +59,11 @@ public class SBOLUtils {
 	 * dataType isn't a TopLevel), the displayId you want, the version (if
 	 * dataType is a TopLevel), the type of object, and the SBOLDocument
 	 * containing the design.
+	 * 
+	 * @throws SBOLValidationException
 	 */
-	public static String getUniqueDisplayId(ComponentDefinition comp, String displayId, String version, String dataType,
-			SBOLDocument design) {
+	public static String getUniqueDisplayId(ComponentDefinition comp, CombinatorialDerivation derivation,
+			String displayId, String version, String dataType, SBOLDocument design) throws SBOLValidationException {
 		// if can get using some displayId, then try the next number
 		switch (dataType) {
 		case "CD":
@@ -121,6 +124,24 @@ public class SBOLUtils {
 				// This will always return Range, Range2, Range3... etc,
 				// skipping Range1
 				return i == 1 ? displayId : displayId + i;
+			}
+		case "CombinatorialDerivation":
+			for (int i = 1; true; i++) {
+				if (i == 1 && design.getCombinatorialDerivation(displayId, version) == null) {
+					return displayId;
+				}
+				if (design.getCombinatorialDerivation(displayId + i, version) == null) {
+					return displayId + i;
+				}
+			}
+		case "VariableComponent":
+			for (int i = 1; true; i++) {
+				if (i == 1 && derivation.getVariableComponent(displayId) == null) {
+					return displayId;
+				}
+				if (derivation.getVariableComponent(displayId + i) == null) {
+					return displayId + i;
+				}
 			}
 		default:
 			throw new IllegalArgumentException();
@@ -243,6 +264,37 @@ public class SBOLUtils {
 		return new File(path);
 	}
 
+	public static JFileChooser setupFC() {
+		JFileChooser fc = new JFileChooser(SBOLUtils.setupFile());
+		fc.setMultiSelectionEnabled(false);
+		fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
+		fc.setAcceptAllFileFilterUsed(true);
+		fc.setFileFilter(
+				new FileNameExtensionFilter("SBOL file (*.xml, *.rdf, *.sbol), GenBank (*.gb, *.gbk), FASTA (*.fasta)",
+						"xml", "rdf", "sbol", "gb", "gbk", "fasta"));
+
+		return fc;
+	}
+
+	public static File selectFile(java.awt.Component parent, JFileChooser fc) {
+		fc.setSelectedFile(SBOLUtils.setupFile());
+		int returnVal = fc.showSaveDialog(parent);
+
+		if (returnVal != JFileChooser.APPROVE_OPTION) {
+			return null;
+		}
+
+		File file = fc.getSelectedFile();
+		if (file.exists()) {
+			JOptionPane.showMessageDialog(parent, "You cannot select this file, it already exists.");
+			return null;
+		}
+
+		Preferences.userRoot().node("path").put("path", file.getPath());
+
+		return file;
+	}
+
 	private static String getNucleotides(ComponentDefinition comp) {
 		// Sequence seq = comp.getSequence();
 		Sequence seq = null;
@@ -275,7 +327,7 @@ public class SBOLUtils {
 	 */
 	private static Sequence createSequence(String nucleotides, SBOLDocument design) {
 		try {
-			String uniqueId = SBOLUtils.getUniqueDisplayId(null, "Sequence", "1", "Sequence", design);
+			String uniqueId = SBOLUtils.getUniqueDisplayId(null, null, "Sequence", "1", "Sequence", design);
 			return design.createSequence(uniqueId, "1", nucleotides, Sequence.IUPAC_DNA);
 		} catch (SBOLValidationException e) {
 			e.printStackTrace();
@@ -470,6 +522,15 @@ public class SBOLUtils {
 			}
 		}
 		design.createCopy(doc);
+	}
+
+	public static void copyReferencedCombinatorialDerivations(SBOLDocument toDoc, SBOLDocument fromDoc)
+			throws SBOLValidationException {
+		for (CombinatorialDerivation derivation : fromDoc.getCombinatorialDerivations()) {
+			if (toDoc.getComponentDefinitions().contains(derivation.getTemplate())) {
+				fromDoc.createRecursiveCopy(toDoc, derivation);
+			}
+		}
 	}
 
 	/**

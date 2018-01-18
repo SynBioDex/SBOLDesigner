@@ -1,6 +1,8 @@
 package edu.utah.ece.async.sboldesigner.sbol;
 
 import org.sbolstandard.core2.GenericTopLevel;
+import org.sbolstandard.core2.Identified;
+
 import java.net.URI;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -12,21 +14,32 @@ import org.joda.time.DateTime;
 import org.sbolstandard.core2.Activity;
 import org.sbolstandard.core2.Annotation;
 import org.sbolstandard.core2.Association;
+import org.sbolstandard.core2.CombinatorialDerivation;
 import org.sbolstandard.core2.ComponentDefinition;
 import org.sbolstandard.core2.SBOLDocument;
 import org.sbolstandard.core2.SBOLValidationException;
 import org.sbolstandard.core2.TopLevel;
+import org.sbolstandard.core2.Usage;
 
 import edu.utah.ece.async.sboldesigner.sbol.editor.SBOLEditorPreferences;
 
 public class ProvenanceUtil {
-
 	/**
 	 * Adds an SBOLDesignerActivity -> SBOLDesignerAgent to the wasDerivedFrom
 	 * of every TopLevel that doesn't have an Activity. If an
 	 * SBOLDesignerActivity already exists on the root, updates the end time.
 	 */
 	public static void createProvenance(SBOLDocument doc, ComponentDefinition root) throws SBOLValidationException {
+		createProvenance(doc, root, null);
+	}
+
+	private static final URI SEQUENCE_EDITOR = URI.create("http://sbols.org/v2#sequenceEditor");
+
+	/**
+	 * Same as others, except usage will get added as a usage of the Activity.
+	 */
+	public static void createProvenance(SBOLDocument doc, ComponentDefinition root, Identified usage)
+			throws SBOLValidationException {
 		// Create or get the activity
 		String activityId = root.getDisplayId() + "_SBOLDesignerActivity";
 		Activity activity = null;
@@ -43,6 +56,15 @@ public class ProvenanceUtil {
 
 		// Set the ended at time
 		activity.setEndedAtTime(DateTime.now());
+
+		// Set the usage
+		if (usage != null) {
+			String usageId = usage.getDisplayId() + "_Usage";
+			if (activity.getUsage(usageId) == null) {
+				Usage used = activity.createUsage(usageId, usage.getIdentity());
+				used.addRole(SEQUENCE_EDITOR);
+			}
+		}
 
 		// Set the creator
 		String creator = SBOLEditorPreferences.INSTANCE.getUserInfo().getName();
@@ -69,13 +91,13 @@ public class ProvenanceUtil {
 		}
 		if (!hasAssociation) {
 			Association association = activity.createAssociation("Association", designerURI);
-			association.addRole(URI.create("http://sbols.org/v2#sequenceEditor"));
+			association.addRole(SEQUENCE_EDITOR);
 		}
 
 		// Link with all TopLevels
 		for (TopLevel tl : doc.getTopLevels()) {
 			// check if in namespace
-			if (SBOLUtils.notInNamespace(tl)) {
+			if (SBOLUtils.notInNamespace(tl) || tl instanceof Activity || tl instanceof CombinatorialDerivation) {
 				continue;
 			}
 
@@ -84,14 +106,14 @@ public class ProvenanceUtil {
 			// Check if hasActivity
 			for (URI uri : tl.getWasGeneratedBys()) {
 				TopLevel generatedBy = doc.getTopLevel(uri);
-				if (generatedBy != null && generatedBy.getDisplayId().contains("_SBOLDesignerActivity")
+				if (generatedBy != null && generatedBy.getDisplayId().equals(activity.getDisplayId())
 						&& generatedBy instanceof Activity) {
 					hasActivity = true;
 				}
 			}
 
 			// Attach if there is no existing Activity
-			if (!hasActivity && !(tl instanceof Activity)) {
+			if (!hasActivity) {
 				tl.addWasGeneratedBy(activity.getIdentity());
 			}
 		}

@@ -42,6 +42,8 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.net.URI;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -55,6 +57,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.prefs.Preferences;
 
 import javax.swing.Action;
 import javax.swing.BorderFactory;
@@ -63,6 +66,7 @@ import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
+import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -79,6 +83,7 @@ import org.sbolstandard.core2.AccessType;
 import org.sbolstandard.core2.Activity;
 import org.sbolstandard.core2.Annotation;
 import org.sbolstandard.core2.Association;
+import org.sbolstandard.core2.CombinatorialDerivation;
 import org.sbolstandard.core2.ComponentDefinition;
 import org.sbolstandard.core2.Cut;
 import org.sbolstandard.core2.GenericTopLevel;
@@ -87,13 +92,16 @@ import org.sbolstandard.core2.Location;
 import org.sbolstandard.core2.OrientationType;
 import org.sbolstandard.core2.Range;
 import org.sbolstandard.core2.RestrictionType;
+import org.sbolstandard.core2.SBOLConversionException;
 import org.sbolstandard.core2.SBOLDocument;
 import org.sbolstandard.core2.SBOLValidate;
 import org.sbolstandard.core2.SBOLValidationException;
+import org.sbolstandard.core2.SBOLWriter;
 import org.sbolstandard.core2.Sequence;
 import org.sbolstandard.core2.SequenceAnnotation;
 import org.sbolstandard.core2.SequenceOntology;
 import org.sbolstandard.core2.TopLevel;
+import org.sbolstandard.core2.VariableComponent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -105,6 +113,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
+import edu.utah.ece.async.sboldesigner.sbol.CombinatorialExpansionUtil;
 import edu.utah.ece.async.sboldesigner.sbol.ProvenanceUtil;
 import edu.utah.ece.async.sboldesigner.sbol.SBOLUtils;
 import edu.utah.ece.async.sboldesigner.sbol.SBOLUtils.Types;
@@ -180,9 +189,24 @@ public class SBOLDesign {
 				if (SBOLUtils.rootCalledUnamedPart(root.cd, panel)) {
 					return;
 				}
+
 				uploadDesign(panel, uploadDoc, null);
 			} catch (SBOLValidationException | SynBioHubException | URIException e) {
 				JOptionPane.showMessageDialog(panel, "There was a problem uploading the design: " + e.getMessage());
+				e.printStackTrace();
+			}
+		}
+	};
+
+	public final SBOLEditorAction COMBINATORIAL = new SBOLEditorAction("Expand combinatorial design",
+			"Expand the combinatorial design", "combinatorial.png") {
+		@Override
+		protected void perform() {
+			try {
+				expandCombinatorial();
+			} catch (SBOLValidationException | FileNotFoundException | SBOLConversionException e) {
+				JOptionPane.showMessageDialog(panel,
+						"There was a problem performing the combinatorial design expansion: " + e.getMessage());
 				e.printStackTrace();
 			}
 		}
@@ -753,7 +777,7 @@ public class SBOLDesign {
 
 		ComponentDefinition comp = part.createComponentDefinition(design);
 		if (edit) {
-			comp = PartEditDialog.editPart(panel.getParent(), comp, edit, true, design);
+			comp = PartEditDialog.editPart(panel.getParent(), getCanvasCD(), comp, edit, true, design);
 			if (comp == null) {
 				return null;
 			}
@@ -830,8 +854,8 @@ public class SBOLDesign {
 		fireDesignChangedEvent();
 	}
 
-	private void setupIcons(final JLabel button, final DesignElement e) {
-		Image image = e.getPart().getImage(e.getOrientation(), e.isComposite());
+	private void setupIcons(final JLabel button, final DesignElement e) throws SBOLValidationException {
+		Image image = e.getPart().getImage(e.getOrientation(), e.isComposite(), e.hasVariants(design, canvasCD));
 		Image selectedImage = Images.createBorderedImage(image, Color.LIGHT_GRAY);
 		button.setIcon(new ImageIcon(image));
 		button.setDisabledIcon(new ImageIcon(selectedImage));
@@ -849,7 +873,7 @@ public class SBOLDesign {
 		}
 	}
 
-	private JLabel createComponentButton(final DesignElement e) {
+	private JLabel createComponentButton(final DesignElement e) throws SBOLValidationException {
 		final JLabel button = new JLabel();
 		setupIcons(button, e);
 		button.setVerticalAlignment(JLabel.TOP);
@@ -1036,6 +1060,7 @@ public class SBOLDesign {
 
 			if (e == selectedElement) {
 				setSelectedElement(null);
+				deleteCombinatorialDesign(canvasCD, e.component);
 				design.removeComponentDefinition(e.component.getDefinition());
 				canvasCD.removeSequenceAnnotation(e.seqAnn);
 				canvasCD.clearSequenceConstraints();
@@ -1052,6 +1077,36 @@ public class SBOLDesign {
 			}
 			updateCanvasCD();
 			fireDesignChangedEvent();
+		}
+	}
+
+	private void deleteCombinatorialDesign(ComponentDefinition cd, org.sbolstandard.core2.Component component)
+			throws SBOLValidationException {
+		CombinatorialDerivation derivationToRemoveFrom = null;
+		VariableComponent variableToBeRemoved = null;
+
+		for (CombinatorialDerivation derivation : design.getCombinatorialDerivations()) {
+			for (VariableComponent variable : derivation.getVariableComponents()) {
+				if (variable.getVariable().equals(component)) {
+					derivationToRemoveFrom = derivation;
+					variableToBeRemoved = variable;
+					break;
+				}
+			}
+
+			if (derivationToRemoveFrom != null && variableToBeRemoved != null) {
+				break;
+			}
+		}
+
+		if (derivationToRemoveFrom == null || variableToBeRemoved == null) {
+			return;
+		}
+
+		derivationToRemoveFrom.removeVariableComponent(variableToBeRemoved);
+
+		if (derivationToRemoveFrom.getVariableComponents().isEmpty()) {
+			design.removeCombinatorialDerivation(derivationToRemoveFrom);
 		}
 	}
 
@@ -1168,14 +1223,14 @@ public class SBOLDesign {
 	public void editCanvasCD() throws SBOLValidationException {
 		if (!parentCDs.isEmpty() && !confirmEditable()) {
 			// read-only
-			PartEditDialog.editPart(panel.getParent(), getCanvasCD(), false, false, design);
+			PartEditDialog.editPart(panel.getParent(), parentCDs.peekFirst(), getCanvasCD(), false, false, design);
 			return;
 		}
 
 		ComponentDefinition comp = getCanvasCD();
 		URI originalIdentity = comp.getIdentity();
 		updateCanvasCD();
-		comp = PartEditDialog.editPart(panel.getParent(), comp, false, true, design);
+		comp = PartEditDialog.editPart(panel.getParent(), parentCDs.peekFirst(), comp, false, true, design);
 		if (comp != null) {
 			if (!originalIdentity.equals(comp.getIdentity())) {
 				updateComponentReferences(originalIdentity, comp.getIdentity());
@@ -1209,17 +1264,23 @@ public class SBOLDesign {
 		}
 		if (!confirmEditable()) {
 			// read-only
-			PartEditDialog.editPart(panel.getParent(), originalCD, false, false, design);
+			PartEditDialog.editPart(panel.getParent(), getCanvasCD(), originalCD, false, false, design);
 			return;
 		}
 
-		ComponentDefinition editedCD = PartEditDialog.editPart(panel.getParent(), originalCD, false, true, design);
+		ComponentDefinition editedCD = PartEditDialog.editPart(panel.getParent(), getCanvasCD(), originalCD, false,
+				true, design);
 
 		if (editedCD != null) {
 			// if the CD type or the displyId has been edited we need to
 			// update the component view so we'll replace it with the new CD
 			replaceCD(originalCD, editedCD);
+		} else {
+			// update how the glyph is drawn
+			DesignElement e = elements.get(getElementIndex(originalCD));
+			setupIcons(buttons.get(e), e);
 		}
+
 		fireDesignChangedEvent();
 	}
 
@@ -1239,6 +1300,29 @@ public class SBOLDesign {
 				return;
 			}
 			replaceCD(selectedElement.getCD(), root.cd);
+		}
+	}
+
+	private void expandCombinatorial() throws SBOLValidationException, SBOLConversionException, FileNotFoundException {
+		ComponentDefinitionBox root = new ComponentDefinitionBox();
+		SBOLDocument doc = createDocument(root);
+
+		if (SBOLUtils.rootCalledUnamedPart(root.cd, panel)) {
+			return;
+		}
+
+		File file = SBOLUtils.selectFile(getPanel(), SBOLUtils.setupFC());
+		if (file == null) {
+			return;
+		}
+
+		doc = CombinatorialExpansionUtil.createCombinatorialDesign(doc);
+
+		if (doc != null) {
+			if (!file.getName().contains(".")) {
+				file = new File(file + ".xml");
+			}
+			SBOLWriter.write(doc, new FileOutputStream(file));
 		}
 	}
 
@@ -1337,6 +1421,8 @@ public class SBOLDesign {
 
 		SBOLDocument doc = new SBOLDocument();
 		doc = design.createRecursiveCopy(rootComp);
+		SBOLUtils.copyReferencedCombinatorialDerivations(doc, design);
+
 		rootComp = doc.getComponentDefinition(rootComp.getIdentity());
 		if (root != null) {
 			root.cd = rootComp;
@@ -1410,8 +1496,8 @@ public class SBOLDesign {
 					if (option == 0) {
 						// use the old sequence provided it was there
 						if (oldSeq != null) {
-							String uniqueId = SBOLUtils.getUniqueDisplayId(null, canvasCD.getDisplayId() + "Sequence",
-									canvasCD.getVersion(), "Sequence", design);
+							String uniqueId = SBOLUtils.getUniqueDisplayId(null, null,
+									canvasCD.getDisplayId() + "Sequence", canvasCD.getVersion(), "Sequence", design);
 							oldSeq = design.createSequence(uniqueId, canvasCD.getVersion(), oldSeq.getElements(),
 									Sequence.IUPAC_DNA);
 							canvasCD.addSequence(oldSeq);
@@ -1420,7 +1506,7 @@ public class SBOLDesign {
 					}
 				}
 				// use the implied sequence
-				String uniqueId = SBOLUtils.getUniqueDisplayId(null, canvasCD.getDisplayId() + "Sequence", "1",
+				String uniqueId = SBOLUtils.getUniqueDisplayId(null, null, canvasCD.getDisplayId() + "Sequence", "1",
 						"Sequence", design);
 				Sequence newSequence = design.createSequence(uniqueId, "1", nucleotides, Sequence.IUPAC_DNA);
 				canvasCD.addSequence(newSequence);
@@ -1429,7 +1515,7 @@ public class SBOLDesign {
 				if (oldSeq != null) {
 					// only recreate it if it isn't in design
 					if (!design.getSequences().contains(oldSeq)) {
-						String uniqueId = SBOLUtils.getUniqueDisplayId(null, canvasCD.getDisplayId() + "Sequence",
+						String uniqueId = SBOLUtils.getUniqueDisplayId(null, null, canvasCD.getDisplayId() + "Sequence",
 								canvasCD.getVersion(), "Sequence", design);
 						oldSeq = design.createSequence(uniqueId, canvasCD.getVersion(), oldSeq.getElements(),
 								Sequence.IUPAC_DNA);
@@ -1462,7 +1548,7 @@ public class SBOLDesign {
 			// if a sequence exists, give seqAnn a Range
 			Sequence seq = e.getCD().getSequenceByEncoding(Sequence.IUPAC_DNA);
 			if (seq != null) {
-				String uniqueId = SBOLUtils.getUniqueDisplayId(canvasCD, e.seqAnn.getDisplayId() + "Range", null,
+				String uniqueId = SBOLUtils.getUniqueDisplayId(canvasCD, null, e.seqAnn.getDisplayId() + "_Range", null,
 						"Range", design);
 				int start = position;
 				int end = seq.getElements().length() + start - 1;
@@ -1504,8 +1590,8 @@ public class SBOLDesign {
 
 			if (subject == null || object == null)
 				continue;
-			String uniqueId = SBOLUtils.getUniqueDisplayId(canvasCD, "SequenceConstraint", null, "SequenceConstraint",
-					design);
+			String uniqueId = SBOLUtils.getUniqueDisplayId(canvasCD, null,
+					canvasCD.getDisplayId() + "_SequenceConstraint", null, "SequenceConstraint", design);
 			canvasCD.createSequenceConstraint(uniqueId, RestrictionType.PRECEDES, subject.getIdentity(),
 					object.getIdentity());
 		}
@@ -1568,15 +1654,15 @@ public class SBOLDesign {
 
 		private static org.sbolstandard.core2.Component createComponent(ComponentDefinition parentCD,
 				ComponentDefinition childCD, SBOLDocument design) throws SBOLValidationException {
-			String uniqueId = SBOLUtils.getUniqueDisplayId(parentCD, childCD.getDisplayId() + "Component", "",
+			String uniqueId = SBOLUtils.getUniqueDisplayId(parentCD, null, childCD.getDisplayId() + "_Component", "1",
 					"Component", design);
 			return parentCD.createComponent(uniqueId, AccessType.PUBLIC, childCD.getIdentity());
 		}
 
 		private static SequenceAnnotation createSeqAnn(ComponentDefinition parentCD, SBOLDocument design)
 				throws SBOLValidationException {
-			String uniqueId = SBOLUtils.getUniqueDisplayId(parentCD, parentCD.getDisplayId() + "SequenceAnnotation", "",
-					"SequenceAnnotation", design);
+			String uniqueId = SBOLUtils.getUniqueDisplayId(parentCD, null,
+					parentCD.getDisplayId() + "_SequenceAnnotation", "1", "SequenceAnnotation", design);
 			return parentCD.createSequenceAnnotation(uniqueId, "GenericLocation", OrientationType.INLINE);
 		}
 
@@ -1589,8 +1675,9 @@ public class SBOLDesign {
 		}
 
 		ComponentDefinition getCD() {
-			if (component == null)
+			if (component == null) {
 				return null;
+			}
 			return component.getDefinition();
 		}
 
@@ -1603,13 +1690,33 @@ public class SBOLDesign {
 		}
 
 		public boolean isComposite() {
-			ComponentDefinition cd = component.getDefinition();
+			ComponentDefinition cd = getCD();
 
 			if (cd == null) {
 				return false;
 			}
 
 			return !cd.getComponents().isEmpty();
+		}
+
+		public boolean hasVariants(SBOLDocument design, ComponentDefinition canvasCD) throws SBOLValidationException {
+			ComponentDefinition cd = getCD();
+
+			if (cd == null) {
+				return false;
+			}
+
+			for (CombinatorialDerivation derivation : design.getCombinatorialDerivations()) {
+				if (derivation.getTemplate().equals(canvasCD)) {
+					for (VariableComponent vc : derivation.getVariableComponents()) {
+						if (vc.getVariable().equals(component)) {
+							return true;
+						}
+					}
+				}
+			}
+
+			return false;
 		}
 
 		/**
