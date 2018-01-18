@@ -7,10 +7,25 @@
 	<description>An intuitive genetic design tool using SBOL 2</description>
 	<repositories>
 		<repository>
+			<id>ossrh</id>
+			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
+		</repository>
+		<repository>
 			<id>libRepo</id>
 			<url>file://${project.basedir}/libRepo</url>
 		</repository>
-	</repositories>
+    </repositories>
+    <distributionManagement>
+       <snapshotRepository>
+     <id>ossrh</id>
+     <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+   </snapshotRepository>
+   <repository>
+     <id>ossrh</id>
+     <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+   </repository>
+ </distributionManagement>
+
 	<properties>
 		<!-- protobuf paths -->
 		<protobuf.input.directory>${project.basedir}/src/main/proto</protobuf.input.directory>

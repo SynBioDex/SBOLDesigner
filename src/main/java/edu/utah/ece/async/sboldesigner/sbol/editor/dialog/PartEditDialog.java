@@ -55,6 +55,7 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.ListCellRenderer;
+import javax.swing.SwingUtilities;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.xml.namespace.QName;
@@ -782,8 +783,28 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 		}
 	}
 
+	private static boolean sequenceFieldHandlerIsActive = false;
+
+	private void handleSequenceField(DocumentEvent paramDocumentEvent) {
+		if (!sequenceFieldHandlerIsActive) {
+			if (paramDocumentEvent.getDocument() == sequenceField.getDocument()) {
+				Runnable changeText = new Runnable() {
+					@Override
+					public void run() {
+						sequenceFieldHandlerIsActive = true;
+						String sequence = sequenceField.getText();
+						sequenceField.setText(sequence.replaceAll("\\s+", ""));
+						sequenceFieldHandlerIsActive = false;
+					}
+				};
+				SwingUtilities.invokeLater(changeText);
+			}
+		}
+	}
+
 	@Override
 	public void removeUpdate(DocumentEvent paramDocumentEvent) {
+		handleSequenceField(paramDocumentEvent);
 		if (canEdit) {
 			saveButton.setEnabled(true);
 		}
@@ -791,6 +812,7 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 
 	@Override
 	public void insertUpdate(DocumentEvent paramDocumentEvent) {
+		handleSequenceField(paramDocumentEvent);
 		if (canEdit) {
 			saveButton.setEnabled(true);
 		}
@@ -798,6 +820,7 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 
 	@Override
 	public void changedUpdate(DocumentEvent paramDocumentEvent) {
+		handleSequenceField(paramDocumentEvent);
 		if (canEdit) {
 			saveButton.setEnabled(true);
 		}
