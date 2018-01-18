@@ -558,7 +558,7 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 				CD = null;
 			}
 		} catch (Exception e1) {
-			MessageDialog.showMessage(getParent(), "What you have entered is invalid", Arrays.asList(e1.getMessage()));
+			MessageDialog.showMessage(this, "What you have entered is invalid", Arrays.asList(e1.getMessage()));
 			e1.printStackTrace();
 			keepVisible = true;
 		}
@@ -580,15 +580,15 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 	private void validateSequenceEncoding(URI encoding) {
 		if ((encoding == Sequence.IUPAC_DNA || encoding == Sequence.IUPAC_RNA)
 				&& !(CD.containsType(ComponentDefinition.DNA) || CD.containsType(ComponentDefinition.RNA))) {
-			JOptionPane.showMessageDialog(parent,
+			JOptionPane.showMessageDialog(this,
 					"Warning! If the sequence is DNA or RNA, then the part should be of type DNA or RNA.");
 		}
 		if (encoding == Sequence.IUPAC_PROTEIN && !CD.containsType(ComponentDefinition.PROTEIN)) {
-			JOptionPane.showMessageDialog(parent,
+			JOptionPane.showMessageDialog(this,
 					"Warning! If the sequence is PROTEIN, then the part should be of type PROTEIN.");
 		}
 		if (encoding == Sequence.SMILES && !CD.containsType(ComponentDefinition.SMALL_MOLECULE)) {
-			JOptionPane.showMessageDialog(parent,
+			JOptionPane.showMessageDialog(this,
 					"Warning! If the sequence is SMILES, then the part should be of type SMALL_MOLECULE.");
 		}
 	}
@@ -612,16 +612,16 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 	}
 
 	private void openAnnotationHandler() {
-		new AnnotationEditor(parent, CD);
+		new AnnotationEditor(this, CD);
 	}
 
 	private void openVariantHandler() {
 		if (parentCD == null) {
-			JOptionPane.showMessageDialog(parent, "This part has no parent, and therefore can't have any variants.");
+			JOptionPane.showMessageDialog(this, "This part has no parent, and therefore can't have any variants.");
 			return;
 		}
 
-		new VariantEditor(parent, parentCD, CD, design);
+		new VariantEditor(this, parentCD, CD, design);
 	}
 
 	/**
@@ -636,7 +636,7 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 
 		// User selects the CD
 		ComponentDefinitionBox root = new ComponentDefinitionBox();
-		SBOLDocument selection = new RegistryInputDialog(this.getParent(), root, part, type, role).getInput();
+		SBOLDocument selection = new RegistryInputDialog(this, root, part, type, role).getInput();
 		if (selection == null) {
 			return false;
 		} else {
@@ -658,7 +658,7 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 
 			switch (CDs.length) {
 			case 0:
-				JOptionPane.showMessageDialog(getParent(), "There are no parts to import");
+				JOptionPane.showMessageDialog(this, "There are no parts to import");
 				return false;
 			case 1:
 				CD = CDs[0];
@@ -671,7 +671,7 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 						: (Part) roleSelection.getSelectedItem();
 
 				// User selects the CD
-				SBOLDocument selection = new PartInputDialog(getParent(), doc, criteria).getInput();
+				SBOLDocument selection = new PartInputDialog(this, doc, criteria).getInput();
 				if (selection == null) {
 					return false;
 				} else {
@@ -691,7 +691,7 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 	private void saveButtonHandler() throws SBOLValidationException {
 		if (SBOLUtils.notInNamespace(CD)) {
 			// Rename CD and use that
-			CD = confirmEditing(getParent(), CD, design);
+			CD = confirmEditing(this, CD, design);
 			if (CD == null) {
 				return;
 			}
@@ -708,13 +708,13 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 			CD.addWasDerivedFrom(oldIdentity);
 
 			/*
-			// update derivation references has issues with updating VariableComponent Component references
-			for (CombinatorialDerivation derivation : design.getCombinatorialDerivations()) {
-				if (derivation.getTemplateURI().equals(oldIdentity)) {
-					derivation.setTemplate(CD.getIdentity());
-				}
-			}
-			*/
+			 * // update derivation references has issues with updating
+			 * VariableComponent Component references for
+			 * (CombinatorialDerivation derivation :
+			 * design.getCombinatorialDerivations()) { if
+			 * (derivation.getTemplateURI().equals(oldIdentity)) {
+			 * derivation.setTemplate(CD.getIdentity()); } }
+			 */
 		}
 
 		if (name.getText().length() == 0) {
@@ -777,7 +777,7 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 				importedNucleotides = seqSet.iterator().next().getElements();
 			} else {
 				// multiple Sequences
-				importedNucleotides = new SequenceInputDialog(getParent(), seqSet).getInput();
+				importedNucleotides = new SequenceInputDialog(this, seqSet).getInput();
 			}
 			sequenceField.setText(importedNucleotides);
 		}
