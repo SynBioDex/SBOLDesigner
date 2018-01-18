@@ -79,7 +79,7 @@ public class SBOLDesignerPanel extends JPanel {
 			try {
 				return confirmSave();
 			} catch (Exception e) {
-				JOptionPane.showMessageDialog(null, "There was a problem saving this design: " + e.getMessage());
+				MessageDialog.showMessage(null, "There was a problem saving this design: ", e.getMessage());
 				e.printStackTrace();
 				return null;
 			}
@@ -93,7 +93,7 @@ public class SBOLDesignerPanel extends JPanel {
 			try {
 				newPart(false, false);
 			} catch (SBOLValidationException e) {
-				JOptionPane.showMessageDialog(null, "There was a problem creating this part: " + e.getMessage());
+				MessageDialog.showMessage(null, "There was a problem creating this part: ", e.getMessage());
 				e.printStackTrace();
 			}
 		}
@@ -110,7 +110,7 @@ public class SBOLDesignerPanel extends JPanel {
 					JOptionPane.showMessageDialog(null, "The current document has not yet been saved.");
 				}
 			} catch (SBOLValidationException | IOException | SBOLConversionException e) {
-				JOptionPane.showMessageDialog(null, "There was a problem opening this design: " + e.getMessage());
+				MessageDialog.showMessage(null, "There was a problem opening this design: ", e.getMessage());
 				e.printStackTrace();
 			}
 		}
@@ -128,7 +128,7 @@ public class SBOLDesignerPanel extends JPanel {
 				try {
 					openDocument(new FileDocumentIO(false));
 				} catch (SBOLValidationException | IOException | SBOLConversionException e) {
-					JOptionPane.showMessageDialog(null, "There was a problem opening this document: " + e.getMessage());
+					MessageDialog.showMessage(null, "There was a problem opening this document: ", e.getMessage());
 					e.printStackTrace();
 				}
 			}
@@ -147,8 +147,7 @@ public class SBOLDesignerPanel extends JPanel {
 					new FileDocumentIO(false).write(new SBOLDocument());
 					openDocument(new FileDocumentIO(false));
 				} catch (SBOLValidationException | IOException | SBOLConversionException e) {
-					JOptionPane.showMessageDialog(null,
-							"There was a problem creating this document: " + e.getMessage());
+					MessageDialog.showMessage(null, "There was a problem creating this document: ", e.getMessage());
 					e.printStackTrace();
 				}
 			}
@@ -174,7 +173,7 @@ public class SBOLDesignerPanel extends JPanel {
 			try {
 				export();
 			} catch (SBOLConversionException | IOException | SBOLValidationException e) {
-				JOptionPane.showMessageDialog(null, "There was a problem exporting this design: " + e.getMessage());
+				MessageDialog.showMessage(null, "There was a problem exporting this design: ", e.getMessage());
 				e.printStackTrace();
 			}
 		}

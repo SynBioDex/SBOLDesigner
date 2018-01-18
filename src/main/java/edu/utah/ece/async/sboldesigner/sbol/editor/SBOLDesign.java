@@ -159,7 +159,7 @@ public class SBOLDesign {
 			try {
 				editCanvasCD();
 			} catch (SBOLValidationException e) {
-				JOptionPane.showMessageDialog(panel, "There was an error applying the edits: " + e.getMessage());
+				MessageDialog.showMessage(panel, "There was an error applying the edits: ", e.getMessage());
 				e.printStackTrace();
 			}
 		}
@@ -172,7 +172,7 @@ public class SBOLDesign {
 			try {
 				findPartForSelectedCD();
 			} catch (Exception e) {
-				JOptionPane.showMessageDialog(panel, "There was a problem finding a part: " + e.getMessage());
+				MessageDialog.showMessage(panel, "There was a problem finding a part: ", e.getMessage());
 				e.printStackTrace();
 			}
 		}
@@ -192,7 +192,7 @@ public class SBOLDesign {
 
 				uploadDesign(panel, uploadDoc, null);
 			} catch (SBOLValidationException | SynBioHubException | URIException e) {
-				JOptionPane.showMessageDialog(panel, "There was a problem uploading the design: " + e.getMessage());
+				MessageDialog.showMessage(panel, "There was a problem uploading the design: ", e.getMessage());
 				e.printStackTrace();
 			}
 		}
@@ -205,8 +205,8 @@ public class SBOLDesign {
 			try {
 				expandCombinatorial();
 			} catch (SBOLValidationException | FileNotFoundException | SBOLConversionException e) {
-				JOptionPane.showMessageDialog(panel,
-						"There was a problem performing the combinatorial design expansion: " + e.getMessage());
+				MessageDialog.showMessage(panel, "There was a problem performing the combinatorial design expansion: ",
+						e.getMessage());
 				e.printStackTrace();
 			}
 		}
@@ -219,7 +219,7 @@ public class SBOLDesign {
 			try {
 				editSelectedCD();
 			} catch (SBOLValidationException e) {
-				JOptionPane.showMessageDialog(panel, "There was an error applying the edits: " + e.getMessage());
+				MessageDialog.showMessage(panel, "There was an error applying the edits: ", e.getMessage());
 				e.printStackTrace();
 			}
 		}
@@ -232,7 +232,7 @@ public class SBOLDesign {
 				ComponentDefinition comp = getSelectedCD();
 				deleteCD(comp);
 			} catch (SBOLValidationException e) {
-				JOptionPane.showMessageDialog(panel, "There was an error deleting the part: " + e.getMessage());
+				MessageDialog.showMessage(panel, "There was an error deleting the part: ", e.getMessage());
 				e.printStackTrace();
 			}
 		}
@@ -246,7 +246,7 @@ public class SBOLDesign {
 				ComponentDefinition comp = getSelectedCD();
 				flipOrientation(comp);
 			} catch (SBOLValidationException e) {
-				JOptionPane.showMessageDialog(panel, "There was an error flipping the orientation: " + e.getMessage());
+				MessageDialog.showMessage(panel, "There was an error flipping the orientation: ", e.getMessage());
 				e.printStackTrace();
 			}
 		}
@@ -268,7 +268,7 @@ public class SBOLDesign {
 			try {
 				addScars();
 			} catch (SBOLValidationException e) {
-				JOptionPane.showMessageDialog(panel, "There was a problem adding scars: " + e.getMessage());
+				MessageDialog.showMessage(panel, "There was a problem adding scars: ", e.getMessage());
 				e.printStackTrace();
 			}
 		}
@@ -281,7 +281,7 @@ public class SBOLDesign {
 			try {
 				focusIn();
 			} catch (SBOLValidationException e) {
-				JOptionPane.showMessageDialog(panel, "There was a problem focussing in: " + e.getMessage());
+				MessageDialog.showMessage(panel, "There was a problem focussing in: ", e.getMessage());
 				e.printStackTrace();
 			}
 		}
@@ -294,7 +294,7 @@ public class SBOLDesign {
 			try {
 				focusOut();
 			} catch (SBOLValidationException e) {
-				JOptionPane.showMessageDialog(panel, "There was a problem focussing out: " + e.getMessage());
+				MessageDialog.showMessage(panel, "There was a problem focussing out: ", e.getMessage());
 				e.printStackTrace();
 			}
 		}
@@ -391,8 +391,7 @@ public class SBOLDesign {
 					try {
 						deleteCD(getSelectedCD());
 					} catch (SBOLValidationException e) {
-						JOptionPane.showMessageDialog(panel,
-								"There was an problem deleting this part: " + e.getMessage());
+						MessageDialog.showMessage(panel, "There was an problem deleting this part: ", e.getMessage());
 						e.printStackTrace();
 					}
 				}
@@ -902,7 +901,7 @@ public class SBOLDesign {
 					try {
 						editSelectedCD();
 					} catch (SBOLValidationException e) {
-						JOptionPane.showMessageDialog(panel, "There was a problem editing: " + e.getMessage());
+						MessageDialog.showMessage(panel, "There was a problem editing: ", e.getMessage());
 						e.printStackTrace();
 					}
 				}

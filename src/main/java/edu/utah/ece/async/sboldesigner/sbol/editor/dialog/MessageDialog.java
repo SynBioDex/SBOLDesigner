@@ -20,7 +20,7 @@ public class MessageDialog {
 	}
 
 	public static void showMessage(Component parentComponent, String title, String message) {
-		JTextArea jta = new JTextArea();
+		JTextArea jta = new JTextArea(message);
 		jta.setLineWrap(true);
 		jta.setWrapStyleWord(true);
 		JScrollPane jsp = new JScrollPane(jta) {
