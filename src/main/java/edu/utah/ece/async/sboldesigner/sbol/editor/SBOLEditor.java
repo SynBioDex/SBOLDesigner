@@ -40,6 +40,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import com.adamtaft.eb.BasicEventBus;
 import com.adamtaft.eb.EventBus;
 
+import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.MessageDialog;
 import edu.utah.ece.async.sboldesigner.sbol.editor.event.ThumbnailVisibilityChangedEvent;
 import edu.utah.ece.async.sboldesigner.swing.InvisibleSplitPane;
 
@@ -160,7 +161,7 @@ public class SBOLEditor extends JPanel {
 
 					ImageIO.write(image, format, file);
 				} catch (Exception ex) {
-					JOptionPane.showMessageDialog(this, "Error saving image: " + ex.getMessage());
+					MessageDialog.showMessage(this, "Error saving image: ", ex.getMessage());
 				}
 			}
 			break;

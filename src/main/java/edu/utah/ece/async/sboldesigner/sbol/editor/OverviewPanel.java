@@ -32,6 +32,7 @@ import org.sbolstandard.core2.SBOLValidationException;
 
 import com.adamtaft.eb.EventHandler;
 
+import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.MessageDialog;
 import edu.utah.ece.async.sboldesigner.sbol.editor.event.DesignLoadedEvent;
 import edu.utah.ece.async.sboldesigner.sbol.editor.event.FocusInEvent;
 import edu.utah.ece.async.sboldesigner.sbol.editor.event.FocusOutEvent;
@@ -86,7 +87,7 @@ public class OverviewPanel extends JPanel {
 				try {
 					editor.getDesign().focusOut(parentComponent);
 				} catch (SBOLValidationException e1) {
-					JOptionPane.showMessageDialog(null, "There was an error: " + e1.getMessage());
+					MessageDialog.showMessage(null, "There was an error: ", e1.getMessage());
 					e1.printStackTrace();
 				}
 			}

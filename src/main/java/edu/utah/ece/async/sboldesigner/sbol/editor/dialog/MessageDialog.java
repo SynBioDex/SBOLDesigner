@@ -23,6 +23,7 @@ public class MessageDialog {
 		JTextArea jta = new JTextArea(message);
 		jta.setLineWrap(true);
 		jta.setWrapStyleWord(true);
+		jta.setEditable(false);
 		JScrollPane jsp = new JScrollPane(jta) {
 			@Override
 			public Dimension getPreferredSize() {

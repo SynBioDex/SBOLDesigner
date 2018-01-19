@@ -1524,7 +1524,7 @@ public class SBOLDesign {
 			}
 			LOGGER.debug("Updated root:\n{}", canvasCD.toString());
 		} catch (SBOLValidationException e) {
-			JOptionPane.showMessageDialog(panel, "Error in updating root component");
+			MessageDialog.showMessage(null, "Error in updating root component: ", e.getMessage());
 			e.printStackTrace();
 		}
 	}

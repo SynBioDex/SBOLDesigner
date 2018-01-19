@@ -140,7 +140,7 @@ public class RootInputDialog extends InputDialog<SBOLDocument> {
 					SBOLWriter.write(doc, new FileOutputStream(file));
 					updateTable();
 				} catch (Exception e1) {
-					JOptionPane.showMessageDialog(rootPane, "Failed to delete CD: " + e1.getMessage());
+					MessageDialog.showMessage(rootPane, "Failed to delete CD: ", e1.getMessage());
 					e1.printStackTrace();
 				}
 			}
@@ -198,7 +198,7 @@ public class RootInputDialog extends InputDialog<SBOLDocument> {
 			root.cd = newDoc.getComponentDefinition(comp.getIdentity());
 			return newDoc;
 		} catch (SBOLValidationException e) {
-			JOptionPane.showMessageDialog(null, "This ComponentDefinition cannot be imported: " + e.getMessage());
+			MessageDialog.showMessage(null, "This ComponentDefinition cannot be imported: ", e.getMessage());
 			e.printStackTrace();
 			return null;
 		}

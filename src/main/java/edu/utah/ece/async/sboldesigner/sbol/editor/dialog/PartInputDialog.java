@@ -163,7 +163,7 @@ public class PartInputDialog extends InputDialog<SBOLDocument> {
 				return newDoc;
 			}
 		} catch (SBOLValidationException e) {
-			JOptionPane.showMessageDialog(null, "This ComponentDefinition cannot be imported: " + e.getMessage());
+			MessageDialog.showMessage(null, "This ComponentDefinition cannot be imported: ", e.getMessage());
 			e.printStackTrace();
 			return null;
 		}

@@ -319,7 +319,7 @@ public class SBOLDesignerPanel extends JPanel {
 			getURIprefix();
 			doc.setDefaultURIprefix(SBOLEditorPreferences.INSTANCE.getUserInfo().getURI().toString());
 		} catch (IllegalArgumentException e) {
-			JOptionPane.showMessageDialog(getParent(), e.getMessage());
+			MessageDialog.showMessage(null, "There was an error: ", e.getMessage());
 			setURIprefix(doc);
 		}
 	}

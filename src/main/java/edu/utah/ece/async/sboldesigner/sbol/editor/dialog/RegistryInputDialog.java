@@ -452,7 +452,7 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 			return SBOLUtils.getCDOfRole(doc, part);
 
 		} catch (Exception e) {
-			JOptionPane.showMessageDialog(null, "Getting the SBOLDocument from path failed: " + e.getMessage());
+			MessageDialog.showMessage(null, "Getting the SBOLDocument from path failed: ", e.getMessage());
 			Registries registries = Registries.get();
 			registries.setVersionRegistryIndex(0);
 			registries.save();
@@ -539,7 +539,7 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 
 			return document;
 		} catch (Exception e) {
-			JOptionPane.showMessageDialog(null, "Getting this selection failed: " + e.getMessage());
+			MessageDialog.showMessage(null, "Getting this selection failed: ", e.getMessage());
 			return null;
 		}
 	}

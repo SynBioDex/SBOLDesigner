@@ -30,6 +30,7 @@ import org.sbolstandard.core2.SBOLValidationException;
 import com.adamtaft.eb.EventHandler;
 import com.google.common.collect.Maps;
 
+import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.MessageDialog;
 import edu.utah.ece.async.sboldesigner.sbol.editor.event.DesignChangedEvent;
 
 /**
@@ -76,7 +77,7 @@ public class PartsPanel extends JPanel {
 				try {
 					design.addCD(part, part == Parts.UNSPECIFIED);
 				} catch (SBOLValidationException e) {
-					JOptionPane.showMessageDialog(null, "There was an error: " + e.getMessage());
+					MessageDialog.showMessage(null, "There was an error: ", e.getMessage());
 					e.printStackTrace();
 				}
 			}

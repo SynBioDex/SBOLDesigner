@@ -273,7 +273,7 @@ public class VariantEditor extends JDialog implements ActionListener {
 			try {
 				Desktop.getDesktop().browse(variant.getIdentity());
 			} catch (IOException e1) {
-				JOptionPane.showMessageDialog(parent, "The URI could not be opened: " + e1.getMessage());
+				MessageDialog.showMessage(parent, "The URI could not be opened: ", e1.getMessage());
 			}
 		}
 	}

@@ -72,7 +72,7 @@ public class SynBioHubQuery extends SwingWorker<Object, Object> {
 				try {
 					identified.addAll(getTableMetadata(synBioHub.getSubCollectionMetadata(collection), null));
 				} catch (SynBioHubException e1) {
-					JOptionPane.showMessageDialog(null, "There was a problem fetching collections: " + e1.getMessage());
+					MessageDialog.showMessage(null, "There was a problem fetching collections: ", e1.getMessage());
 					e1.printStackTrace();
 				}
 			}

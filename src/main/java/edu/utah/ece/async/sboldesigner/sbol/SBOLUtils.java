@@ -52,6 +52,7 @@ import com.google.common.collect.Maps;
 
 import edu.utah.ece.async.sboldesigner.sbol.editor.Part;
 import edu.utah.ece.async.sboldesigner.sbol.editor.SBOLEditorPreferences;
+import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.MessageDialog;
 
 public class SBOLUtils {
 	/**
@@ -222,7 +223,7 @@ public class SBOLUtils {
 				SBOLReader.setCompliant(true);
 				doc = SBOLReader.read(fc.getSelectedFile());
 			} catch (Exception e1) {
-				JOptionPane.showMessageDialog(null, "This file is unable to be imported: " + e1.getMessage());
+				MessageDialog.showMessage(null, "This file is unable to be imported: ", e1.getMessage());
 				e1.printStackTrace();
 			}
 			return doc;

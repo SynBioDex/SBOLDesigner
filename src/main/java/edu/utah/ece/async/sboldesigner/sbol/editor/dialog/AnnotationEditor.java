@@ -219,7 +219,7 @@ public class AnnotationEditor extends JDialog implements ActionListener {
 				try {
 					Desktop.getDesktop().browse(a.getURIValue());
 				} catch (IOException e1) {
-					JOptionPane.showMessageDialog(null, "The URI could not be opened: " + e1.getMessage());
+					MessageDialog.showMessage(null, "The URI could not be opened: ", e1.getMessage());
 				}
 			}
 		}
