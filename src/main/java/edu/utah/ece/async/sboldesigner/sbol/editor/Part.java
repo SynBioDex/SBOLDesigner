@@ -110,7 +110,7 @@ public class Part {
 	/**
 	 * Returns the image for the part that can be used in the SBOL design.
 	 */
-	public Image getImage(OrientationType orientation, boolean composite, boolean hasVariants) {
+	public Image getImage(OrientationType orientation, boolean composite, boolean hasVariants, boolean hasSequence) {
 		Image image = this.largeImage;
 
 		if (composite) {
@@ -123,6 +123,12 @@ public class Part {
 			BufferedImage scaledVariantOverlay = Images
 					.toBufferedImage(Images.scaleImageToWidth(Images.getPartImage("variant-overlay.png"), IMG_WIDTH));
 			image = Images.overlay(image, scaledVariantOverlay, IMG_WIDTH, IMG_HEIGHT);
+		} else {
+			if (!hasSequence) {
+				BufferedImage scaledWarningOverlay = Images.toBufferedImage(
+						Images.scaleImageToWidth(Images.getPartImage("error-advice-sign-overlay.png"), IMG_WIDTH));
+				image = Images.overlay(image, scaledWarningOverlay, IMG_WIDTH, IMG_HEIGHT);
+			}
 		}
 
 		if (orientation == OrientationType.REVERSECOMPLEMENT) {

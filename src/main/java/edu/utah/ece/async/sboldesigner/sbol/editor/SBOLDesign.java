@@ -854,7 +854,8 @@ public class SBOLDesign {
 	}
 
 	private void setupIcons(final JLabel button, final DesignElement e) throws SBOLValidationException {
-		Image image = e.getPart().getImage(e.getOrientation(), e.isComposite(), e.hasVariants(design, canvasCD));
+		Image image = e.getPart().getImage(e.getOrientation(), e.isComposite(), e.hasVariants(design, canvasCD),
+				e.hasSequence());
 		Image selectedImage = Images.createBorderedImage(image, Color.LIGHT_GRAY);
 		button.setIcon(new ImageIcon(image));
 		button.setDisabledIcon(new ImageIcon(selectedImage));
@@ -1121,9 +1122,9 @@ public class SBOLDesign {
 					newCD.addRole(e.getPart().getRole());
 				} else {
 					e.setPart(newPart);
-					setupIcons(button, e);
 				}
 			}
+			setupIcons(button, e);
 			button.setText(getButtonText(e));
 			button.setToolTipText(getTooltipText(e));
 
@@ -1716,6 +1717,17 @@ public class SBOLDesign {
 			}
 
 			return false;
+		}
+
+		public boolean hasSequence() {
+			ComponentDefinition cd = getCD();
+
+			if (cd == null) {
+				return false;
+			}
+
+			return cd.getSequences() != null && cd.getSequences().stream()
+					.filter(s -> s.getElements() != null && !s.getElements().equals("")).count() != 0;
 		}
 
 		/**
