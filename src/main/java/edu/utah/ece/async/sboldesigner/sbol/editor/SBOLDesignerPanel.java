@@ -49,9 +49,9 @@ import org.sbolstandard.core2.Sequence;
 import org.sbolstandard.core2.TopLevel;
 import org.synbiohub.frontend.SynBioHubFrontend;
 
-import com.adamtaft.eb.EventHandler;
 import com.google.common.base.Strings;
 import com.google.common.base.Supplier;
+import com.google.common.eventbus.Subscribe;
 
 import edu.utah.ece.async.sboldesigner.sbol.CombinatorialExpansionUtil;
 import edu.utah.ece.async.sboldesigner.sbol.SBOLUtils;
@@ -250,7 +250,7 @@ public class SBOLDesignerPanel extends JPanel {
 		WebOfRegistriesUtil wors = new WebOfRegistriesUtil();
 		wors.initRegistries();
 
-		editor.getEventBus().subscribe(this);
+		editor.getEventBus().register(this);
 	}
 
 	private void initGUI() {
@@ -621,7 +621,7 @@ public class SBOLDesignerPanel extends JPanel {
 		return SAVE.isEnabled();
 	}
 
-	@EventHandler
+	@Subscribe
 	public void designChanged(DesignChangedEvent e) {
 		updateEnabledButtons(true);
 	}

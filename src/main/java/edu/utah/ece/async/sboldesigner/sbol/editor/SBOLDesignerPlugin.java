@@ -45,7 +45,7 @@ import org.sbolstandard.core2.SBOLValidationException;
 import org.sbolstandard.core2.SBOLWriter;
 import org.synbiohub.frontend.SynBioHubException;
 
-import com.adamtaft.eb.EventHandler;
+import com.google.common.eventbus.Subscribe;
 
 import edu.utah.ece.async.sboldesigner.sbol.SBOLUtils;
 import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.ComponentDefinitionBox;
@@ -115,7 +115,7 @@ public class SBOLDesignerPlugin extends SBOLDesignerPanel {
 
 		initGUI();
 
-		editor.getEventBus().subscribe(this);
+		editor.getEventBus().register(this);
 
 		File file = new File(path + this.fileName);
 		Preferences.userRoot().node("path").put("path", file.getPath());
@@ -259,7 +259,7 @@ public class SBOLDesignerPlugin extends SBOLDesignerPanel {
 		}
 	}
 
-	@EventHandler
+	@Subscribe
 	public void designChanged(DesignChangedEvent e) {
 		updateEnabledButtons(true);
 	}

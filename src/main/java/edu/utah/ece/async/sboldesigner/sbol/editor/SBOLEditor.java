@@ -37,8 +37,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
-import com.adamtaft.eb.BasicEventBus;
-import com.adamtaft.eb.EventBus;
+import com.google.common.eventbus.EventBus;
 
 import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.MessageDialog;
 import edu.utah.ece.async.sboldesigner.sbol.editor.event.ThumbnailVisibilityChangedEvent;
@@ -61,12 +60,12 @@ public class SBOLEditor extends JPanel {
 		super(new BorderLayout());
 
 		editable = isEditable;
-		eventBus = new BasicEventBus();
+		eventBus = new EventBus();
 		design = new SBOLDesign(eventBus);
 		toolbar = new PartsPanel(this);
 		thumbnails = new OverviewPanel(this);
 
-		eventBus.subscribe(this);
+		eventBus.register(this);
 
 		JComponent designPanel = createTitledPanel("Design", design.getPanel(), VERTICAL_SCROLLBAR_AS_NEEDED,
 				HORIZONTAL_SCROLLBAR_AS_NEEDED);
@@ -94,7 +93,7 @@ public class SBOLEditor extends JPanel {
 			thumnailsPanel.setVisible(isVisible);
 			top.setDividerVisible(isVisible);
 
-			eventBus.publish(new ThumbnailVisibilityChangedEvent(isVisible));
+			eventBus.post(new ThumbnailVisibilityChangedEvent(isVisible));
 		}
 	}
 

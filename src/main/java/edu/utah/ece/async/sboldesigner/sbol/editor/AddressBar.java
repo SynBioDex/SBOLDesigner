@@ -36,7 +36,7 @@ import javax.swing.plaf.metal.MetalToolTipUI;
 
 import org.sbolstandard.core2.ComponentDefinition;
 
-import com.adamtaft.eb.EventHandler;
+import com.google.common.eventbus.Subscribe;
 
 import edu.utah.ece.async.sboldesigner.sbol.editor.event.DesignChangedEvent;
 import edu.utah.ece.async.sboldesigner.sbol.editor.event.DesignLoadedEvent;
@@ -77,7 +77,7 @@ public class AddressBar extends JToolBar {
 		});
 		add(button);
 
-		editor.getEventBus().subscribe(this);
+		editor.getEventBus().register(this);
 	}
 
 	private JButton createButton(final ComponentDefinition comp) {
@@ -115,7 +115,7 @@ public class AddressBar extends JToolBar {
 		add(createButton(comp), idx(count++));
 	}
 
-	@EventHandler
+	@Subscribe
 	public void designLoaded(DesignLoadedEvent event) {
 		while (count > 0) {
 			remove(idx(--count));
@@ -124,19 +124,19 @@ public class AddressBar extends JToolBar {
 		repaint();
 	}
 
-	@EventHandler
+	@Subscribe
 	public void designChanged(DesignChangedEvent event) {
 		JButton button = (JButton) getComponent(idx(count - 1));
 		button.setText(event.getDesign().getCanvasCD().getDisplayId());
 	}
 
-	@EventHandler
+	@Subscribe
 	public void focusedIn(FocusInEvent event) {
 		setToolTip(event.getSnapshot());
 		addButton(event.getComponent());
 	}
 
-	@EventHandler
+	@Subscribe
 	public void focusedOut(FocusOutEvent event) {
 		ComponentDefinition comp = event.getComponent();
 		while (count > 1) {

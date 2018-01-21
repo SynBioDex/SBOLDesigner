@@ -27,8 +27,8 @@ import javax.swing.SwingConstants;
 
 import org.sbolstandard.core2.SBOLValidationException;
 
-import com.adamtaft.eb.EventHandler;
 import com.google.common.collect.Maps;
+import com.google.common.eventbus.Subscribe;
 
 import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.MessageDialog;
 import edu.utah.ece.async.sboldesigner.sbol.editor.event.DesignChangedEvent;
@@ -53,7 +53,7 @@ public class PartsPanel extends JPanel {
 			}
 		}
 
-		editor.getEventBus().subscribe(this);
+		editor.getEventBus().register(this);
 	}
 
 	private void addPartButton(final Part part) {
@@ -85,7 +85,7 @@ public class PartsPanel extends JPanel {
 		return button;
 	}
 
-	@EventHandler
+	@Subscribe
 	public void designChanged(DesignChangedEvent event) {
 		buttons.get(Parts.CIRCULAR).setEnabled(!event.getDesign().isCircular());
 	}

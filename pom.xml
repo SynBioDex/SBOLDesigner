@@ -333,12 +333,6 @@
 			<version>${protobuf.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>simpleeventbus</groupId>
-			<artifactId>simpleeventbus</artifactId>
-			<version>1.2</version>
-			<type>jar</type>
-		</dependency>
-		<dependency>
 			<groupId>openrdf-sesame</groupId>
 			<artifactId>openrdf-sesame</artifactId>
 			<version>2.6.9</version>

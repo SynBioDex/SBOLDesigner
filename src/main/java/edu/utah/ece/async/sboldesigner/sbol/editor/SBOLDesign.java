@@ -105,13 +105,13 @@ import org.sbolstandard.core2.VariableComponent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.adamtaft.eb.EventBus;
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import com.google.common.eventbus.EventBus;
 
 import edu.utah.ece.async.sboldesigner.sbol.CombinatorialExpansionUtil;
 import edu.utah.ece.async.sboldesigner.sbol.ProvenanceUtil;
@@ -434,7 +434,7 @@ public class SBOLDesign {
 
 		load(comp);
 
-		eventBus.publish(new FocusInEvent(this, comp, snapshot));
+		eventBus.post(new FocusInEvent(this, comp, snapshot));
 	}
 
 	public boolean canFocusOut() {
@@ -461,7 +461,7 @@ public class SBOLDesign {
 
 		load(parentComponent);
 
-		eventBus.publish(new FocusOutEvent(this, parentComponent));
+		eventBus.post(new FocusOutEvent(this, parentComponent));
 	}
 
 	/**
@@ -514,7 +514,7 @@ public class SBOLDesign {
 		parentCDs.clear();
 		load(rootCD);
 
-		eventBus.publish(new DesignLoadedEvent(this));
+		eventBus.post(new DesignLoadedEvent(this));
 		return true;
 	}
 
@@ -1140,12 +1140,12 @@ public class SBOLDesign {
 	private void fireDesignChangedEvent() {
 		updateCanvasCD();
 		refreshUI();
-		eventBus.publish(new DesignChangedEvent(this));
+		eventBus.post(new DesignChangedEvent(this));
 	}
 
 	private void fireSelectionChangedEvent() {
 		updateEnabledActions();
-		eventBus.publish(new SelectionChangedEvent(getSelectedCD()));
+		eventBus.post(new SelectionChangedEvent(getSelectedCD()));
 	}
 
 	private void updateEnabledActions() {
@@ -1179,7 +1179,7 @@ public class SBOLDesign {
 
 			refreshUI();
 
-			eventBus.publish(new PartVisibilityChangedEvent(part, isVisible));
+			eventBus.post(new PartVisibilityChangedEvent(part, isVisible));
 
 			if (selectedElement != null && part.equals(selectedElement.getPart())) {
 				setSelectedElement(null);

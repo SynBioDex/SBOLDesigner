@@ -30,7 +30,7 @@ import javax.swing.JPanel;
 import org.sbolstandard.core2.ComponentDefinition;
 import org.sbolstandard.core2.SBOLValidationException;
 
-import com.adamtaft.eb.EventHandler;
+import com.google.common.eventbus.Subscribe;
 
 import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.MessageDialog;
 import edu.utah.ece.async.sboldesigner.sbol.editor.event.DesignLoadedEvent;
@@ -55,7 +55,7 @@ public class OverviewPanel extends JPanel {
 		setPreferredSize(new Dimension(WIDTH, WIDTH));
 		add(Box.createVerticalGlue());
 
-		editor.getEventBus().subscribe(this);
+		editor.getEventBus().register(this);
 	}
 
 	private JComponent createButton(final ComponentDefinition comp, final Image image) {
@@ -100,7 +100,7 @@ public class OverviewPanel extends JPanel {
 		add(createButton(comp, image), count++);
 	}
 
-	@EventHandler
+	@Subscribe
 	public void designLoaded(DesignLoadedEvent event) {
 		while (count > 0) {
 			remove(--count);
@@ -108,12 +108,12 @@ public class OverviewPanel extends JPanel {
 		repaint();
 	}
 
-	@EventHandler
+	@Subscribe
 	public void focusedIn(FocusInEvent event) {
 		addButton(event.getComponent(), event.getSnapshot());
 	}
 
-	@EventHandler
+	@Subscribe
 	public void focusedOut(FocusOutEvent event) {
 		ComponentDefinition comp = event.getComponent();
 		while (count > 0) {
