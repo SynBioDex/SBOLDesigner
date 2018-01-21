@@ -333,10 +333,14 @@
 			<version>${protobuf.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>openrdf-sesame</groupId>
-			<artifactId>openrdf-sesame</artifactId>
-			<version>2.6.9</version>
-			<type>jar</type>
+  			<groupId>org.openrdf.sesame</groupId>
+  			<artifactId>sesame-model</artifactId>
+  			<version>2.8.3</version>
+		</dependency>
+		<dependency>
+  			<groupId>org.openrdf.sesame</groupId>
+  			<artifactId>sesame-rio-rdfxml</artifactId>
+  			<version>2.8.3</version>
 		</dependency>
 		<dependency>
 			<groupId>org.sbolstandard</groupId>
