@@ -473,11 +473,12 @@ public class VariantEditor extends JDialog implements ActionListener {
 
 			if (e.getSource() == saveButton) {
 				if (chosenDerivation != null) {
-					chosenDerivation.setName(name.getText());
-				}
-
-				if (chosenDerivation != null) {
-					chosenDerivation.setDescription(description.getText());
+					if (!name.getText().equals("")) {
+						chosenDerivation.setName(name.getText());
+					}
+					if (!description.getText().equals("")) {
+						chosenDerivation.setDescription(description.getText());
+					}
 				}
 
 				setVisible(false);
@@ -554,10 +555,7 @@ public class VariantEditor extends JDialog implements ActionListener {
 			return;
 		}
 
-		boolean setFields = false;
-		if (chosenDerivation == null) {
-			setFields = true;
-		}
+		boolean setFields = chosenDerivation == null;
 
 		CombinatorialDerivation newDerivation = createCombinatorialDerivation(derivationCD, displayId);
 
