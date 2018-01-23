@@ -705,7 +705,6 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 					design);
 			URI oldIdentity = CD.getIdentity();
 			CD = (ComponentDefinition) design.createCopy(CD, uniqueId, version.getText());
-			CD.addWasDerivedFrom(oldIdentity);
 
 			/*
 			 * // update derivation references has issues with updating

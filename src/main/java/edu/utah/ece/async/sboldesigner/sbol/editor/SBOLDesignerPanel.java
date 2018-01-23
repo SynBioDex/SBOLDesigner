@@ -560,7 +560,8 @@ public class SBOLDesignerPanel extends JPanel {
 			while (!created) {
 				try {
 					version = SBOLUtils.getVersion(tl.getVersion()) + increment + "";
-					doc.createCopy(tl, tl.getDisplayId(), version);
+					TopLevel newTl = doc.createCopy(tl, tl.getDisplayId(), version);
+					newTl.addWasDerivedFrom(tl.getIdentity());
 					created = true;
 				} catch (SBOLValidationException e) {
 					increment++;
@@ -585,7 +586,8 @@ public class SBOLDesignerPanel extends JPanel {
 			while (!created) {
 				try {
 					version = SBOLUtils.getVersion(tl.getVersion()) + increment + "";
-					doc.createCopy(tl, tl.getDisplayId(), version);
+					TopLevel newTl = doc.createCopy(tl, tl.getDisplayId(), version);
+					newTl.addWasDerivedFrom(tl.getIdentity());
 					created = true;
 				} catch (SBOLValidationException e) {
 					increment++;
