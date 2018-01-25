@@ -523,7 +523,8 @@ public class SBOLDesignerPanel extends JPanel {
 			SBOLUtils.insertTopLevels(currentDesign, doc);
 			break;
 		case 1: // new version
-			saveNewVersion(currentRootCD, currentDesign, doc);
+			URI newRootUri = saveNewVersion(currentRootCD, currentDesign, doc);
+			design.load(doc, newRootUri);
 			break;
 		case 2: // canceled
 			updateEnabledButtons(true);
