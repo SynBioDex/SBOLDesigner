@@ -186,12 +186,12 @@ public class SBOLDesign {
 				ComponentDefinitionBox root = new ComponentDefinitionBox();
 				SBOLDocument uploadDoc = createDocument(root);
 
-				if (SBOLUtils.rootCalledUnamedPart(root.cd, panel)) {
+				if (!designerPanel.confirmSave()) {
 					return;
 				}
 
 				uploadDesign(panel, uploadDoc, null);
-			} catch (SBOLValidationException | SynBioHubException | URIException e) {
+			} catch (Exception e) {
 				MessageDialog.showMessage(panel, "There was a problem uploading the design: ", e.getMessage());
 				e.printStackTrace();
 			}
@@ -334,6 +334,8 @@ public class SBOLDesign {
 	private ComponentDefinition canvasCD;
 
 	private final Deque<ComponentDefinition> parentCDs = new ArrayDeque<ComponentDefinition>();
+
+	private SBOLDesignerPanel designerPanel;
 
 	public SBOLDesign(EventBus eventBus) {
 		this.eventBus = eventBus;
@@ -1820,5 +1822,9 @@ public class SBOLDesign {
 
 			return label;
 		}
+	}
+
+	public void setPanel(SBOLDesignerPanel designerPanel) {
+		this.designerPanel = designerPanel;
 	}
 }

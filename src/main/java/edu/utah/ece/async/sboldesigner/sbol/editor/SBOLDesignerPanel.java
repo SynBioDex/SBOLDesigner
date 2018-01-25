@@ -249,6 +249,7 @@ public class SBOLDesignerPanel extends JPanel {
 		initGUI();
 		WebOfRegistriesUtil wors = new WebOfRegistriesUtil();
 		wors.initRegistries();
+		design.setPanel(this);
 
 		editor.getEventBus().register(this);
 	}
@@ -419,11 +420,12 @@ public class SBOLDesignerPanel extends JPanel {
 							+ "the current design, all your changes will be lost.\n\n"
 							+ "Do you want to save your changes?",
 					"Save changes?", JOptionPane.YES_NO_CANCEL_OPTION);
-			if (confirmation == JOptionPane.CANCEL_OPTION) {
-				return false;
-			} else if (confirmation == JOptionPane.OK_OPTION) {
+
+			if (confirmation == JOptionPane.OK_OPTION) {
 				return save();
 			}
+
+			return false;
 		}
 		return true;
 	}
@@ -440,11 +442,10 @@ public class SBOLDesignerPanel extends JPanel {
 
 		// save into existing file or into a new file
 		if (SBOLUtils.setupFile().exists()) {
-			saveIntoExistingFile();
+			return saveIntoExistingFile();
 		} else {
-			saveIntoNewFile();
+			return saveIntoNewFile();
 		}
-		return true;
 	}
 
 	/**
@@ -468,22 +469,26 @@ public class SBOLDesignerPanel extends JPanel {
 		return false;
 	}
 
-	void saveIntoNewFile() throws FileNotFoundException, SBOLValidationException, SBOLConversionException, IOException {
+	boolean saveIntoNewFile()
+			throws FileNotFoundException, SBOLValidationException, SBOLConversionException, IOException {
 		ComponentDefinitionBox root = new ComponentDefinitionBox();
 		SBOLDocument doc = editor.getDesign().createDocument(root);
 
 		if (SBOLUtils.rootCalledUnamedPart(root.cd, this)) {
-			return;
+			updateEnabledButtons(true);
+			return false;
 		}
 
 		documentIO.write(doc);
 		updateEnabledButtons(false);
+
+		return true;
 	}
 
 	/**
 	 * Save design into an existing SBOL file
 	 */
-	void saveIntoExistingFile() throws Exception {
+	boolean saveIntoExistingFile() throws Exception {
 		// the document we are saving into
 		SBOLDocument doc = documentIO.read();
 
@@ -493,7 +498,8 @@ public class SBOLDesignerPanel extends JPanel {
 		ComponentDefinition currentRootCD = root.cd;
 
 		if (SBOLUtils.rootCalledUnamedPart(currentRootCD, this)) {
-			return;
+			updateEnabledButtons(true);
+			return false;
 		}
 
 		int selection;
@@ -504,7 +510,7 @@ public class SBOLDesignerPanel extends JPanel {
 					"Overwrite", JOptionPane.YES_NO_OPTION);
 			if (answer == JOptionPane.NO_OPTION || answer == JOptionPane.CLOSED_OPTION) {
 				updateEnabledButtons(true);
-				return;
+				return false;
 			} else {
 				selection = 0;
 			}
@@ -528,17 +534,17 @@ public class SBOLDesignerPanel extends JPanel {
 			break;
 		case 2: // canceled
 			updateEnabledButtons(true);
-			return;
+			return false;
 		case JOptionPane.CLOSED_OPTION: // closed
 			updateEnabledButtons(true);
-			return;
+			return false;
 		default:
 			throw new IllegalArgumentException();
 		}
 
 		documentIO.write(doc);
 		updateEnabledButtons(false);
-		return;
+		return true;
 	}
 
 	/**
