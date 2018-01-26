@@ -577,7 +577,9 @@ public class SBOLDesignerPanel extends JPanel {
 			return doc.getSequence(tl.getDisplayId(), version).getIdentity();
 		} else if (tl instanceof ComponentDefinition) {
 			for (org.sbolstandard.core2.Component comp : ((ComponentDefinition) tl).getComponents()) {
-				comp.setDefinition(saveNewVersion(comp.getDefinition(), currentDesign, doc));
+				if (comp.getDefinition() != null) {
+					comp.setDefinition(saveNewVersion(comp.getDefinition(), currentDesign, doc));
+				}
 			}
 			for (Sequence seq : ((ComponentDefinition) tl).getSequences()) {
 				((ComponentDefinition) tl).removeSequence(seq.getIdentity());

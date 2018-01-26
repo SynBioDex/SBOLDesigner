@@ -168,7 +168,7 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 	private static SynBioHubFrontend synBioHub;
 
 	private boolean allowCollectionSelection = false;
-	
+
 	private String objectType = "ComponentDefinition";
 
 	/**
@@ -177,7 +177,7 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 	public void allowCollectionSelection() {
 		allowCollectionSelection = true;
 	}
-	
+
 	public void setObjectType(String objectType) {
 		this.objectType = objectType;
 	}
@@ -294,7 +294,7 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 		if (objectType == "ComponentDefinition") {
 			builder.add("Part role", roleSelection);
 		}
-		
+
 		// set up the JComboBox for role refinement
 		roleRefinement = new JComboBox<String>();
 		updateRoleRefinement();
@@ -452,6 +452,7 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 			return SBOLUtils.getCDOfRole(doc, part);
 
 		} catch (Exception e) {
+			e.printStackTrace();
 			MessageDialog.showMessage(null, "Getting the SBOLDocument from path failed: ", e.getMessage());
 			Registries registries = Registries.get();
 			registries.setVersionRegistryIndex(0);
@@ -492,6 +493,7 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 			}
 
 		} catch (Exception e) {
+			e.printStackTrace();
 			JOptionPane.showMessageDialog(null, "Querying this repository failed: " + e.getMessage() + "\n"
 					+ " Internet connection is required for importing from SynBioHub. Setting default registry to built-in parts, which doesn't require an internet connection.");
 			Registries registries = Registries.get();
@@ -530,7 +532,9 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 					}
 				}
 			} else {
+				document = new SBOLDocument();
 				comp = ((ComponentDefinitionTableModel) table.getModel()).getElement(row);
+				document = document.createRecursiveCopy(comp);
 			}
 
 			if (root != null) {
@@ -539,6 +543,7 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 
 			return document;
 		} catch (Exception e) {
+			e.printStackTrace();
 			MessageDialog.showMessage(null, "Getting this selection failed: ", e.getMessage());
 			return null;
 		}
