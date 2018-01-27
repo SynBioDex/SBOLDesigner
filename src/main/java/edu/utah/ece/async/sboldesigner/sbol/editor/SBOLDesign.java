@@ -1113,7 +1113,13 @@ public class SBOLDesign {
 	}
 
 	private void replaceCD(ComponentDefinition oldCD, ComponentDefinition newCD) throws SBOLValidationException {
-		int index = getElementIndex(oldCD);
+		int index;
+		if (oldCD == null) {
+			index = getElementIndex(newCD);
+		} else {
+			index = getElementIndex(oldCD);
+		}
+
 		if (index >= 0) {
 			DesignElement e = elements.get(index);
 			JLabel button = buttons.get(e);
@@ -1276,7 +1282,7 @@ public class SBOLDesign {
 		if (editedCD != null) {
 			// if the CD type or the displyId has been edited we need to
 			// update the component view so we'll replace it with the new CD
-			replaceCD(originalCD, editedCD);
+			replaceCD(null, editedCD);
 		} else {
 			// update how the glyph is drawn
 			DesignElement e = elements.get(getElementIndex(originalCD));

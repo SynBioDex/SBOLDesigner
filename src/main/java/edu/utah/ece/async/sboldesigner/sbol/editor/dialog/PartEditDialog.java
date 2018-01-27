@@ -703,17 +703,7 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 		} else {
 			String uniqueId = SBOLUtils.getUniqueDisplayId(null, null, displayId.getText(), version.getText(), "CD",
 					design);
-			URI oldIdentity = CD.getIdentity();
-			CD = (ComponentDefinition) design.createCopy(CD, uniqueId, version.getText());
-
-			/*
-			 * // update derivation references has issues with updating
-			 * VariableComponent Component references for
-			 * (CombinatorialDerivation derivation :
-			 * design.getCombinatorialDerivations()) { if
-			 * (derivation.getTemplateURI().equals(oldIdentity)) {
-			 * derivation.setTemplate(CD.getIdentity()); } }
-			 */
+			CD = (ComponentDefinition) design.rename(CD, uniqueId, version.getText());
 		}
 
 		if (name.getText().length() == 0) {
