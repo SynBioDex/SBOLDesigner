@@ -20,6 +20,8 @@ import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -111,6 +113,12 @@ public enum UserInfoTab implements PreferencesTab {
 		if (hasNamespaceCollision(uri.getText())) {
 			JOptionPane.showMessageDialog(getComponent(),
 					"The user's domain namespace cannot conflict with an existing Registry namespace.\n"
+							+ "Please enter a valid domain for your organization (ex. http://dummy.org).");
+			return;
+		}
+		if (!isURIprefixCompliant(uri.getText())) {
+			JOptionPane.showMessageDialog(getComponent(),
+					"Invalid URI provided for the domain.\n"
 					+ "Please enter a valid domain for your organization (ex. http://dummy.org).");
 			return;
 		}
@@ -148,4 +156,18 @@ public enum UserInfoTab implements PreferencesTab {
 	public boolean requiresRestart() {
 		return false;
 	}
+		
+	private static final String delimiter = "[/|#|:]";
+	
+	private static final String protocol = "(?:https?|ftp|file)://";
+
+	private static final String URIprefixPattern = "\\b(?:"+protocol+")?[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]";
+
+	private static final Pattern URIprefixPatternPat = Pattern.compile(URIprefixPattern + delimiter);
+
+	private static boolean isURIprefixCompliant(String URIprefix) {
+		Matcher m = URIprefixPatternPat.matcher(URIprefix);
+		return m.matches();
+	}
+	
 }
