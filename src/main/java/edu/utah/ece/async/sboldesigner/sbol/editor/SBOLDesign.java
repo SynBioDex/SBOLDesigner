@@ -1282,7 +1282,7 @@ public class SBOLDesign {
 		if (editedCD != null) {
 			// if the CD type or the displyId has been edited we need to
 			// update the component view so we'll replace it with the new CD
-			replaceCD(null, editedCD);
+			replaceCD(originalCD, editedCD);
 		} else {
 			// update how the glyph is drawn
 			DesignElement e = elements.get(getElementIndex(originalCD));
