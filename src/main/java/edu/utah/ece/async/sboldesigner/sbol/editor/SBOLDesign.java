@@ -1314,7 +1314,8 @@ public class SBOLDesign {
 		SBOLDocument doc = createDocument(root);
 
 		if (SBOLUtils.rootCalledUnamedPart(root.cd, panel)) {
-			return;
+			editCanvasCD();
+			doc = createDocument(root);
 		}
 
 		File file = SBOLUtils.selectFile(getPanel(), SBOLUtils.setupFC());

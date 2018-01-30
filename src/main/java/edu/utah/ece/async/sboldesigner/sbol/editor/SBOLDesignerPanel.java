@@ -475,8 +475,8 @@ public class SBOLDesignerPanel extends JPanel {
 		SBOLDocument doc = editor.getDesign().createDocument(root);
 
 		if (SBOLUtils.rootCalledUnamedPart(root.cd, this)) {
-			updateEnabledButtons(true);
-			return false;
+			editor.getDesign().editCanvasCD();
+			doc = editor.getDesign().createDocument(root);
 		}
 
 		documentIO.write(doc);
@@ -498,8 +498,9 @@ public class SBOLDesignerPanel extends JPanel {
 		ComponentDefinition currentRootCD = root.cd;
 
 		if (SBOLUtils.rootCalledUnamedPart(currentRootCD, this)) {
-			updateEnabledButtons(true);
-			return false;
+			editor.getDesign().editCanvasCD();
+			currentDesign = design.createDocument(root);
+			currentRootCD = root.cd;
 		}
 
 		int selection;

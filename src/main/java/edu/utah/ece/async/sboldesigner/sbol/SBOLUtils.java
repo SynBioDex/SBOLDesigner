@@ -313,8 +313,8 @@ public class SBOLUtils {
 		// if UnnamedPart still, remind user to rename
 		if (root.getDisplayId().equals("UnnamedPart")) {
 			int cancel = JOptionPane.showOptionDialog(panel,
-					"The root part is still called \"UnnamedPart\".  Would you like to cancel and rename this part?",
-					null, JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, null, null);
+					"The root part is still called \"UnnamedPart\".  Would you like to rename this part?", null,
+					JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, null, null);
 			if (cancel == JOptionPane.YES_OPTION) {
 				return true;
 			}
