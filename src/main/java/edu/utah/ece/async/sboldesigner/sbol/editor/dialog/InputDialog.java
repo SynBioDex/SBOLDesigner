@@ -64,6 +64,15 @@ public abstract class InputDialog<T> extends JDialog {
 
 	protected InputDialog(final Component parent, String title) {
 		super(JOptionPane.getFrameForComponent(parent), title, true);
+
+		// this solves the problem where the dialog was not getting
+		// focus the second time it was displayed
+		SwingUtilities.invokeLater(new Runnable() 
+		{  
+			public void run() {  
+				loginButton.requestFocusInWindow();
+			}
+		});
 	}
 
 	protected String initMessage() {
