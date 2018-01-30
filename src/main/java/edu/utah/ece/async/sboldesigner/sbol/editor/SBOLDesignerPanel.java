@@ -421,11 +421,11 @@ public class SBOLDesignerPanel extends JPanel {
 							+ "Do you want to save your changes?",
 					"Save changes?", JOptionPane.YES_NO_CANCEL_OPTION);
 
-			if (confirmation == JOptionPane.OK_OPTION) {
+			if (confirmation == JOptionPane.CANCEL_OPTION) {
+				return false;
+			} else if (confirmation == JOptionPane.OK_OPTION) {
 				return save();
 			}
-
-			return false;
 		}
 		return true;
 	}
