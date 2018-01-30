@@ -451,7 +451,7 @@ public class SBOLDesignerPanel extends JPanel {
 	/**
 	 * returns true if a file got selected
 	 */
-	private boolean selectCurrentFile() {
+	boolean selectCurrentFile() {
 		String name = design.getRootCD().getDisplayId();
 		if (!Strings.isNullOrEmpty(name)) {
 			fc.setSelectedFile(SBOLUtils.setupFile());

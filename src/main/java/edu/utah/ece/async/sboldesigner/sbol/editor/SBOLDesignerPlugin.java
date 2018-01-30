@@ -181,7 +181,7 @@ public class SBOLDesignerPlugin extends SBOLDesignerPanel {
 		updateEnabledButtons(false);
 	}
 
-	private boolean selectCurrentFile() {
+	boolean selectCurrentFile() {
 		File file = new File(path + fileName);
 		Preferences.userRoot().node("path").put("path", file.getPath());
 		setCurrentFile(new FileDocumentIO(false));

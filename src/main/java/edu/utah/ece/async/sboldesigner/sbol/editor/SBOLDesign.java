@@ -183,14 +183,35 @@ public class SBOLDesign {
 		@Override
 		protected void perform() {
 			try {
-				ComponentDefinitionBox root = new ComponentDefinitionBox();
-				SBOLDocument uploadDoc = createDocument(root);
-
 				if (!designerPanel.confirmSave()) {
 					return;
 				}
 
-				uploadDesign(panel, uploadDoc, null);
+				String[] options = { "Current design", "Working document" };
+				int choice = JOptionPane.showOptionDialog(panel, "What would you like to upload?", "Upload",
+						JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
+
+				if (choice == 0) {
+					ComponentDefinitionBox root = new ComponentDefinitionBox();
+					SBOLDocument uploadDoc = createDocument(root);
+					uploadDesign(panel, uploadDoc, null);
+				} else if (choice == 1) {
+					if (designerPanel.documentIO == null) {
+						if (!designerPanel.selectCurrentFile()) {
+							return;
+						}
+					}
+
+					if (!SBOLUtils.setupFile().exists()) {
+						JOptionPane.showMessageDialog(panel, "The working document does not exist.");
+						return;
+					}
+
+					SBOLDocument uploadDoc = designerPanel.documentIO.read();
+					uploadDesign(panel, uploadDoc, null);
+				} else {
+					return;
+				}
 			} catch (Exception e) {
 				MessageDialog.showMessage(panel, "There was a problem uploading the design: ", e.getMessage());
 				e.printStackTrace();
