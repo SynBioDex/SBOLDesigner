@@ -1113,11 +1113,9 @@ public class SBOLDesign {
 	}
 
 	private void replaceCD(ComponentDefinition oldCD, ComponentDefinition newCD) throws SBOLValidationException {
-		int index;
-		if (oldCD == null) {
+		int index = getElementIndex(oldCD);
+		if (index == -1) { // sometimes oldCD gets replaced by newCD
 			index = getElementIndex(newCD);
-		} else {
-			index = getElementIndex(oldCD);
 		}
 
 		if (index >= 0) {
