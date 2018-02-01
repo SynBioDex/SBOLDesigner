@@ -167,6 +167,20 @@ public class SBOLDesignerPanel extends JPanel {
 		}
 	};
 
+	private final SBOLEditorAction SAVE_AS = new SBOLEditorAction("Save As",
+			"Save your current design as a new document", "save_as.png") {
+		@Override
+		protected void perform() {
+			try {
+				saveAs();
+			} catch (Exception e) {
+				MessageDialog.showMessage(null, "There was a problem saving this design",
+						Arrays.asList(e.getMessage()));
+				e.printStackTrace();
+			}
+		}
+	};
+
 	private final SBOLEditorAction EXPORT = new SBOLEditorAction("Export", "Export your current design", "export.png") {
 		@Override
 		protected void perform() {
@@ -228,10 +242,10 @@ public class SBOLDesignerPanel extends JPanel {
 	}
 
 	SBOLEditorActions TOOLBAR_ACTIONS = new SBOLEditorActions()
-			.add(NEW_DOCUMENT, OPEN_DOCUMENT, NEW_PART, OPEN_PART, SAVE, EXPORT, DIVIDER)
+			.add(NEW_DOCUMENT, OPEN_DOCUMENT, NEW_PART, OPEN_PART, SAVE, SAVE_AS, EXPORT, DIVIDER)
 			.addIf(SBOLEditorPreferences.INSTANCE.isVersioningEnabled(), VERSION, DIVIDER)
-			.add(design.EDIT_CANVAS, design.EDIT, design.DELETE, design.FLIP, design.FIND, design.UPLOAD,
-					design.COMBINATORIAL, DIVIDER)
+			.add(design.EDIT_CANVAS, design.EDIT, design.DELETE, design.FLIP, design.FIND, design.VARIANTS,
+					design.COMBINATORIAL, design.UPLOAD, DIVIDER)
 			.add(design.HIDE_SCARS, design.ADD_SCARS, DIVIDER).add(design.FOCUS_IN, design.FOCUS_OUT, DIVIDER, SNAPSHOT)
 			.add(PREFERENCES).add(SPACER, INFO);
 
@@ -352,12 +366,33 @@ public class SBOLDesignerPanel extends JPanel {
 		}
 	}
 
+	private void saveAs() throws SBOLValidationException, FileNotFoundException, SBOLConversionException {
+		ComponentDefinitionBox root = new ComponentDefinitionBox();
+		SBOLDocument doc = editor.getDesign().createDocument(root);
+		if (SBOLUtils.rootCalledUnamedPart(root.cd, this)) {
+			editor.getDesign().editCanvasCD();
+			doc = editor.getDesign().createDocument(root);
+		}
+
+		File file = SBOLUtils.selectFile(this, fc);
+		if (file == null) {
+			return;
+		}
+
+		String fileName = file.getName();
+		if (!fileName.contains(".")) {
+			file = new File(file + ".xml");
+		}
+
+		SBOLWriter.write(doc, new FileOutputStream(file));
+	}
+
 	private void export() throws FileNotFoundException, SBOLConversionException, IOException, SBOLValidationException {
-		String[] formats = { "GenBank", "FASTA", "SBOL 1.1", "SBOL 2.0", "Cancel" };
+		String[] formats = { "GenBank", "FASTA", "SBOL 1.1", "Cancel" };
 
 		int format = JOptionPane.showOptionDialog(this, "Please select an export format", "Export",
 				JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, formats, "Cancel");
-		if (format == JOptionPane.CLOSED_OPTION || format == 4) {
+		if (format == JOptionPane.CLOSED_OPTION || format == 3) {
 			return;
 		}
 
@@ -392,18 +427,6 @@ public class SBOLDesignerPanel extends JPanel {
 				file = new File(file + ".xml");
 			}
 			SBOLWriter.write(doc, new FileOutputStream(file), SBOLDocument.RDFV1);
-			break;
-		case 3:
-			// SBOL 2.0
-			if (!fileName.contains(".")) {
-				file = new File(file + ".xml");
-			}
-			SBOLWriter.write(doc, new FileOutputStream(file));
-			break;
-		case 4:
-			// BOOST Optimized SBOL 2.0
-			// BOOSTDialog boostDialog = new BOOSTDialog(getParent(), file,
-			// doc);
 			break;
 		default:
 			break;

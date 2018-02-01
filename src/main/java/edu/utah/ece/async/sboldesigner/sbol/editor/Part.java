@@ -113,6 +113,10 @@ public class Part {
 	public Image getImage(OrientationType orientation, boolean composite, boolean hasVariants, boolean hasSequence) {
 		Image image = this.largeImage;
 
+		if (orientation == OrientationType.REVERSECOMPLEMENT) {
+			image = Images.rotate180(image);
+		}
+
 		if (composite) {
 			BufferedImage scaledCompositeOverlay = Images
 					.toBufferedImage(Images.scaleImageToWidth(Images.getPartImage("composite-overlay.png"), IMG_WIDTH));
@@ -129,10 +133,6 @@ public class Part {
 						Images.scaleImageToWidth(Images.getPartImage("error-advice-sign-overlay.png"), IMG_WIDTH));
 				image = Images.overlay(image, scaledWarningOverlay, IMG_WIDTH, IMG_HEIGHT);
 			}
-		}
-
-		if (orientation == OrientationType.REVERSECOMPLEMENT) {
-			image = Images.rotate180(image);
 		}
 
 		return image;

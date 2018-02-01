@@ -117,6 +117,7 @@ import edu.utah.ece.async.sboldesigner.sbol.CombinatorialExpansionUtil;
 import edu.utah.ece.async.sboldesigner.sbol.ProvenanceUtil;
 import edu.utah.ece.async.sboldesigner.sbol.SBOLUtils;
 import edu.utah.ece.async.sboldesigner.sbol.SBOLUtils.Types;
+import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.AnnotationEditor;
 import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.ComponentDefinitionBox;
 import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.MessageDialog;
 import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.PartEditDialog;
@@ -125,6 +126,7 @@ import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.RegistryLoginDialog;
 import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.RootInputDialog;
 import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.UploadExistingDialog;
 import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.UploadNewDialog;
+import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.VariantEditor;
 import edu.utah.ece.async.sboldesigner.sbol.editor.event.DesignChangedEvent;
 import edu.utah.ece.async.sboldesigner.sbol.editor.event.DesignLoadedEvent;
 import edu.utah.ece.async.sboldesigner.sbol.editor.event.FocusInEvent;
@@ -171,6 +173,19 @@ public class SBOLDesign {
 		protected void perform() {
 			try {
 				findPartForSelectedCD();
+			} catch (Exception e) {
+				MessageDialog.showMessage(panel, "There was a problem finding a part: ", e.getMessage());
+				e.printStackTrace();
+			}
+		}
+	};
+
+	public final SBOLEditorAction VARIANTS = new SBOLEditorAction("Edit variants",
+			"Edit combinatorial design variants of selected part", "edit_variants.png") {
+		@Override
+		protected void perform() {
+			try {
+				editVariants();
 			} catch (Exception e) {
 				MessageDialog.showMessage(panel, "There was a problem finding a part: ", e.getMessage());
 				e.printStackTrace();
@@ -1179,6 +1194,7 @@ public class SBOLDesign {
 		boolean isEnabled = (selectedElement != null);
 		FIND.setEnabled(isEnabled);
 		EDIT.setEnabled(isEnabled);
+		VARIANTS.setEnabled(isEnabled);
 		DELETE.setEnabled(isEnabled);
 		FLIP.setEnabled(isEnabled);
 		FOCUS_IN.setEnabled(canFocusIn());
@@ -1328,6 +1344,14 @@ public class SBOLDesign {
 			}
 			replaceCD(selectedElement.getCD(), root.cd);
 		}
+	}
+
+	private void editVariants() throws SBOLValidationException {
+		int index = getElementIndex(getSelectedCD());
+		new VariantEditor(panel, getCanvasCD(), getSelectedCD(), design);
+		DesignElement e = elements.get(index);
+		JLabel button = buttons.get(e);
+		setupIcons(button, e);
 	}
 
 	private void expandCombinatorial() throws SBOLValidationException, SBOLConversionException, FileNotFoundException {
