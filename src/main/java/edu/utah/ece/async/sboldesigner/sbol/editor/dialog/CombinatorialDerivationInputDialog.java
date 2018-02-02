@@ -48,8 +48,8 @@ public class CombinatorialDerivationInputDialog {
 		}
 
 		Derivation selection = (Derivation) JOptionPane.showInputDialog(null,
-				"Select a combinatorial derivation to sample or enumerate", "Create Combinatorial Design",
-				JOptionPane.DEFAULT_OPTION, null, options, options[0]);
+				"Please select a combinatorial derivation.", "Pick Combinatorial Design", JOptionPane.DEFAULT_OPTION,
+				null, options, options[0]);
 		if (selection == null) {
 			return null;
 		}

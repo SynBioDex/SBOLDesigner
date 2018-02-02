@@ -124,6 +124,12 @@ public class VariantEditor extends JDialog implements ActionListener {
 		this.design = design;
 
 		try {
+			CombinatorialDerivation derivation = getCombinatorialDerivation(derivationCD);
+			if (derivation == null) {
+				setVisible(false);
+				return;
+			}
+
 			operatorSelection.setSelectedItem(getOperator());
 			operatorSelection.addActionListener(this);
 
@@ -131,12 +137,9 @@ public class VariantEditor extends JDialog implements ActionListener {
 					.setSelectedIndex(getStrategy() == null ? 0 : getStrategy() == StrategyType.ENUMERATE ? 1 : 2);
 			strategySelection.addActionListener(this);
 
-			CombinatorialDerivation derivation = getCombinatorialDerivation(derivationCD);
-			if (derivation != null) {
-				displayId.setText(derivation.getDisplayId());
-				name.setText(derivation.getName());
-				description.setText(derivation.getDescription());
-			}
+			displayId.setText(derivation.getDisplayId());
+			name.setText(derivation.getName());
+			description.setText(derivation.getDescription());
 			displayId.setEditable(false);
 
 			FormBuilder builder = new FormBuilder();
@@ -184,7 +187,7 @@ public class VariantEditor extends JDialog implements ActionListener {
 		}
 	}
 
-	private StrategyType getStrategy() {
+	private StrategyType getStrategy() throws SBOLValidationException {
 		CombinatorialDerivation derivation = getCombinatorialDerivation(derivationCD);
 		if (derivation == null || !derivation.isSetStrategy()) {
 			return null;
@@ -280,9 +283,18 @@ public class VariantEditor extends JDialog implements ActionListener {
 
 	private CombinatorialDerivation chosenDerivation = null;
 
-	private CombinatorialDerivation getCombinatorialDerivation(ComponentDefinition derivationCD) {
+	private CombinatorialDerivation getCombinatorialDerivation(ComponentDefinition derivationCD)
+			throws SBOLValidationException {
 		if (chosenDerivation == null) {
 			chosenDerivation = CombinatorialDerivationInputDialog.pickCombinatorialDerivation(design, derivationCD);
+			if (chosenDerivation == null) {
+				String id = JOptionPane.showInputDialog("What would you like to call this combinatorial derivation?",
+						derivationCD.isSetDisplayId() ? derivationCD.getDisplayId() + "_CombinatorialDerivation" : "");
+				if (id == null) {
+					return null;
+				}
+				chosenDerivation = createCombinatorialDerivation(derivationCD, id);
+			}
 		}
 
 		return chosenDerivation;
@@ -291,7 +303,7 @@ public class VariantEditor extends JDialog implements ActionListener {
 	private VariableComponent getVariableComponent(OperatorType operator) throws Exception {
 		CombinatorialDerivation derivation = getCombinatorialDerivation(derivationCD);
 		if (derivation == null) {
-			derivation = createCombinatorialDerivation(derivationCD);
+			return null;
 		}
 
 		org.sbolstandard.core2.Component link = getComponentLink(derivationCD, variableCD);
@@ -375,11 +387,6 @@ public class VariantEditor extends JDialog implements ActionListener {
 		return derivation.createVariableComponent(uniqueId, operator, link.getIdentity());
 	}
 
-	private CombinatorialDerivation createCombinatorialDerivation(ComponentDefinition derivationCD)
-			throws SBOLValidationException {
-		return createCombinatorialDerivation(derivationCD, derivationCD.getDisplayId() + "_CombinatorialDerivation");
-	}
-
 	private CombinatorialDerivation createCombinatorialDerivation(ComponentDefinition derivationCD, String displayId)
 			throws SBOLValidationException {
 		String uniqueId = SBOLUtils.getUniqueDisplayId(null, null, displayId, derivationCD.getVersion(),
@@ -449,6 +456,10 @@ public class VariantEditor extends JDialog implements ActionListener {
 
 		if (variable.getVariants().isEmpty()) {
 			CombinatorialDerivation derivation = getCombinatorialDerivation(derivationCD);
+			if (derivation == null) {
+				return;
+			}
+
 			derivation.removeVariableComponent(variable);
 
 			if (derivation.getVariableComponents().isEmpty()) {
@@ -521,9 +532,8 @@ public class VariantEditor extends JDialog implements ActionListener {
 	private void setStrategy(StrategyType strategy) {
 		try {
 			CombinatorialDerivation derivation = getCombinatorialDerivation(derivationCD);
-
 			if (derivation == null) {
-				derivation = createCombinatorialDerivation(derivationCD);
+				return;
 			}
 
 			if (strategy == null) {
@@ -555,18 +565,7 @@ public class VariantEditor extends JDialog implements ActionListener {
 			return;
 		}
 
-		boolean setFields = chosenDerivation == null;
-
 		CombinatorialDerivation newDerivation = createCombinatorialDerivation(derivationCD, displayId);
-
-		if (setFields) {
-			if (!name.getText().equals("")) {
-				newDerivation.setName(name.getText());
-			}
-			if (!description.getText().equals("")) {
-				newDerivation.setDescription(description.getText());
-			}
-		}
 
 		JOptionPane.showMessageDialog(parent,
 				"A new CombinatorialDerivation was created: " + newDerivation.getDisplayId());
