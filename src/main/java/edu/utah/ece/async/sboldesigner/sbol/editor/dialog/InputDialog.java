@@ -70,7 +70,7 @@ public abstract class InputDialog<T> extends JDialog {
 		SwingUtilities.invokeLater(new Runnable() 
 		{  
 			public void run() {  
-				loginButton.requestFocusInWindow();
+				cancelButton.requestFocusInWindow();
 			}
 		});
 	}
