@@ -105,7 +105,7 @@ public enum SBOLEditorPreferences {
 	public Integer getSeqBehavior() {
 		if (seqBehavior == null) {
 			Preferences prefs = Preferences.userNodeForPackage(SBOLEditorPreferences.class).node("settings");
-			seqBehavior = prefs.getInt("seqBehavior", 2);
+			seqBehavior = prefs.getInt("seqBehavior", 1);
 		}
 		return seqBehavior;
 	}
