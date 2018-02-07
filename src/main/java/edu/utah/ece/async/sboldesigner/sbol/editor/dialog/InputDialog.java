@@ -50,7 +50,7 @@ public abstract class InputDialog<T> extends JDialog {
 
 	protected JComboBox<Registry> registrySelection = null;
 	protected JButton loginButton;
-	private JButton cancelButton, selectButton;
+	protected JButton cancelButton, selectButton;
 	/**
 	 * The location (either url(http://) or path) of the registry
 	 */
