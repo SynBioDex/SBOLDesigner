@@ -42,6 +42,8 @@ import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import org.sbolstandard.core2.SBOLDocument;
+
 import com.google.common.base.Objects;
 
 /**

@@ -213,6 +213,7 @@ public class SBOLDesignerPanel extends JPanel {
 		@Override
 		protected void perform() {
 			PreferencesDialog.showPreferences(SBOLDesignerPanel.this);
+			design.getDesign().setDefaultURIprefix(SBOLEditorPreferences.INSTANCE.getUserInfo().getURI().toString());
 		}
 	};
 

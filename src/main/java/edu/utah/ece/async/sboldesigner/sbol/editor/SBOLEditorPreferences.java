@@ -17,29 +17,25 @@ package edu.utah.ece.async.sboldesigner.sbol.editor;
 
 import java.util.prefs.Preferences;
 
+import org.sbolstandard.core2.SBOLDocument;
+
 import edu.utah.ece.async.sboldesigner.versioning.Infos;
 import edu.utah.ece.async.sboldesigner.versioning.PersonInfo;
 
 public enum SBOLEditorPreferences {
 	INSTANCE;
 
-	private PersonInfo userInfo = null;
-
 	public PersonInfo getUserInfo() {
-		if (userInfo == null) {
-			Preferences prefs = Preferences.userNodeForPackage(SBOLEditorPreferences.class).node("user");
-			String name = prefs.get("name", "");
-			String email = prefs.get("email", "");
-			String uri = prefs.get("uri", "http://www.dummy.org");
-			userInfo = Infos.forPerson(uri, name, email);
-		}
+		Preferences prefs = Preferences.userNodeForPackage(SBOLEditorPreferences.class).node("user");
+		String name = prefs.get("name", "");
+		String email = prefs.get("email", "");
+		String uri = prefs.get("uri", "http://www.dummy.org");
+		PersonInfo userInfo = Infos.forPerson(uri, name, email);
 
 		return userInfo;
 	}
 
 	public void saveUserInfo(PersonInfo userInfo) {
-		this.userInfo = userInfo;
-
 		Preferences prefs = Preferences.userNodeForPackage(SBOLEditorPreferences.class).node("user");
 
 		try {

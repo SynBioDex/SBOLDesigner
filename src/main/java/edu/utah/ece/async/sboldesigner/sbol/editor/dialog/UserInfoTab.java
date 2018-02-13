@@ -33,6 +33,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 import org.openrdf.model.URI;
+import org.sbolstandard.core2.SBOLDocument;
 
 import com.google.common.base.Strings;
 
@@ -117,8 +118,7 @@ public enum UserInfoTab implements PreferencesTab {
 			return;
 		}
 		if (!isURIprefixCompliant(uri.getText())) {
-			JOptionPane.showMessageDialog(getComponent(),
-					"Invalid URI provided for the domain.\n"
+			JOptionPane.showMessageDialog(getComponent(), "Invalid URI provided for the domain.\n"
 					+ "Please enter a valid domain for your organization (ex. http://dummy.org).");
 			return;
 		}
@@ -156,12 +156,13 @@ public enum UserInfoTab implements PreferencesTab {
 	public boolean requiresRestart() {
 		return false;
 	}
-		
+
 	private static final String delimiter = "[/|#|:]";
-	
+
 	private static final String protocol = "(?:https?|ftp|file)://";
 
-	private static final String URIprefixPattern = "\\b(?:"+protocol+")?[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]";
+	private static final String URIprefixPattern = "\\b(?:" + protocol
+			+ ")?[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]";
 
 	private static final Pattern URIprefixPatternPat = Pattern.compile(URIprefixPattern + delimiter);
 
@@ -169,5 +170,5 @@ public enum UserInfoTab implements PreferencesTab {
 		Matcher m = URIprefixPatternPat.matcher(URIprefix);
 		return m.matches();
 	}
-	
+
 }
