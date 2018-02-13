@@ -1506,6 +1506,10 @@ public class SBOLDesign {
 
 			updateSequenceAnnotations();
 			updateSequenceConstraints();
+			
+			if (canvasCD.getComponents().isEmpty()) {
+				return;
+			}
 
 			Sequence oldSeq = canvasCD.getSequenceByEncoding(Sequence.IUPAC_DNA);
 			String oldElements = oldSeq == null ? "" : oldSeq.getElements();
