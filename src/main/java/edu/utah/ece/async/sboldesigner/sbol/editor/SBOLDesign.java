@@ -594,8 +594,7 @@ public class SBOLDesign {
 
 	private boolean confirmEditable() throws SBOLValidationException {
 		if (readOnly.contains(ReadOnly.REGISTRY_COMPONENT)) {
-			MessageDialog.showMessage(panel, "This part is read only", Arrays.asList(canvasCD.getDisplayId()
-					+ " is not owned by you.  Please edit it and/or its parents and choose \"yes\" to creating an editable copy while re-saving it."));
+			readOnlyError();
 			return false;
 		}
 
@@ -648,6 +647,11 @@ public class SBOLDesign {
 		 */
 
 		return true;
+	}
+
+	private void readOnlyError() {
+		MessageDialog.showMessage(panel, "This part is read only", Arrays.asList(canvasCD.getDisplayId()
+				+ " is not owned by you.  Please edit it and/or its parents and choose \"yes\" to creating an editable copy while re-saving it."));
 	}
 
 	private Map<Integer, Sequence> findUncoveredSequences() {
@@ -1056,6 +1060,11 @@ public class SBOLDesign {
 	}
 
 	private void moveSelectedElement(int index) {
+		if (SBOLUtils.notInNamespace(canvasCD)) {
+			readOnlyError();
+			return;
+		}
+
 		if (selectedElement != null) {
 			int selectedIndex = elements.indexOf(selectedElement);
 			if (selectedIndex >= 0 && selectedIndex != index) {
@@ -1506,7 +1515,7 @@ public class SBOLDesign {
 
 			updateSequenceAnnotations();
 			updateSequenceConstraints();
-			
+
 			if (canvasCD.getComponents().isEmpty()) {
 				return;
 			}
