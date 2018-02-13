@@ -546,8 +546,12 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 				CD = null;
 			}
 		} catch (Exception e1) {
-			MessageDialog.showMessage(this, "What you have entered is invalid", e1.getMessage());
-			e1.printStackTrace();
+			if (e1.getMessage().startsWith("sbol-10204")) {
+				MessageDialog.showMessage(this, "What you have entered is invalid", "The displayId must not be empty.");
+			} else {
+				MessageDialog.showMessage(this, "What you have entered is invalid", e1.getMessage());
+				e1.printStackTrace();
+			}
 			keepVisible = true;
 		}
 
