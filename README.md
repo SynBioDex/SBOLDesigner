@@ -16,8 +16,7 @@ downloaded.
 Compilation
 =================================
 In order to build SBOLDesigner from source, type the following into a Windows shell or create an Eclipse Maven run configuration that has the following goals (excluding the "mvn") after cloning this repository:
-mvn clean install exec:java -Dexec.mainClass="com.clarkparsia.sbol.editor.SBOLDesignerStandalone"
-mvn package
+mvn clean install exec:java -Dexec.mainClass="com.clarkparsia.sbol.editor.SBOLDesignerStandalone" && mvn package
 
 More information
 ================
