@@ -19,6 +19,7 @@ command at a terminal where `jarFileName` will be the name of the SBOL Designer 
 downloaded.
 
 UPDATE: Alternatively, you can build the program yourself; all of the dependencies are included.
+
 More information
 ================
 
