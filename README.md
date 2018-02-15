@@ -1,8 +1,3 @@
-Compilation
-=================================
-In order to clean, install, and run SBOLDesigner, type the following into a Windows shell or create an Eclipse Maven run configuration that has the following goals (excluding the "mvn"):
-mvn clean install exec:java -Dexec.mainClass="com.clarkparsia.sbol.editor.SBOLDesignerStandalone"
-
 SBOL Designer
 =============
 
@@ -18,13 +13,15 @@ double clicking, you can run the designer from command-line by using the `java -
 command at a terminal where `jarFileName` will be the name of the SBOL Designer jar file you
 downloaded.
 
-UPDATE: Alternatively, you can build the program yourself; all of the dependencies are included.
+Compilation
+=================================
+In order to build SBOLDesigner from source, type the following into a Windows shell or create an Eclipse Maven run configuration that has the following goals (excluding the "mvn") after cloning this repository:
+mvn clean install exec:java -Dexec.mainClass="com.clarkparsia.sbol.editor.SBOLDesignerStandalone"
+mvn package
 
 More information
 ================
 
-See [http://github.com/SynBioDex/SBOLDesigner/](http://github.com/SynBioDex/SBOLDesigner/) for more information
-on SBOL designer. Send your questions and comments about SBOL Designer to 
-[michael13162@gmail.com](mailto:michael13162@gmail.com).
+See [http://github.com/SynBioDex/SBOLDesigner/](http://github.com/SynBioDex/SBOLDesigner/) for more information on SBOL designer. Send your questions and comments about SBOL Designer to [michael13162@gmail.com](mailto:michael13162@gmail.com).
 
 For the previous version (unsupported) of SBOL Designer, see [http://github.com/clarkparsia/sbol/](http://github.com/clarkparsia/sbol/).
