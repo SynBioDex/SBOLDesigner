@@ -540,29 +540,29 @@ public class SBOLDesignerPanel extends JPanel {
 				selection = 0;
 			}
 		} else {
-			String[] options = { "Overwrite Document", "Overwrite Parts", "New Version", "Cancel" };
+			String[] options = { "Cancel", "Overwrite Document", "New Version", "Overwrite Parts" };
 			selection = JOptionPane.showOptionDialog(this,
 					"You are saving into an existing SBOL file.  Would you like to overwrite the document, overwrite the parts, or create new versions of parts that already exist in the document?",
 					"Save Options", JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, options,
-					options[0]);
+					options[3]);
 		}
 
 		switch (selection) {
-		case 0: // overwrite document
+		case 0: // canceled
+			updateEnabledButtons(true);
+			return false;
+		case 1: // overwrite document
 			doc = currentDesign;
-			break;
-		case 1: // overwrite parts
-			// Remove from doc everything contained within currentDesign
-			// that exists
-			SBOLUtils.insertTopLevels(currentDesign, doc);
 			break;
 		case 2: // new version
 			URI newRootUri = saveNewVersion(currentRootCD, currentDesign, doc);
 			design.load(doc, newRootUri);
 			break;
-		case 3: // canceled
-			updateEnabledButtons(true);
-			return false;
+		case 3: // overwrite parts
+			// Remove from doc everything contained within currentDesign
+			// that exists
+			SBOLUtils.insertTopLevels(currentDesign, doc);
+			break;
 		case JOptionPane.CLOSED_OPTION: // closed
 			updateEnabledButtons(true);
 			return false;
