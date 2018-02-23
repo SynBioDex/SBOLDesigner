@@ -7,7 +7,7 @@ in a GUI, import genetic constructs from an SBOL parts registry, and save your d
 Running SBOL Designer stand-alone
 =================================
 
-SBOL designer requires Java 8 or later to be installed on your computer. To run SBOL designer, 
+SBOLDesigner requires Java 8 to be installed on your computer. To run SBOL designer, 
 simply double click the jar file. If your OS does not support running Java applications by
 double clicking, you can run the designer from command-line by using the `java -jar <jarFileName>`
 command at a terminal where `jarFileName` will be the name of the SBOL Designer jar file you
