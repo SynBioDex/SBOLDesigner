@@ -286,10 +286,6 @@ public class SBOLUtils {
 		}
 
 		File file = fc.getSelectedFile();
-		if (file.exists()) {
-			JOptionPane.showMessageDialog(parent, "You cannot select this file, it already exists.");
-			return null;
-		}
 
 		Preferences.userRoot().node("path").put("path", file.getPath());
 

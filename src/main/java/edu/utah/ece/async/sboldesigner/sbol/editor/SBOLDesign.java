@@ -1376,6 +1376,10 @@ public class SBOLDesign {
 		if (file == null) {
 			return;
 		}
+		if (file.exists()) {
+			JOptionPane.showMessageDialog(panel, "This file already exists.");
+			return;
+		}
 
 		doc = CombinatorialExpansionUtil.createCombinatorialDesign(doc);
 

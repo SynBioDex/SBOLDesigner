@@ -43,6 +43,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import org.sbolstandard.core2.ComponentDefinition;
 import org.sbolstandard.core2.SBOLConversionException;
 import org.sbolstandard.core2.SBOLDocument;
+import org.sbolstandard.core2.SBOLReader;
 import org.sbolstandard.core2.SBOLValidationException;
 import org.sbolstandard.core2.SBOLWriter;
 import org.sbolstandard.core2.Sequence;
@@ -367,7 +368,7 @@ public class SBOLDesignerPanel extends JPanel {
 		}
 	}
 
-	private void saveAs() throws SBOLValidationException, FileNotFoundException, SBOLConversionException {
+	private void saveAs() throws IOException, Exception {
 		ComponentDefinitionBox root = new ComponentDefinitionBox();
 		SBOLDocument doc = editor.getDesign().createDocument(root);
 		if (SBOLUtils.rootCalledUnamedPart(root.cd, this)) {
@@ -377,15 +378,21 @@ public class SBOLDesignerPanel extends JPanel {
 
 		File file = SBOLUtils.selectFile(this, fc);
 		if (file == null) {
+			JOptionPane.showMessageDialog(this, "File selection failed.");
 			return;
 		}
 
-		String fileName = file.getName();
-		if (!fileName.contains(".")) {
-			file = new File(file + ".xml");
-		}
+		if (file.exists()) {
+			int selection = chooseSaveOption();
+			saveOption(SBOLReader.read(file), doc, root.cd, selection, file);
+		} else {
+			String fileName = file.getName();
+			if (!fileName.contains(".")) {
+				file = new File(file + ".xml");
+			}
 
-		SBOLWriter.write(doc, new FileOutputStream(file));
+			SBOLWriter.write(doc, new FileOutputStream(file));
+		}
 	}
 
 	private void export() throws FileNotFoundException, SBOLConversionException, IOException, SBOLValidationException {
@@ -401,6 +408,11 @@ public class SBOLDesignerPanel extends JPanel {
 		if (file == null) {
 			return;
 		}
+		if (file.exists()) {
+			JOptionPane.showMessageDialog(this, "This file already exists.");
+			return;
+		}
+
 		String fileName = file.getName();
 
 		SBOLDocument doc = editor.getDesign().createDocument(null);
@@ -540,13 +552,24 @@ public class SBOLDesignerPanel extends JPanel {
 				selection = 0;
 			}
 		} else {
-			String[] options = { "Cancel", "Overwrite Document", "New Version", "Overwrite Parts" };
-			selection = JOptionPane.showOptionDialog(this,
-					"You are saving into an existing SBOL file.  Would you like to overwrite the document, overwrite the parts, or create new versions of parts that already exist in the document?",
-					"Save Options", JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, options,
-					options[3]);
+			selection = chooseSaveOption();
 		}
 
+		return saveOption(doc, currentDesign, currentRootCD, selection, SBOLUtils.setupFile());
+	}
+
+	private int chooseSaveOption() {
+		int selection;
+		String[] options = { "Cancel", "Overwrite Document", "New Version", "Overwrite Parts" };
+		selection = JOptionPane.showOptionDialog(this,
+				"You are saving into an existing SBOL file.  Would you like to overwrite the document, overwrite the parts, or create new versions of parts that already exist in the document?",
+				"Save Options", JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[3]);
+		return selection;
+	}
+
+	private boolean saveOption(SBOLDocument doc, SBOLDocument currentDesign, ComponentDefinition currentRootCD,
+			int selection, File file) throws SBOLValidationException, Exception, FileNotFoundException,
+					SBOLConversionException, IOException {
 		switch (selection) {
 		case 0: // canceled
 			updateEnabledButtons(true);
@@ -570,7 +593,7 @@ public class SBOLDesignerPanel extends JPanel {
 			throw new IllegalArgumentException();
 		}
 
-		documentIO.write(doc);
+		SBOLWriter.write(doc, file);
 		updateEnabledButtons(false);
 		return true;
 	}
