@@ -437,8 +437,9 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 					if (file.exists()) {
 						doc = SBOLReader.read(file);
 					} else {
-						JOptionPane.showMessageDialog(null,
-								"The working document could not be found on disk.  Try opening the file again.");
+						// JOptionPane.showMessageDialog(null, "The working
+						// document could not be found on disk. Try opening the
+						// file again.");
 						return new ArrayList<ComponentDefinition>();
 					}
 				}
