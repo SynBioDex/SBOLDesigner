@@ -140,6 +140,8 @@ public class SBOLDesignerPanel extends JPanel {
 			"newFolder.png") {
 		@Override
 		protected void perform() {
+			JOptionPane.showMessageDialog(SBOLDesignerPanel.this,
+					"Please select a file to save the new SBOL Document into.");
 			int returnVal = fc.showSaveDialog(SBOLDesignerPanel.this);
 			if (returnVal == JFileChooser.APPROVE_OPTION) {
 				File file = fc.getSelectedFile();
