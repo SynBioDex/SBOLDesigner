@@ -140,19 +140,12 @@ public class SBOLDesignerPanel extends JPanel {
 			"newFolder.png") {
 		@Override
 		protected void perform() {
-			JOptionPane.showMessageDialog(SBOLDesignerPanel.this,
-					"Please select a file to save the new SBOL Document into.");
-			int returnVal = fc.showSaveDialog(SBOLDesignerPanel.this);
-			if (returnVal == JFileChooser.APPROVE_OPTION) {
-				File file = fc.getSelectedFile();
-				Preferences.userRoot().node("path").put("path", file.getPath());
-				try {
-					new FileDocumentIO(false).write(new SBOLDocument());
-					openDocument(new FileDocumentIO(false));
-				} catch (SBOLValidationException | IOException | SBOLConversionException e) {
-					MessageDialog.showMessage(null, "There was a problem creating this document: ", e.getMessage());
-					e.printStackTrace();
-				}
+			try {
+				newPart(SBOLEditorPreferences.INSTANCE.getUserInfo().getURI().toString().equals("http://www.dummy.org"),
+						true);
+			} catch (SBOLValidationException e) {
+				MessageDialog.showMessage(null, "There was a problem creating this document: ", e.getMessage());
+				e.printStackTrace();
 			}
 		}
 	}.precondition(CONFIRM_SAVE);
