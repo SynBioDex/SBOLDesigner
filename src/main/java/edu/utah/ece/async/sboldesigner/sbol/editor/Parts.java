@@ -63,7 +63,7 @@ public class Parts {
 	public static final Part PBS = createPart("Primer Binding Site", "PBS", "primer-binding-site.png",
 			ImageType.SHORT_OVER_BASELINE, SequenceOntology.PRIMER_BINDING_SITE);
 	public static final Part CUT = createPart("Sticky End Restriction Enzyme Cleavage Site", "CUT", "cut.png",
-			ImageType.CENTERED_ON_BASELINE, "SO:0001692");
+			ImageType.CENTERED_ON_BASELINE, "SO:0001975");
 	public static final Part SCAR = createPart("Assembly Scar", "Scar", "assembly-junction.png",
 			ImageType.CENTERED_ON_BASELINE, "SO:0001953");
 	public static final Part OP = createPart("Operator", "Op", "operator.png", ImageType.CENTERED_ON_BASELINE,
@@ -73,9 +73,9 @@ public class Parts {
 	public static final Part BRS = createPart("Blunt Restriction Site", "BRS", "blunt-restriction-site.png",
 			ImageType.CENTERED_ON_BASELINE, "SO:0001691");
 	public static final Part FIVEOH = createPart("5' Overhang", "_5OH", "five-prime-overhang.png",
-			ImageType.CENTERED_ON_BASELINE, "SO:0001933");
-	public static final Part THREEOH = createPart("3' Overhang", "_3OH", "three-prime-overhang.png",
 			ImageType.CENTERED_ON_BASELINE, "SO:0001932");
+	public static final Part THREEOH = createPart("3' Overhang", "_3OH", "three-prime-overhang.png",
+			ImageType.CENTERED_ON_BASELINE, "SO:0001933");
 	public static final Part APTAMER = createPart("Aptamer", "APT", "aptamer.png", ImageType.TALL_OVER_BASELINE,
 			"SO:0000031");
 	public static final Part POLYA = createPart("PolyA Site", "PolyA", "poly-a-site.png", ImageType.SHORT_OVER_BASELINE,
@@ -98,7 +98,7 @@ public class Parts {
 	public static final Part PS = createPart("Protease Site", "PS", "protease-site.png", ImageType.SHORT_OVER_BASELINE,
 			"SO:0001956");
 	public static final Part RSE = createPart("RNA Stability Element", "RSE", "rna-stability-element.png",
-			ImageType.SHORT_OVER_BASELINE, "SO:0001957");
+			ImageType.SHORT_OVER_BASELINE, "SO:0001979");
 	public static final Part PSE = createPart("Protein Stability Element", "PSE", "protein-stability-element.png",
 			ImageType.SHORT_OVER_BASELINE, "SO:0001955");
 
