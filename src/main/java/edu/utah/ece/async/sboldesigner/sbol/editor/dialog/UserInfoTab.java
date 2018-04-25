@@ -33,7 +33,6 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 import org.openrdf.model.URI;
-import org.sbolstandard.core2.SBOLDocument;
 
 import com.google.common.base.Strings;
 

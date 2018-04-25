@@ -17,8 +17,6 @@ package edu.utah.ece.async.sboldesigner.sbol.editor;
 
 import java.util.prefs.Preferences;
 
-import org.sbolstandard.core2.SBOLDocument;
-
 import edu.utah.ece.async.sboldesigner.versioning.Infos;
 import edu.utah.ece.async.sboldesigner.versioning.PersonInfo;
 

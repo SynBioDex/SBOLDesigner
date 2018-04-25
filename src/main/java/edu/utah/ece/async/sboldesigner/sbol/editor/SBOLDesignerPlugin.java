@@ -19,9 +19,6 @@ import static edu.utah.ece.async.sboldesigner.sbol.editor.SBOLEditorAction.DIVID
 import static edu.utah.ece.async.sboldesigner.sbol.editor.SBOLEditorAction.SPACER;
 
 import java.awt.BorderLayout;
-import java.awt.Component;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -32,9 +29,7 @@ import java.util.prefs.Preferences;
 import javax.swing.AbstractButton;
 import javax.swing.Box;
 import javax.swing.JFileChooser;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
 import javax.swing.JToolBar;
 import javax.swing.filechooser.FileNameExtensionFilter;
 

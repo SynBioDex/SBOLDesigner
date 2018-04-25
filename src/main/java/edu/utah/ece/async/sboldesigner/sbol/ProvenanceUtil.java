@@ -1,9 +1,5 @@
 package edu.utah.ece.async.sboldesigner.sbol;
 
-import org.sbolstandard.core2.GenericTopLevel;
-import org.sbolstandard.core2.Identified;
-import org.sbolstandard.core2.SBOLConversionException;
-
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
@@ -11,6 +7,7 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
+
 import javax.xml.namespace.QName;
 
 import org.joda.time.DateTime;
@@ -19,6 +16,9 @@ import org.sbolstandard.core2.Annotation;
 import org.sbolstandard.core2.Association;
 import org.sbolstandard.core2.CombinatorialDerivation;
 import org.sbolstandard.core2.ComponentDefinition;
+import org.sbolstandard.core2.GenericTopLevel;
+import org.sbolstandard.core2.Identified;
+import org.sbolstandard.core2.SBOLConversionException;
 import org.sbolstandard.core2.SBOLDocument;
 import org.sbolstandard.core2.SBOLValidationException;
 import org.sbolstandard.core2.SBOLWriter;

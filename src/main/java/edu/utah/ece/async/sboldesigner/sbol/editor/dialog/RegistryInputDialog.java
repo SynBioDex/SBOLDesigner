@@ -30,8 +30,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.regex.PatternSyntaxException;
 
-import javax.naming.directory.SearchResult;
-import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -48,13 +46,12 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 
-import org.synbiohub.frontend.IdentifiedMetadata;
-import org.synbiohub.frontend.SynBioHubFrontend;
 import org.sbolstandard.core2.ComponentDefinition;
 import org.sbolstandard.core2.SBOLDocument;
 import org.sbolstandard.core2.SBOLReader;
-import org.sbolstandard.core2.Sequence;
 import org.sbolstandard.core2.SequenceOntology;
+import org.synbiohub.frontend.IdentifiedMetadata;
+import org.synbiohub.frontend.SynBioHubFrontend;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
