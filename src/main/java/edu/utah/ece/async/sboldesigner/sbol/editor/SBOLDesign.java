@@ -180,6 +180,17 @@ public class SBOLDesign {
 		}
 	};
 
+	public final SBOLEditorAction BOOST = new SBOLEditorAction("BOOST", "TODO", "upload.png") {
+		@Override
+		protected void perform() {
+			// TODO Prem fill in code here
+			// create document
+			// call boost dialog and pass in document
+			// print response document for now (or write to disk, etc)
+			System.out.println("Hi Prem :)");
+		}
+	};
+
 	public final SBOLEditorAction UPLOAD = new SBOLEditorAction("Upload design",
 			"Upload the current design into a SynBioHub instance", "upload.png") {
 		@Override
