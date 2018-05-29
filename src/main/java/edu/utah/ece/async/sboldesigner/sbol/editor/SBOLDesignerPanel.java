@@ -239,7 +239,7 @@ public class SBOLDesignerPanel extends JPanel {
 			.add(NEW_DOCUMENT, OPEN_DOCUMENT, NEW_PART, OPEN_PART, SAVE, SAVE_AS, EXPORT, DIVIDER)
 			.addIf(SBOLEditorPreferences.INSTANCE.isVersioningEnabled(), VERSION, DIVIDER)
 			.add(design.EDIT_CANVAS, design.EDIT, design.DELETE, design.FLIP, design.FIND, design.VARIANTS,
-					design.COMBINATORIAL, design.UPLOAD, design.BOOST, DIVIDER)
+					design.COMBINATORIAL, design.UPLOAD, DIVIDER)
 			.add(design.HIDE_SCARS, design.ADD_SCARS, DIVIDER).add(design.FOCUS_IN, design.FOCUS_OUT, DIVIDER, SNAPSHOT)
 			.add(PREFERENCES).add(SPACER, INFO);
 
