@@ -15,19 +15,15 @@
 
 package edu.utah.ece.async.sboldesigner.sbol.editor;
 
-import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.net.URI;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import org.sbolstandard.core2.ComponentDefinition;
 import org.sbolstandard.core2.OrientationType;
 import org.sbolstandard.core2.SBOLDocument;
 import org.sbolstandard.core2.SBOLValidationException;
-import org.sbolstandard.core2.SequenceOntology;
 
 import com.google.common.collect.ImmutableList;
 

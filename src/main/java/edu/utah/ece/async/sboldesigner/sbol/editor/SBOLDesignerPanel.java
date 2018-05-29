@@ -19,7 +19,6 @@ import static edu.utah.ece.async.sboldesigner.sbol.editor.SBOLEditorAction.DIVID
 import static edu.utah.ece.async.sboldesigner.sbol.editor.SBOLEditorAction.SPACER;
 
 import java.awt.BorderLayout;
-import java.awt.Component;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -38,7 +37,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JToolBar;
 import javax.swing.UIManager;
-import javax.swing.filechooser.FileNameExtensionFilter;
 
 import org.sbolstandard.core2.ComponentDefinition;
 import org.sbolstandard.core2.SBOLConversionException;
@@ -54,7 +52,6 @@ import com.google.common.base.Strings;
 import com.google.common.base.Supplier;
 import com.google.common.eventbus.Subscribe;
 
-import edu.utah.ece.async.sboldesigner.sbol.CombinatorialExpansionUtil;
 import edu.utah.ece.async.sboldesigner.sbol.SBOLUtils;
 import edu.utah.ece.async.sboldesigner.sbol.WebOfRegistriesUtil;
 import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.AboutDialog;

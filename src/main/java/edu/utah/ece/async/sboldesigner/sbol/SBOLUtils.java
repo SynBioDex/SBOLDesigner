@@ -30,11 +30,9 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
-import org.sbolstandard.core2.Activity;
 import org.sbolstandard.core2.CombinatorialDerivation;
 import org.sbolstandard.core2.Component;
 import org.sbolstandard.core2.ComponentDefinition;
-import org.sbolstandard.core2.GenericTopLevel;
 import org.sbolstandard.core2.Identified;
 import org.sbolstandard.core2.Location;
 import org.sbolstandard.core2.Range;
@@ -47,7 +45,6 @@ import org.sbolstandard.core2.SequenceOntology;
 import org.sbolstandard.core2.TopLevel;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Iterators;
 import com.google.common.collect.Maps;
 
 import edu.utah.ece.async.sboldesigner.sbol.editor.Part;
