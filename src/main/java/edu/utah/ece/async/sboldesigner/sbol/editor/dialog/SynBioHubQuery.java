@@ -8,7 +8,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import javax.swing.JOptionPane;
 import javax.swing.SwingWorker;
 
 import org.synbiohub.frontend.IdentifiedMetadata;

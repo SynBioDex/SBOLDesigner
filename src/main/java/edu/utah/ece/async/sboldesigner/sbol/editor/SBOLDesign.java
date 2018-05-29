@@ -45,8 +45,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.net.URI;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -55,9 +53,7 @@ import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
-import java.util.prefs.Preferences;
 
 import javax.swing.Action;
 import javax.swing.BorderFactory;
@@ -66,27 +62,18 @@ import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
-import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.KeyStroke;
 import javax.swing.SwingConstants;
-import javax.xml.namespace.QName;
 
 import org.apache.commons.httpclient.URIException;
-import org.joda.time.DateTime;
-import org.synbiohub.frontend.SynBioHubException;
-import org.synbiohub.frontend.SynBioHubFrontend;
 import org.sbolstandard.core2.AccessType;
-import org.sbolstandard.core2.Activity;
-import org.sbolstandard.core2.Annotation;
-import org.sbolstandard.core2.Association;
 import org.sbolstandard.core2.CombinatorialDerivation;
 import org.sbolstandard.core2.ComponentDefinition;
 import org.sbolstandard.core2.Cut;
-import org.sbolstandard.core2.GenericTopLevel;
 import org.sbolstandard.core2.Identified;
 import org.sbolstandard.core2.Location;
 import org.sbolstandard.core2.OrientationType;
@@ -100,10 +87,11 @@ import org.sbolstandard.core2.SBOLWriter;
 import org.sbolstandard.core2.Sequence;
 import org.sbolstandard.core2.SequenceAnnotation;
 import org.sbolstandard.core2.SequenceOntology;
-import org.sbolstandard.core2.TopLevel;
 import org.sbolstandard.core2.VariableComponent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.synbiohub.frontend.SynBioHubException;
+import org.synbiohub.frontend.SynBioHubFrontend;
 
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
@@ -117,7 +105,6 @@ import edu.utah.ece.async.sboldesigner.sbol.CombinatorialExpansionUtil;
 import edu.utah.ece.async.sboldesigner.sbol.ProvenanceUtil;
 import edu.utah.ece.async.sboldesigner.sbol.SBOLUtils;
 import edu.utah.ece.async.sboldesigner.sbol.SBOLUtils.Types;
-import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.AnnotationEditor;
 import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.ComponentDefinitionBox;
 import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.MessageDialog;
 import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.PartEditDialog;
@@ -190,6 +177,18 @@ public class SBOLDesign {
 				MessageDialog.showMessage(panel, "There was a problem finding a part: ", e.getMessage());
 				e.printStackTrace();
 			}
+		}
+	};
+
+	public final SBOLEditorAction BOOST = new SBOLEditorAction("BOOST",
+			"TODO", "upload.png") {
+		@Override
+		protected void perform() {
+			// TODO Prem fill in code here
+			// create document
+			// call boost dialog and pass in document
+			// print response document for now (or write to disk, etc)
+			System.out.println("Hi Prem :)");
 		}
 	};
 

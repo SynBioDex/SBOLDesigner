@@ -27,6 +27,8 @@ import javax.swing.KeyStroke;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
+import org.sbolstandard.core2.ComponentDefinition;
+import org.sbolstandard.core2.SBOLDocument;
 import org.synbiohub.frontend.SynBioHubException;
 import org.synbiohub.frontend.SynBioHubFrontend;
 
@@ -36,9 +38,6 @@ import edu.utah.ece.async.sboldesigner.sbol.editor.SBOLEditorPreferences;
 import edu.utah.ece.async.sboldesigner.sbol.editor.SynBioHubFrontends;
 import edu.utah.ece.async.sboldesigner.swing.FormBuilder;
 import edu.utah.ece.async.sboldesigner.versioning.PersonInfo;
-
-import org.sbolstandard.core2.ComponentDefinition;
-import org.sbolstandard.core2.SBOLDocument;
 
 public class UploadNewDialog extends JDialog implements ActionListener, DocumentListener {
 	private static final String TITLE = "Upload Design: ";

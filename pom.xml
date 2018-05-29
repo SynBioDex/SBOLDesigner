@@ -5,6 +5,37 @@
 	<version>3.0</version>
 	<name>SBOLDesigner</name>
 	<description>An intuitive genetic design tool using SBOL 2</description>
+
+ <url>https://github.com/SynBioDex/SBOLDesigner</url>
+
+    <licenses>
+        <license>
+            <name>Apache License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <scm>
+        <connection>scm:git:git@github.com:SynBioDex/SBOLDesigner.git</connection>
+        <developerConnection>scm:git:git@github.com:SynBioDex/SBOLDesigner.git</developerConnection>
+        <url>https://github.com/SynBioDex/SBOLDesigner</url>
+    </scm>
+
+    <issueManagement>
+        <system>GitHub Issues</system>
+        <url>https://github.com/SynBioDex/SBOLDesigner/issues</url>
+    </issueManagement>
+
+    <developers>
+        <developer>
+            <id>SynBioDex</id> <!-- please use your github ID -->
+            <name>SynBioDex</name> <!-- your real name -->
+            <organization>Synthetic Biology Data Exchange Group</organization> <!-- optional -->
+            <organizationUrl>http://sbolstandard.org</organizationUrl> <!-- optional -->
+        </developer>
+    </developers>
+	
 	<repositories>
 		<repository>
 			<id>ossrh</id>
