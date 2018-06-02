@@ -105,6 +105,7 @@ import edu.utah.ece.async.sboldesigner.sbol.CombinatorialExpansionUtil;
 import edu.utah.ece.async.sboldesigner.sbol.ProvenanceUtil;
 import edu.utah.ece.async.sboldesigner.sbol.SBOLUtils;
 import edu.utah.ece.async.sboldesigner.sbol.SBOLUtils.Types;
+import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.BOOSTLoginDialog;
 import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.ComponentDefinitionBox;
 import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.MessageDialog;
 import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.PartEditDialog;
@@ -184,10 +185,7 @@ public class SBOLDesign {
 			"upload.png") {
 		@Override
 		protected void perform() {
-			
-			//TODO: create document
-			// call boost dialog and pass in document
-			// print response document for now (or write to disk, etc)
+			// TODO: create document
 			try {
 				if (!designerPanel.confirmSave()) {
 					return;
@@ -196,11 +194,10 @@ public class SBOLDesign {
 				String[] options = { "Current design", "Working documents" };
 				int choice = JOptionPane.showOptionDialog(panel, "What would you like to optimise with BOOST?", "BOOST",
 						JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
-				
+
 				if (choice == 0) {
 					ComponentDefinitionBox root = new ComponentDefinitionBox();
 					SBOLDocument sbolDoc = createDocument(root);
-					//TODO: write a functon to send file to BOOST 
 					uploadToBOOST(panel, sbolDoc, null);
 				} else if (choice == 1) {
 					if (designerPanel.documentIO == null) {
@@ -215,7 +212,7 @@ public class SBOLDesign {
 					}
 
 					SBOLDocument sbolDoc = designerPanel.documentIO.read();
-					//TODO: write a functon to send file to BOOST
+					// TODO: write a functon to send file to BOOST
 					uploadToBOOST(panel, sbolDoc, null);
 				} else {
 					return;
@@ -1426,7 +1423,9 @@ public class SBOLDesign {
 	}
 	
 	public static void uploadToBOOST(Component panel, SBOLDocument sbolDoc, File uploadFile) {
-		// TODO: 
+		// TODO: call boost dialog and pass in document
+		// print response document for now (or write to disk, etc)
+		new BOOSTLoginDialog(panel);
 	}
 
 	public static void uploadDesign(Component panel, SBOLDocument uploadDoc, File uploadFile)
