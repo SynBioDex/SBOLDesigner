@@ -105,6 +105,7 @@ import edu.utah.ece.async.sboldesigner.sbol.CombinatorialExpansionUtil;
 import edu.utah.ece.async.sboldesigner.sbol.ProvenanceUtil;
 import edu.utah.ece.async.sboldesigner.sbol.SBOLUtils;
 import edu.utah.ece.async.sboldesigner.sbol.SBOLUtils.Types;
+import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.BOOSTLoginDialog;
 import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.ComponentDefinitionBox;
 import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.MessageDialog;
 import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.PartEditDialog;
@@ -180,14 +181,47 @@ public class SBOLDesign {
 		}
 	};
 
-	public final SBOLEditorAction BOOST = new SBOLEditorAction("BOOST", "TODO", "upload.png") {
+	public final SBOLEditorAction BOOST = new SBOLEditorAction("BOOST", "Prepare for Synthesis with BOOST",
+			"upload.png") {
 		@Override
 		protected void perform() {
-			// TODO Prem fill in code here
-			// create document
-			// call boost dialog and pass in document
-			// print response document for now (or write to disk, etc)
-			System.out.println("Hi Prem :)");
+			// TODO: create document
+			try {
+				if (!designerPanel.confirmSave()) {
+					return;
+				}
+
+				String[] options = { "Current design", "Working documents" };
+				int choice = JOptionPane.showOptionDialog(panel, "What would you like to optimise with BOOST?", "BOOST",
+						JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
+
+				if (choice == 0) {
+					ComponentDefinitionBox root = new ComponentDefinitionBox();
+					SBOLDocument sbolDoc = createDocument(root);
+					uploadToBOOST(panel, sbolDoc, null);
+				} else if (choice == 1) {
+					if (designerPanel.documentIO == null) {
+						if (!designerPanel.selectCurrentFile()) {
+							return;
+						}
+					}
+
+					if (!SBOLUtils.setupFile().exists()) {
+						JOptionPane.showMessageDialog(panel, "The working document does not exist.");
+						return;
+					}
+
+					SBOLDocument sbolDoc = designerPanel.documentIO.read();
+					// TODO: write a functon to send file to BOOST
+					uploadToBOOST(panel, sbolDoc, null);
+				} else {
+					return;
+				}
+
+			} catch (Exception e) {
+				MessageDialog.showMessage(panel, "There was a problem with BOOST : ", e.getMessage());
+				e.printStackTrace();
+			}
 		}
 	};
 
@@ -199,7 +233,6 @@ public class SBOLDesign {
 				if (!designerPanel.confirmSave()) {
 					return;
 				}
-
 				String[] options = { "Current design", "Working document" };
 				int choice = JOptionPane.showOptionDialog(panel, "What would you like to upload?", "Upload",
 						JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
@@ -1387,6 +1420,12 @@ public class SBOLDesign {
 			}
 			SBOLWriter.write(doc, new FileOutputStream(file));
 		}
+	}
+	
+	public static void uploadToBOOST(Component panel, SBOLDocument sbolDoc, File uploadFile) {
+		// TODO: call boost dialog and pass in document
+		// print response document for now (or write to disk, etc)
+		new BOOSTLoginDialog(panel);
 	}
 
 	public static void uploadDesign(Component panel, SBOLDocument uploadDoc, File uploadFile)
