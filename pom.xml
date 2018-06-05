@@ -271,5 +271,10 @@
 			<artifactId>libSBOLj</artifactId>
 			<version>2.3.1</version>
 		</dependency>
+		<dependency>
+			<groupId>gov.doe.jgi</groupId>
+			<artifactId>boost-client</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
 	</dependencies>
 </project>
