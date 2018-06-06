@@ -10,6 +10,7 @@ import java.awt.event.KeyEvent;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.Arrays;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -24,14 +25,16 @@ import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 
+import edu.utah.ece.async.sboldesigner.sbol.boost.BOOSTPreferences;
 import edu.utah.ece.async.sboldesigner.sbol.editor.SBOLEditorPreferences;
 import edu.utah.ece.async.sboldesigner.swing.FormBuilder;
 import edu.utah.ece.async.sboldesigner.versioning.PersonInfo;
+import gov.doe.jgi.boost.client.BOOSTClient;
 
 
 public class BOOSTLoginDialog extends JDialog implements ActionListener {
 
-	    //private BOOSTClient mBOOSTClient = null;
+	    private BOOSTClient mBOOSTClient = null;
 		private Component parent;
 
 		private final JButton loginButton = new JButton("Login");
@@ -105,14 +108,23 @@ public class BOOSTLoginDialog extends JDialog implements ActionListener {
 
 			if (e.getSource() == loginButton) {
 				try {
-					//TODO: Login related code here	
-					
+					// Login related code here
+					mBOOSTClient = new BOOSTClient(username.getText(), new String(password.getPassword()));
+					String mJWTToken = mBOOSTClient.getToken();
+					if(mJWTToken != null && !mJWTToken.isEmpty()) {
+						new BOOSTPreferences().setBOOSTToken(mJWTToken);
+					}
+					setVisible(false);
+					if(null != mJWTToken) {
+						JOptionPane.showMessageDialog(parent, "Login successful!");
+					}		
 				} catch (Exception e1) {
 					setVisible(false);
+					MessageDialog.showMessage(parent, "Login failed", Arrays.asList(e1.getMessage().split("\"|,")));
+					mBOOSTClient = null;
 					e1.printStackTrace();
 					return;
-				}
-				setVisible(false);
+				} 
 				return;
 			}
 		}

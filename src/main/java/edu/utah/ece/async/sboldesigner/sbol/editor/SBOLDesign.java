@@ -105,7 +105,10 @@ import edu.utah.ece.async.sboldesigner.sbol.CombinatorialExpansionUtil;
 import edu.utah.ece.async.sboldesigner.sbol.ProvenanceUtil;
 import edu.utah.ece.async.sboldesigner.sbol.SBOLUtils;
 import edu.utah.ece.async.sboldesigner.sbol.SBOLUtils.Types;
+import edu.utah.ece.async.sboldesigner.sbol.boost.BOOSTPreferences;
+import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.BOOSTAvailableOperations;
 import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.BOOSTLoginDialog;
+import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.BOOSTReverseTranslation;
 import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.ComponentDefinitionBox;
 import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.MessageDialog;
 import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.PartEditDialog;
@@ -182,7 +185,7 @@ public class SBOLDesign {
 	};
 
 	public final SBOLEditorAction BOOST = new SBOLEditorAction("BOOST", "Prepare for Synthesis with BOOST",
-			"upload.png") {
+			"boost-relevant.png") {
 		@Override
 		protected void perform() {
 			// TODO: create document
@@ -198,7 +201,7 @@ public class SBOLDesign {
 				if (choice == 0) {
 					ComponentDefinitionBox root = new ComponentDefinitionBox();
 					SBOLDocument sbolDoc = createDocument(root);
-					uploadToBOOST(panel, sbolDoc, null);
+					uploadToBOOST(panel, sbolDoc);
 				} else if (choice == 1) {
 					if (designerPanel.documentIO == null) {
 						if (!designerPanel.selectCurrentFile()) {
@@ -213,7 +216,7 @@ public class SBOLDesign {
 
 					SBOLDocument sbolDoc = designerPanel.documentIO.read();
 					// TODO: write a functon to send file to BOOST
-					uploadToBOOST(panel, sbolDoc, null);
+					uploadToBOOST(panel, sbolDoc);
 				} else {
 					return;
 				}
@@ -1422,10 +1425,15 @@ public class SBOLDesign {
 		}
 	}
 	
-	public static void uploadToBOOST(Component panel, SBOLDocument sbolDoc, File uploadFile) {
+	public static void uploadToBOOST(Component panel, SBOLDocument sbolDoc) {
 		// TODO: call boost dialog and pass in document
 		// print response document for now (or write to disk, etc)
-		new BOOSTLoginDialog(panel);
+	    String boostToken = new BOOSTPreferences().getBOOSTToken();
+	    if(boostToken == null || boostToken.isEmpty()) {
+	    	new BOOSTLoginDialog(panel);
+	    }else {
+	    	new BOOSTAvailableOperations(panel);
+	    }
 	}
 
 	public static void uploadDesign(Component panel, SBOLDocument uploadDoc, File uploadFile)
