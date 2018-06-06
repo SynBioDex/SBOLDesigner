@@ -25,6 +25,7 @@ import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 
+import edu.utah.ece.async.sboldesigner.sbol.boost.BOOSTPreferences;
 import edu.utah.ece.async.sboldesigner.sbol.editor.SBOLEditorPreferences;
 import edu.utah.ece.async.sboldesigner.swing.FormBuilder;
 import edu.utah.ece.async.sboldesigner.versioning.PersonInfo;
@@ -110,6 +111,9 @@ public class BOOSTLoginDialog extends JDialog implements ActionListener {
 					// Login related code here
 					mBOOSTClient = new BOOSTClient(username.getText(), new String(password.getPassword()));
 					String mJWTToken = mBOOSTClient.getToken();
+					if(mJWTToken != null && !mJWTToken.isEmpty()) {
+						new BOOSTPreferences().setBOOSTToken(mJWTToken);
+					}
 					setVisible(false);
 					if(null != mJWTToken) {
 						JOptionPane.showMessageDialog(parent, "Login successful!");

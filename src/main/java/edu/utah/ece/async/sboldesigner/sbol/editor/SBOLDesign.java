@@ -105,6 +105,7 @@ import edu.utah.ece.async.sboldesigner.sbol.CombinatorialExpansionUtil;
 import edu.utah.ece.async.sboldesigner.sbol.ProvenanceUtil;
 import edu.utah.ece.async.sboldesigner.sbol.SBOLUtils;
 import edu.utah.ece.async.sboldesigner.sbol.SBOLUtils.Types;
+import edu.utah.ece.async.sboldesigner.sbol.boost.BOOSTPreferences;
 import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.BOOSTAvailableOperations;
 import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.BOOSTLoginDialog;
 import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.BOOSTReverseTranslation;
@@ -1427,7 +1428,12 @@ public class SBOLDesign {
 	public static void uploadToBOOST(Component panel, SBOLDocument sbolDoc) {
 		// TODO: call boost dialog and pass in document
 		// print response document for now (or write to disk, etc)
-		new BOOSTLoginDialog(panel);	
+	    String boostToken = new BOOSTPreferences().getBOOSTToken();
+	    if(boostToken == null || boostToken.isEmpty()) {
+	    	new BOOSTLoginDialog(panel);
+	    }else {
+	    	new BOOSTAvailableOperations(panel);
+	    }
 	}
 
 	public static void uploadDesign(Component panel, SBOLDocument uploadDoc, File uploadFile)
