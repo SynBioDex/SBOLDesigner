@@ -184,7 +184,7 @@ public class SBOLDesign {
 	};
 
 	public final SBOLEditorAction BOOST = new SBOLEditorAction("BOOST", "Prepare for Synthesis with BOOST",
-			"upload.png") {
+			"boost-relevant.png") {
 		@Override
 		protected void perform() {
 			// TODO: create document
