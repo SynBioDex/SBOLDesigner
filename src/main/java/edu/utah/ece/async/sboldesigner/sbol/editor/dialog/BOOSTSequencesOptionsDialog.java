@@ -41,11 +41,11 @@ public class BOOSTSequencesOptionsDialog extends JDialog implements ActionListen
 		taskGroup.add(mRNA);
 		taskGroup.add(mProtein);
 		
-		JPanel buttonPane = DialogUtils.buildDecisionArea(0); // 0 for Y_AXIS alignment
+		JPanel buttonPane = DialogUtils.buildDecisionArea(0); // 0 for LINE_AXIS alignment
 		buttonPane.add(cancelButton);
 		buttonPane.add(submitButton);
 		
-		JPanel taskPanel = DialogUtils.buildDecisionArea(1); // 1 for LINE_AXIS alignment
+		JPanel taskPanel = DialogUtils.buildDecisionArea(1); // 1 for Y_AXIS alignment
 		taskPanel.add(mDNA);
 		taskPanel.add(mRNA);
 		taskPanel.add(mProtein);
