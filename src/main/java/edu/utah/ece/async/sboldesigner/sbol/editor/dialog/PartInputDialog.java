@@ -33,6 +33,8 @@ import edu.utah.ece.async.sboldesigner.sbol.SBOLUtils;
 import edu.utah.ece.async.sboldesigner.sbol.SBOLUtils.Types;
 import edu.utah.ece.async.sboldesigner.sbol.editor.Part;
 import edu.utah.ece.async.sboldesigner.sbol.editor.Parts;
+import edu.utah.ece.async.sboldesigner.sbol.editor.Registries;
+import edu.utah.ece.async.sboldesigner.sbol.editor.Registry;
 import edu.utah.ece.async.sboldesigner.swing.FormBuilder;
 
 /**
@@ -148,17 +150,7 @@ public class PartInputDialog extends InputDialog<SBOLDocument> {
 			int row = table.convertRowIndexToModel(table.getSelectedRow());
 			ComponentDefinition comp = ((ComponentDefinitionTableModel) table.getModel()).getElement(row);
 			if (importSubparts.isSelected()) {
-				ArrayList<WebOfRegistriesData> webOfRegistries;
-				try {
-					webOfRegistries = SynBioHubFrontend.getRegistries();// TODO: replace with perferences
-					for (WebOfRegistriesData registry : webOfRegistries) {
-						doc.addRegistry(registry.getInstanceUrl(),registry.getUriPrefix());
-					}
-				}
-				catch (SynBioHubException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+				SBOLUtils.populateRegistries(doc);
 				SBOLDocument newDoc = doc.createRecursiveCopy(comp);
 				SBOLUtils.copyReferencedCombinatorialDerivations(newDoc, doc);
 				return newDoc;
