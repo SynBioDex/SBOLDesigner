@@ -1,6 +1,5 @@
 package edu.utah.ece.async.sboldesigner.sbol.editor.dialog;
 
-import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Desktop;
@@ -12,9 +11,6 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Arrays;
 
-import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
@@ -26,9 +22,7 @@ import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 
 import edu.utah.ece.async.sboldesigner.boost.BOOSTPreferences;
-import edu.utah.ece.async.sboldesigner.sbol.editor.SBOLEditorPreferences;
 import edu.utah.ece.async.sboldesigner.swing.FormBuilder;
-import edu.utah.ece.async.sboldesigner.versioning.PersonInfo;
 import gov.doe.jgi.boost.client.BOOSTClient;
 
 
@@ -47,44 +41,31 @@ public class BOOSTLoginDialog extends JDialog implements ActionListener {
 			super(JOptionPane.getFrameForComponent(parent), "Login to BOOST", true);
 			this.parent = parent;
 			
-			PersonInfo userInfo = SBOLEditorPreferences.INSTANCE.getUserInfo();
-			String email = userInfo == null || userInfo.getEmail() == null ? null : userInfo.getEmail().getLocalName();
-			username.setText(email);
-			password.setEchoChar('*');
-
+			new DialogUtils(username, password);
+			DialogUtils.setUserInfo();
+			
 			cancelButton.registerKeyboardAction(this, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0),
-					JComponent.WHEN_IN_FOCUSED_WINDOW);
+					        JComponent.WHEN_IN_FOCUSED_WINDOW);
 			cancelButton.addActionListener(this);
-
 			signUpButton.addActionListener(this);
 			loginButton.addActionListener(this);
 			getRootPane().setDefaultButton(loginButton);
 
-			JPanel buttonPane = new JPanel();
-			buttonPane.setLayout(new BoxLayout(buttonPane, BoxLayout.LINE_AXIS));
-			buttonPane.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-			buttonPane.add(Box.createHorizontalStrut(100));
-			buttonPane.add(Box.createHorizontalGlue());
+			JPanel buttonPane = DialogUtils.buildLoginArea();
 			buttonPane.add(cancelButton);
 			buttonPane.add(signUpButton);
 			buttonPane.add(loginButton);
-		
-			FormBuilder builder = new FormBuilder();
-			builder.add("Username", username);
-			builder.add("Password", password);
+
+			FormBuilder builder = DialogUtils.initBuilder();
 			JPanel mainPanel = builder.build();
 			mainPanel.setAlignmentX(LEFT_ALIGNMENT);
 
 			JLabel infoLabel = new JLabel(
 					"Login to BOOST account.  This enables you to optimise your genetic constructs."
 					 +" If you do not have BOOST account, please opt for Sign Up");
-
+			
 			Container contentPane = getContentPane();
-			contentPane.add(infoLabel, BorderLayout.PAGE_START);
-			contentPane.add(mainPanel, BorderLayout.CENTER);
-			contentPane.add(buttonPane, BorderLayout.PAGE_END);
-			((JComponent) contentPane).setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-
+			DialogUtils.setUI(contentPane, infoLabel, mainPanel, buttonPane);
 			pack();
 			setLocationRelativeTo(parent);
 			setVisible(true);
