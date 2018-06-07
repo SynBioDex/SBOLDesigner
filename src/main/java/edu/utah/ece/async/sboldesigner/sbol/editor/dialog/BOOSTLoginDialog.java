@@ -25,7 +25,7 @@ import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 
-import edu.utah.ece.async.sboldesigner.sbol.boost.BOOSTPreferences;
+import edu.utah.ece.async.sboldesigner.boost.BOOSTPreferences;
 import edu.utah.ece.async.sboldesigner.sbol.editor.SBOLEditorPreferences;
 import edu.utah.ece.async.sboldesigner.swing.FormBuilder;
 import edu.utah.ece.async.sboldesigner.versioning.PersonInfo;

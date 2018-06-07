@@ -1,4 +1,4 @@
-package edu.utah.ece.async.sboldesigner.sbol.boost;
+package edu.utah.ece.async.sboldesigner.boost;
 
 import java.util.prefs.Preferences;
 
@@ -10,7 +10,7 @@ public class BOOSTPreferences {
 	 * save BOOST JWT Token in to Preferences
 	 **/
 	public void setBOOSTToken(String boostToken) {
-		Preferences prefs = Preferences.userNodeForPackage(SBOLEditorPreferences.class).node("token");
+		Preferences prefs = Preferences.userNodeForPackage(BOOSTPreferences.class).node("token");
 		prefs.put("boostJWTToken", boostToken);
 	}
 	
@@ -18,7 +18,7 @@ public class BOOSTPreferences {
 	 * get JWT Token from Preferences
 	 */
 	public String getBOOSTToken() {
-		Preferences prefs = Preferences.userNodeForPackage(SBOLEditorPreferences.class).node("token");
+		Preferences prefs = Preferences.userNodeForPackage(BOOSTPreferences.class).node("token");
 		return prefs.get("boostJWTToken", "");
 	}
 }
