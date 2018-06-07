@@ -1,15 +1,11 @@
 package edu.utah.ece.async.sboldesigner.sbol.editor.dialog;
 
-import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 
-import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
@@ -40,11 +36,7 @@ public class BOOSTJWTDialog extends JDialog implements ActionListener{
 		cancelButton.addActionListener(this);
 		getRootPane().setDefaultButton(submitButton);
 		
-		JPanel buttonPane = new JPanel();
-		buttonPane.setLayout(new BoxLayout(buttonPane, BoxLayout.LINE_AXIS));
-		buttonPane.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-		buttonPane.add(Box.createHorizontalStrut(100));
-		buttonPane.add(Box.createHorizontalGlue());
+		JPanel buttonPane = DialogUtils.buildLoginArea();
 		buttonPane.add(cancelButton);
 		buttonPane.add(submitButton);
 	
@@ -58,10 +50,7 @@ public class BOOSTJWTDialog extends JDialog implements ActionListener{
 				"Please provide your BOOST JWT token in order to authenticate your account");
 		
 		Container contentPane = getContentPane();
-		contentPane.add(infoLabel, BorderLayout.PAGE_START);
-		contentPane.add(mainPanel, BorderLayout.CENTER);
-		contentPane.add(buttonPane, BorderLayout.PAGE_END);
-		((JComponent) contentPane).setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+		DialogUtils.setUI(contentPane, infoLabel, mainPanel, buttonPane);
 
 		pack();
 		setLocationRelativeTo(parent);
