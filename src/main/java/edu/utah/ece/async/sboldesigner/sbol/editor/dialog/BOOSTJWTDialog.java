@@ -36,7 +36,7 @@ public class BOOSTJWTDialog extends JDialog implements ActionListener{
 		cancelButton.addActionListener(this);
 		getRootPane().setDefaultButton(submitButton);
 		
-		JPanel buttonPane = DialogUtils.buildLoginArea();
+		JPanel buttonPane = DialogUtils.buildDecisionArea(0); // 0 for LINE_AXIS alignment 
 		buttonPane.add(cancelButton);
 		buttonPane.add(submitButton);
 	

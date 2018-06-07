@@ -51,7 +51,7 @@ public class BOOSTLoginDialog extends JDialog implements ActionListener {
 			loginButton.addActionListener(this);
 			getRootPane().setDefaultButton(loginButton);
 
-			JPanel buttonPane = DialogUtils.buildLoginArea();
+			JPanel buttonPane = DialogUtils.buildDecisionArea(0); // 0 for LINE_AXIS alignment
 			buttonPane.add(cancelButton);
 			buttonPane.add(signUpButton);
 			buttonPane.add(loginButton);

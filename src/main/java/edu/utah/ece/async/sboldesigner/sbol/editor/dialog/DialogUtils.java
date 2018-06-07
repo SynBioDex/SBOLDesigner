@@ -50,9 +50,18 @@ public class DialogUtils {
 		
 	}
 	
-	protected static JPanel buildLoginArea() {
+	protected static JPanel buildDecisionArea(int alongLineAxis) {
+		int itemsAlongLineAxis = alongLineAxis;
 		JPanel buttonPane = new JPanel();
-		buttonPane.setLayout(new BoxLayout(buttonPane, BoxLayout.LINE_AXIS));
+		switch(itemsAlongLineAxis) {
+		case 0:
+			buttonPane.setLayout(new BoxLayout(buttonPane, BoxLayout.LINE_AXIS));
+			break;
+			
+		case 1:
+			buttonPane.setLayout(new BoxLayout(buttonPane, BoxLayout.Y_AXIS));
+			break;	
+		}
 		buttonPane.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 		buttonPane.add(Box.createHorizontalStrut(100));
 		buttonPane.add(Box.createHorizontalGlue());

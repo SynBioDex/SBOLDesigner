@@ -1,15 +1,11 @@
 package edu.utah.ece.async.sboldesigner.sbol.editor.dialog;
 
-import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 
-import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
@@ -18,8 +14,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.KeyStroke;
-
-import edu.utah.ece.async.sboldesigner.swing.FormBuilder;
 
 public class BOOSTAvailableOperations extends JDialog implements ActionListener{
 
@@ -35,7 +29,7 @@ public class BOOSTAvailableOperations extends JDialog implements ActionListener{
 	private JButton cancelButton = new JButton("Cancel");
 	
 	
-	public BOOSTAvailableOperations(Component parent) {
+	public BOOSTAvailableOperations(Component parent, String selectedTask) {
 		super(JOptionPane.getFrameForComponent(parent), "Available BOOST Tasks ", true);
 		this.parent = parent;
 		
@@ -51,33 +45,30 @@ public class BOOSTAvailableOperations extends JDialog implements ActionListener{
 		cancelButton.addActionListener(this);
 		getRootPane().setDefaultButton(submitButton);
 		
-		JPanel buttonPane = new JPanel();
-		buttonPane.setLayout(new BoxLayout(buttonPane, BoxLayout.LINE_AXIS));
-		buttonPane.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-		buttonPane.add(Box.createHorizontalStrut(100));
-		buttonPane.add(Box.createHorizontalGlue());
+		JPanel buttonPane = DialogUtils.buildDecisionArea(0); // 0 for LINE_AXIS alignment
 		buttonPane.add(cancelButton);
 		buttonPane.add(submitButton);
 		
-		JPanel mainPanel = new JPanel();
-		mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
-		mainPanel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
-		mainPanel.add(reverseTranslationBtn);
-		mainPanel.add(codonJugglingBtn);
-		mainPanel.add(dnaVerificationBtn);
-		mainPanel.add(sequenceModificationBtn);
-		mainPanel.add(sequencePartitionBtn);
-		mainPanel.setAlignmentX(LEFT_ALIGNMENT);
+		JPanel taskPanel = DialogUtils.buildDecisionArea(1); // 1 for LINE_AXIS alignment
+		switch(selectedTask) {
+		case "selectedDNA":
+			taskPanel.add(reverseTranslationBtn);
+			taskPanel.add(codonJugglingBtn);
+			break;
+			
+		case "selectedProtein":
+			taskPanel.add(dnaVerificationBtn);
+			taskPanel.add(sequenceModificationBtn);
+			taskPanel.add(sequencePartitionBtn);
+			break;
+		}
+		taskPanel.setAlignmentX(LEFT_ALIGNMENT);
 		
 		JLabel infoLabel = new JLabel(
 				"Please select the operaton(s) you want to perform with your genatic constructs");
 		
 		Container contentPane = getContentPane();
-		contentPane.add(infoLabel, BorderLayout.PAGE_START);
-		contentPane.add(mainPanel, BorderLayout.LINE_START);
-		contentPane.add(buttonPane, BorderLayout.PAGE_END);
-		((JComponent) contentPane).setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-
+		DialogUtils.setUI(contentPane, infoLabel, taskPanel, buttonPane);
 		pack();
 		setLocationRelativeTo(parent);
 		setVisible(true);
