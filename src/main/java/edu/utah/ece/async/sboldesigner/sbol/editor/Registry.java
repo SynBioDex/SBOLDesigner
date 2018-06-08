@@ -62,6 +62,14 @@ public class Registry implements Serializable {
 	public boolean isPath() {
 		return !location.startsWith("http://") && !location.startsWith("https://");
 	}
+	
+	/**
+	 * Checks to see if the registry we are working on is represented by
+	 * IdentifiedMetadata.
+	 */
+	public boolean isMetadata() {
+		return location.startsWith("http://") || location.startsWith("https://");
+	}
 
 	@Override
 	public boolean equals(Object obj) {

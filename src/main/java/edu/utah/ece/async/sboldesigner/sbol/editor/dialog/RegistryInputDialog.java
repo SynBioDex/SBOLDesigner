@@ -535,17 +535,7 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 			} else {
 				document = new SBOLDocument();
 				comp = ((ComponentDefinitionTableModel) table.getModel()).getElement(row);
-				ArrayList<WebOfRegistriesData> webOfRegistries;
-				try {
-					webOfRegistries = SynBioHubFrontend.getRegistries(); // TODO: replace with preferences
-					for (WebOfRegistriesData registry : webOfRegistries) {
-						document.addRegistry(registry.getInstanceUrl(),registry.getUriPrefix());
-					}
-				}
-				catch (SynBioHubException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+				SBOLUtils.populateRegistries(document);
 				document = document.createRecursiveCopy(comp);
 			}
 

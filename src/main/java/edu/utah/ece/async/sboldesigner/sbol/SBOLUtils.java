@@ -43,11 +43,15 @@ import org.sbolstandard.core2.Sequence;
 import org.sbolstandard.core2.SequenceAnnotation;
 import org.sbolstandard.core2.SequenceOntology;
 import org.sbolstandard.core2.TopLevel;
+import org.synbiohub.frontend.SynBioHubException;
+import org.synbiohub.frontend.SynBioHubFrontend;
+import org.synbiohub.frontend.WebOfRegistriesData;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 
 import edu.utah.ece.async.sboldesigner.sbol.editor.Part;
+import edu.utah.ece.async.sboldesigner.sbol.editor.Registries;
 import edu.utah.ece.async.sboldesigner.sbol.editor.SBOLEditorPreferences;
 import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.MessageDialog;
 
@@ -287,6 +291,30 @@ public class SBOLUtils {
 		Preferences.userRoot().node("path").put("path", file.getPath());
 
 		return file;
+	}
+
+	/**
+	 * adds all registries in SynBioHubFrontend and local preferences to doc's
+	 * internal registries
+	 */
+	public static void populateRegistries(SBOLDocument doc) {
+		try {
+			// add web of registries to doc
+			ArrayList<WebOfRegistriesData> webOfRegistries;
+			webOfRegistries = SynBioHubFrontend.getRegistries();
+			for (WebOfRegistriesData registry : webOfRegistries) {
+				doc.addRegistry(registry.getInstanceUrl(), registry.getUriPrefix());
+			}
+
+			// add preferences registries to doc
+			Registries.get().forEach(registry -> {
+				if (registry.isMetadata()) {
+					doc.addRegistry(registry.getLocation(), registry.getUriPrefix());
+				}
+			});
+		} catch (SynBioHubException e) {
+			e.printStackTrace();
+		}
 	}
 
 	private static String getNucleotides(ComponentDefinition comp) {
