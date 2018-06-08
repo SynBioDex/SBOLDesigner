@@ -150,7 +150,6 @@ public class PartInputDialog extends InputDialog<SBOLDocument> {
 			int row = table.convertRowIndexToModel(table.getSelectedRow());
 			ComponentDefinition comp = ((ComponentDefinitionTableModel) table.getModel()).getElement(row);
 			if (importSubparts.isSelected()) {
-				SBOLUtils.populateRegistries(doc);
 				SBOLDocument newDoc = doc.createRecursiveCopy(comp);
 				SBOLUtils.copyReferencedCombinatorialDerivations(newDoc, doc);
 				return newDoc;

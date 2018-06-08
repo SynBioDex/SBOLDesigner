@@ -298,23 +298,13 @@ public class SBOLUtils {
 	 * internal registries
 	 */
 	public static void populateRegistries(SBOLDocument doc) {
-		try {
-			// add web of registries to doc
-			ArrayList<WebOfRegistriesData> webOfRegistries;
-			webOfRegistries = SynBioHubFrontend.getRegistries();
-			for (WebOfRegistriesData registry : webOfRegistries) {
-				doc.addRegistry(registry.getInstanceUrl(), registry.getUriPrefix());
+		// add preferences registries to doc
+		Registries.get().forEach(registry -> {
+			if (registry.isMetadata()) {
+				System.out.println("adding " + registry.getLocation() + " " + registry.getUriPrefix());
+				doc.addRegistry(registry.getLocation(), registry.getUriPrefix());
 			}
-
-			// add preferences registries to doc
-			Registries.get().forEach(registry -> {
-				if (registry.isMetadata()) {
-					doc.addRegistry(registry.getLocation(), registry.getUriPrefix());
-				}
-			});
-		} catch (SynBioHubException e) {
-			e.printStackTrace();
-		}
+		});
 	}
 
 	private static String getNucleotides(ComponentDefinition comp) {

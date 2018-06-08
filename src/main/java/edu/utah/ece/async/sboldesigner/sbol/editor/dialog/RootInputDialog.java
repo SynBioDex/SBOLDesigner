@@ -195,7 +195,6 @@ public class RootInputDialog extends InputDialog<SBOLDocument> {
 		try {
 			int row = table.convertRowIndexToModel(table.getSelectedRow());
 			ComponentDefinition comp = ((ComponentDefinitionTableModel) table.getModel()).getElement(row);
-			SBOLUtils.populateRegistries(doc);
 			SBOLDocument newDoc = doc.createRecursiveCopy(comp);
 			SBOLUtils.copyReferencedCombinatorialDerivations(newDoc, doc);
 			root.cd = newDoc.getComponentDefinition(comp.getIdentity());

@@ -499,6 +499,7 @@ public class SBOLDesign {
 			return false;
 		}
 		doc.setDefaultURIprefix(SBOLEditorPreferences.INSTANCE.getUserInfo().getURI().toString());
+		SBOLUtils.populateRegistries(doc);
 		SBOLValidate.validateSBOL(doc, false, false, true);
 		List<String> errors = SBOLValidate.getErrors();
 		if (!errors.isEmpty()) {

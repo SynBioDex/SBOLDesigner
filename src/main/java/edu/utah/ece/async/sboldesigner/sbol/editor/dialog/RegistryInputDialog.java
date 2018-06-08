@@ -535,7 +535,6 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 			} else {
 				document = new SBOLDocument();
 				comp = ((ComponentDefinitionTableModel) table.getModel()).getElement(row);
-				SBOLUtils.populateRegistries(document);
 				document = document.createRecursiveCopy(comp);
 			}
 
