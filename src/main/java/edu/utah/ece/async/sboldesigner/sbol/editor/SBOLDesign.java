@@ -106,9 +106,9 @@ import edu.utah.ece.async.sboldesigner.sbol.ProvenanceUtil;
 import edu.utah.ece.async.sboldesigner.sbol.SBOLUtils;
 import edu.utah.ece.async.sboldesigner.sbol.SBOLUtils.Types;
 import edu.utah.ece.async.sboldesigner.boost.BOOSTPreferences;
+import edu.utah.ece.async.sboldesigner.boost.SelectedFilePath;
 import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.BOOSTAvailableOperations;
 import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.BOOSTLoginDialog;
-import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.BOOSTSequencesOptionsDialog;
 import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.ComponentDefinitionBox;
 import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.MessageDialog;
 import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.PartEditDialog;
@@ -194,35 +194,23 @@ public class SBOLDesign {
 					return;
 				}
 
-				String[] options = { "Current design", "Working documents" };
-				int choice = JOptionPane.showOptionDialog(panel, "What would you like to optimise with BOOST?", "BOOST",
-						JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
+				String[] option = { "Select File" };
+				int choice = JOptionPane.showOptionDialog(panel, "Please select a file contatining your sequence:", "BOOST",
+						JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, option, option[0]);
 
-				if (choice == 0) {
-					ComponentDefinitionBox root = new ComponentDefinitionBox();
-					SBOLDocument sbolDoc = createDocument(root);
-					uploadToBOOST(panel, sbolDoc);
-				} else if (choice == 1) {
-					if (designerPanel.documentIO == null) {
-						if (!designerPanel.selectCurrentFile()) {
-							return;
-						}
-					}
-
-					if (!SBOLUtils.setupFile().exists()) {
-						JOptionPane.showMessageDialog(panel, "The working document does not exist.");
-						return;
-					}
-
-					SBOLDocument sbolDoc = designerPanel.documentIO.read();
-					// TODO: write a functon to send file to BOOST
-					uploadToBOOST(panel, sbolDoc);
+				 if (choice == 0) {
+					 String selectedFilePath = new SelectedFilePath().getSelectedFilePath();
+					 System.out.println(selectedFilePath);
+					
+					 if(selectedFilePath != null && !selectedFilePath.isEmpty()) {
+						 filePath(panel,selectedFilePath);
+					 }
 				} else {
 					return;
 				}
 
 			} catch (Exception e) {
-				MessageDialog.showMessage(panel, "There was a problem with BOOST : ", e.getMessage());
+				MessageDialog.showMessage(panel, "There was a problem with file contianing sequence : ", e.getMessage());
 				e.printStackTrace();
 			}
 		}
@@ -1425,14 +1413,14 @@ public class SBOLDesign {
 		}
 	}
 	
-	public static void uploadToBOOST(Component panel, SBOLDocument sbolDoc) {
+	public static void filePath(Component panel, String selectedFilePath) {
 		// TODO: call boost dialog and pass in document
 		// print response document for now (or write to disk, etc)
 	    String boostToken = new BOOSTPreferences().getBOOSTToken();
 	    if(boostToken == null || boostToken.isEmpty()) {
 	    	new BOOSTLoginDialog(panel);
 	    }else {
-	    	new BOOSTSequencesOptionsDialog(panel);
+	    	new BOOSTAvailableOperations(panel, boostToken, selectedFilePath);
 	    }
 	}
 

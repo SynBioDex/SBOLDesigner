@@ -30,7 +30,7 @@ public class BOOSTReverseTranslation extends JDialog implements ActionListener {
 	private JButton cancelButton = new JButton("Cancel");
 
 	public BOOSTReverseTranslation(Component parent) {
-		super(JOptionPane.getFrameForComponent(parent), "Reverse Translation", true);
+		super(JOptionPane.getFrameForComponent(parent), "Codon Juggling ", true);
 		
 		GroupLayout layout = new GroupLayout(getContentPane());
 		BOOSTReverseTranslation dialog = new BOOSTReverseTranslation();
