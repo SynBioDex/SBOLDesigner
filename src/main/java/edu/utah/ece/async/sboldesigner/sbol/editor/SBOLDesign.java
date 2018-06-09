@@ -201,12 +201,16 @@ public class SBOLDesign {
 				 if (choice == 0) {
 					 String selectedFilePath = new SelectedFilePath().getSelectedFilePath();
 					 System.out.println(selectedFilePath);
+					
+					 if(selectedFilePath != null && !selectedFilePath.isEmpty()) {
+						 filePath(panel,selectedFilePath);
+					 }
 				} else {
 					return;
 				}
 
 			} catch (Exception e) {
-				MessageDialog.showMessage(panel, "There was a problem with BOOST : ", e.getMessage());
+				MessageDialog.showMessage(panel, "There was a problem with file contianing sequence : ", e.getMessage());
 				e.printStackTrace();
 			}
 		}
@@ -1409,14 +1413,14 @@ public class SBOLDesign {
 		}
 	}
 	
-	public static void uploadToBOOST(Component panel, SBOLDocument sbolDoc) {
+	public static void filePath(Component panel, String selectedFilePath) {
 		// TODO: call boost dialog and pass in document
 		// print response document for now (or write to disk, etc)
 	    String boostToken = new BOOSTPreferences().getBOOSTToken();
 	    if(boostToken == null || boostToken.isEmpty()) {
 	    	new BOOSTLoginDialog(panel);
 	    }else {
-	    	new BOOSTAvailableOperations(panel);
+	    	new BOOSTAvailableOperations(panel, boostToken, selectedFilePath);
 	    }
 	}
 
