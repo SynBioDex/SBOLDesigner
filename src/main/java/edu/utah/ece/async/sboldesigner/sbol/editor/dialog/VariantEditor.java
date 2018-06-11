@@ -391,7 +391,7 @@ public class VariantEditor extends JDialog implements ActionListener {
 			throws SBOLValidationException {
 		String uniqueId = SBOLUtils.getUniqueDisplayId(null, null, displayId, derivationCD.getVersion(),
 				"CombinatorialDerivation", design);
-		CombinatorialDerivation derivation = design.createCombinatorialDerivation(uniqueId, derivationCD.getVersion(),
+		CombinatorialDerivation derivation = design.createCombinatorialDerivation(uniqueId, "1",
 				derivationCD.getIdentity());
 
 		StrategyType strategy = ((Strategy) strategySelection.getSelectedItem()).type;
