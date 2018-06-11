@@ -84,16 +84,16 @@ public class BOOSTAvailableOperations extends JDialog implements ActionListener{
 		if (e.getSource() == cancelButton) {
 			setVisible(false);
 			return;
-		}else if(e.getSource() == submitButton) {
-			new BOOSTOperations(this.boostToken,this.filePath);
-		}else if(e.getSource() == codonJugglingBtn) {
+		} else if (e.getSource() == submitButton) {
+			new BOOSTOperations(this.boostToken, this.filePath);
+		} else if (e.getSource() == codonJugglingBtn) {
 			new BOOSTCodonJugglingDialog(parent);
-		}else if(e.getSource() == dnaVerificationBtn) {
-			
-		}else if(e.getSource() == sequenceModificationBtn) {
-			
-		}else if(e.getSource() == sequencePartitionBtn) {
-			
+		} else if (e.getSource() == dnaVerificationBtn) {
+			new BOOSTCodonJugglingDialog(parent);
+		} else if (e.getSource() == sequenceModificationBtn) {
+			new BOOSTDNAPolishingDialog(parent);
+		} else if (e.getSource() == sequencePartitionBtn) {
+
 		}
 	}
 }
