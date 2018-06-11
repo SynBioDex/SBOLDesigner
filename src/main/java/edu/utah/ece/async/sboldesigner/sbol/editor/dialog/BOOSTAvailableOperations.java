@@ -5,11 +5,10 @@ import java.awt.Container;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
-import java.net.URL;
 
+import javax.swing.ButtonGroup;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
@@ -51,6 +50,12 @@ public class BOOSTAvailableOperations extends JDialog implements ActionListener{
 		cancelButton.addActionListener(this);
 		getRootPane().setDefaultButton(submitButton);
 		
+		ButtonGroup taskGroup = new ButtonGroup();
+		taskGroup.add(codonJugglingBtn);
+		taskGroup.add(dnaVerificationBtn);
+		taskGroup.add(sequenceModificationBtn);
+		taskGroup.add(sequencePartitionBtn);
+		
 		JPanel buttonPane = DialogUtils.buildDecisionArea(0); // 0 for LINE_AXIS alignment
 		buttonPane.add(cancelButton);
 		buttonPane.add(submitButton);
@@ -61,6 +66,7 @@ public class BOOSTAvailableOperations extends JDialog implements ActionListener{
 		taskPanel.add(sequenceModificationBtn);
 		taskPanel.add(sequencePartitionBtn);
 		taskPanel.setAlignmentX(LEFT_ALIGNMENT);
+		
 
 		JLabel infoLabel = new JLabel("Please select the operaton(s) you want to perform with your genatic constructs");
 
@@ -80,6 +86,14 @@ public class BOOSTAvailableOperations extends JDialog implements ActionListener{
 			return;
 		}else if(e.getSource() == submitButton) {
 			new BOOSTOperations(this.boostToken,this.filePath);
-		}		
+		}else if(e.getSource() == codonJugglingBtn) {
+			new BOOSTCodonJugglingDialog(parent);
+		}else if(e.getSource() == dnaVerificationBtn) {
+			
+		}else if(e.getSource() == sequenceModificationBtn) {
+			
+		}else if(e.getSource() == sequencePartitionBtn) {
+			
+		}
 	}
 }
