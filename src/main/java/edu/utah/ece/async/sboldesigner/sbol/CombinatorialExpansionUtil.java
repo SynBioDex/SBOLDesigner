@@ -113,6 +113,7 @@ public class CombinatorialExpansionUtil {
 	private static void addChildren(ComponentDefinition originalTemplate, Component originalComponent,
 			ComponentDefinition newParent, HashSet<ComponentDefinition> children) throws SBOLValidationException {
 		Component newComponent = newParent.getComponent(originalComponent.getDisplayId());
+		newComponent.addWasDerivedFrom(originalComponent.getIdentity());
 
 		if (children.isEmpty()) {
 			removeConstraintReferences(newParent, newComponent);
