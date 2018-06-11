@@ -301,7 +301,6 @@ public class SBOLUtils {
 		// add preferences registries to doc
 		Registries.get().forEach(registry -> {
 			if (registry.isMetadata()) {
-				System.out.println("adding " + registry.getLocation() + " " + registry.getUriPrefix());
 				doc.addRegistry(registry.getLocation(), registry.getUriPrefix());
 			}
 		});
