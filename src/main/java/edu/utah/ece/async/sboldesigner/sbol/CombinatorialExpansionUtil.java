@@ -73,6 +73,7 @@ public class CombinatorialExpansionUtil {
 				template.getVersion(), "CD", doc);
 		ComponentDefinition copy = (ComponentDefinition) doc.createCopy(template, uniqueId, template.getVersion());
 		copy.addWasDerivedFrom(template.getIdentity());
+		copy.addWasDerivedFrom(derivation.getIdentity());
 
 		copy.clearSequenceAnnotations();
 
