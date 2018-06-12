@@ -81,18 +81,7 @@ public class BOOSTDNAPolishingDialog extends JDialog implements ActionListener{
 			BOOSTOperations.polishing(filePath, EnumInArrayList.annotation[annotationIndex],
 					EnumInArrayList.vendorList.get(vendorIndex), 
 					EnumInArrayList.strategyList.get(strategyIndex), host);
-			
-			
-			
-			
-			//selectedFilePath, // input sequence
-			// true, // encoding sequences support sequence feature annotations
-			// Vendor.JGI, // vendor
-			// Strategy.Balanced2Random, // codon selection strategy
-			// FileFormat.SBOL, // output format
-			// "Saccharomyces cerevisiae"); // // predefined host
-		}
-		
+		}		
 	}
 	
 	
