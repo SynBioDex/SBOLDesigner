@@ -1420,7 +1420,7 @@ public class SBOLDesign {
 	    if(boostToken == null || boostToken.isEmpty()) {
 	    	new BOOSTLoginDialog(panel);
 	    }else {
-	    	new BOOSTAvailableOperations(panel, boostToken, selectedFilePath);
+	    	new BOOSTAvailableOperations(panel, selectedFilePath);
 	    }
 	}
 

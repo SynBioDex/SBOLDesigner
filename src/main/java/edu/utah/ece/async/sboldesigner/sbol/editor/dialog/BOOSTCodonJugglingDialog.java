@@ -4,6 +4,10 @@ import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
+
+import gov.doe.jgi.boost.enums.FileFormat;
+import gov.doe.jgi.boost.enums.Strategy;
+
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -18,16 +22,26 @@ import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.KeyStroke;
 
+import edu.utah.ece.async.sboldesigner.boost.BOOSTOperations;
+import edu.utah.ece.async.sboldesigner.boost.EnumInArrayList;
+
 public class BOOSTCodonJugglingDialog extends JDialog implements ActionListener{
 	
 	private Component parent;
+	private String filePath;
 	private final JButton submitButton = new JButton("Submit");
 	private final JButton cancelButton = new JButton("Cancel");
+	JComboBox<String> strategyComboBox = new JComboBox<>(new String[] {"Random", 
+			"Balanced", "Mostly Used", "Least Different"});
+    JComboBox<String> annotationComboBox = new JComboBox<>(new String[] {"Yes", "No"});
+    JComboBox<String> hostComboBox = new JComboBox<>(new String[] {"Bacillus subtilis",
+		    "Arabidapsis thaliana", "Escherichia coli", "Saccharomyces cerevisiae"});
 
 
-	public BOOSTCodonJugglingDialog(Component parent) {
+	public BOOSTCodonJugglingDialog(Component parent, String filePath) {
 		super(JOptionPane.getFrameForComponent(parent), "Codon Juggling", true);
 		this.parent = parent;
+		this.filePath = filePath;
 		
 		cancelButton.registerKeyboardAction(this, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0),
 				JComponent.WHEN_IN_FOCUSED_WINDOW);
@@ -55,21 +69,26 @@ public class BOOSTCodonJugglingDialog extends JDialog implements ActionListener{
 
 
 	@Override
-	public void actionPerformed(ActionEvent arg0) {
-		// TODO Auto-generated method stub
-		
+	public void actionPerformed(ActionEvent arg) {
+		if (arg.getSource() == cancelButton) {
+			setVisible(false);
+			return;
+		}else if(arg.getSource() == submitButton) {
+			int strategyIndex = strategyComboBox.getSelectedIndex();
+			int annotationIndex = annotationComboBox.getSelectedIndex();
+			String host =String.valueOf(hostComboBox.getSelectedItem());
+			System.out.println(host);
+			BOOSTOperations.codonJuggling(filePath,EnumInArrayList.annotation[annotationIndex],
+					EnumInArrayList.strategyList.get(strategyIndex), host);
+			setVisible(false);
+			return;
+		}	
 	}
 	
 	void mainPanelUI(JPanel mainPanel) {
 		JLabel strategyLabel = new JLabel("Select Codon Selection Strategy:");
 		JLabel selectCodonLabel = new JLabel("Select Predefined Codon Usage Table:");
 		JLabel annotationLabel = new JLabel("exclusively 5'-3' coding sequences?");
-		
-		JComboBox<String> strategyComboBox = new JComboBox<>(new String[] {"Random", 
-						"Balanced", "Mostly Used", "Least Different"});
-		JComboBox<String> annotationComboBox = new JComboBox<>(new String[] {"Yes", "No"});
-		JComboBox<String> hostComboBox = new JComboBox<>(new String[] {"Bacillus Subtilis",
-					    "Arabidapsis thaliana", "Escherichia coli", "Saccharamyces cere"});
 		
 		GroupLayout mainPanelLayout = new GroupLayout(mainPanel);
 		mainPanelLayout.setHorizontalGroup(

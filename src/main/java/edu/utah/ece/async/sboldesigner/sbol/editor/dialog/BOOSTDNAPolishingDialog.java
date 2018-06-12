@@ -19,15 +19,29 @@ import javax.swing.GroupLayout.Alignment;
 import javax.swing.JComboBox;
 import javax.swing.LayoutStyle.ComponentPlacement;
 
+import edu.utah.ece.async.sboldesigner.boost.BOOSTOperations;
+import edu.utah.ece.async.sboldesigner.boost.EnumInArrayList;
+
 public class BOOSTDNAPolishingDialog extends JDialog implements ActionListener{
 
 	private Component parent;
+	private String filePath;
 	private final JButton submitButton = new JButton("Submit");
 	private final JButton cancelButton = new JButton("Cancel");
+	JComboBox<String> strategyComboBox = new JComboBox<>(new String[] {"Random", "Balenced",
+			"Least Different", "Mostly Used", "Balenced2Random", "Relexed Weight"});
 	
-	public BOOSTDNAPolishingDialog(Component parent) {
-		super(JOptionPane.getFrameForComponent(parent), "DNA Polishing", true);
+	JComboBox<String> vendorComboBox = new JComboBox<>(new String[] {" Thermo Fisher (Life Technalogies)", 
+	        " SGI-DNA"," GEN9", " DOE Joint Genome Institute (JGI)", " IDT"});
+	
+	JComboBox<String> annotationComboBox = new JComboBox<>(new String[] {"Yes", "No"});
+	JComboBox<String> predefinedComboBox = new JComboBox<>(new String[] {"Bacillus Subtilis",
+		    "Arabidapsis thaliana", "Escherichia coli", "Saccharamyces cere"});
+	
+	public BOOSTDNAPolishingDialog(Component parent, String filePath) {
+		super(JOptionPane.getFrameForComponent(parent), "DNA Modification", true);
 		this.parent = parent;
+		this.filePath = filePath;
 		
 		cancelButton.registerKeyboardAction(this, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0),
 				JComponent.WHEN_IN_FOCUSED_WINDOW);
@@ -53,23 +67,40 @@ public class BOOSTDNAPolishingDialog extends JDialog implements ActionListener{
 	}
 		
 	
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		if (e.getSource() == cancelButton) {
+			setVisible(false);
+			return;
+		}else if(e.getSource() == submitButton) {
+			int strategyIndex = strategyComboBox.getSelectedIndex();
+			int vendorIndex = vendorComboBox.getSelectedIndex();
+			int annotationIndex = annotationComboBox.getSelectedIndex();
+			String host =String.valueOf(predefinedComboBox.getSelectedItem());
+			System.out.println(host);
+			BOOSTOperations.polishing(filePath, EnumInArrayList.annotation[annotationIndex],
+					EnumInArrayList.vendorList.get(vendorIndex), 
+					EnumInArrayList.strategyList.get(strategyIndex), host);
+			
+			
+			
+			
+			//selectedFilePath, // input sequence
+			// true, // encoding sequences support sequence feature annotations
+			// Vendor.JGI, // vendor
+			// Strategy.Balanced2Random, // codon selection strategy
+			// FileFormat.SBOL, // output format
+			// "Saccharomyces cerevisiae"); // // predefined host
+		}
+		
+	}
+	
 	
 	private void uiMainPanel(JPanel mainPanel) {
         JLabel strategyLabel = new JLabel("Select Codon Selection Strategy:");
         JLabel vendorLabel = new JLabel("Select Vendor of your Choice:");
         JLabel predefinedLabel = new JLabel("Predefined Codon Uses table:");
         JLabel annotationLabel = new JLabel("Encoding Sequence support annotation feature:");
-
-		JComboBox<String> strategyComboBox = new JComboBox<>(new String[] {"Random", "Balenced",
-				"Least Different", "Mostly Used", "Balenced2Random", "Relexed Weight"});
-		
-		JComboBox<String> vendorComboBox = new JComboBox<>(new String[] {"Integrated DNA Technalogies",
-				"Thermo Fisher (Life Technalogies)", "SGI-DNA", "DOE Joint Genome Institute (JGI)",
-				"Twist Bioscience (non- clonal)", "Twist Bioscience (clonal)"});
-		
-		JComboBox<String> annotationComboBox = new JComboBox<>(new String[] {"Yes", "No"});
-		JComboBox<String> predefinedComboBox = new JComboBox<>(new String[] {"Bacillus Subtilis",
-			    "Arabidapsis thaliana", "Escherichia coli", "Saccharamyces cere"});
 		
 		GroupLayout groupLayout = new GroupLayout(mainPanel);
 		groupLayout.setHorizontalGroup(
@@ -111,14 +142,6 @@ public class BOOSTDNAPolishingDialog extends JDialog implements ActionListener{
 					.addContainerGap(134, Short.MAX_VALUE))
 		);
 		mainPanel.setLayout(groupLayout);
-		
-	}
-
-
-
-	@Override
-	public void actionPerformed(ActionEvent e) {
-		// TODO Auto-generated method stu
 		
 	}
 }
