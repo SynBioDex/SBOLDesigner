@@ -199,7 +199,7 @@ public class SBOLDesign {
 						JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, option, option[0]);
 
 				 if (choice == 0) {
-					 String selectedFilePath = new SelectedFilePath().getSelectedFilePath();
+					 String selectedFilePath = new SelectedFilePath("sequenceFile").getSelectedFilePath();
 					 System.out.println(selectedFilePath);
 					
 					 if(selectedFilePath != null && !selectedFilePath.isEmpty()) {

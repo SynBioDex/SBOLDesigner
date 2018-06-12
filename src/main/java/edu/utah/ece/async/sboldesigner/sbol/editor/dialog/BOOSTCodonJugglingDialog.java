@@ -5,9 +5,6 @@ import javax.swing.JDialog;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
 
-import gov.doe.jgi.boost.enums.FileFormat;
-import gov.doe.jgi.boost.enums.Strategy;
-
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -74,13 +71,13 @@ public class BOOSTCodonJugglingDialog extends JDialog implements ActionListener{
 			setVisible(false);
 			return;
 		}else if(arg.getSource() == submitButton) {
+			setVisible(false);
 			int strategyIndex = strategyComboBox.getSelectedIndex();
 			int annotationIndex = annotationComboBox.getSelectedIndex();
 			String host =String.valueOf(hostComboBox.getSelectedItem());
 			System.out.println(host);
 			BOOSTOperations.codonJuggling(filePath,EnumInArrayList.annotation[annotationIndex],
 					EnumInArrayList.strategyList.get(strategyIndex), host);
-			setVisible(false);
 			return;
 		}	
 	}

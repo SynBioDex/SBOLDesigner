@@ -24,6 +24,7 @@ import javax.swing.JComboBox;
 
 public class BOOSTDNAVerificationDialog extends JDialog implements ActionListener {
 	
+	private Component parent;
 	private String filePath;
 	private String sequencePatterns;
 	private final JButton submitButton = new JButton("Submit");
@@ -35,6 +36,7 @@ public class BOOSTDNAVerificationDialog extends JDialog implements ActionListene
 	public BOOSTDNAVerificationDialog(Component parent, String filePath) {
 		super(JOptionPane.getFrameForComponent(parent), "DNA Verification", true);
 		this.filePath = filePath;
+		this.parent = parent;
 
 		cancelButton.registerKeyboardAction(this, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0),
 				JComponent.WHEN_IN_FOCUSED_WINDOW);
@@ -67,13 +69,17 @@ public class BOOSTDNAVerificationDialog extends JDialog implements ActionListene
 			setVisible(false);
 			return;
 		}else if(e.getSource() == chooseFileButton ){
-			this.sequencePatterns = new SelectedFilePath().getSelectedFilePath();
+			this.sequencePatterns = new SelectedFilePath("sequencePatterns").getSelectedFilePath();
 		} if(e.getSource() == submitButton) {
+			if(sequencePatterns != null) {
+			setVisible(false);
 			int vendorIndex = vendorComboBox.getSelectedIndex();
 			BOOSTOperations.dnaVerification(filePath, EnumInArrayList.vendorList.get(vendorIndex),
 					                                  sequencePatterns);
-			setVisible(false);
 			return;
+			}else {
+				JOptionPane.showMessageDialog(parent, "Upload a file for sequence pattern before submit!");
+			}
 		}
 	}
 	

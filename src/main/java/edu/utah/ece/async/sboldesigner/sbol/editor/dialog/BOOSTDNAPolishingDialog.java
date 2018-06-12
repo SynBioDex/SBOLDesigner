@@ -33,10 +33,9 @@ public class BOOSTDNAPolishingDialog extends JDialog implements ActionListener{
 	
 	JComboBox<String> vendorComboBox = new JComboBox<>(new String[] {" Thermo Fisher (Life Technalogies)", 
 	        " SGI-DNA"," GEN9", " DOE Joint Genome Institute (JGI)", " IDT"});
-	
 	JComboBox<String> annotationComboBox = new JComboBox<>(new String[] {"Yes", "No"});
-	JComboBox<String> predefinedComboBox = new JComboBox<>(new String[] {"Bacillus Subtilis",
-		    "Arabidapsis thaliana", "Escherichia coli", "Saccharamyces cere"});
+	JComboBox<String> predefinedComboBox = new JComboBox<>(new String[] {"Bacillus subtilis",
+		    "Arabidapsis thaliana", "Escherichia coli", "Saccharomyces cerevisiae"});
 	
 	public BOOSTDNAPolishingDialog(Component parent, String filePath) {
 		super(JOptionPane.getFrameForComponent(parent), "DNA Modification", true);
@@ -73,6 +72,7 @@ public class BOOSTDNAPolishingDialog extends JDialog implements ActionListener{
 			setVisible(false);
 			return;
 		}else if(e.getSource() == submitButton) {
+			setVisible(false);
 			int strategyIndex = strategyComboBox.getSelectedIndex();
 			int vendorIndex = vendorComboBox.getSelectedIndex();
 			int annotationIndex = annotationComboBox.getSelectedIndex();
@@ -81,6 +81,7 @@ public class BOOSTDNAPolishingDialog extends JDialog implements ActionListener{
 			BOOSTOperations.polishing(filePath, EnumInArrayList.annotation[annotationIndex],
 					EnumInArrayList.vendorList.get(vendorIndex), 
 					EnumInArrayList.strategyList.get(strategyIndex), host);
+			return;
 		}		
 	}
 	

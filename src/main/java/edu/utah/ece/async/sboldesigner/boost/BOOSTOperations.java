@@ -69,7 +69,6 @@ public class BOOSTOperations {
 		if (polishDNAJobUUID != null) {
 			checkJobReport(polishDNAJobUUID);
 		}
-
 	}
 
 
