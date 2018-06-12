@@ -22,7 +22,6 @@ import edu.utah.ece.async.sboldesigner.boost.BOOSTOperations;
 public class BOOSTAvailableOperations extends JDialog implements ActionListener{
 
 	private Component parent;
-	private String boostToken;
 	private String filePath;
 	
 	private JRadioButton codonJugglingBtn = new JRadioButton("Codon-Juggling of protein coding DNA sequences");
@@ -33,10 +32,9 @@ public class BOOSTAvailableOperations extends JDialog implements ActionListener{
 	private JButton cancelButton = new JButton("Cancel");
 	
 	
-	public BOOSTAvailableOperations(Component parent, String boostToken, String filePath) {
+	public BOOSTAvailableOperations(Component parent, String filePath) {
 		super(JOptionPane.getFrameForComponent(parent), "Available BOOST Tasks ", true);
 		this.parent = parent;
-		this.boostToken = boostToken;
 		this.filePath = filePath;
 		
 		cancelButton.registerKeyboardAction(this, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0),
@@ -84,16 +82,16 @@ public class BOOSTAvailableOperations extends JDialog implements ActionListener{
 		if (e.getSource() == cancelButton) {
 			setVisible(false);
 			return;
-		}else if(e.getSource() == submitButton) {
-			new BOOSTOperations(this.boostToken,this.filePath);
-		}else if(e.getSource() == codonJugglingBtn) {
-			new BOOSTCodonJugglingDialog(parent);
-		}else if(e.getSource() == dnaVerificationBtn) {
-			
-		}else if(e.getSource() == sequenceModificationBtn) {
-			
-		}else if(e.getSource() == sequencePartitionBtn) {
-			
+		} else if (e.getSource() == submitButton) {
+			//TODO: Handle Submit Button
+		} else if (e.getSource() == codonJugglingBtn) {
+			new BOOSTCodonJugglingDialog(parent, filePath);
+		} else if (e.getSource() == dnaVerificationBtn) {
+			new BOOSTDNAVerificationDialog(parent, filePath);
+		} else if (e.getSource() == sequenceModificationBtn) {
+			new BOOSTDNAPolishingDialog(parent, filePath);
+		} else if (e.getSource() == sequencePartitionBtn) {
+
 		}
 	}
 }
