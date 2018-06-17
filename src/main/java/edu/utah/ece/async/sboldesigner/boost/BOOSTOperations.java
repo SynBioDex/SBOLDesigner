@@ -1,12 +1,10 @@
 package edu.utah.ece.async.sboldesigner.boost;
 
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.Set;
-
 import org.json.JSONObject;
 
 import gov.doe.jgi.boost.client.BOOSTClient;
+import gov.doe.jgi.boost.client.utils.ParseJsonResponse;
 import gov.doe.jgi.boost.enums.FileFormat;
 import gov.doe.jgi.boost.enums.Strategy;
 import gov.doe.jgi.boost.enums.Vendor;
@@ -111,6 +109,7 @@ public class BOOSTOperations {
 			e.printStackTrace();
 		}
 		// output of the job report (which is a JSON object)
-		System.out.println(jobReport);
+		String resopnse = ParseJsonResponse.parseCodonJuggleResponse(jobReport);
+		System.out.println(resopnse);
 	}
 }
