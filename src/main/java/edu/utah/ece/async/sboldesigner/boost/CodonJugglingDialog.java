@@ -1,9 +1,12 @@
-package edu.utah.ece.async.sboldesigner.sbol.editor.dialog;
+package edu.utah.ece.async.sboldesigner.boost;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
+
+import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.DialogUtils;
+import gov.doe.jgi.boost.client.constants.BOOSTConstantsArrayList;
 
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -19,10 +22,7 @@ import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.KeyStroke;
 
-import edu.utah.ece.async.sboldesigner.boost.BOOSTOperations;
-import edu.utah.ece.async.sboldesigner.boost.EnumInArrayList;
-
-public class BOOSTCodonJugglingDialog extends JDialog implements ActionListener{
+public class CodonJugglingDialog extends JDialog implements ActionListener{
 	
 	private Component parent;
 	private String filePath;
@@ -35,7 +35,7 @@ public class BOOSTCodonJugglingDialog extends JDialog implements ActionListener{
 		    "Arabidapsis thaliana", "Escherichia coli", "Saccharomyces cerevisiae"});
 
 
-	public BOOSTCodonJugglingDialog(Component parent, String filePath) {
+	public CodonJugglingDialog(Component parent, String filePath) {
 		super(JOptionPane.getFrameForComponent(parent), "Codon Juggling", true);
 		this.parent = parent;
 		this.filePath = filePath;
@@ -76,8 +76,8 @@ public class BOOSTCodonJugglingDialog extends JDialog implements ActionListener{
 			int annotationIndex = annotationComboBox.getSelectedIndex();
 			String host =String.valueOf(hostComboBox.getSelectedItem());
 			System.out.println(host);
-			BOOSTOperations.codonJuggling(filePath,EnumInArrayList.annotation[annotationIndex],
-					EnumInArrayList.strategyList.get(strategyIndex), host);
+			BOOSTOperations.codonJuggling(filePath,BOOSTConstantsArrayList.annotation[annotationIndex],
+					BOOSTConstantsArrayList.strategyList.get(strategyIndex), host);
 			return;
 		}	
 	}

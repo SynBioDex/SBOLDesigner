@@ -1,4 +1,4 @@
-package edu.utah.ece.async.sboldesigner.sbol.editor.dialog;
+package edu.utah.ece.async.sboldesigner.boost;
 
 import java.awt.Component;
 import java.awt.Container;
@@ -19,10 +19,10 @@ import javax.swing.GroupLayout.Alignment;
 import javax.swing.JComboBox;
 import javax.swing.LayoutStyle.ComponentPlacement;
 
-import edu.utah.ece.async.sboldesigner.boost.BOOSTOperations;
-import edu.utah.ece.async.sboldesigner.boost.EnumInArrayList;
+import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.DialogUtils;
+import gov.doe.jgi.boost.client.constants.BOOSTConstantsArrayList;
 
-public class BOOSTDNAPolishingDialog extends JDialog implements ActionListener{
+public class DNAPolishingDialog extends JDialog implements ActionListener{
 
 	private Component parent;
 	private String filePath;
@@ -37,7 +37,7 @@ public class BOOSTDNAPolishingDialog extends JDialog implements ActionListener{
 	JComboBox<String> predefinedComboBox = new JComboBox<>(new String[] {"Bacillus subtilis",
 		    "Arabidapsis thaliana", "Escherichia coli", "Saccharomyces cerevisiae"});
 	
-	public BOOSTDNAPolishingDialog(Component parent, String filePath) {
+	public DNAPolishingDialog(Component parent, String filePath) {
 		super(JOptionPane.getFrameForComponent(parent), "DNA Modification", true);
 		this.parent = parent;
 		this.filePath = filePath;
@@ -78,9 +78,9 @@ public class BOOSTDNAPolishingDialog extends JDialog implements ActionListener{
 			int annotationIndex = annotationComboBox.getSelectedIndex();
 			String host =String.valueOf(predefinedComboBox.getSelectedItem());
 			System.out.println(host);
-			BOOSTOperations.polishing(filePath, EnumInArrayList.annotation[annotationIndex],
-					EnumInArrayList.vendorList.get(vendorIndex), 
-					EnumInArrayList.strategyList.get(strategyIndex), host);
+			BOOSTOperations.polishing(filePath, BOOSTConstantsArrayList.annotation[annotationIndex],
+					BOOSTConstantsArrayList.vendorList.get(vendorIndex), 
+					BOOSTConstantsArrayList.strategyList.get(strategyIndex), host);
 			return;
 		}		
 	}

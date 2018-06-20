@@ -1,4 +1,4 @@
-package edu.utah.ece.async.sboldesigner.sbol.editor.dialog;
+package edu.utah.ece.async.sboldesigner.boost;
 
 import java.awt.Component;
 import java.awt.Container;
@@ -17,9 +17,9 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.KeyStroke;
 
-import edu.utah.ece.async.sboldesigner.boost.BOOSTOperations;
+import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.DialogUtils;
 
-public class BOOSTAvailableOperations extends JDialog implements ActionListener{
+public class AvailableOperationsDialog extends JDialog implements ActionListener{
 
 	private Component parent;
 	private String filePath;
@@ -32,7 +32,7 @@ public class BOOSTAvailableOperations extends JDialog implements ActionListener{
 	private JButton cancelButton = new JButton("Cancel");
 	
 	
-	public BOOSTAvailableOperations(Component parent, String filePath) {
+	public AvailableOperationsDialog(Component parent, String filePath) {
 		super(JOptionPane.getFrameForComponent(parent), "Available BOOST Tasks ", true);
 		this.parent = parent;
 		this.filePath = filePath;
@@ -85,11 +85,11 @@ public class BOOSTAvailableOperations extends JDialog implements ActionListener{
 		} else if (e.getSource() == submitButton) {
 			//TODO: Handle Submit Button
 		} else if (e.getSource() == codonJugglingBtn) {
-			new BOOSTCodonJugglingDialog(parent, filePath);
+			new CodonJugglingDialog(parent, filePath);
 		} else if (e.getSource() == dnaVerificationBtn) {
-			new BOOSTDNAVerificationDialog(parent, filePath);
+			new DNAVerificationDialog(parent, filePath);
 		} else if (e.getSource() == sequenceModificationBtn) {
-			new BOOSTDNAPolishingDialog(parent, filePath);
+			new DNAPolishingDialog(parent, filePath);
 		} else if (e.getSource() == sequencePartitionBtn) {
 
 		}

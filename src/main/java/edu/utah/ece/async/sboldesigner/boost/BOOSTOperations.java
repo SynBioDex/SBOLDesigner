@@ -4,7 +4,7 @@ import java.io.IOException;
 import org.json.JSONObject;
 
 import gov.doe.jgi.boost.client.BOOSTClient;
-import gov.doe.jgi.boost.client.utils.ParseJsonResponse;
+import gov.doe.jgi.boost.client.utils.JsonResponseParser;
 import gov.doe.jgi.boost.enums.FileFormat;
 import gov.doe.jgi.boost.enums.Strategy;
 import gov.doe.jgi.boost.enums.Vendor;
@@ -109,7 +109,7 @@ public class BOOSTOperations {
 			e.printStackTrace();
 		}
 		// output of the job report (which is a JSON object)
-		String resopnse = ParseJsonResponse.parseCodonJuggleResponse(jobReport);
+		String resopnse = JsonResponseParser.parseCodonJuggleResponse(jobReport);
 		System.out.println(resopnse);
 	}
 }
