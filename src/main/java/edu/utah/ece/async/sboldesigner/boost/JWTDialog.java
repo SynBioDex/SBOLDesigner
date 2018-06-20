@@ -1,4 +1,4 @@
-package edu.utah.ece.async.sboldesigner.sbol.editor.dialog;
+package edu.utah.ece.async.sboldesigner.boost;
 
 import java.awt.Component;
 import java.awt.Container;
@@ -15,9 +15,10 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 
+import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.DialogUtils;
 import edu.utah.ece.async.sboldesigner.swing.FormBuilder;
 
-public class BOOSTJWTDialog extends JDialog implements ActionListener{
+public class JWTDialog extends JDialog implements ActionListener{
 	
 	private Component parent;
 	
@@ -25,7 +26,7 @@ public class BOOSTJWTDialog extends JDialog implements ActionListener{
 	private final JButton submitButton = new JButton("Submit");
 	private final JButton cancelButton = new JButton("Cancel");
 	
-	public BOOSTJWTDialog(Component parent) {
+	public JWTDialog(Component parent) {
 		super(JOptionPane.getFrameForComponent(parent), "Authentication by BOOST JWT Token", true);
 		this.parent = parent;
 		

@@ -1,4 +1,4 @@
-package edu.utah.ece.async.sboldesigner.sbol.editor.dialog;
+package edu.utah.ece.async.sboldesigner.boost;
 
 import java.awt.Component;
 import java.awt.Container;
@@ -21,7 +21,8 @@ import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 
-import edu.utah.ece.async.sboldesigner.boost.BOOSTPreferences;
+import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.DialogUtils;
+import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.MessageDialog;
 import edu.utah.ece.async.sboldesigner.swing.FormBuilder;
 import gov.doe.jgi.boost.client.BOOSTClient;
 

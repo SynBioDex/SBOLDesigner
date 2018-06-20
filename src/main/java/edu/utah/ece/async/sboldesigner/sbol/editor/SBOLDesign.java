@@ -105,10 +105,10 @@ import edu.utah.ece.async.sboldesigner.sbol.CombinatorialExpansionUtil;
 import edu.utah.ece.async.sboldesigner.sbol.ProvenanceUtil;
 import edu.utah.ece.async.sboldesigner.sbol.SBOLUtils;
 import edu.utah.ece.async.sboldesigner.sbol.SBOLUtils.Types;
+import edu.utah.ece.async.sboldesigner.boost.AvailableOperationsDialog;
+import edu.utah.ece.async.sboldesigner.boost.BOOSTLoginDialog;
 import edu.utah.ece.async.sboldesigner.boost.BOOSTPreferences;
 import edu.utah.ece.async.sboldesigner.boost.SelectedFilePath;
-import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.BOOSTAvailableOperations;
-import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.BOOSTLoginDialog;
 import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.ComponentDefinitionBox;
 import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.MessageDialog;
 import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.PartEditDialog;
@@ -1420,7 +1420,7 @@ public class SBOLDesign {
 	    if(boostToken == null || boostToken.isEmpty()) {
 	    	new BOOSTLoginDialog(panel);
 	    }else {
-	    	new BOOSTAvailableOperations(panel, selectedFilePath);
+	    	new AvailableOperationsDialog(panel, selectedFilePath);
 	    }
 	}
 

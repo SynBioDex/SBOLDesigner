@@ -27,14 +27,14 @@ public class DialogUtils {
 		DialogUtils.password = password;
 	}
 
-	protected static void setUserInfo() {
+	public static void setUserInfo() {
 		PersonInfo userInfo = SBOLEditorPreferences.INSTANCE.getUserInfo();
 		String email = userInfo == null || userInfo.getEmail() == null ? null : userInfo.getEmail().getLocalName();
 		username.setText(email);
 		((JPasswordField) password).setEchoChar('*');	
 	}
 	
-	protected static FormBuilder initBuilder() {
+	public static FormBuilder initBuilder() {
 		FormBuilder builder = new FormBuilder();
 		builder.add("Username", username);
 		builder.add("Password", password);
@@ -42,7 +42,7 @@ public class DialogUtils {
 	}
 	
 
-	protected static void setUI(Container contentPane, JLabel infoLabel, JPanel mainPanel, JPanel buttonPane) {
+	public static void setUI(Container contentPane, JLabel infoLabel, JPanel mainPanel, JPanel buttonPane) {
 		contentPane.add(infoLabel, BorderLayout.PAGE_START);
 		contentPane.add(mainPanel, BorderLayout.CENTER);
 		contentPane.add(buttonPane, BorderLayout.PAGE_END);
@@ -50,7 +50,7 @@ public class DialogUtils {
 		
 	}
 	
-	protected static JPanel buildDecisionArea(int alongLineAxis) {
+	public static JPanel buildDecisionArea(int alongLineAxis) {
 		int itemsAlongLineAxis = alongLineAxis;
 		JPanel buttonPane = new JPanel();
 		switch(itemsAlongLineAxis) {

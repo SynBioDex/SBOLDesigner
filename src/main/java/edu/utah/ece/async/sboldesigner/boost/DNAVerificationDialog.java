@@ -1,4 +1,4 @@
-package edu.utah.ece.async.sboldesigner.sbol.editor.dialog;
+package edu.utah.ece.async.sboldesigner.boost;
 
 import java.awt.Component;
 import java.awt.Container;
@@ -13,16 +13,14 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.KeyStroke;
-
-import edu.utah.ece.async.sboldesigner.boost.BOOSTOperations;
-import edu.utah.ece.async.sboldesigner.boost.EnumInArrayList;
-import edu.utah.ece.async.sboldesigner.boost.SelectedFilePath;
-
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
+
+import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.DialogUtils;
+
 import javax.swing.JComboBox;
 
-public class BOOSTDNAVerificationDialog extends JDialog implements ActionListener {
+public class DNAVerificationDialog extends JDialog implements ActionListener {
 	
 	private Component parent;
 	private String filePath;
@@ -33,7 +31,7 @@ public class BOOSTDNAVerificationDialog extends JDialog implements ActionListene
 	JComboBox<String> vendorComboBox = new JComboBox<>(new String[] {" Thermo Fisher (Life Technalogies)", 
 	        " SGI-DNA"," GEN9", " DOE Joint Genome Institute (JGI)", " IDT"});
 	
-	public BOOSTDNAVerificationDialog(Component parent, String filePath) {
+	public DNAVerificationDialog(Component parent, String filePath) {
 		super(JOptionPane.getFrameForComponent(parent), "DNA Verification", true);
 		this.filePath = filePath;
 		this.parent = parent;
