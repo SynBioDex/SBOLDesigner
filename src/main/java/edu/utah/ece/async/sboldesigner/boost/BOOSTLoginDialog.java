@@ -25,6 +25,7 @@ import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.DialogUtils;
 import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.MessageDialog;
 import edu.utah.ece.async.sboldesigner.swing.FormBuilder;
 import gov.doe.jgi.boost.client.BOOSTClient;
+import gov.doe.jgi.boost.client.utils.UIUtils;
 
 
 public class BOOSTLoginDialog extends JDialog implements ActionListener {
@@ -78,14 +79,8 @@ public class BOOSTLoginDialog extends JDialog implements ActionListener {
 				setVisible(false);
 				return;
 			}else if(e.getSource() == signUpButton) {
-				try {
-					String urlString = "https://contacts.jgi.doe.gov/registration/new";
-			        openWebpage(new URL(urlString).toURI());
-			    } catch (URISyntaxException error) {
-			        error.printStackTrace();
-			    } catch (MalformedURLException e1) {
-					e1.printStackTrace();
-				}
+				String urlString = "https://contacts.jgi.doe.gov/registration/new";
+				UIUtils.openWebPage(urlString);
 			}
 
 			if (e.getSource() == loginButton) {
@@ -109,16 +104,5 @@ public class BOOSTLoginDialog extends JDialog implements ActionListener {
 				} 
 				return;
 			}
-		}
-		
-		private void openWebpage(java.net.URI uri) {
-		    Desktop desktop = Desktop.isDesktopSupported() ? Desktop.getDesktop() : null;
-		    if (desktop != null && desktop.isSupported(Desktop.Action.BROWSE)) {
-		        try {
-		            desktop.browse(uri);
-		        } catch (Exception e) {
-		            e.printStackTrace();
-		        }
-		    }
 		}
 }

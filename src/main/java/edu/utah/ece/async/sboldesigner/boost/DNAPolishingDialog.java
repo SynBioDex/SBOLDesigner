@@ -20,6 +20,7 @@ import javax.swing.JComboBox;
 import javax.swing.LayoutStyle.ComponentPlacement;
 
 import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.DialogUtils;
+import gov.doe.jgi.boost.client.constants.BOOSTConstantsArrayList;
 
 public class DNAPolishingDialog extends JDialog implements ActionListener{
 
@@ -77,9 +78,9 @@ public class DNAPolishingDialog extends JDialog implements ActionListener{
 			int annotationIndex = annotationComboBox.getSelectedIndex();
 			String host =String.valueOf(predefinedComboBox.getSelectedItem());
 			System.out.println(host);
-			BOOSTOperations.polishing(filePath, EnumInArrayList.annotation[annotationIndex],
-					EnumInArrayList.vendorList.get(vendorIndex), 
-					EnumInArrayList.strategyList.get(strategyIndex), host);
+			BOOSTOperations.polishing(filePath, BOOSTConstantsArrayList.annotation[annotationIndex],
+					BOOSTConstantsArrayList.vendorList.get(vendorIndex), 
+					BOOSTConstantsArrayList.strategyList.get(strategyIndex), host);
 			return;
 		}		
 	}

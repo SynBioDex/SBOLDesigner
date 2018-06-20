@@ -108,7 +108,6 @@ import edu.utah.ece.async.sboldesigner.sbol.SBOLUtils.Types;
 import edu.utah.ece.async.sboldesigner.boost.AvailableOperationsDialog;
 import edu.utah.ece.async.sboldesigner.boost.BOOSTLoginDialog;
 import edu.utah.ece.async.sboldesigner.boost.BOOSTPreferences;
-import edu.utah.ece.async.sboldesigner.boost.SelectedFilePath;
 import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.ComponentDefinitionBox;
 import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.MessageDialog;
 import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.PartEditDialog;
@@ -124,6 +123,7 @@ import edu.utah.ece.async.sboldesigner.sbol.editor.event.FocusInEvent;
 import edu.utah.ece.async.sboldesigner.sbol.editor.event.FocusOutEvent;
 import edu.utah.ece.async.sboldesigner.sbol.editor.event.PartVisibilityChangedEvent;
 import edu.utah.ece.async.sboldesigner.sbol.editor.event.SelectionChangedEvent;
+import gov.doe.jgi.boost.client.utils.FileUtils;
 
 /**
  * 
@@ -199,7 +199,7 @@ public class SBOLDesign {
 						JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, option, option[0]);
 
 				 if (choice == 0) {
-					 String selectedFilePath = new SelectedFilePath("sequenceFile").getSelectedFilePath();
+					 String selectedFilePath = FileUtils.SelectedFilePath("sequenceFile");
 					 System.out.println(selectedFilePath);
 					
 					 if(selectedFilePath != null && !selectedFilePath.isEmpty()) {

@@ -17,6 +17,8 @@ import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
 
 import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.DialogUtils;
+import gov.doe.jgi.boost.client.constants.BOOSTConstantsArrayList;
+import gov.doe.jgi.boost.client.utils.FileUtils;
 
 import javax.swing.JComboBox;
 
@@ -67,12 +69,12 @@ public class DNAVerificationDialog extends JDialog implements ActionListener {
 			setVisible(false);
 			return;
 		}else if(e.getSource() == chooseFileButton ){
-			this.sequencePatterns = new SelectedFilePath("sequencePatterns").getSelectedFilePath();
+			FileUtils.SelectedFilePath("sequencePatterns");
 		} if(e.getSource() == submitButton) {
 			if(sequencePatterns != null) {
 			setVisible(false);
 			int vendorIndex = vendorComboBox.getSelectedIndex();
-			BOOSTOperations.dnaVerification(filePath, EnumInArrayList.vendorList.get(vendorIndex),
+			BOOSTOperations.dnaVerification(filePath, BOOSTConstantsArrayList.vendorList.get(vendorIndex),
 					                                  sequencePatterns);
 			return;
 			}else {

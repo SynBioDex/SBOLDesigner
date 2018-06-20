@@ -6,6 +6,7 @@ import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
 
 import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.DialogUtils;
+import gov.doe.jgi.boost.client.constants.BOOSTConstantsArrayList;
 
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -75,8 +76,8 @@ public class CodonJugglingDialog extends JDialog implements ActionListener{
 			int annotationIndex = annotationComboBox.getSelectedIndex();
 			String host =String.valueOf(hostComboBox.getSelectedItem());
 			System.out.println(host);
-			BOOSTOperations.codonJuggling(filePath,EnumInArrayList.annotation[annotationIndex],
-					EnumInArrayList.strategyList.get(strategyIndex), host);
+			BOOSTOperations.codonJuggling(filePath,BOOSTConstantsArrayList.annotation[annotationIndex],
+					BOOSTConstantsArrayList.strategyList.get(strategyIndex), host);
 			return;
 		}	
 	}
