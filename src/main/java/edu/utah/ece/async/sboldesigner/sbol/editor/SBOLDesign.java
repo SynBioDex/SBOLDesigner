@@ -41,6 +41,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -194,21 +195,15 @@ public class SBOLDesign {
 					return;
 				}
 
-				String[] option = { "Select File" };
-				int choice = JOptionPane.showOptionDialog(panel, "Please select a file contatining your sequence:", "BOOST",
-						JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, option, option[0]);
-
-				 if (choice == 0) {
-					 String selectedFilePath = FileUtils.SelectedFilePath("sequenceFile");
-					 System.out.println(selectedFilePath);
-					
-					 if(selectedFilePath != null && !selectedFilePath.isEmpty()) {
-						 filePath(panel,selectedFilePath);
-					 }
-				} else {
-					return;
+				ComponentDefinitionBox root = new ComponentDefinitionBox();
+				SBOLDocument doc = createDocument(root);
+				ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+				SBOLWriter.write(doc,  outputStream); 
+				String designDoc = outputStream.toString("UTF-8");
+				if(design != null && !designDoc.isEmpty()) {
+					filePath(panel,designDoc);
 				}
-
+				
 			} catch (Exception e) {
 				MessageDialog.showMessage(panel, "There was a problem with file contianing sequence : ", e.getMessage());
 				e.printStackTrace();
@@ -1413,14 +1408,14 @@ public class SBOLDesign {
 		}
 	}
 	
-	public static void filePath(Component panel, String selectedFilePath) {
+	public static void filePath(Component panel, String selectedFileContent) {
 		// TODO: call boost dialog and pass in document
 		// print response document for now (or write to disk, etc)
 	    String boostToken = new BOOSTPreferences().getBOOSTToken();
 	    if(boostToken == null || boostToken.isEmpty()) {
 	    	new BOOSTLoginDialog(panel);
 	    }else {
-	    	new AvailableOperationsDialog(panel, selectedFilePath);
+	    	new AvailableOperationsDialog(panel, selectedFileContent);
 	    }
 	}
 
