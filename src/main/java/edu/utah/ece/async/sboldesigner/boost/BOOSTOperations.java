@@ -15,11 +15,11 @@ public class BOOSTOperations {
 
 	static BOOSTClient client = new BOOSTClient(new BOOSTPreferences().getBOOSTToken());
 
-	public static void codonJuggling(String filePath, boolean annotation, Strategy strategy, String host) {
+	public static void codonJuggling(String fileContent, boolean annotation, Strategy strategy, String host) {
 		String codonJuggleJobUUID = null;
 		try {
 			codonJuggleJobUUID = client.codonJuggle(
-					filePath,                 // input sequences
+					fileContent,                 // input sequences
 					annotation,               // exclusively 5'-3' coding sequences
 					strategy,                 // codon selection strategy
 					host,                     // predefined host
