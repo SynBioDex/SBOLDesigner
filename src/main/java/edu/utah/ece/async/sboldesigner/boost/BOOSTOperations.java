@@ -2,6 +2,7 @@ package edu.utah.ece.async.sboldesigner.boost;
 
 import java.io.IOException;
 import org.json.JSONObject;
+import org.sbolstandard.core2.SBOLDocument;
 
 import gov.doe.jgi.boost.client.BOOSTClient;
 import gov.doe.jgi.boost.client.utils.JsonResponseParser;
@@ -15,11 +16,11 @@ public class BOOSTOperations {
 
 	static BOOSTClient client = new BOOSTClient(new BOOSTPreferences().getBOOSTToken());
 
-	public static void codonJuggling(String fileContent, boolean annotation, Strategy strategy, String host) {
+	public static void codonJuggling(SBOLDocument currentDesign, boolean annotation, Strategy strategy, String host) {
 		String codonJuggleJobUUID = null;
 		try {
 			codonJuggleJobUUID = client.codonJuggle(
-					fileContent,                 // input sequences
+					currentDesign,                 // input sequences
 					annotation,               // exclusively 5'-3' coding sequences
 					strategy,                 // codon selection strategy
 					host,                     // predefined host
@@ -34,11 +35,11 @@ public class BOOSTOperations {
 		}
 	}
 
-	public static void dnaVerification(String filePath, Vendor vendor, String sequencePatterns) {
+	public static void dnaVerification(SBOLDocument currentDesign, Vendor vendor, String sequencePatterns) {
 		String dnaVarificationJobUUID = null;
 		try {
 			dnaVarificationJobUUID = client.dnaVarification(
-					filePath,                  // input sequence
+					currentDesign,                  // input sequence
 					vendor,                    // vendor
 					sequencePatterns);         // sequence patterns
 		} catch (BOOSTClientException | BOOSTBackEndException | IOException e) {
@@ -50,11 +51,11 @@ public class BOOSTOperations {
 		}
 	}
 
-	public static void polishing(String filePath, boolean annotation, Vendor vendor, Strategy strategy, String host) {
+	public static void polishing(SBOLDocument currentDesign, boolean annotation, Vendor vendor, Strategy strategy, String host) {
 		String polishDNAJobUUID = null;
 		try {
 			polishDNAJobUUID = client.polish(
-					filePath,                  // input sequence
+					currentDesign,                  // input sequence
 					annotation,                // encoding sequences support sequence feature annotations
 					vendor,                    // vendor
 					strategy,                  // codon selection strategy

@@ -19,13 +19,15 @@ import javax.swing.GroupLayout.Alignment;
 import javax.swing.JComboBox;
 import javax.swing.LayoutStyle.ComponentPlacement;
 
+import org.sbolstandard.core2.SBOLDocument;
+
 import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.DialogUtils;
 import gov.doe.jgi.boost.client.constants.BOOSTConstantsArrayList;
 
 public class DNAPolishingDialog extends JDialog implements ActionListener{
 
 	private Component parent;
-	private String filePath;
+	private SBOLDocument currentDesign;
 	private final JButton submitButton = new JButton("Submit");
 	private final JButton cancelButton = new JButton("Cancel");
 	JComboBox<String> strategyComboBox = new JComboBox<>(new String[] {"Random", "Balenced",
@@ -37,10 +39,10 @@ public class DNAPolishingDialog extends JDialog implements ActionListener{
 	JComboBox<String> predefinedComboBox = new JComboBox<>(new String[] {"Bacillus subtilis",
 		    "Arabidapsis thaliana", "Escherichia coli", "Saccharomyces cerevisiae"});
 	
-	public DNAPolishingDialog(Component parent, String filePath) {
+	public DNAPolishingDialog(Component parent, SBOLDocument currentDesign) {
 		super(JOptionPane.getFrameForComponent(parent), "DNA Modification", true);
 		this.parent = parent;
-		this.filePath = filePath;
+		this.currentDesign = currentDesign;
 		
 		cancelButton.registerKeyboardAction(this, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0),
 				JComponent.WHEN_IN_FOCUSED_WINDOW);
@@ -78,7 +80,7 @@ public class DNAPolishingDialog extends JDialog implements ActionListener{
 			int annotationIndex = annotationComboBox.getSelectedIndex();
 			String host =String.valueOf(predefinedComboBox.getSelectedItem());
 			System.out.println(host);
-			BOOSTOperations.polishing(filePath, BOOSTConstantsArrayList.annotation[annotationIndex],
+			BOOSTOperations.polishing(currentDesign, BOOSTConstantsArrayList.annotation[annotationIndex],
 					BOOSTConstantsArrayList.vendorList.get(vendorIndex), 
 					BOOSTConstantsArrayList.strategyList.get(strategyIndex), host);
 			return;
