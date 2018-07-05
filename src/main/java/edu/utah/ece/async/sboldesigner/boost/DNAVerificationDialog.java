@@ -13,6 +13,9 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.KeyStroke;
+
+import org.sbolstandard.core2.SBOLDocument;
+
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
 
@@ -25,7 +28,7 @@ import javax.swing.JComboBox;
 public class DNAVerificationDialog extends JDialog implements ActionListener {
 	
 	private Component parent;
-	private String filePath;
+	private SBOLDocument currentDesign;
 	private String sequencePatterns;
 	private final JButton submitButton = new JButton("Submit");
 	private final JButton cancelButton = new JButton("Cancel");
@@ -33,9 +36,9 @@ public class DNAVerificationDialog extends JDialog implements ActionListener {
 	JComboBox<String> vendorComboBox = new JComboBox<>(new String[] {" Thermo Fisher (Life Technalogies)", 
 	        " SGI-DNA"," GEN9", " DOE Joint Genome Institute (JGI)", " IDT"});
 	
-	public DNAVerificationDialog(Component parent, String filePath) {
+	public DNAVerificationDialog(Component parent, SBOLDocument currentDesign) {
 		super(JOptionPane.getFrameForComponent(parent), "DNA Verification", true);
-		this.filePath = filePath;
+		this.currentDesign = currentDesign;
 		this.parent = parent;
 
 		cancelButton.registerKeyboardAction(this, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0),
@@ -74,7 +77,7 @@ public class DNAVerificationDialog extends JDialog implements ActionListener {
 			if(sequencePatterns != null) {
 			setVisible(false);
 			int vendorIndex = vendorComboBox.getSelectedIndex();
-			BOOSTOperations.dnaVerification(filePath, BOOSTConstantsArrayList.vendorList.get(vendorIndex),
+			BOOSTOperations.dnaVerification(currentDesign, BOOSTConstantsArrayList.vendorList.get(vendorIndex),
 					                                  sequencePatterns);
 			return;
 			}else {

@@ -197,11 +197,8 @@ public class SBOLDesign {
 
 				ComponentDefinitionBox root = new ComponentDefinitionBox();
 				SBOLDocument doc = createDocument(root);
-				ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-				SBOLWriter.write(doc,  outputStream); 
-				String designDoc = outputStream.toString("UTF-8");
-				if(design != null && !designDoc.isEmpty()) {
-					filePath(panel,designDoc);
+				if(doc != null) {
+					boostContent(panel,doc);
 				}
 				
 			} catch (Exception e) {
@@ -1408,14 +1405,14 @@ public class SBOLDesign {
 		}
 	}
 	
-	public static void filePath(Component panel, String selectedFileContent) {
+	public static void boostContent(Component panel, SBOLDocument doc)throws SBOLValidationException {
 		// TODO: call boost dialog and pass in document
 		// print response document for now (or write to disk, etc)
 	    String boostToken = new BOOSTPreferences().getBOOSTToken();
 	    if(boostToken == null || boostToken.isEmpty()) {
 	    	new BOOSTLoginDialog(panel);
 	    }else {
-	    	new AvailableOperationsDialog(panel, selectedFileContent);
+	    	new AvailableOperationsDialog(panel, doc);
 	    }
 	}
 

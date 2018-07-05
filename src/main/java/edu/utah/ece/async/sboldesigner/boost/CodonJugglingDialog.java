@@ -22,10 +22,12 @@ import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.KeyStroke;
 
+import org.sbolstandard.core2.SBOLDocument;
+
 public class CodonJugglingDialog extends JDialog implements ActionListener{
 	
 	private Component parent;
-	private String filePath;
+	private SBOLDocument currentDesign;
 	private final JButton submitButton = new JButton("Submit");
 	private final JButton cancelButton = new JButton("Cancel");
 	JComboBox<String> strategyComboBox = new JComboBox<>(new String[] {"Random", 
@@ -35,10 +37,10 @@ public class CodonJugglingDialog extends JDialog implements ActionListener{
 		    "Arabidapsis thaliana", "Escherichia coli", "Saccharomyces cerevisiae"});
 
 
-	public CodonJugglingDialog(Component parent, String filePath) {
+	public CodonJugglingDialog(Component parent, SBOLDocument currentDesign) {
 		super(JOptionPane.getFrameForComponent(parent), "Codon Juggling", true);
 		this.parent = parent;
-		this.filePath = filePath;
+		this.currentDesign = currentDesign;
 		
 		cancelButton.registerKeyboardAction(this, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0),
 				JComponent.WHEN_IN_FOCUSED_WINDOW);
@@ -76,7 +78,7 @@ public class CodonJugglingDialog extends JDialog implements ActionListener{
 			int annotationIndex = annotationComboBox.getSelectedIndex();
 			String host =String.valueOf(hostComboBox.getSelectedItem());
 			System.out.println(host);
-			BOOSTOperations.codonJuggling(filePath,BOOSTConstantsArrayList.annotation[annotationIndex],
+			BOOSTOperations.codonJuggling(currentDesign,BOOSTConstantsArrayList.annotation[annotationIndex],
 					BOOSTConstantsArrayList.strategyList.get(strategyIndex), host);
 			return;
 		}	

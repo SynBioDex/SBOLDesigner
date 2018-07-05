@@ -17,12 +17,14 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.KeyStroke;
 
+import org.sbolstandard.core2.SBOLDocument;
+
 import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.DialogUtils;
 
 public class AvailableOperationsDialog extends JDialog implements ActionListener{
 
 	private Component parent;
-	private String filePath;
+	private SBOLDocument currentDesign;
 	
 	private JRadioButton codonJugglingBtn = new JRadioButton("Codon-Juggling of protein coding DNA sequences");
 	private JRadioButton dnaVerificationBtn = new JRadioButton("Verification of DNA Sequences against synthesis constraints");
@@ -32,10 +34,10 @@ public class AvailableOperationsDialog extends JDialog implements ActionListener
 	private JButton cancelButton = new JButton("Cancel");
 	
 	
-	public AvailableOperationsDialog(Component parent, String filePath) {
+	public AvailableOperationsDialog(Component parent, SBOLDocument currentDesign) {
 		super(JOptionPane.getFrameForComponent(parent), "Available BOOST Tasks ", true);
 		this.parent = parent;
-		this.filePath = filePath;
+		this.currentDesign = currentDesign;
 		
 		cancelButton.registerKeyboardAction(this, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0),
 				JComponent.WHEN_IN_FOCUSED_WINDOW);
@@ -85,11 +87,11 @@ public class AvailableOperationsDialog extends JDialog implements ActionListener
 		} else if (e.getSource() == submitButton) {
 			//TODO: Handle Submit Button
 		} else if (e.getSource() == codonJugglingBtn) {
-			new CodonJugglingDialog(parent, filePath);
+			new CodonJugglingDialog(parent, currentDesign);
 		} else if (e.getSource() == dnaVerificationBtn) {
-			new DNAVerificationDialog(parent, filePath);
+			new DNAVerificationDialog(parent, currentDesign);
 		} else if (e.getSource() == sequenceModificationBtn) {
-			new DNAPolishingDialog(parent, filePath);
+			new DNAPolishingDialog(parent, currentDesign);
 		} else if (e.getSource() == sequencePartitionBtn) {
 
 		}
