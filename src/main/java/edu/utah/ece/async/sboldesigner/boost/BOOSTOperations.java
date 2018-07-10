@@ -5,16 +5,20 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.util.Set;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.sbolstandard.core2.Component;
 import org.sbolstandard.core2.ComponentDefinition;
 import org.sbolstandard.core2.SBOLConversionException;
 import org.sbolstandard.core2.SBOLDocument;
 import org.sbolstandard.core2.SBOLReader;
 import org.sbolstandard.core2.SBOLValidationException;
+
+import com.google.common.eventbus.EventBus;
 
 import edu.utah.ece.async.sboldesigner.sbol.editor.SBOLDesign;
 import edu.utah.ece.async.sboldesigner.sbol.editor.SBOLEditorPreferences;
@@ -122,17 +126,17 @@ public class BOOSTOperations {
 		try {
 			// extracting the returned SBOL string into an SBOLDocument
 			SBOLDocument modifiedDocument = SBOLReader.read(stream);
-			String boostUri = "https://boost.jgi.doe.gov/";
+			URI uri = new URI(targetNamespace + "TetR_InverterSequence_CDS_1");
 			
+			//fetch root ComponentDefination of modifiedDocument
 			Set<ComponentDefinition> componentDef = modifiedDocument.getRootComponentDefinitions();
 			for(ComponentDefinition componentDefination : componentDef) {
-				//each root CD, you should look for whether there is a wasDerivedFrom link (CD.getWasDerivedFroms()) 
-				//to another one of the roots
-					   
-			}	
-		} catch (SBOLValidationException | IOException | SBOLConversionException e) {
+				URI rootUri = componentDefination.getIdentity();
+				System.out.println(rootUri);
+			}
+		} catch (SBOLValidationException | IOException | SBOLConversionException | URISyntaxException e) {
 			e.printStackTrace();
 		}
-		System.out.println(response);
-	}	
+		//System.out.println(response);
+	}
 }
