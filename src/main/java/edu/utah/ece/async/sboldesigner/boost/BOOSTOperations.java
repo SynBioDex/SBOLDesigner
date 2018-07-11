@@ -1,28 +1,20 @@
 package edu.utah.ece.async.sboldesigner.boost;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
-import java.net.URISyntaxException;
-import java.nio.charset.StandardCharsets;
 import java.util.Set;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.sbolstandard.core2.Component;
 import org.sbolstandard.core2.ComponentDefinition;
 import org.sbolstandard.core2.SBOLConversionException;
 import org.sbolstandard.core2.SBOLDocument;
-import org.sbolstandard.core2.SBOLReader;
 import org.sbolstandard.core2.SBOLValidationException;
 
-import com.google.common.eventbus.EventBus;
-
-import edu.utah.ece.async.sboldesigner.sbol.editor.SBOLDesign;
 import edu.utah.ece.async.sboldesigner.sbol.editor.SBOLEditorPreferences;
 import gov.doe.jgi.boost.client.BOOSTClient;
+import gov.doe.jgi.boost.client.utils.DocumentConversionUtils;
 import gov.doe.jgi.boost.client.utils.JsonResponseParser;
 import gov.doe.jgi.boost.enums.FileFormat;
 import gov.doe.jgi.boost.enums.Strategy;
@@ -40,6 +32,7 @@ public class BOOSTOperations {
 
 	public static void codonJuggling(SBOLDocument currentDesign, boolean annotation, Strategy strategy, String host) {
 		String codonJuggleJobUUID = null;
+		JSONObject jobReport = null;
 			try {
 				codonJuggleJobUUID = client.codonJuggle(
 						currentDesign,            // input sequences
@@ -55,12 +48,25 @@ public class BOOSTOperations {
 			}
 
 		if (codonJuggleJobUUID != null) {
-			checkJobReport(codonJuggleJobUUID);
-		}
+			jobReport = checkJobReport(codonJuggleJobUUID);
+			String response = JsonResponseParser.parseCodonJuggleResponse(jobReport);
+			try {
+				SBOLDocument modifiedDocument = DocumentConversionUtils.stringToSBOLDocument(response);
+				// fetch root ComponentDefination of modifiedDocument
+				Set<ComponentDefinition> componentDef = modifiedDocument.getRootComponentDefinitions();
+				for (ComponentDefinition componentDefination : componentDef) {
+					URI rootUri = componentDefination.getIdentity();
+					  System.out.println(rootUri);
+				}
+			} catch (SBOLValidationException | IOException | SBOLConversionException e) {
+				e.printStackTrace();
+			}
+		}	
 	}
 
 	public static void dnaVerification(SBOLDocument currentDesign, Vendor vendor, String sequencePatterns) {
 		String dnaVarificationJobUUID = null;
+		JSONObject jobReport = null;
 			try {
 				dnaVarificationJobUUID = client.dnaVarification(
 						currentDesign,             // input sequence
@@ -74,13 +80,13 @@ public class BOOSTOperations {
 			}  
 			
 		if (dnaVarificationJobUUID != null) {
-			checkJobReport(dnaVarificationJobUUID);
+			jobReport =  checkJobReport(dnaVarificationJobUUID);
 		}
 	}
 
 	public static void polishing(SBOLDocument currentDesign, boolean annotation, Vendor vendor, Strategy strategy, String host) {
 		String polishDNAJobUUID = null;
-
+		JSONObject jobReport = null;
 			try {
 				polishDNAJobUUID = client.polish(
 						currentDesign,             // input sequence
@@ -97,11 +103,11 @@ public class BOOSTOperations {
 			}       
 			
 		if (polishDNAJobUUID != null) {
-			checkJobReport(polishDNAJobUUID);
+			jobReport = checkJobReport(polishDNAJobUUID);
 		}
 	}
 
-	static void checkJobReport(String jobUUID) {
+	static JSONObject checkJobReport(String jobUUID) {
 		JSONObject jobReport = null;
 		try {
 			while (null == (jobReport = client.getJobReport(jobUUID))) {
@@ -117,26 +123,6 @@ public class BOOSTOperations {
 		} catch (BOOSTClientException | BOOSTBackEndException e) {
 			e.printStackTrace();
 		}
-		 
-		// output of the job report (which is a JSON object)
-		String response = JsonResponseParser.parseCodonJuggleResponse(jobReport);
-		// convert String into InputStream
-		InputStream stream = new ByteArrayInputStream(response.getBytes(StandardCharsets.UTF_8));
-
-		try {
-			// extracting the returned SBOL string into an SBOLDocument
-			SBOLDocument modifiedDocument = SBOLReader.read(stream);
-			URI uri = new URI(targetNamespace + "TetR_InverterSequence_CDS_1");
-			
-			//fetch root ComponentDefination of modifiedDocument
-			Set<ComponentDefinition> componentDef = modifiedDocument.getRootComponentDefinitions();
-			for(ComponentDefinition componentDefination : componentDef) {
-				URI rootUri = componentDefination.getIdentity();
-				System.out.println(rootUri);
-			}
-		} catch (SBOLValidationException | IOException | SBOLConversionException | URISyntaxException e) {
-			e.printStackTrace();
-		}
-		//System.out.println(response);
+		return jobReport; 
 	}
 }
