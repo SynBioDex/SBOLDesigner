@@ -5,6 +5,7 @@ import java.awt.Container;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.io.IOException;
 
 import javax.swing.JButton;
 import javax.swing.JComponent;
@@ -29,7 +30,7 @@ public class DNAVerificationDialog extends JDialog implements ActionListener {
 	
 	private Component parent;
 	private SBOLDocument currentDesign;
-	private String sequencePatterns;
+	private String sequencePatternsFilename = null;
 	private final JButton submitButton = new JButton("Submit");
 	private final JButton cancelButton = new JButton("Cancel");
 	JButton chooseFileButton = new JButton("Choose File");
@@ -71,17 +72,29 @@ public class DNAVerificationDialog extends JDialog implements ActionListener {
 		if (e.getSource() == cancelButton) {
 			setVisible(false);
 			return;
-		}else if(e.getSource() == chooseFileButton ){
-			FileUtils.SelectedFilePath("sequencePatterns");
-		} if(e.getSource() == submitButton) {
-			if(sequencePatterns != null) {
+		} else if (e.getSource() == chooseFileButton) {
+			this.sequencePatternsFilename = FileUtils.SelectedFilePath("sequencePatterns");
+			System.out.println(sequencePatternsFilename);
+			
+		}
+		if (e.getSource() == submitButton) {
 			setVisible(false);
 			int vendorIndex = vendorComboBox.getSelectedIndex();
-			BOOSTOperations.dnaVerification(currentDesign, BOOSTConstantsArrayList.vendorList.get(vendorIndex),
-					                                  sequencePatterns);
-			return;
-			}else {
-				JOptionPane.showMessageDialog(parent, "Upload a file for sequence pattern before submit!");
+			if (this.sequencePatternsFilename != null && !this.sequencePatternsFilename.trim().isEmpty()) {
+				setVisible(false);
+				String sequencePatternsFileContent;
+				try {
+					sequencePatternsFileContent = FileUtils.readFile(this.sequencePatternsFilename);
+					BOOSTOperations.dnaVerification(currentDesign, BOOSTConstantsArrayList.vendorList.get(vendorIndex),
+							sequencePatternsFileContent);
+				} catch (IOException error) {
+
+					error.printStackTrace();
+				}
+				return;
+			} else {
+				BOOSTOperations.dnaVerification(currentDesign, BOOSTConstantsArrayList.vendorList.get(vendorIndex),
+						null);
 			}
 		}
 	}

@@ -26,10 +26,8 @@ public class BOOSTOperations {
 
 	static BOOSTClient client = new BOOSTClient(new BOOSTPreferences().getBOOSTToken());
 	
-	static String userNamespace = SBOLEditorPreferences.INSTANCE.getUserInfo().getURI().toString();
-	private static String targetNamespace = "https://boost.jgi.doe.gov/";
+	static String targetNamespace = SBOLEditorPreferences.INSTANCE.getUserInfo().getURI().toString();
 	
-
 	public static void codonJuggling(SBOLDocument currentDesign, boolean annotation, Strategy strategy, String host) {
 		String codonJuggleJobUUID = null;
 		JSONObject jobReport = null;
@@ -68,11 +66,12 @@ public class BOOSTOperations {
 		String dnaVarificationJobUUID = null;
 		JSONObject jobReport = null;
 			try {
-				dnaVarificationJobUUID = client.dnaVarification(
-						currentDesign,             // input sequence
+				dnaVarificationJobUUID = client.dnaVerification(
+						currentDesign, 
 						targetNamespace,
-						vendor,                    // vendor
+						vendor, 
 						sequencePatterns);
+				
 			} catch (JSONException | SBOLConversionException | BOOSTClientException | 
 					BOOSTBackEndException | IOException e) {
 				
@@ -81,6 +80,8 @@ public class BOOSTOperations {
 			
 		if (dnaVarificationJobUUID != null) {
 			jobReport =  checkJobReport(dnaVarificationJobUUID);
+			String response = jobReport.toString();
+			System.out.println(response);
 		}
 	}
 
