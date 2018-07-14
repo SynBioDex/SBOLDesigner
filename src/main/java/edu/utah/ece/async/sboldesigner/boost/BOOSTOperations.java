@@ -62,7 +62,7 @@ public class BOOSTOperations {
 		}	
 	}
 
-	public static void dnaVerification(SBOLDocument currentDesign, Vendor vendor, String sequencePatterns) {
+	public static void dnaVerification(SBOLDocument currentDesign, Vendor vendor, String sequencePatternsFilename) {
 		String dnaVarificationJobUUID = null;
 		JSONObject jobReport = null;
 			try {
@@ -70,7 +70,7 @@ public class BOOSTOperations {
 						currentDesign, 
 						targetNamespace,
 						vendor, 
-						sequencePatterns);
+						sequencePatternsFilename);
 				
 			} catch (JSONException | SBOLConversionException | BOOSTClientException | 
 					BOOSTBackEndException | IOException e) {

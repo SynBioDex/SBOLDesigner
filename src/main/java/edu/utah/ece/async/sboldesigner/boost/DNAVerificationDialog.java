@@ -82,15 +82,8 @@ public class DNAVerificationDialog extends JDialog implements ActionListener {
 			int vendorIndex = vendorComboBox.getSelectedIndex();
 			if (this.sequencePatternsFilename != null && !this.sequencePatternsFilename.trim().isEmpty()) {
 				setVisible(false);
-				String sequencePatternsFileContent;
-				try {
-					sequencePatternsFileContent = FileUtils.readFile(this.sequencePatternsFilename);
-					BOOSTOperations.dnaVerification(currentDesign, BOOSTConstantsArrayList.vendorList.get(vendorIndex),
-							sequencePatternsFileContent);
-				} catch (IOException error) {
-
-					error.printStackTrace();
-				}
+				BOOSTOperations.dnaVerification(currentDesign, BOOSTConstantsArrayList.vendorList.get(vendorIndex),
+						sequencePatternsFilename);
 				return;
 			} else {
 				BOOSTOperations.dnaVerification(currentDesign, BOOSTConstantsArrayList.vendorList.get(vendorIndex),
