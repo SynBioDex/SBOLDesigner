@@ -85,13 +85,20 @@ public class AvailableOperationsDialog extends JDialog implements ActionListener
 			setVisible(false);
 			return;
 		} else if (e.getSource() == submitButton) {
-			//TODO: Handle Submit Button
+			setVisible(false);
+			return;
 		} else if (e.getSource() == codonJugglingBtn) {
+			setVisible(false);
 			new CodonJugglingDialog(parent, currentDesign);
+			return;
 		} else if (e.getSource() == dnaVerificationBtn) {
+			setVisible(false);
 			new DNAVerificationDialog(parent, currentDesign);
+			return;
 		} else if (e.getSource() == sequenceModificationBtn) {
+			setVisible(false);
 			new DNAPolishingDialog(parent, currentDesign);
+			return;
 		} else if (e.getSource() == sequencePartitionBtn) {
 
 		}
