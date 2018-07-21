@@ -21,6 +21,8 @@ import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 
+import org.sbolstandard.core2.SBOLDocument;
+
 import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.DialogUtils;
 import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.MessageDialog;
 import edu.utah.ece.async.sboldesigner.swing.FormBuilder;
@@ -31,6 +33,7 @@ import gov.doe.jgi.boost.client.utils.UIUtils;
 public class BOOSTLoginDialog extends JDialog implements ActionListener {
 
 	    private BOOSTClient mBOOSTClient = null;
+	    private SBOLDocument currentDesign= null;
 		private Component parent;
 
 		private final JButton loginButton = new JButton("Login");
@@ -39,9 +42,10 @@ public class BOOSTLoginDialog extends JDialog implements ActionListener {
 		private final JPasswordField password = new JPasswordField("");
 		private final JButton signUpButton = new JButton("Sign Up");
 
-		public BOOSTLoginDialog(Component parent) {
+		public BOOSTLoginDialog(Component parent, SBOLDocument doc) {
 			super(JOptionPane.getFrameForComponent(parent), "Login to BOOST", true);
 			this.parent = parent;
+			this.currentDesign = doc;
 			
 			new DialogUtils(username, password);
 			DialogUtils.setUserInfo();
@@ -94,7 +98,8 @@ public class BOOSTLoginDialog extends JDialog implements ActionListener {
 					setVisible(false);
 					if(null != mJWTToken) {
 						JOptionPane.showMessageDialog(parent, "Login successful!");
-					}		
+					}	
+				new AvailableOperationsDialog(parent, currentDesign);
 				} catch (Exception e1) {
 					setVisible(false);
 					MessageDialog.showMessage(parent, "Login failed", Arrays.asList(e1.getMessage().split("\"|,")));
