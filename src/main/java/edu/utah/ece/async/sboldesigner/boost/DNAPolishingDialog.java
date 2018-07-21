@@ -72,6 +72,7 @@ public class DNAPolishingDialog extends JDialog implements ActionListener{
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == cancelButton) {
 			setVisible(false);
+			new AvailableOperationsDialog(parent, currentDesign);
 			return;
 		}else if(e.getSource() == submitButton) {
 			setVisible(false);
