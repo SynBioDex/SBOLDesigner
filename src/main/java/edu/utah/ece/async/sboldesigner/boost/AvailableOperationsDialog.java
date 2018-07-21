@@ -24,6 +24,7 @@ import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.DialogUtils;
 public class AvailableOperationsDialog extends JDialog implements ActionListener{
 
 	private Component parent;
+	private ButtonGroup taskButtonGroup;
 	private SBOLDocument currentDesign;
 	
 	private JRadioButton codonJugglingBtn = new JRadioButton("Codon-Juggling of protein coding DNA sequences");
@@ -50,11 +51,17 @@ public class AvailableOperationsDialog extends JDialog implements ActionListener
 		cancelButton.addActionListener(this);
 		getRootPane().setDefaultButton(submitButton);
 		
-		ButtonGroup taskGroup = new ButtonGroup();
-		taskGroup.add(codonJugglingBtn);
-		taskGroup.add(dnaVerificationBtn);
-		taskGroup.add(sequenceModificationBtn);
-		taskGroup.add(sequencePartitionBtn);
+		taskButtonGroup = new ButtonGroup();
+		taskButtonGroup.add(codonJugglingBtn);
+		taskButtonGroup.add(dnaVerificationBtn);
+		taskButtonGroup.add(sequenceModificationBtn);
+		taskButtonGroup.add(sequencePartitionBtn);
+		
+		this.codonJugglingBtn.setActionCommand("codonJuggle");
+		this.dnaVerificationBtn.setActionCommand("dnaVerification");
+		this.sequenceModificationBtn.setActionCommand("polishing");
+		this.sequencePartitionBtn.setActionCommand("partition");
+		
 		
 		JPanel buttonPane = DialogUtils.buildDecisionArea(0); // 0 for LINE_AXIS alignment
 		buttonPane.add(cancelButton);
@@ -86,21 +93,24 @@ public class AvailableOperationsDialog extends JDialog implements ActionListener
 			return;
 		} else if (e.getSource() == submitButton) {
 			setVisible(false);
-			return;
-		} else if (e.getSource() == codonJugglingBtn) {
-			setVisible(false);
-			new CodonJugglingDialog(parent, currentDesign);
-			return;
-		} else if (e.getSource() == dnaVerificationBtn) {
-			setVisible(false);
-			new DNAVerificationDialog(parent, currentDesign);
-			return;
-		} else if (e.getSource() == sequenceModificationBtn) {
-			setVisible(false);
-			new DNAPolishingDialog(parent, currentDesign);
-			return;
-		} else if (e.getSource() == sequencePartitionBtn) {
+			
+			String taskSelected =  this.taskButtonGroup.getSelection().getActionCommand();
+			if (taskSelected == "codonJuggle") {
+				setVisible(false);
+				new CodonJugglingDialog(parent, currentDesign);
+				return;
+			} else if (taskSelected == "dnaVerification") {
+				setVisible(false);
+				new DNAVerificationDialog(parent, currentDesign);
+				return;
+			} else if (taskSelected == "polishing") {
+				setVisible(false);
+				new DNAPolishingDialog(parent, currentDesign);
+				return;
+			} else if (taskSelected == "partition") {
 
+			}  
+		return;
 		}
 	}
 }
