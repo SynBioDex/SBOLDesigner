@@ -1410,7 +1410,7 @@ public class SBOLDesign {
 		// print response document for now (or write to disk, etc)
 	    String boostToken = new BOOSTPreferences().getBOOSTToken();
 	    if(boostToken == null || boostToken.isEmpty()) {
-	    	new BOOSTLoginDialog(panel);
+	    	new BOOSTLoginDialog(panel, doc);
 	    }else {
 	    	new AvailableOperationsDialog(panel, doc);
 	    }

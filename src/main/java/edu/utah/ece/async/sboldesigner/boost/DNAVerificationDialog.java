@@ -71,6 +71,7 @@ public class DNAVerificationDialog extends JDialog implements ActionListener {
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == cancelButton) {
 			setVisible(false);
+			new AvailableOperationsDialog(parent, currentDesign);
 			return;
 		} else if (e.getSource() == chooseFileButton) {
 			this.sequencePatternsFilename = FileUtils.SelectedFilePath("sequencePatterns");

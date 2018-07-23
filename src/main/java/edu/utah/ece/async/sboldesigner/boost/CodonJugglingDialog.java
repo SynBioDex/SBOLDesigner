@@ -71,6 +71,7 @@ public class CodonJugglingDialog extends JDialog implements ActionListener{
 	public void actionPerformed(ActionEvent arg) {
 		if (arg.getSource() == cancelButton) {
 			setVisible(false);
+			new AvailableOperationsDialog(parent, currentDesign);
 			return;
 		}else if(arg.getSource() == submitButton) {
 			setVisible(false);
