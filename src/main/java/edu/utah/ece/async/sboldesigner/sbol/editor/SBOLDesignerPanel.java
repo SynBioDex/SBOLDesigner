@@ -339,8 +339,7 @@ public class SBOLDesignerPanel extends JPanel {
 	 */
 	private void getURIprefix() {
 		PersonInfo oldUserInfo = SBOLEditorPreferences.INSTANCE.getUserInfo();
-
-		String uri;
+		
 		String name;
 		String email;
 		do {
