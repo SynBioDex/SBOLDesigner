@@ -168,7 +168,7 @@ public class SBOLDesign {
 	};
 
 	public final SBOLEditorAction VARIANTS = new SBOLEditorAction("Edit variants",
-			"Edit combinatorial design variants of selected part", "edit_variants.png") {
+			"Edit combinatorial design variants of selected part", "dna edit.png") {
 		@Override
 		protected void perform() {
 			try {
@@ -222,7 +222,7 @@ public class SBOLDesign {
 	};
 
 	public final SBOLEditorAction COMBINATORIAL = new SBOLEditorAction("Expand combinatorial design",
-			"Expand the combinatorial design", "combinatorial.png") {
+			"Expand the combinatorial design", "combinatorial expansion.png") {
 		@Override
 		protected void perform() {
 			try {
