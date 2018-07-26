@@ -341,14 +341,17 @@ public class SBOLDesignerPanel extends JPanel {
 		PersonInfo oldUserInfo = SBOLEditorPreferences.INSTANCE.getUserInfo();
 
 		String uri;
+		String name;
+		String email;
 		do {
-			uri = JOptionPane.showInputDialog("Please enter a valid URI", oldUserInfo.getURI());
-			if (uri == null) {
+			name = JOptionPane.showInputDialog("Please enter your name:", oldUserInfo.getName());
+			email=JOptionPane.showInputDialog("Please enter your email:", oldUserInfo.getEmail());
+			if (name == null && email == null) {
 				System.exit(0);
 			}
-		} while (Strings.isNullOrEmpty(uri));
+		} while (Strings.isNullOrEmpty(name) && (Strings.isNullOrEmpty(email)) || (oldUserInfo.getURI().toString().equals("http://dummy.org")));
 
-		PersonInfo userInfo = Infos.forPerson(uri, oldUserInfo.getName(), oldUserInfo.getEmail().toString());
+		PersonInfo userInfo = Infos.forPerson("http://www." + name.toLowerCase().replaceAll("\\s+","") + ".org/", name, email);
 		SBOLEditorPreferences.INSTANCE.saveUserInfo(userInfo);
 	}
 
