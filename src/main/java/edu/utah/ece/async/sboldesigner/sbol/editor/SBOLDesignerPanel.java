@@ -339,7 +339,7 @@ public class SBOLDesignerPanel extends JPanel {
 	 */
 	private void getURIprefix() {
 		PersonInfo oldUserInfo = SBOLEditorPreferences.INSTANCE.getUserInfo();
-		
+
 		String name;
 		String email;
 		do {
@@ -350,7 +350,7 @@ public class SBOLDesignerPanel extends JPanel {
 			}
 		} while (Strings.isNullOrEmpty(name) && (Strings.isNullOrEmpty(email)) || (oldUserInfo.getURI().toString().equals("http://dummy.org")));
 
-		PersonInfo userInfo = Infos.forPerson("http://www." + name.toLowerCase().replaceAll("\\s+","") + ".org/", name, email);
+		PersonInfo userInfo = Infos.forPerson("https://www.sboldesigner.github.io/" + name.toLowerCase().replaceAll("\\s+","") + "/", name, email);
 		SBOLEditorPreferences.INSTANCE.saveUserInfo(userInfo);
 	}
 
