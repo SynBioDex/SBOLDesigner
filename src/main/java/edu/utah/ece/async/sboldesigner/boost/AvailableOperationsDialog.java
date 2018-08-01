@@ -108,7 +108,9 @@ public class AvailableOperationsDialog extends JDialog implements ActionListener
 				new DNAPolishingDialog(parent, currentDesign);
 				return;
 			} else if (taskSelected == "partition") {
-
+                setVisible(false);
+                new DNAPartition(parent, currentDesign);
+                return;
 			}  
 		return;
 		}
