@@ -11,7 +11,6 @@ import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
-
 import org.sbolstandard.core2.SBOLDocument;
 
 import javax.swing.GroupLayout;
@@ -33,45 +32,22 @@ public class DNAPartition extends JDialog implements ActionListener{
 	private final JButton cancelButton = new JButton("Cancel");
 	
 	private final JPanel contentPanel = new JPanel();
-	private JCheckBox fivePrimeLabel = new JCheckBox("Enter 5-prime-vector overlap");
-	private JCheckBox threePrimeLabel = new JCheckBox("Enter 3-prime-vector overlap ");
-	
-	private JLabel buildingBlockLabel = new JLabel("Enter values of Building Block Length [bp]:");
-	private JLabel minBuildingBlockLabel = new JLabel("Min Len");
-	private JLabel maxBuildingBlockLabel = new JLabel("Max Len:");
-	
-	private JLabel overlapSequenceLabel = new JLabel("  Enter sequence Overlap Length [bp]");
-	private JLabel minSeqOverlapLabel = new JLabel("Min Len");
-	private JLabel optSeqOverlapLabel = new JLabel("Opt Len");
-	private JLabel maxSeqOverlapLabel = new JLabel("Max Len");
-	
-	private JLabel gdOverlapLabel = new JLabel(" Enter Overlap GC [%] ");
-	private JLabel minGCLabel = new JLabel("Min Overlap");
-	private JLabel optGCLabel = new JLabel("Opt Overlap");
-	private JLabel maxGCLabel = new JLabel("Max Overlap");
-	
-	private JLabel primerLabel = new JLabel(" Enter Primer Length:");
-	private JLabel minPrimerLenLabel = new JLabel("Min Len");
-	private JLabel optPrimerLenLabel = new JLabel("Opt Len");
-	private JLabel maxPrimerLenLabel = new JLabel("Max Len");
-	
-	
-	private JTextField textFieldFivePrimeVecor;
-	private JTextField textFieldThreePrimeVecor;
-	private JTextField textFieldMinBuildingLen;
-	private JTextField textFieldMaxBuildingLen;
-	private JTextField textFieldMinSeqOverlap;
-	private JTextField textFieldOptSeqOverlap;
-	private JTextField textFieldMaxSeqOverlap;
-	private JTextField textFieldMinGC;
-	private JTextField textFieldOptGC;
-	private JTextField textFieldMaxGC;
-	private JTextField textFieldMinPrimerLen;
-	private JTextField textFieldOptPrimerLen;
-	private JTextField textFieldMaxPrimerLen;
+	private JTextField textFieldFivePrimeVecor = new JTextField();
+	private JTextField textFieldThreePrimeVecor = new JTextField();
+	private JTextField textFieldMinBuildingLen = new JTextField();
+	private JTextField textFieldMaxBuildingLen = new JTextField();
+	private JTextField textFieldMinSeqOverlap = new JTextField();
+	private JTextField textFieldOptSeqOverlap = new JTextField();
+	private JTextField textFieldMaxSeqOverlap = new JTextField();
+	private JTextField textFieldMinGC = new JTextField();
+	private JTextField textFieldOptGC = new JTextField();
+	private JTextField textFieldMaxGC = new JTextField();
+	private JTextField textFieldMinPrimerLen = new JTextField();
+	private JTextField textFieldOptPrimerLen = new JTextField();
+	private JTextField textFieldMaxPrimerLen = new JTextField();
 
 	public DNAPartition(Component parent, SBOLDocument currentDesign) {
-		super(JOptionPane.getFrameForComponent(parent), "Codon Juggling", true);
+		super(JOptionPane.getFrameForComponent(parent), "DNA Partition", true);
 		this.parent = parent;
 		this.currentDesign = currentDesign;
 		
@@ -86,10 +62,32 @@ public class DNAPartition extends JDialog implements ActionListener{
 		setVisible(true);
 	}
 
-
-	/**
-	 * Create the dialog.
-	 */
+	@Override
+	public void actionPerformed(ActionEvent arg) {
+		if (arg.getSource() == cancelButton) {
+			setVisible(false);
+			new AvailableOperationsDialog(parent, currentDesign);
+			return;
+		}else if(arg.getSource() == submitButton) {
+			setVisible(false);
+			String fivePrimeVector = textFieldFivePrimeVecor.getText();
+			String threePrimeVector = textFieldThreePrimeVecor.getText();
+			String minBuildingLength = textFieldMinBuildingLen.getText();
+			String optBuildingLength = textFieldMaxBuildingLen.getText();
+			String minSequenceOverlap = textFieldMinSeqOverlap.getText();
+			String optSequenceOverlap = textFieldOptSeqOverlap.getText();
+			String maxSequenceOverlap = textFieldMaxSeqOverlap.getText();
+			String minGCContent = textFieldMinGC.getText();
+			String optGCContent = textFieldOptGC.getText();
+			String maxGCContent = textFieldMaxGC.getText();
+			String minPrimerLength = textFieldMinPrimerLen.getText();
+			String optPrimerLength = textFieldOptPrimerLen.getText();
+			String maxPrimerLength = textFieldMaxPrimerLen.getText();
+			
+			return;
+		}
+	}
+	
 	public void mainPanelUI() {
 		setBounds(100, 100, 678, 492);
 		getContentPane().setLayout(new BorderLayout());
@@ -99,47 +97,42 @@ public class DNAPartition extends JDialog implements ActionListener{
 		JLabel mTextLabel = new JLabel("Please provide the appropiate parameters for "
 				+ "partition of your DNA sequence:");
 	
+		JCheckBox fivePrimeLabel = new JCheckBox("Enter 5-prime-vector overlap");
+		JCheckBox threePrimeLabel = new JCheckBox("Enter 3-prime-vector overlap ");
 		
-		textFieldFivePrimeVecor = new JTextField();
+		JLabel buildingBlockLabel = new JLabel("Enter values of Building Block Length [bp]:");
+		JLabel minBuildingBlockLabel = new JLabel("Min Len");
+		JLabel maxBuildingBlockLabel = new JLabel("Max Len:");
+		
+		JLabel overlapSequenceLabel = new JLabel("  Enter sequence Overlap Length [bp]");
+		JLabel minSeqOverlapLabel = new JLabel("Min Len");
+		JLabel optSeqOverlapLabel = new JLabel("Opt Len");
+		JLabel maxSeqOverlapLabel = new JLabel("Max Len");
+		
+		JLabel gdOverlapLabel = new JLabel(" Enter Overlap GC [%] ");
+		JLabel minGCLabel = new JLabel("Min Overlap");
+		JLabel optGCLabel = new JLabel("Opt Overlap");
+		JLabel maxGCLabel = new JLabel("Max Overlap");
+		
+		JLabel primerLabel = new JLabel(" Enter Primer Length:");
+		JLabel minPrimerLenLabel = new JLabel("Min Len");
+		JLabel optPrimerLenLabel = new JLabel("Opt Len");
+		JLabel maxPrimerLenLabel = new JLabel("Max Len");
+		
 		textFieldFivePrimeVecor.setColumns(10);
-		
-		textFieldThreePrimeVecor = new JTextField();
 		textFieldThreePrimeVecor.setColumns(10);
-	
-		
-		textFieldMinBuildingLen = new JTextField();
 		textFieldMinBuildingLen.setColumns(10);
-		
-		textFieldMaxBuildingLen = new JTextField();
 		textFieldMaxBuildingLen.setColumns(10);
-		
-		textFieldMinSeqOverlap = new JTextField();
 		textFieldMinSeqOverlap.setColumns(10);
-		
-		textFieldOptSeqOverlap = new JTextField();
 		textFieldOptSeqOverlap.setColumns(10);
-		
-		textFieldMaxSeqOverlap = new JTextField();
 		textFieldMaxSeqOverlap.setColumns(10);
-		
-		textFieldMinGC = new JTextField();
 		textFieldMinGC.setColumns(10);
-		
-		textFieldOptGC = new JTextField();
 		textFieldOptGC.setColumns(10);
-		
-		textFieldMaxGC = new JTextField();
 		textFieldMaxGC.setColumns(10);
-
-		
-		textFieldMinPrimerLen = new JTextField();
 		textFieldMinPrimerLen.setColumns(10);
-		
-		textFieldOptPrimerLen = new JTextField();
 		textFieldOptPrimerLen.setColumns(10);
-		
-		textFieldMaxPrimerLen = new JTextField();
 		textFieldMaxPrimerLen.setColumns(10);
+		
 		GroupLayout contentPanelLayout = new GroupLayout(contentPanel);
 		contentPanelLayout.setHorizontalGroup(
 			contentPanelLayout.createParallelGroup(Alignment.LEADING)
@@ -252,23 +245,12 @@ public class DNAPartition extends JDialog implements ActionListener{
 			buttonPane.setLayout(new FlowLayout(FlowLayout.RIGHT));
 			getContentPane().add(buttonPane, BorderLayout.SOUTH);
 			{
-				JButton cancelButton = new JButton("Cancel");
-				cancelButton.setActionCommand("cancel");
 				buttonPane.add(cancelButton);
-				getRootPane().setDefaultButton(cancelButton);
 			}
 			{
-				JButton submitButton = new JButton("Submit");
-				submitButton.setActionCommand("submit");
 				buttonPane.add(submitButton);
+				getRootPane().setDefaultButton(cancelButton);
 			}
 		}
-	}
-
-
-	@Override
-	public void actionPerformed(ActionEvent e) {
-		// TODO Auto-generated method stub
-		
 	}
 }
