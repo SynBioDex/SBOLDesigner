@@ -107,6 +107,41 @@ public class BOOSTOperations {
 			jobReport = checkJobReport(polishDNAJobUUID);
 		}
 	}
+	
+	public static void partition(SBOLDocument currentDesign, String fivePrimeVectorOverlap, String threePrimeVectorOverlap,
+			String minLengthBB, String maxLengthBB, String minSeqOverlap, String optSeqOverlap,
+			String maxSeqOverlap, String minOverlapGC, String optOverlapGC, String maxOverlapGC,
+			String minPrimerLength, String optPrimerLength, String maxPrimerLength) {
+		
+		String partitionDNAJobUUID = null;
+		JSONObject jobReport = null;
+
+		try {
+			partitionDNAJobUUID = client.partition(
+					currentDesign, 
+					targetNamespace, 
+					fivePrimeVectorOverlap, 
+					threePrimeVectorOverlap, 
+					minLengthBB, 
+					maxLengthBB, 
+					minOverlapGC, 
+					optOverlapGC, 
+					maxOverlapGC, 
+					minSeqOverlap, 
+					optSeqOverlap, 
+					maxSeqOverlap, 
+					minPrimerLength, 
+					optPrimerLength, 
+					maxPrimerLength);
+		} catch (JSONException | UnsupportedEncodingException | BOOSTClientException | BOOSTBackEndException
+				| SBOLConversionException e) {
+			e.printStackTrace();
+		}
+		
+		if (partitionDNAJobUUID != null) {
+			jobReport = checkJobReport(partitionDNAJobUUID);
+		}
+	}
 
 	static JSONObject checkJobReport(String jobUUID) {
 		JSONObject jobReport = null;

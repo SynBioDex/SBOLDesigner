@@ -59,6 +59,7 @@ public class DNAPartition extends JDialog implements ActionListener{
 		
 		mainPanelUI();
 		pack();
+		setLocationRelativeTo(null);
 		setVisible(true);
 	}
 
@@ -73,17 +74,20 @@ public class DNAPartition extends JDialog implements ActionListener{
 			String fivePrimeVector = textFieldFivePrimeVecor.getText();
 			String threePrimeVector = textFieldThreePrimeVecor.getText();
 			String minBuildingLength = textFieldMinBuildingLen.getText();
-			String optBuildingLength = textFieldMaxBuildingLen.getText();
+			String maxBuildingLength = textFieldMaxBuildingLen.getText();
 			String minSequenceOverlap = textFieldMinSeqOverlap.getText();
 			String optSequenceOverlap = textFieldOptSeqOverlap.getText();
 			String maxSequenceOverlap = textFieldMaxSeqOverlap.getText();
-			String minGCContent = textFieldMinGC.getText();
-			String optGCContent = textFieldOptGC.getText();
-			String maxGCContent = textFieldMaxGC.getText();
+			String minGCOverlap = textFieldMinGC.getText();
+			String optGCOverlap = textFieldOptGC.getText();
+			String maxGCOverlap = textFieldMaxGC.getText();
 			String minPrimerLength = textFieldMinPrimerLen.getText();
 			String optPrimerLength = textFieldOptPrimerLen.getText();
 			String maxPrimerLength = textFieldMaxPrimerLen.getText();
 			
+			BOOSTOperations.partition(currentDesign, fivePrimeVector, threePrimeVector, minBuildingLength, 
+					maxBuildingLength, minSequenceOverlap, optSequenceOverlap, maxSequenceOverlap, minGCOverlap, 
+					optGCOverlap, maxGCOverlap, minPrimerLength, optPrimerLength, maxPrimerLength);
 			return;
 		}
 	}
@@ -104,17 +108,17 @@ public class DNAPartition extends JDialog implements ActionListener{
 		JLabel minBuildingBlockLabel = new JLabel("Min Len");
 		JLabel maxBuildingBlockLabel = new JLabel("Max Len:");
 		
-		JLabel overlapSequenceLabel = new JLabel("  Enter sequence Overlap Length [bp]");
+		JLabel overlapSequenceLabel = new JLabel("Enter sequence Overlap Length [bp]");
 		JLabel minSeqOverlapLabel = new JLabel("Min Len");
 		JLabel optSeqOverlapLabel = new JLabel("Opt Len");
 		JLabel maxSeqOverlapLabel = new JLabel("Max Len");
 		
-		JLabel gdOverlapLabel = new JLabel(" Enter Overlap GC [%] ");
+		JLabel gdOverlapLabel = new JLabel("Enter Overlap GC [%] ");
 		JLabel minGCLabel = new JLabel("Min Overlap");
 		JLabel optGCLabel = new JLabel("Opt Overlap");
 		JLabel maxGCLabel = new JLabel("Max Overlap");
 		
-		JLabel primerLabel = new JLabel(" Enter Primer Length:");
+		JLabel primerLabel = new JLabel("Enter Primer Length:");
 		JLabel minPrimerLenLabel = new JLabel("Min Len");
 		JLabel optPrimerLenLabel = new JLabel("Opt Len");
 		JLabel maxPrimerLenLabel = new JLabel("Max Len");
@@ -249,7 +253,7 @@ public class DNAPartition extends JDialog implements ActionListener{
 			}
 			{
 				buttonPane.add(submitButton);
-				getRootPane().setDefaultButton(cancelButton);
+				getRootPane().setDefaultButton(submitButton);
 			}
 		}
 	}
