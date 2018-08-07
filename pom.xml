@@ -274,7 +274,15 @@
 		<dependency>
 			<groupId>gov.doe.jgi</groupId>
 			<artifactId>boost-client</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>gov.doe.jgi</groupId>
+				<artifactId>boost-client</artifactId>
+				<version>0.0.1-SNAPSHOT</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
 </project>
