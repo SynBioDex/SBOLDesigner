@@ -55,13 +55,16 @@ public class BOOSTOperations {
 			String response = JsonResponseParser.parseCodonJuggleResponse(jobReport);
 			try {
 				Set<URI> rootUri = null;
+				Set<URI> comDefRoles = null;
 				SBOLDocument modifiedDocument = DocumentConversionUtils.stringToSBOLDocument(response);
 				// fetch root ComponentDefination of modifiedDocument
 				Set<ComponentDefinition> componentDef = modifiedDocument.getRootComponentDefinitions();
 				for (ComponentDefinition componentDefination : componentDef) {
+					  comDefRoles = componentDefination.getRoles();
 					  rootUri = componentDefination.getWasDerivedFroms();
 					  System.out.println(rootUri);
 				}
+				System.out.println(comDefRoles);
 				for(URI designURI : rootUri) {
 				  if(null != designURI) {
 					  System.out.println("Prepared to call load method");
