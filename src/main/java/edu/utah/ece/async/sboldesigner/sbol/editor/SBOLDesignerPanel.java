@@ -350,7 +350,7 @@ public class SBOLDesignerPanel extends JPanel {
 			}
 		} while (Strings.isNullOrEmpty(name) && (Strings.isNullOrEmpty(email)) || (oldUserInfo.getURI().toString().equals("http://dummy.org")));
 
-		PersonInfo userInfo = Infos.forPerson("https://www.sboldesigner.github.io/" + name.toLowerCase().replaceAll("\\s+","") + "/", name, email);
+		PersonInfo userInfo = Infos.forPerson("https://www.sboldesigner.github.io/" + name.toLowerCase().replaceAll("\\s+","") + "/" + email.toLowerCase().replaceAll("\\s+","").hashCode() + "/", name, email);
 		SBOLEditorPreferences.INSTANCE.saveUserInfo(userInfo);
 	}
 
