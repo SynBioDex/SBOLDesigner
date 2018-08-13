@@ -12,6 +12,9 @@ import org.sbolstandard.core2.SBOLConversionException;
 import org.sbolstandard.core2.SBOLDocument;
 import org.sbolstandard.core2.SBOLValidationException;
 
+import com.google.common.eventbus.EventBus;
+
+import edu.utah.ece.async.sboldesigner.sbol.editor.SBOLDesign;
 import edu.utah.ece.async.sboldesigner.sbol.editor.SBOLEditorPreferences;
 import gov.doe.jgi.boost.client.BOOSTClient;
 import gov.doe.jgi.boost.client.utils.DocumentConversionUtils;
@@ -24,6 +27,7 @@ import gov.doe.jgi.boost.exception.BOOSTClientException;
 
 public class BOOSTOperations {
 
+	private static EventBus eventBus = null;
 	static BOOSTClient client = new BOOSTClient(new BOOSTPreferences().getBOOSTToken());
 	
 	static String targetNamespace = SBOLEditorPreferences.INSTANCE.getUserInfo().getURI().toString();
@@ -31,6 +35,7 @@ public class BOOSTOperations {
 	public static void codonJuggling(SBOLDocument currentDesign, boolean annotation, Strategy strategy, String host) {
 		String codonJuggleJobUUID = null;
 		JSONObject jobReport = null;
+		eventBus = new EventBus();
 			try {
 				codonJuggleJobUUID = client.codonJuggle(
 						currentDesign,            // input sequences
@@ -49,12 +54,23 @@ public class BOOSTOperations {
 			jobReport = checkJobReport(codonJuggleJobUUID);
 			String response = JsonResponseParser.parseCodonJuggleResponse(jobReport);
 			try {
+				Set<URI> rootUri = null;
+				Set<URI> comDefRoles = null;
 				SBOLDocument modifiedDocument = DocumentConversionUtils.stringToSBOLDocument(response);
 				// fetch root ComponentDefination of modifiedDocument
 				Set<ComponentDefinition> componentDef = modifiedDocument.getRootComponentDefinitions();
 				for (ComponentDefinition componentDefination : componentDef) {
-					URI rootUri = componentDefination.getIdentity();
+					  comDefRoles = componentDefination.getRoles();
+					  rootUri = componentDefination.getWasDerivedFroms();
 					  System.out.println(rootUri);
+				}
+				System.out.println(comDefRoles);
+				for(URI designURI : rootUri) {
+				  if(null != designURI) {
+					  System.out.println("Prepared to call load method");
+					  System.out.println(designURI);
+					  new SBOLDesign(eventBus).load(modifiedDocument, designURI);
+				  }
 				}
 			} catch (SBOLValidationException | IOException | SBOLConversionException e) {
 				e.printStackTrace();
