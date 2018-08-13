@@ -125,6 +125,7 @@ import edu.utah.ece.async.sboldesigner.sbol.editor.event.FocusOutEvent;
 import edu.utah.ece.async.sboldesigner.sbol.editor.event.PartVisibilityChangedEvent;
 import edu.utah.ece.async.sboldesigner.sbol.editor.event.SelectionChangedEvent;
 import gov.doe.jgi.boost.client.utils.FileUtils;
+import javassist.Loader;
 
 /**
  * 
@@ -197,12 +198,13 @@ public class SBOLDesign {
 
 				ComponentDefinitionBox root = new ComponentDefinitionBox();
 				SBOLDocument doc = createDocument(root);
-				if(doc != null) {
-					boostContent(panel,doc);
+				if (doc != null) {
+					boostContent(panel, doc);
 				}
-				
+
 			} catch (Exception e) {
-				MessageDialog.showMessage(panel, "There was a problem with file contianing sequence : ", e.getMessage());
+				MessageDialog.showMessage(panel, "There was a problem with file contianing sequence : ",
+						e.getMessage());
 				e.printStackTrace();
 			}
 		}
@@ -1404,16 +1406,17 @@ public class SBOLDesign {
 			SBOLWriter.write(doc, new FileOutputStream(file));
 		}
 	}
-	
-	public static void boostContent(Component panel, SBOLDocument doc)throws SBOLValidationException {
+
+	public void boostContent(Component panel, SBOLDocument doc) throws SBOLValidationException {
 		// TODO: call boost dialog and pass in document
 		// print response document for now (or write to disk, etc)
-	    String boostToken = new BOOSTPreferences().getBOOSTToken();
-	    if(boostToken == null || boostToken.isEmpty()) {
-	    	new BOOSTLoginDialog(panel, doc);
-	    }else {
-	    	new AvailableOperationsDialog(panel, doc);
-	    }
+		String boostToken = new BOOSTPreferences().getBOOSTToken();
+		if (boostToken == null || boostToken.isEmpty()) {
+			new BOOSTLoginDialog(panel, doc);
+		} else {
+			new AvailableOperationsDialog(panel, doc);
+			// TODO call load here
+		}
 	}
 
 	public static void uploadDesign(Component panel, SBOLDocument uploadDoc, File uploadFile)
