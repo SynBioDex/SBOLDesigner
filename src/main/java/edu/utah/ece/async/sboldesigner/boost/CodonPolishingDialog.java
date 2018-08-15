@@ -24,7 +24,7 @@ import org.sbolstandard.core2.SBOLDocument;
 import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.DialogUtils;
 import gov.doe.jgi.boost.client.constants.BOOSTConstantsArrayList;
 
-public class DNAPolishingDialog extends JDialog implements ActionListener{
+public class CodonPolishingDialog extends JDialog implements ActionListener{
 
 	private Component parent;
 	private SBOLDocument currentDesign;
@@ -39,7 +39,7 @@ public class DNAPolishingDialog extends JDialog implements ActionListener{
 	JComboBox<String> predefinedComboBox = new JComboBox<>(new String[] {"Bacillus subtilis",
 		    "Arabidapsis thaliana", "Escherichia coli", "Saccharomyces cerevisiae"});
 	
-	public DNAPolishingDialog(Component parent, SBOLDocument currentDesign) {
+	public CodonPolishingDialog(Component parent, SBOLDocument currentDesign) {
 		super(JOptionPane.getFrameForComponent(parent), "DNA Modification", true);
 		this.parent = parent;
 		this.currentDesign = currentDesign;

@@ -18,12 +18,12 @@ import edu.utah.ece.async.sboldesigner.sbol.editor.SBOLDesign;
 import edu.utah.ece.async.sboldesigner.sbol.editor.SBOLEditorPreferences;
 import gov.doe.jgi.boost.client.BOOSTClient;
 import gov.doe.jgi.boost.client.utils.DocumentConversionUtils;
-import gov.doe.jgi.boost.client.utils.JsonResponseParser;
 import gov.doe.jgi.boost.enums.FileFormat;
 import gov.doe.jgi.boost.enums.Strategy;
 import gov.doe.jgi.boost.enums.Vendor;
 import gov.doe.jgi.boost.exception.BOOSTBackEndException;
 import gov.doe.jgi.boost.exception.BOOSTClientException;
+import gov.doe.jgi.boost.resopnseparser.CodonJugglerResponserParser;
 
 public class BOOSTOperations {
 
@@ -52,7 +52,7 @@ public class BOOSTOperations {
 
 		if (codonJuggleJobUUID != null) {
 			jobReport = checkJobReport(codonJuggleJobUUID);
-			String response = JsonResponseParser.parseCodonJuggleResponse(jobReport);
+			String response = CodonJugglerResponserParser.parseCodonJuggleResponse(jobReport);
 			try {
 				Set<URI> rootUri = null;
 				Set<URI> comDefRoles = null;
