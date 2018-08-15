@@ -49,9 +49,12 @@ import javax.swing.table.TableRowSorter;
 import org.sbolstandard.core2.ComponentDefinition;
 import org.sbolstandard.core2.SBOLDocument;
 import org.sbolstandard.core2.SBOLReader;
+import org.sbolstandard.core2.SBOLValidationException;
 import org.sbolstandard.core2.SequenceOntology;
 import org.synbiohub.frontend.IdentifiedMetadata;
+import org.synbiohub.frontend.SynBioHubException;
 import org.synbiohub.frontend.SynBioHubFrontend;
+import org.synbiohub.frontend.WebOfRegistriesData;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
@@ -532,6 +535,17 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 			} else {
 				document = new SBOLDocument();
 				comp = ((ComponentDefinitionTableModel) table.getModel()).getElement(row);
+				ArrayList<WebOfRegistriesData> webOfRegistries;
+				try {
+					webOfRegistries = SynBioHubFrontend.getRegistries(); // TODO: replace with preferences
+					for (WebOfRegistriesData registry : webOfRegistries) {
+						document.addRegistry(registry.getInstanceUrl(),registry.getUriPrefix());
+					}
+				}
+				catch (SynBioHubException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 				document = document.createRecursiveCopy(comp);
 			}
 
@@ -540,7 +554,7 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 			}
 
 			return document;
-		} catch (Exception e) {
+		} catch (SBOLValidationException | SynBioHubException e) {
 			e.printStackTrace();
 			MessageDialog.showMessage(null, "Getting this selection failed: ", e.getMessage());
 			return null;

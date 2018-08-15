@@ -4,6 +4,7 @@ import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JCheckBox;
@@ -22,6 +23,9 @@ import org.sbolstandard.core2.SBOLDocument;
 import org.sbolstandard.core2.SBOLValidationException;
 import org.sbolstandard.core2.Sequence;
 import org.sbolstandard.core2.SequenceOntology;
+import org.synbiohub.frontend.SynBioHubException;
+import org.synbiohub.frontend.SynBioHubFrontend;
+import org.synbiohub.frontend.WebOfRegistriesData;
 
 import com.google.common.collect.Lists;
 
@@ -144,6 +148,17 @@ public class PartInputDialog extends InputDialog<SBOLDocument> {
 			int row = table.convertRowIndexToModel(table.getSelectedRow());
 			ComponentDefinition comp = ((ComponentDefinitionTableModel) table.getModel()).getElement(row);
 			if (importSubparts.isSelected()) {
+				ArrayList<WebOfRegistriesData> webOfRegistries;
+				try {
+					webOfRegistries = SynBioHubFrontend.getRegistries();// TODO: replace with perferences
+					for (WebOfRegistriesData registry : webOfRegistries) {
+						doc.addRegistry(registry.getInstanceUrl(),registry.getUriPrefix());
+					}
+				}
+				catch (SynBioHubException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 				SBOLDocument newDoc = doc.createRecursiveCopy(comp);
 				SBOLUtils.copyReferencedCombinatorialDerivations(newDoc, doc);
 				return newDoc;
