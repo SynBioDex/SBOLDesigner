@@ -129,7 +129,6 @@ import edu.utah.ece.async.sboldesigner.sbol.editor.event.PartVisibilityChangedEv
 import edu.utah.ece.async.sboldesigner.sbol.editor.event.SelectionChangedEvent;
 import gov.doe.jgi.boost.client.constants.BOOSTConstants;
 import gov.doe.jgi.boost.client.utils.DocumentConversionUtils;
-import gov.doe.jgi.boost.client.utils.FileUtils;
 import gov.doe.jgi.boost.resopnseparser.CodonJugglerResponserParser;
 
 /**
@@ -1455,11 +1454,17 @@ public class SBOLDesign {
 				break;
 
 			case BOOSTConstants.DNA_VERIFICATION:
-				// TODO : handle
+				if (JobUUID != null) {
+					JSONObject jobReport =  BOOSTOperations.checkJobReport(JobUUID);
+					String response = jobReport.toString();
+					System.out.println(response);
+				}
 				break;
+				
 			case BOOSTConstants.CODON_POLISHING:
 				// TODO : handle
 				break;
+				
 			case BOOSTConstants.DNA_PARTITION:
 				// TODO : handle
 				break;

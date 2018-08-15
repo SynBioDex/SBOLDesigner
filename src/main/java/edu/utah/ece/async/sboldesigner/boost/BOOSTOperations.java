@@ -52,7 +52,7 @@ public class BOOSTOperations {
           return codonJuggleJobUUID;
 	}
 
-	public static void dnaVerification(SBOLDocument currentDesign, Vendor vendor, String sequencePatternsFilename) {
+	public static String dnaVerification(SBOLDocument currentDesign, Vendor vendor, String sequencePatternsFilename) {
 		String dnaVarificationJobUUID = null;
 		JSONObject jobReport = null;
 			try {
@@ -67,12 +67,7 @@ public class BOOSTOperations {
 				
 				e.printStackTrace();
 			}  
-			
-		if (dnaVarificationJobUUID != null) {
-			jobReport =  checkJobReport(dnaVarificationJobUUID);
-			String response = jobReport.toString();
-			System.out.println(response);
-		}
+		return dnaVarificationJobUUID;
 	}
 
 	public static void polishing(SBOLDocument currentDesign, boolean annotation, Vendor vendor, Strategy strategy, String host) {

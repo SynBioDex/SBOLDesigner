@@ -106,7 +106,7 @@ public class AvailableOperationsDialog extends JDialog implements ActionListener
 			} else if (taskSelected == "dnaVerification") {
 				setVisible(false);
 				this.selectedTask = BOOSTConstants.DNA_VERIFICATION;
-				new DNAVerificationDialog(parent, currentDesign);
+				this.jobUUID = new DNAVerificationDialog(parent, currentDesign).dnaVerificationJobUUID;
 				return;
 			} else if (taskSelected == "polishing") {
 				setVisible(false);
