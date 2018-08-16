@@ -131,6 +131,7 @@ import gov.doe.jgi.boost.client.constants.BOOSTConstants;
 import gov.doe.jgi.boost.client.utils.DocumentConversionUtils;
 import gov.doe.jgi.boost.resopnseparser.CodonJugglerResponserParser;
 
+
 /**
  * 
  * @author Evren Sirin
@@ -202,12 +203,13 @@ public class SBOLDesign {
 
 				ComponentDefinitionBox root = new ComponentDefinitionBox();
 				SBOLDocument doc = createDocument(root);
-				if(doc != null) {
-					boostContent(panel,doc);
+				if (doc != null) {
+					boostContent(panel, doc);
 				}
-				
+
 			} catch (Exception e) {
-				MessageDialog.showMessage(panel, "There was a problem with file contianing sequence : ", e.getMessage());
+				MessageDialog.showMessage(panel, "There was a problem with file contianing sequence : ",
+						e.getMessage());
 				e.printStackTrace();
 			}
 		}
@@ -1412,6 +1414,7 @@ public class SBOLDesign {
 	
 	public void boostContent(Component panel, SBOLDocument doc)
 			throws SBOLValidationException, IOException, SBOLConversionException {
+
 		// TODO: call boost dialog and pass in document
 		// print response document for now (or write to disk, etc)
 		String boostToken = new BOOSTPreferences().getBOOSTToken();
@@ -1467,6 +1470,7 @@ public class SBOLDesign {
 				// TODO : handle
 				break;
 			}
+
 		}
 	}
 
