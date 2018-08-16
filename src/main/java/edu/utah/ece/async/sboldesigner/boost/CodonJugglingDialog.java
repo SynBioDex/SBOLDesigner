@@ -26,6 +26,7 @@ import org.sbolstandard.core2.SBOLDocument;
 
 public class CodonJugglingDialog extends JDialog implements ActionListener{
 	
+	public String codonJuggleJobUUID = null;
 	private Component parent;
 	private SBOLDocument currentDesign;
 	private final JButton submitButton = new JButton("Submit");
@@ -79,7 +80,7 @@ public class CodonJugglingDialog extends JDialog implements ActionListener{
 			int annotationIndex = annotationComboBox.getSelectedIndex();
 			String host =String.valueOf(hostComboBox.getSelectedItem());
 			System.out.println(host);
-			BOOSTOperations.codonJuggling(currentDesign,BOOSTConstantsArrayList.annotation[annotationIndex],
+			this.codonJuggleJobUUID = BOOSTOperations.codonJuggling(currentDesign,BOOSTConstantsArrayList.annotation[annotationIndex],
 					BOOSTConstantsArrayList.strategyList.get(strategyIndex), host);
 			return;
 		}	

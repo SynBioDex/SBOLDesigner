@@ -28,6 +28,7 @@ import javax.swing.JComboBox;
 
 public class DNAVerificationDialog extends JDialog implements ActionListener {
 	
+	public String dnaVerificationJobUUID = null;
 	private Component parent;
 	private SBOLDocument currentDesign;
 	private String sequencePatternsFilename = null;
@@ -83,11 +84,11 @@ public class DNAVerificationDialog extends JDialog implements ActionListener {
 			int vendorIndex = vendorComboBox.getSelectedIndex();
 			if (this.sequencePatternsFilename != null && !this.sequencePatternsFilename.trim().isEmpty()) {
 				setVisible(false);
-				BOOSTOperations.dnaVerification(currentDesign, BOOSTConstantsArrayList.vendorList.get(vendorIndex),
+				this.dnaVerificationJobUUID = BOOSTOperations.dnaVerification(currentDesign, BOOSTConstantsArrayList.vendorList.get(vendorIndex),
 						sequencePatternsFilename);
 				return;
 			} else {
-				BOOSTOperations.dnaVerification(currentDesign, BOOSTConstantsArrayList.vendorList.get(vendorIndex),
+				this.dnaVerificationJobUUID = BOOSTOperations.dnaVerification(currentDesign, BOOSTConstantsArrayList.vendorList.get(vendorIndex),
 						null);
 			}
 		}

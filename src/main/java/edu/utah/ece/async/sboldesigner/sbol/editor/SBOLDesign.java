@@ -45,6 +45,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -71,6 +72,7 @@ import javax.swing.KeyStroke;
 import javax.swing.SwingConstants;
 
 import org.apache.commons.httpclient.URIException;
+import org.json.JSONObject;
 import org.sbolstandard.core2.AccessType;
 import org.sbolstandard.core2.CombinatorialDerivation;
 import org.sbolstandard.core2.ComponentDefinition;
@@ -108,6 +110,7 @@ import edu.utah.ece.async.sboldesigner.sbol.SBOLUtils;
 import edu.utah.ece.async.sboldesigner.sbol.SBOLUtils.Types;
 import edu.utah.ece.async.sboldesigner.boost.AvailableOperationsDialog;
 import edu.utah.ece.async.sboldesigner.boost.BOOSTLoginDialog;
+import edu.utah.ece.async.sboldesigner.boost.BOOSTOperations;
 import edu.utah.ece.async.sboldesigner.boost.BOOSTPreferences;
 import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.ComponentDefinitionBox;
 import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.MessageDialog;
@@ -124,8 +127,10 @@ import edu.utah.ece.async.sboldesigner.sbol.editor.event.FocusInEvent;
 import edu.utah.ece.async.sboldesigner.sbol.editor.event.FocusOutEvent;
 import edu.utah.ece.async.sboldesigner.sbol.editor.event.PartVisibilityChangedEvent;
 import edu.utah.ece.async.sboldesigner.sbol.editor.event.SelectionChangedEvent;
-import gov.doe.jgi.boost.client.utils.FileUtils;
-import javassist.Loader;
+import gov.doe.jgi.boost.client.constants.BOOSTConstants;
+import gov.doe.jgi.boost.client.utils.DocumentConversionUtils;
+import gov.doe.jgi.boost.resopnseparser.CodonJugglerResponserParser;
+
 
 /**
  * 
@@ -1406,16 +1411,66 @@ public class SBOLDesign {
 			SBOLWriter.write(doc, new FileOutputStream(file));
 		}
 	}
+	
+	public void boostContent(Component panel, SBOLDocument doc)
+			throws SBOLValidationException, IOException, SBOLConversionException {
 
-	public void boostContent(Component panel, SBOLDocument doc) throws SBOLValidationException {
 		// TODO: call boost dialog and pass in document
 		// print response document for now (or write to disk, etc)
 		String boostToken = new BOOSTPreferences().getBOOSTToken();
 		if (boostToken == null || boostToken.isEmpty()) {
 			new BOOSTLoginDialog(panel, doc);
 		} else {
-			new AvailableOperationsDialog(panel, doc);
-			// TODO call load here
+			AvailableOperationsDialog availOperDialog = new AvailableOperationsDialog(panel, doc);
+			String selectedTask = availOperDialog.selectedTask;
+			String JobUUID = availOperDialog.jobUUID;
+
+			switch (selectedTask) {
+
+			case BOOSTConstants.CODON_JUGGLING:
+				if (JobUUID != null) {
+					JSONObject jobReport = BOOSTOperations.checkJobReport(JobUUID);
+					String response = CodonJugglerResponserParser.parseCodonJuggleResponse(jobReport);
+
+					Set<URI> originalRootURIs = new HashSet<>();
+					for (ComponentDefinition cd : doc.getRootComponentDefinitions()) {
+						originalRootURIs.add(cd.getIdentity());
+					}
+
+					Set<URI> derivedFroms = null;
+					SBOLDocument modifiedDocument = DocumentConversionUtils.stringToSBOLDocument(response);
+					// fetch rootCDs of modifiedDocument
+					Set<ComponentDefinition> rootCDs = modifiedDocument.getRootComponentDefinitions();
+					for (ComponentDefinition cd : rootCDs) {
+						derivedFroms = cd.getWasDerivedFroms();
+						System.out.println(derivedFroms);
+						for (URI derivedFrom : derivedFroms) {
+							if (originalRootURIs.contains(derivedFrom)) {
+								load(modifiedDocument, cd.getIdentity());
+								return;
+							}
+						}
+					}
+				}
+				break;
+
+			case BOOSTConstants.DNA_VERIFICATION:
+				if (JobUUID != null) {
+					JSONObject jobReport =  BOOSTOperations.checkJobReport(JobUUID);
+					String response = jobReport.toString();
+					System.out.println(response);
+				}
+				break;
+				
+			case BOOSTConstants.CODON_POLISHING:
+				// TODO : handle
+				break;
+				
+			case BOOSTConstants.DNA_PARTITION:
+				// TODO : handle
+				break;
+			}
+
 		}
 	}
 

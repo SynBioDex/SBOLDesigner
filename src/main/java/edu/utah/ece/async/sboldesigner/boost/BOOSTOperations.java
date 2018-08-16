@@ -18,12 +18,12 @@ import edu.utah.ece.async.sboldesigner.sbol.editor.SBOLDesign;
 import edu.utah.ece.async.sboldesigner.sbol.editor.SBOLEditorPreferences;
 import gov.doe.jgi.boost.client.BOOSTClient;
 import gov.doe.jgi.boost.client.utils.DocumentConversionUtils;
-import gov.doe.jgi.boost.client.utils.JsonResponseParser;
 import gov.doe.jgi.boost.enums.FileFormat;
 import gov.doe.jgi.boost.enums.Strategy;
 import gov.doe.jgi.boost.enums.Vendor;
 import gov.doe.jgi.boost.exception.BOOSTBackEndException;
 import gov.doe.jgi.boost.exception.BOOSTClientException;
+import gov.doe.jgi.boost.resopnseparser.CodonJugglerResponserParser;
 
 public class BOOSTOperations {
 
@@ -32,7 +32,7 @@ public class BOOSTOperations {
 	
 	static String targetNamespace = SBOLEditorPreferences.INSTANCE.getUserInfo().getURI().toString();
 	
-	public static void codonJuggling(SBOLDocument currentDesign, boolean annotation, Strategy strategy, String host) {
+	public static String codonJuggling(SBOLDocument currentDesign, boolean annotation, Strategy strategy, String host) {
 		String codonJuggleJobUUID = null;
 		JSONObject jobReport = null;
 		eventBus = new EventBus();
@@ -49,36 +49,10 @@ public class BOOSTOperations {
 				
 				e.printStackTrace();
 			}
-
-		if (codonJuggleJobUUID != null) {
-			jobReport = checkJobReport(codonJuggleJobUUID);
-			String response = JsonResponseParser.parseCodonJuggleResponse(jobReport);
-			try {
-				Set<URI> rootUri = null;
-				Set<URI> comDefRoles = null;
-				SBOLDocument modifiedDocument = DocumentConversionUtils.stringToSBOLDocument(response);
-				// fetch root ComponentDefination of modifiedDocument
-				Set<ComponentDefinition> componentDef = modifiedDocument.getRootComponentDefinitions();
-				for (ComponentDefinition componentDefination : componentDef) {
-					  comDefRoles = componentDefination.getRoles();
-					  rootUri = componentDefination.getWasDerivedFroms();
-					  System.out.println(rootUri);
-				}
-				System.out.println(comDefRoles);
-				for(URI designURI : rootUri) {
-				  if(null != designURI) {
-					  System.out.println("Prepared to call load method");
-					  System.out.println(designURI);
-					  new SBOLDesign(eventBus).load(modifiedDocument, designURI);
-				  }
-				}
-			} catch (SBOLValidationException | IOException | SBOLConversionException e) {
-				e.printStackTrace();
-			}
-		}	
+          return codonJuggleJobUUID;
 	}
 
-	public static void dnaVerification(SBOLDocument currentDesign, Vendor vendor, String sequencePatternsFilename) {
+	public static String dnaVerification(SBOLDocument currentDesign, Vendor vendor, String sequencePatternsFilename) {
 		String dnaVarificationJobUUID = null;
 		JSONObject jobReport = null;
 			try {
@@ -93,12 +67,7 @@ public class BOOSTOperations {
 				
 				e.printStackTrace();
 			}  
-			
-		if (dnaVarificationJobUUID != null) {
-			jobReport =  checkJobReport(dnaVarificationJobUUID);
-			String response = jobReport.toString();
-			System.out.println(response);
-		}
+		return dnaVarificationJobUUID;
 	}
 
 	public static void polishing(SBOLDocument currentDesign, boolean annotation, Vendor vendor, Strategy strategy, String host) {
@@ -159,7 +128,7 @@ public class BOOSTOperations {
 		}
 	}
 
-	static JSONObject checkJobReport(String jobUUID) {
+	public static JSONObject checkJobReport(String jobUUID) {
 		JSONObject jobReport = null;
 		try {
 			while (null == (jobReport = client.getJobReport(jobUUID))) {

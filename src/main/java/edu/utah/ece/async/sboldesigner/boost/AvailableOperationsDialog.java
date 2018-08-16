@@ -20,9 +20,12 @@ import javax.swing.KeyStroke;
 import org.sbolstandard.core2.SBOLDocument;
 
 import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.DialogUtils;
+import gov.doe.jgi.boost.client.constants.BOOSTConstants;
 
 public class AvailableOperationsDialog extends JDialog implements ActionListener{
 
+	public String selectedTask = null;
+	public String jobUUID = null;
 	private Component parent;
 	private ButtonGroup taskButtonGroup;
 	private SBOLDocument currentDesign;
@@ -97,18 +100,22 @@ public class AvailableOperationsDialog extends JDialog implements ActionListener
 			String taskSelected =  this.taskButtonGroup.getSelection().getActionCommand();
 			if (taskSelected == "codonJuggle") {
 				setVisible(false);
-				new CodonJugglingDialog(parent, currentDesign);
+				this.selectedTask = BOOSTConstants.CODON_JUGGLING;
+				this.jobUUID = new CodonJugglingDialog(parent, currentDesign).codonJuggleJobUUID;
 				return;
 			} else if (taskSelected == "dnaVerification") {
 				setVisible(false);
-				new DNAVerificationDialog(parent, currentDesign);
+				this.selectedTask = BOOSTConstants.DNA_VERIFICATION;
+				this.jobUUID = new DNAVerificationDialog(parent, currentDesign).dnaVerificationJobUUID;
 				return;
 			} else if (taskSelected == "polishing") {
 				setVisible(false);
-				new DNAPolishingDialog(parent, currentDesign);
+				this.selectedTask = BOOSTConstants.CODON_POLISHING;
+				new CodonPolishingDialog(parent, currentDesign);
 				return;
 			} else if (taskSelected == "partition") {
                 setVisible(false);
+                this.selectedTask = BOOSTConstants.DNA_PARTITION;
                 new DNAPartition(parent, currentDesign);
                 return;
 			}  
