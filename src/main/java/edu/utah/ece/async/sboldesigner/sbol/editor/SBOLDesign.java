@@ -1434,18 +1434,16 @@ public class SBOLDesign {
 						originalRootURIs.add(cd.getIdentity());
 					}
 
-					Set<URI> rootUri = null;
-					Set<URI> comDefRoles = null;
+					Set<URI> derivedFroms = null;
 					SBOLDocument modifiedDocument = DocumentConversionUtils.stringToSBOLDocument(response);
-					// fetch root ComponentDefination of modifiedDocument
-					Set<ComponentDefinition> componentDef = modifiedDocument.getRootComponentDefinitions();
-					for (ComponentDefinition componentDefination : componentDef) {
-						comDefRoles = componentDefination.getRoles();
-						rootUri = componentDefination.getWasDerivedFroms();
-						System.out.println(rootUri);
-						for (URI newRootURI : rootUri) {
-							if (originalRootURIs.contains(newRootURI)) {
-								load(modifiedDocument, componentDefination.getIdentity());
+					// fetch rootCDs of modifiedDocument
+					Set<ComponentDefinition> rootCDs = modifiedDocument.getRootComponentDefinitions();
+					for (ComponentDefinition cd : rootCDs) {
+						derivedFroms = cd.getWasDerivedFroms();
+						System.out.println(derivedFroms);
+						for (URI derivedFrom : derivedFroms) {
+							if (originalRootURIs.contains(derivedFrom)) {
+								load(modifiedDocument, cd.getIdentity());
 								return;
 							}
 						}
