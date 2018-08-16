@@ -112,6 +112,7 @@ import edu.utah.ece.async.sboldesigner.boost.AvailableOperationsDialog;
 import edu.utah.ece.async.sboldesigner.boost.BOOSTLoginDialog;
 import edu.utah.ece.async.sboldesigner.boost.BOOSTOperations;
 import edu.utah.ece.async.sboldesigner.boost.BOOSTPreferences;
+import edu.utah.ece.async.sboldesigner.boost.DNAVerificationResultDialog;
 import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.ComponentDefinitionBox;
 import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.MessageDialog;
 import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.PartEditDialog;
@@ -130,6 +131,7 @@ import edu.utah.ece.async.sboldesigner.sbol.editor.event.SelectionChangedEvent;
 import gov.doe.jgi.boost.client.constants.BOOSTConstants;
 import gov.doe.jgi.boost.client.utils.DocumentConversionUtils;
 import gov.doe.jgi.boost.resopnseparser.CodonJugglerResponserParser;
+import gov.doe.jgi.boost.resopnseparser.DNAVerificationResponseParser;
 
 
 /**
@@ -1415,21 +1417,19 @@ public class SBOLDesign {
 	public void boostContent(Component panel, SBOLDocument doc)
 			throws SBOLValidationException, IOException, SBOLConversionException {
 
-		// TODO: call boost dialog and pass in document
-		// print response document for now (or write to disk, etc)
 		String boostToken = new BOOSTPreferences().getBOOSTToken();
 		if (boostToken == null || boostToken.isEmpty()) {
 			new BOOSTLoginDialog(panel, doc);
 		} else {
 			AvailableOperationsDialog availOperDialog = new AvailableOperationsDialog(panel, doc);
 			String selectedTask = availOperDialog.selectedTask;
-			String JobUUID = availOperDialog.jobUUID;
+			String jobUUID = availOperDialog.jobUUID;
 
 			switch (selectedTask) {
 
 			case BOOSTConstants.CODON_JUGGLING:
-				if (JobUUID != null) {
-					JSONObject jobReport = BOOSTOperations.checkJobReport(JobUUID);
+				if (jobUUID != null) {
+					JSONObject jobReport = BOOSTOperations.checkJobReport(jobUUID);
 					String response = CodonJugglerResponserParser.parseCodonJuggleResponse(jobReport);
 
 					Set<URI> originalRootURIs = new HashSet<>();
@@ -1455,10 +1455,11 @@ public class SBOLDesign {
 				break;
 
 			case BOOSTConstants.DNA_VERIFICATION:
-				if (JobUUID != null) {
-					JSONObject jobReport =  BOOSTOperations.checkJobReport(JobUUID);
-					String response = jobReport.toString();
-					System.out.println(response);
+				if (jobUUID != null) {
+					JSONObject jobReport =  BOOSTOperations.checkJobReport(jobUUID);
+					JSONObject sequenceViolation = new DNAVerificationResponseParser(jobReport).constraintsViolations();
+					System.out.println(sequenceViolation.toString());
+					new DNAVerificationResultDialog(panel, sequenceViolation);
 				}
 				break;
 				
