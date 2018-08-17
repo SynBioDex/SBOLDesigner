@@ -54,7 +54,7 @@ public class Parts {
 			ImageType.SHORT_OVER_BASELINE, SequenceOntology.TERMINATOR);
 	public static final Part CIRCULAR = createPart("Circular Backbone", "Cir", "blank-backbone.png",
 			ImageType.CENTERED_ON_BASELINE, "SO:0000755");
-	public static final Part NON_CODING_RNA_GENE = createPart("Non-Coding RNA Gene", "gRNA", "non-coding-rna-gene.png",
+	public static final Part NON_CODING_RNA_GENE = createPart("Non-Coding RNA Gene", "ncRNA", "non-coding-rna-gene.png",
 			ImageType.SHORT_OVER_BASELINE, "SO:0001263");
 	public static final Part ORI = createPart("Origin of Replication", "Ori", "origin-of-replication.png",
 			ImageType.CENTERED_ON_BASELINE, SequenceOntology.ORIGIN_OF_REPLICATION);
