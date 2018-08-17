@@ -124,6 +124,11 @@ public class Part {
 					.toBufferedImage(Images.scaleImageToWidth(Images.getPartImage("variant-overlay.png"), IMG_WIDTH));
 			image = Images.overlay(image, scaledVariantOverlay, IMG_WIDTH, IMG_HEIGHT);
 		} else {
+			if (!hasSequence) {
+				BufferedImage scaledWarningOverlay = Images.toBufferedImage(
+						Images.scaleImageToWidth(Images.getPartImage("error-advice-sign-overlay.png"), IMG_WIDTH));
+				image = Images.overlay(image, scaledWarningOverlay, IMG_WIDTH, IMG_HEIGHT);
+			}
 		}
 
 		return image;
