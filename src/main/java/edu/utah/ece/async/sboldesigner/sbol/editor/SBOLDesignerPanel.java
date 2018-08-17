@@ -19,12 +19,9 @@ import static edu.utah.ece.async.sboldesigner.sbol.editor.SBOLEditorAction.DIVID
 import static edu.utah.ece.async.sboldesigner.sbol.editor.SBOLEditorAction.SPACER;
 
 import java.awt.BorderLayout;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.URI;
+import java.net.URLEncoder;
 import java.util.Arrays;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
@@ -350,8 +347,13 @@ public class SBOLDesignerPanel extends JPanel {
 			}
 		} while (Strings.isNullOrEmpty(name) && (Strings.isNullOrEmpty(email)) || (oldUserInfo.getURI().toString().equals("http://dummy.org")));
 
-		PersonInfo userInfo = Infos.forPerson("https://www.sboldesigner.github.io/" + name.toLowerCase().replaceAll("\\s+","") + "/" + email.toLowerCase().replaceAll("\\s+","").hashCode() + "/", name, email);
+		try {
+		PersonInfo userInfo = Infos.forPerson("https://www.sboldesigner.github.io/" + name.toLowerCase().replaceAll("\\s+","") + "/" + URLEncoder.encode(email.toLowerCase().replaceAll("\\s+",""), "UTF-8") + "/", name, email);
 		SBOLEditorPreferences.INSTANCE.saveUserInfo(userInfo);
+		}
+		catch(UnsupportedEncodingException e) {
+			System.out.println("Invalid encoding type.");
+		}
 	}
 
 	void openDocument(DocumentIO documentIO) throws SBOLValidationException, IOException, SBOLConversionException {
