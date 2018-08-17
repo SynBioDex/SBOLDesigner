@@ -19,12 +19,9 @@ import static edu.utah.ece.async.sboldesigner.sbol.editor.SBOLEditorAction.DIVID
 import static edu.utah.ece.async.sboldesigner.sbol.editor.SBOLEditorAction.SPACER;
 
 import java.awt.BorderLayout;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.URI;
+import java.net.URLEncoder;
 import java.util.Arrays;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
@@ -340,16 +337,23 @@ public class SBOLDesignerPanel extends JPanel {
 	private void getURIprefix() {
 		PersonInfo oldUserInfo = SBOLEditorPreferences.INSTANCE.getUserInfo();
 
-		String uri;
+		String name;
+		String email;
 		do {
-			uri = JOptionPane.showInputDialog("Please enter a valid URI", oldUserInfo.getURI());
-			if (uri == null) {
+			name = JOptionPane.showInputDialog("Please enter your name:", oldUserInfo.getName());
+			email=JOptionPane.showInputDialog("Please enter your email:", oldUserInfo.getEmail());
+			if (name == null && email == null) {
 				System.exit(0);
 			}
-		} while (Strings.isNullOrEmpty(uri));
+		} while (Strings.isNullOrEmpty(name) && (Strings.isNullOrEmpty(email)) || (oldUserInfo.getURI().toString().equals("http://dummy.org")));
 
-		PersonInfo userInfo = Infos.forPerson(uri, oldUserInfo.getName(), oldUserInfo.getEmail().toString());
+		try {
+		PersonInfo userInfo = Infos.forPerson("https://www.sboldesigner.github.io/" + name.toLowerCase().replaceAll("\\s+","") + "/" + URLEncoder.encode(email.toLowerCase().replaceAll("\\s+",""), "UTF-8") + "/", name, email);
 		SBOLEditorPreferences.INSTANCE.saveUserInfo(userInfo);
+		}
+		catch(UnsupportedEncodingException e) {
+			System.out.println("Invalid encoding type.");
+		}
 	}
 
 	void openDocument(DocumentIO documentIO) throws SBOLValidationException, IOException, SBOLConversionException {
