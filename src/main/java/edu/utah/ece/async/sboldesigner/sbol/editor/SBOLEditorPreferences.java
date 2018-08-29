@@ -134,4 +134,28 @@ public enum SBOLEditorPreferences {
 		prefs.putInt("nameDisplayIdBehavior", showNameOrDisplayId);
 		this.nameDisplayIdBehavior = showNameOrDisplayId;
 	}
+	
+	private Integer fileChooserBehavior = null;
+
+	/**
+	 * default is 0, mac is 1
+	 */
+	public Integer getFileChooserBehavior() {
+		if (fileChooserBehavior == null) {
+			Preferences prefs = Preferences.userNodeForPackage(SBOLEditorPreferences.class).node("settings");
+			fileChooserBehavior = prefs.getInt("fileChooserBehavior", 0);
+		}
+		return fileChooserBehavior;
+	}
+
+	/**
+	 * default is 0, mac is 1
+	 */
+	public void setFileChooserBehavior(int macOrDefault) {
+		Preferences prefs = Preferences.userNodeForPackage(SBOLEditorPreferences.class).node("settings");
+		prefs.putInt("fileChooserBehavior", macOrDefault);
+		this.fileChooserBehavior = macOrDefault;
+	}
+	
+	
 }

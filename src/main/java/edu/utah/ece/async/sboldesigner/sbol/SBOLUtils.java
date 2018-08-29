@@ -15,6 +15,7 @@
 
 package edu.utah.ece.async.sboldesigner.sbol;
 
+import java.awt.FileDialog;
 import java.io.File;
 import java.net.URI;
 import java.util.ArrayList;
@@ -26,6 +27,7 @@ import java.util.Set;
 import java.util.prefs.Preferences;
 
 import javax.swing.JFileChooser;
+import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -206,29 +208,44 @@ public class SBOLUtils {
 	 */
 	public static SBOLDocument importDoc() {
 		String path = Preferences.userRoot().node("path").get("importPath", setupFile().getPath());
-		JFileChooser fc = new JFileChooser(new File(path));
-		fc.setMultiSelectionEnabled(false);
-		fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
-		fc.setAcceptAllFileFilterUsed(true);
-		fc.setFileFilter(
-				new FileNameExtensionFilter("SBOL file (*.xml, *.rdf, *.sbol), GenBank (*.gb, *.gbk), FASTA (*.fasta)",
-						"xml", "rdf", "sbol", "gb", "gbk", "fasta"));
+		//int prefs = SBOLEditorPreferences.INSTANCE.getFileChooserBehavior();
+		if(true)
+		{
+			JFileChooser fc = new JFileChooser(new File(path));
+			fc.setMultiSelectionEnabled(false);
+			fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
+			fc.setAcceptAllFileFilterUsed(true);
+			fc.setFileFilter(
+					new FileNameExtensionFilter("SBOL file (*.xml, *.rdf, *.sbol), GenBank (*.gb, *.gbk), FASTA (*.fasta)",
+							"xml", "rdf", "sbol", "gb", "gbk", "fasta"));
 
-		int returnVal = fc.showOpenDialog(null);
-		if (returnVal == JFileChooser.APPROVE_OPTION) {
-			File directory = fc.getCurrentDirectory();
-			Preferences.userRoot().node("path").put("importPath", directory.getPath());
-			SBOLDocument doc = null;
-			try {
-				SBOLReader.setURIPrefix(SBOLEditorPreferences.INSTANCE.getUserInfo().getURI().toString());
-				SBOLReader.setCompliant(true);
-				doc = SBOLReader.read(fc.getSelectedFile());
-			} catch (Exception e1) {
-				MessageDialog.showMessage(null, "This file is unable to be imported: ", e1.getMessage());
-				e1.printStackTrace();
+			int returnVal = fc.showOpenDialog(null);
+			if (returnVal == JFileChooser.APPROVE_OPTION) {
+				File directory = fc.getCurrentDirectory();
+				Preferences.userRoot().node("path").put("importPath", directory.getPath());
+				SBOLDocument doc = null;
+				try {
+					SBOLReader.setURIPrefix(SBOLEditorPreferences.INSTANCE.getUserInfo().getURI().toString());
+					SBOLReader.setCompliant(true);
+					doc = SBOLReader.read(fc.getSelectedFile());
+				} catch (Exception e1) {
+					MessageDialog.showMessage(null, "This file is unable to be imported: ", e1.getMessage());
+					e1.printStackTrace();
+				}
+				return doc;
 			}
-			return doc;
-		}
+		}/*else {
+			//
+			FileDialog fc = new FileDialog(new JFrame(), "Choose File", FileDialog.LOAD);
+			fc.setMultipleMode(false);
+			fc.setFile("*.xml");
+			fc.setVisible(true);
+			String filename = fc.getFile();
+			if (filename == null)
+			  System.out.println("You cancelled the choice");
+			else
+			  System.out.println("You chose " + filename);
+		}*/
 		return null;
 	}
 

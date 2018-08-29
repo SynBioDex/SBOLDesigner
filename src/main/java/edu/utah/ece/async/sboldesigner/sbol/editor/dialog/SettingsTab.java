@@ -27,6 +27,12 @@ public enum SettingsTab implements PreferencesTab {
 			SBOLEditorPreferences.INSTANCE.getNameDisplayIdBehavior() == 0);
 	private JRadioButton showDisplayId = new JRadioButton("Show displayId",
 			SBOLEditorPreferences.INSTANCE.getNameDisplayIdBehavior() == 1);
+	
+	// regular file chooser is 0, mac file chooser is 1
+	private JRadioButton defaultFileChooser = new JRadioButton("Default file chooser",
+			SBOLEditorPreferences.INSTANCE.getFileChooserBehavior() == 0);
+	private JRadioButton macFileChooser = new JRadioButton("Mac file chooser",
+			SBOLEditorPreferences.INSTANCE.getFileChooserBehavior() == 1);
 
 	@Override
 	public String getTitle() {
@@ -57,6 +63,11 @@ public enum SettingsTab implements PreferencesTab {
 		nameDisplayIdGroup.add(showName);
 		nameDisplayIdGroup.add(showDisplayId);
 
+		JLabel macOrDefaultFileChooser = new JLabel("<html>Use the default or Mac file chooser?</html>");
+		ButtonGroup macOrDefaultFileChooserGroup = new ButtonGroup();
+		macOrDefaultFileChooserGroup.add(defaultFileChooser);
+		macOrDefaultFileChooserGroup.add(macFileChooser);
+		
 		FormBuilder builder = new FormBuilder();
 		builder.add("", impliedSequence);
 		builder.add("", seqAskUser);
@@ -65,6 +76,9 @@ public enum SettingsTab implements PreferencesTab {
 		builder.add("", showNameOrDisplayId);
 		builder.add("", showName);
 		builder.add("", showDisplayId);
+		builder.add("", macOrDefaultFileChooser);
+		builder.add("", defaultFileChooser);
+		builder.add("", macFileChooser);
 
 		return builder.build();
 	}
@@ -88,6 +102,14 @@ public enum SettingsTab implements PreferencesTab {
 			showNameOrDisplayId = 1;
 		}
 		SBOLEditorPreferences.INSTANCE.setNameDisplayIdBehavior(showNameOrDisplayId);
+		
+		int macOrDefault = 0;
+		if (defaultFileChooser.isSelected()) {
+			macOrDefault = 0;
+		} else if (macFileChooser.isSelected()) {
+			macOrDefault = 1;
+		}
+		SBOLEditorPreferences.INSTANCE.setFileChooserBehavior(macOrDefault);
 	}
 
 	@Override
