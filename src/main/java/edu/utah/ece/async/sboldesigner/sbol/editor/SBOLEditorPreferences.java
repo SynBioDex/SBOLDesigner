@@ -134,4 +134,48 @@ public enum SBOLEditorPreferences {
 		prefs.putInt("nameDisplayIdBehavior", showNameOrDisplayId);
 		this.nameDisplayIdBehavior = showNameOrDisplayId;
 	}
+	
+	private Integer fileChooserBehavior = null;
+
+	/**
+	 * default is 0, mac is 1
+	 */
+	public Integer getFileChooserBehavior() {
+		if (fileChooserBehavior == null) {
+			Preferences prefs = Preferences.userNodeForPackage(SBOLEditorPreferences.class).node("settings");
+			fileChooserBehavior = prefs.getInt("fileChooserBehavior", 0);
+		}
+		return fileChooserBehavior;
+	}
+
+	/**
+	 * default is 0, mac is 1
+	 */
+	public void setFileChooserBehavior(int macOrDefault) {
+		Preferences prefs = Preferences.userNodeForPackage(SBOLEditorPreferences.class).node("settings");
+		prefs.putInt("fileChooserBehavior", macOrDefault);
+		this.fileChooserBehavior = macOrDefault;
+	}
+	
+	private Integer CDSBehavior = null;
+
+	/**
+	 * default is 0, mac is 1
+	 */
+	public Integer getCDSBehavior() {
+		if (CDSBehavior == null) {
+			Preferences prefs = Preferences.userNodeForPackage(SBOLEditorPreferences.class).node("settings");
+			CDSBehavior = prefs.getInt("CDSBehavior", 0);
+		}
+		return CDSBehavior;
+	}
+
+	/**
+	 * default is 0, mac is 1
+	 */
+	public void setCDSBehavior(int arrowOrDefault) {
+		Preferences prefs = Preferences.userNodeForPackage(SBOLEditorPreferences.class).node("settings");
+		prefs.putInt("CDSBehavior", arrowOrDefault);
+		this.CDSBehavior = arrowOrDefault;
+	}
 }

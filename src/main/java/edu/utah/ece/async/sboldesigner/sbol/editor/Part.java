@@ -79,7 +79,17 @@ public class Part {
 		if (imageFileName == null) {
 			largeImage = smallImage = null;
 		} else {
-			BufferedImage image = Images.toBufferedImage(Images.getPartImage(imageFileName));
+			BufferedImage image;
+			//This logic is for the prefence of whether or not the user prefers the arrow or default CDS image. 
+			if(imageFileName == "cds.png") {
+				if(SBOLEditorPreferences.INSTANCE.getCDSBehavior() == 1) {
+					image = Images.toBufferedImage(Images.getPartImage("arrowcds.png"));
+				}else {
+					image = Images.toBufferedImage(Images.getPartImage(imageFileName));
+				}
+			}else {
+				image = Images.toBufferedImage(Images.getPartImage(imageFileName));
+			}
 
 			this.smallImage = Images.scaleImageToWidth(image.getSubimage(0, image.getHeight() / imageType.cropRatio,
 					image.getWidth(), image.getHeight() / 2), 24);

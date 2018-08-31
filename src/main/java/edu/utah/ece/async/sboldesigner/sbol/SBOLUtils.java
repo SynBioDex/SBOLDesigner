@@ -15,6 +15,7 @@
 
 package edu.utah.ece.async.sboldesigner.sbol;
 
+import java.awt.FileDialog;
 import java.io.File;
 import java.net.URI;
 import java.util.ArrayList;
@@ -26,6 +27,7 @@ import java.util.Set;
 import java.util.prefs.Preferences;
 
 import javax.swing.JFileChooser;
+import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -206,6 +208,7 @@ public class SBOLUtils {
 	 */
 	public static SBOLDocument importDoc() {
 		String path = Preferences.userRoot().node("path").get("importPath", setupFile().getPath());
+		//int prefs = SBOLEditorPreferences.INSTANCE.getFileChooserBehavior();
 		JFileChooser fc = new JFileChooser(new File(path));
 		fc.setMultiSelectionEnabled(false);
 		fc.setFileSelectionMode(JFileChooser.FILES_ONLY);

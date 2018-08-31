@@ -592,15 +592,15 @@ public class SBOLDesign {
 		 * canvasCD.getDisplayId() + "' has a DNA sequence but the\n" +
 		 * "subcomponents don't have start or end\n" +
 		 * "coordinates. If you edit the design you will\n" +
-		 * "lose the DNA sequence.\n\n" +
-		 * "Do you want to continue with editing?", "Uncovered sequence",
-		 * JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+		 * "lose the DNA sequence.\n\n" + "Do you want to continue with editing?",
+		 * "Uncovered sequence", JOptionPane.YES_NO_OPTION,
+		 * JOptionPane.QUESTION_MESSAGE);
 		 * 
 		 * if (result == JOptionPane.NO_OPTION) { return false; }
 		 * readOnly.remove(ReadOnly.REGISTRY_COMPONENT); } else if
 		 * (readOnly.contains(ReadOnly.UNCOVERED_SEQUENCE)) { String msg =
-		 * "The sub components do not cover the DNA sequence\n" +
-		 * "of the component '" + canvasCD.getDisplayId() + "' completely.\n" +
+		 * "The sub components do not cover the DNA sequence\n" + "of the component '" +
+		 * canvasCD.getDisplayId() + "' completely.\n" +
 		 * "You need to add SCAR components to cover the missing\n" +
 		 * "parts or you will lose the uncovered DNA sequence.\n\n" +
 		 * "How do you want to continue?";
@@ -617,17 +617,15 @@ public class SBOLDesign {
 		 * 
 		 * Box box = Box.createVerticalBox(); box.add(textArea);
 		 * 
-		 * ButtonGroup group = new ButtonGroup(); for (JRadioButton button :
-		 * buttons) { button.setSelected(true);
-		 * button.setAlignmentX(Component.LEFT_ALIGNMENT); group.add(button);
-		 * box.add(button); }
+		 * ButtonGroup group = new ButtonGroup(); for (JRadioButton button : buttons) {
+		 * button.setSelected(true); button.setAlignmentX(Component.LEFT_ALIGNMENT);
+		 * group.add(button); box.add(button); }
 		 * 
-		 * int result = JOptionPane.showConfirmDialog(panel, box,
-		 * "Uncovered sequence", JOptionPane.OK_CANCEL_OPTION,
-		 * JOptionPane.QUESTION_MESSAGE);
+		 * int result = JOptionPane.showConfirmDialog(panel, box, "Uncovered sequence",
+		 * JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
 		 * 
-		 * if (result == JOptionPane.CANCEL_OPTION || buttons[2].isSelected()) {
-		 * return false; }
+		 * if (result == JOptionPane.CANCEL_OPTION || buttons[2].isSelected()) { return
+		 * false; }
 		 * 
 		 * readOnly.remove(ReadOnly.UNCOVERED_SEQUENCE);
 		 * 
@@ -796,8 +794,8 @@ public class SBOLDesign {
 	}
 
 	/**
-	 * edit is whether or not you want to bring up PartEditDialog when part
-	 * button is pressed.
+	 * edit is whether or not you want to bring up PartEditDialog when part button
+	 * is pressed.
 	 */
 	public ComponentDefinition addCD(Part part, boolean edit) throws SBOLValidationException {
 		if (!confirmEditable()) {
@@ -818,8 +816,8 @@ public class SBOLDesign {
 	}
 
 	/**
-	 * Adds the part to elements. Takes in a component if one already exists,
-	 * the CD, and the part.
+	 * Adds the part to elements. Takes in a component if one already exists, the
+	 * CD, and the part.
 	 * 
 	 * @throws SBOLValidationException
 	 */
@@ -996,21 +994,24 @@ public class SBOLDesign {
 					sb.append("<b>Role:</b> ").append(roleStr).append("<br>");
 			}
 			/*
-			 * if (e.getOrientation() != null) { sb.append(
-			 * "<b>Orientation:</b> "
+			 * if (e.getOrientation() != null) { sb.append( "<b>Orientation:</b> "
 			 * ).append(e.getOrientation()).append("<br>"); }
 			 */
 			// Not sure sequence very useful on tooltip - CJM
 			/*
 			 * if (!comp.getSequences().isEmpty() &&
-			 * comp.getSequences().iterator().next().getElements() != null) { //
-			 * String sequence = comp.getSequence().getNucleotides(); String
-			 * sequence = comp.getSequences().iterator().next().getElements();
+			 * comp.getSequences().iterator().next().getElements() != null) { // String
+			 * sequence = comp.getSequence().getNucleotides(); String sequence =
+			 * comp.getSequences().iterator().next().getElements();
 			 * sb.append("<b>Sequence Length:</b> "
 			 * ).append(sequence.length()).append("<br>"); sb.append(
-			 * "<b>Sequence:</b> ").append(CharSequenceUtil.shorten(sequence,
-			 * 25)); sb.append("<br>"); }
+			 * "<b>Sequence:</b> ").append(CharSequenceUtil.shorten(sequence, 25));
+			 * sb.append("<br>"); }
 			 */
+			if (comp.getSequences().isEmpty() || comp.getSequenceByEncoding(Sequence.IUPAC_DNA) == null
+					|| comp.getSequenceByEncoding(Sequence.IUPAC_DNA).getElements().equals("")) {
+				sb.append("<b>Error: No sequence</b><br>");
+			}
 		} else {
 			sb.append("<b>Feature</b><br>");
 			sb.append("<b>Display ID:</b> ").append(sa.getDisplayId()).append("<br>");
@@ -1533,9 +1534,9 @@ public class SBOLDesign {
 						// askUser
 						Object[] options = { "Keep", "Overwrite" };
 						do {
-							option = JOptionPane.showOptionDialog(panel,
-									"The implied sequence for " + canvasCD.getDisplayId()
-											+ " is shorter than the original sequence.  Would you like to overwrite or keep the original sequence? \n(The default behavior can be changed in settings)",
+							option = JOptionPane.showOptionDialog(panel, "The implied sequence for "
+									+ canvasCD.getDisplayId()
+									+ " is shorter than the original sequence.  Would you like to overwrite or keep the original sequence? \n(The default behavior can be changed in settings)",
 									"Implied sequece", JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null,
 									options, options[0]);
 						} while (option == JOptionPane.CLOSED_OPTION);
@@ -1660,8 +1661,8 @@ public class SBOLDesign {
 		private Part part;
 
 		/**
-		 * The component we are making into a design element, the canvas CD, the
-		 * CD refered to by the component, and the part.
+		 * The component we are making into a design element, the canvas CD, the CD
+		 * refered to by the component, and the part.
 		 */
 		public DesignElement(org.sbolstandard.core2.Component component, ComponentDefinition parentCD,
 				ComponentDefinition childCD, Part part, SBOLDocument design) throws SBOLValidationException {
@@ -1810,7 +1811,8 @@ public class SBOLDesign {
 		public String toString() {
 			return getCD().getDisplayId()
 					+ (seqAnn.getLocations().iterator().next().getOrientation() == OrientationType.REVERSECOMPLEMENT
-							? "-" : "");
+							? "-"
+							: "");
 		}
 	}
 
