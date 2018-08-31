@@ -157,5 +157,25 @@ public enum SBOLEditorPreferences {
 		this.fileChooserBehavior = macOrDefault;
 	}
 	
-	
+	private Integer CDSBehavior = null;
+
+	/**
+	 * default is 0, mac is 1
+	 */
+	public Integer getCDSBehavior() {
+		if (CDSBehavior == null) {
+			Preferences prefs = Preferences.userNodeForPackage(SBOLEditorPreferences.class).node("settings");
+			CDSBehavior = prefs.getInt("CDSBehavior", 0);
+		}
+		return CDSBehavior;
+	}
+
+	/**
+	 * default is 0, mac is 1
+	 */
+	public void setCDSBehavior(int arrowOrDefault) {
+		Preferences prefs = Preferences.userNodeForPackage(SBOLEditorPreferences.class).node("settings");
+		prefs.putInt("CDSBehavior", arrowOrDefault);
+		this.CDSBehavior = arrowOrDefault;
+	}
 }
