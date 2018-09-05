@@ -62,9 +62,9 @@ public class Parts {
 			ImageType.CENTERED_ON_BASELINE, "SO:0000724");
 	public static final Part PBS = createPart("Primer Binding Site", "PBS", "primer-binding-site.png",
 			ImageType.SHORT_OVER_BASELINE, SequenceOntology.PRIMER_BINDING_SITE);
-	public static final Part CUT5 = createPart("5' Sticky Restriction Site", "_5SRS", "cut.png",
+	public static final Part CUT5 = createPart("5' Sticky Restriction Site", "SRS5", "cut.png",
 			ImageType.CENTERED_ON_BASELINE, "SO:0001975");
-	public static final Part CUT3 = createPart("3' Sticky Restriction Site", "_3SRS", "cut2.png",
+	public static final Part CUT3 = createPart("3' Sticky Restriction Site", "SRS3", "cut2.png",
 			ImageType.CENTERED_ON_BASELINE, "SO:0001976");
 	public static final Part SCAR = createPart("Assembly Scar", "Scar", "assembly-junction.png",
 			ImageType.CENTERED_ON_BASELINE, "SO:0001953");
@@ -74,9 +74,9 @@ public class Parts {
 			SequenceOntology.INSULATOR);
 	public static final Part BRS = createPart("Blunt Restriction Site", "BRS", "blunt-restriction-site.png",
 			ImageType.CENTERED_ON_BASELINE, "SO:0001691");
-	public static final Part FIVEOH = createPart("5' Overhang", "_5OH", "five-prime-overhang.png",
+	public static final Part FIVEOH = createPart("5' Overhang", "OH5", "five-prime-overhang.png",
 			ImageType.CENTERED_ON_BASELINE, "SO:0001932");
-	public static final Part THREEOH = createPart("3' Overhang", "_3OH", "three-prime-overhang.png",
+	public static final Part THREEOH = createPart("3' Overhang", "OH3", "three-prime-overhang.png",
 			ImageType.CENTERED_ON_BASELINE, "SO:0001933");
 	public static final Part APTAMER = createPart("Aptamer", "APT", "aptamer.png", ImageType.TALL_OVER_BASELINE,
 			"SO:0000031");
