@@ -7,6 +7,7 @@ import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JRadioButton;
+import javax.swing.JTextField;
 
 import edu.utah.ece.async.sboldesigner.sbol.editor.Images;
 import edu.utah.ece.async.sboldesigner.sbol.editor.SBOLEditorPreferences;
@@ -34,11 +35,12 @@ public enum SettingsTab implements PreferencesTab {
 	private JRadioButton macFileChooser = new JRadioButton("Mac file chooser",
 			SBOLEditorPreferences.INSTANCE.getFileChooserBehavior() == 1);
 
-	// regular file chooser is 0, mac file chooser is 1
 	private JRadioButton defaultCDS = new JRadioButton("Default CDS Glyph",
 			SBOLEditorPreferences.INSTANCE.getCDSBehavior() == 0);
 	private JRadioButton arrowCDS = new JRadioButton("Arrow CDS Glyph",
 			SBOLEditorPreferences.INSTANCE.getCDSBehavior() == 1);
+	
+	private JTextField queryLimit = new JTextField(SBOLEditorPreferences.INSTANCE.getQueryLimit().toString());
 	
 	@Override
 	public String getTitle() {
@@ -79,6 +81,10 @@ public enum SettingsTab implements PreferencesTab {
 		arrowOrDefaultGroup.add(defaultCDS);
 		arrowOrDefaultGroup.add(arrowCDS);
 		
+		JLabel queryLimitLabel = new JLabel("<html>Set the query limit. Default & max is 10,000.</html>");
+		ButtonGroup queryLimitGroup = new ButtonGroup();
+		queryLimitGroup.add(defaultCDS);
+		
 		FormBuilder builder = new FormBuilder();
 		builder.add("", impliedSequence);
 		builder.add("", seqAskUser);
@@ -93,6 +99,8 @@ public enum SettingsTab implements PreferencesTab {
 		builder.add("", arrowOrDefault);
 		builder.add("", defaultCDS);
 		builder.add("", arrowCDS);
+		builder.add("", queryLimitLabel);
+		builder.add("", queryLimit);
 
 		return builder.build();
 	}
@@ -139,8 +147,8 @@ public enum SettingsTab implements PreferencesTab {
 
 	@Override
 	public boolean requiresRestart() {
-		if(requiresRestart) {
-			requiresRestart = false;
+		if(this.requiresRestart) {
+			this.requiresRestart = false;
 			return true;
 		}else {
 			return false;

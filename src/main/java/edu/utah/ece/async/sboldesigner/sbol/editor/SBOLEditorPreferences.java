@@ -178,4 +178,24 @@ public enum SBOLEditorPreferences {
 		prefs.putInt("CDSBehavior", arrowOrDefault);
 		this.CDSBehavior = arrowOrDefault;
 	}
+	
+	//Query limit for SynBioHubQuery
+	private Integer queryLimit = null;
+
+	/**
+	 * default is 10,000
+	 */
+	public Integer getQueryLimit() {
+		if (queryLimit == null) {
+			Preferences prefs = Preferences.userNodeForPackage(SBOLEditorPreferences.class).node("settings");
+			queryLimit = prefs.getInt("queryLimit", 10000);
+		}
+		return queryLimit;
+	}
+
+	public void setQueryLimit(int limit) {
+		Preferences prefs = Preferences.userNodeForPackage(SBOLEditorPreferences.class).node("settings");
+		prefs.putInt("queryLimit", queryLimit);
+		this.queryLimit = limit;
+	}
 }
