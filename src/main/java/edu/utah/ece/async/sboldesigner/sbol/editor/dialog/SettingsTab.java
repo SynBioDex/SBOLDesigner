@@ -6,6 +6,7 @@ import javax.swing.ButtonGroup;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JRadioButton;
 import javax.swing.JTextField;
 
@@ -82,8 +83,6 @@ public enum SettingsTab implements PreferencesTab {
 		arrowOrDefaultGroup.add(arrowCDS);
 		
 		JLabel queryLimitLabel = new JLabel("<html>Set the query limit. Default & max is 10,000.</html>");
-		ButtonGroup queryLimitGroup = new ButtonGroup();
-		queryLimitGroup.add(defaultCDS);
 		
 		FormBuilder builder = new FormBuilder();
 		builder.add("", impliedSequence);
@@ -133,6 +132,16 @@ public enum SettingsTab implements PreferencesTab {
 		}
 		SBOLEditorPreferences.INSTANCE.setFileChooserBehavior(macOrDefault);
 		
+		int qLimit = Integer.parseInt(this.queryLimit.getText());
+		if(qLimit > 0 && qLimit <10000)
+		{
+			SBOLEditorPreferences.INSTANCE.setQueryLimit(qLimit);
+		}else {
+			SBOLEditorPreferences.INSTANCE.setQueryLimit(10000);
+			this.queryLimit.setText("10000");
+		}
+		SynBioHubQuery.QUERY_LIMIT = SBOLEditorPreferences.INSTANCE.getQueryLimit();
+		
 		int arrowOrDefault = 0;
 		if (defaultCDS.isSelected()) {
 			arrowOrDefault = 0;
@@ -143,6 +152,9 @@ public enum SettingsTab implements PreferencesTab {
 			requiresRestart = true;
 		}
 		SBOLEditorPreferences.INSTANCE.setCDSBehavior(arrowOrDefault);
+
+		System.out.print(SBOLEditorPreferences.INSTANCE.getQueryLimit());
+		
 	}
 
 	@Override
