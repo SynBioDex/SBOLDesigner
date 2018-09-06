@@ -138,8 +138,8 @@ public class PreferencesDialog extends JDialog implements ActionListener {
 	public void actionPerformed(ActionEvent e) {
 		boolean restart = false;
 		for (PreferencesTab tab : TABS) {
-			restart = tab.requiresRestart();
 			tab.save();
+			restart = tab.requiresRestart();
 		}
 
 		if (restart) {
