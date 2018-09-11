@@ -69,28 +69,18 @@ public class SBOLDesignerStandalone extends JFrame {
 
 		// set behavior for close operation
 		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-		if (System.getProperty("os.name").toLowerCase().startsWith("mac os")) {
-			// Application app = Application.getApplication();
-			// app.setQuitHandler(new QuitHandler() {
-			// public void handleQuitRequestWith(QuitEvent event, QuitResponse
-			// response) {
-			// exit();
-			// }
-			// });
-		} else {
-			addWindowListener(new WindowAdapter() {
-				@Override
-				public void windowClosing(WindowEvent e) {
-					try {
-						if (panel.confirmSave()) {
-							System.exit(0);
-						}
-					} catch (Exception e1) {
-						e1.printStackTrace();
+		addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosing(WindowEvent e) {
+				try {
+					if (panel.confirmSave()) {
+						System.exit(0);
 					}
+				} catch (Exception e1) {
+					e1.printStackTrace();
 				}
-			});
-		}
+			}
+		});
 	}
 
 	public static void main(String[] args) throws SBOLValidationException, IOException {
