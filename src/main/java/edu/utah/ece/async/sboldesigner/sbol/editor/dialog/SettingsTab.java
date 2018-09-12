@@ -45,7 +45,7 @@ public enum SettingsTab implements PreferencesTab {
 	
 	@Override
 	public String getTitle() {
-		return "Settings";
+		return "Designer";
 	}
 
 	@Override
@@ -55,7 +55,7 @@ public enum SettingsTab implements PreferencesTab {
 
 	@Override
 	public Icon getIcon() {
-		return new ImageIcon(Images.getActionImage("settings.png"));
+		return new ImageIcon(Images.getActionImage("sbol.jpg"));
 	}
 
 	@Override
