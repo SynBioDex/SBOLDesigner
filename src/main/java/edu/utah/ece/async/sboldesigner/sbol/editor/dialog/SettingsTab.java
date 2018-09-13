@@ -136,6 +136,7 @@ public enum SettingsTab implements PreferencesTab {
 		if(qLimit > 0 && qLimit <10000)
 		{
 			SBOLEditorPreferences.INSTANCE.setQueryLimit(qLimit);
+			this.queryLimit.setText(String.valueOf(qLimit));
 		}else {
 			SBOLEditorPreferences.INSTANCE.setQueryLimit(10000);
 			this.queryLimit.setText("10000");
@@ -152,8 +153,6 @@ public enum SettingsTab implements PreferencesTab {
 			requiresRestart = true;
 		}
 		SBOLEditorPreferences.INSTANCE.setCDSBehavior(arrowOrDefault);
-
-		System.out.print(SBOLEditorPreferences.INSTANCE.getQueryLimit());
 		
 	}
 

@@ -17,6 +17,7 @@ package edu.utah.ece.async.sboldesigner.sbol.editor;
 
 import java.util.prefs.Preferences;
 
+import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.SynBioHubQuery;
 import edu.utah.ece.async.sboldesigner.versioning.Infos;
 import edu.utah.ece.async.sboldesigner.versioning.PersonInfo;
 
@@ -195,7 +196,8 @@ public enum SBOLEditorPreferences {
 
 	public void setQueryLimit(int limit) {
 		Preferences prefs = Preferences.userNodeForPackage(SBOLEditorPreferences.class).node("settings");
-		prefs.putInt("queryLimit", queryLimit);
+		prefs.putInt("queryLimit", limit);
+		SynBioHubQuery.QUERY_LIMIT = limit;
 		this.queryLimit = limit;
 	}
 }
