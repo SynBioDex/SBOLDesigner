@@ -514,6 +514,7 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 				TableMetadata compMeta = ((TableMetadataTableModel) table.getModel()).getElement(row);
 
 				if (synBioHub == null) {
+					System.out.print(uriPrefix);
 					synBioHub = createSynBioHubFrontend(location, uriPrefix);
 				}
 
@@ -521,6 +522,7 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 					JOptionPane.showMessageDialog(getParent(), "Selecting collections is not allowed");
 					return new SBOLDocument();
 				}
+				
 
 				document = synBioHub.getSBOL(URI.create(compMeta.identified.getUri()));
 				comp = document.getComponentDefinition(URI.create(compMeta.identified.getUri()));
