@@ -500,7 +500,7 @@ public class SBOLDesign {
 		}
 		doc.setDefaultURIprefix(SBOLEditorPreferences.INSTANCE.getUserInfo().getURI().toString());
 		SBOLUtils.populateRegistries(doc);
-		SBOLValidate.validateSBOL(doc, false, false, true);
+		SBOLValidate.validateSBOL(doc, false, false, false);
 		List<String> errors = SBOLValidate.getErrors();
 		if (!errors.isEmpty()) {
 			MessageDialog.showMessage(panel, "Beware, this file isn't following best practice", errors);
