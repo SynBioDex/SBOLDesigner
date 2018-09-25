@@ -480,7 +480,7 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 				// create the query
 				IdentifiedMetadata selectedCollection = (IdentifiedMetadata) collectionSelection.getSelectedItem();
 
-				if (selectedCollection == null || selectedCollection.getUri() == null) {
+				if (selectedCollection == null) {
 					return;
 				}
 
@@ -579,8 +579,13 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 			rootCollections.setName("Root Collections");
 			rootCollections.setDisplayId("Root Collections");
 			rootCollections.setUri("");
+			IdentifiedMetadata allCollections = new IdentifiedMetadata();
+			allCollections.setName("All Collections");
+			allCollections.setDisplayId("All Collections");
+			allCollections.setUri("");
 			collectionSelection.removeAllItems();
 			collectionSelection.addItem(rootCollections);
+			collectionSelection.addItem(allCollections);
 			collectionSelection.setSelectedItem(rootCollections);
 
 			// restore/create cached collection path
