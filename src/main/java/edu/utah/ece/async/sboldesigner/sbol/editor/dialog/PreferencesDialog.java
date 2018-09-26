@@ -138,7 +138,9 @@ public class PreferencesDialog extends JDialog implements ActionListener {
 	public void actionPerformed(ActionEvent e) {
 		boolean restart = false;
 		for (PreferencesTab tab : TABS) {
-			tab.save();
+			if(tab.save() == false) {
+				return;
+			}
 			restart = tab.requiresRestart();
 		}
 
@@ -158,7 +160,7 @@ public class PreferencesDialog extends JDialog implements ActionListener {
 
 		Component getComponent();
 
-		void save();
+		boolean save();
 
 		boolean requiresRestart();
 	}
