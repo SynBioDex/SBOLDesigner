@@ -256,7 +256,8 @@ public enum RegistryPreferencesTab implements PreferencesTab {
 	}
 
 	@Override
-	public void save() {
+	public boolean save() {
+		return true;
 	}
 
 	@Override

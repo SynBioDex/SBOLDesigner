@@ -105,7 +105,7 @@ public enum SettingsTab implements PreferencesTab {
 	}
 
 	@Override
-	public void save() {
+	public boolean save() {
 		int seqBehavior = 0;
 		if (seqAskUser.isSelected()) {
 			seqBehavior = 0;
@@ -154,6 +154,7 @@ public enum SettingsTab implements PreferencesTab {
 		}
 		SBOLEditorPreferences.INSTANCE.setCDSBehavior(arrowOrDefault);
 		
+		return true;
 	}
 
 	@Override
