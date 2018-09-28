@@ -586,8 +586,8 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 			rootCollections.setDisplayId("Root Collections");
 			rootCollections.setUri("http://RootCollections");
 			collectionSelection.removeAllItems();
-			collectionSelection.addItem(rootCollections);
 			collectionSelection.addItem(allCollections);
+			collectionSelection.addItem(rootCollections);
 			collectionSelection.setSelectedItem(rootCollections);
 
 			// restore/create cached collection path
@@ -606,8 +606,12 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 				collectionSelection.setSelectedItem(newCollection);
 				collectionPaths.get(registry).add(newCollection);
 			} else {
-				while (collectionSelection.getSelectedIndex() + 1 < collectionSelection.getItemCount()) {
-					collectionSelection.removeItemAt(collectionSelection.getSelectedIndex() + 1);
+				int stackMod = 1;
+				if(collectionSelection.getSelectedIndex() == 0) {
+					stackMod = 2;
+				}
+				while (collectionSelection.getSelectedIndex() + stackMod < collectionSelection.getItemCount()) {
+					collectionSelection.removeItemAt(collectionSelection.getSelectedIndex() + stackMod);
 					collectionPaths.get(registry).remove(collectionSelection.getSelectedIndex());
 				}
 			}
