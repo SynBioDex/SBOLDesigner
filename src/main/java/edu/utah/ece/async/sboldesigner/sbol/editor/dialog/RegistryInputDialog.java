@@ -577,14 +577,14 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 		updateCollection = false;
 		if (registryChanged) {
 			// display only "rootCollections"
-			IdentifiedMetadata rootCollections = new IdentifiedMetadata();
-			rootCollections.setName("Root Collections");
-			rootCollections.setDisplayId("Root Collections");
-			rootCollections.setUri("http://RootCollections");
 			IdentifiedMetadata allCollections = new IdentifiedMetadata();
 			allCollections.setName("All Collections");
 			allCollections.setDisplayId("All Collections");
 			allCollections.setUri("http://AllCollections");
+			IdentifiedMetadata rootCollections = new IdentifiedMetadata();
+			rootCollections.setName("Root Collections");
+			rootCollections.setDisplayId("Root Collections");
+			rootCollections.setUri("http://RootCollections");
 			collectionSelection.removeAllItems();
 			collectionSelection.addItem(rootCollections);
 			collectionSelection.addItem(allCollections);
