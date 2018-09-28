@@ -582,7 +582,7 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 			IdentifiedMetadata allCollections = new IdentifiedMetadata();
 			allCollections.setName("All Collections");
 			allCollections.setDisplayId("All Collections");
-			allCollections.setUri("");
+			allCollections.setUri("*");
 			collectionSelection.removeAllItems();
 			collectionSelection.addItem(rootCollections);
 			collectionSelection.addItem(allCollections);
