@@ -31,19 +31,25 @@ public class SynBioHubQuery extends SwingWorker<Object, Object> {
 	ArrayList<TableMetadata> identified;
 	LoadingDialog loading;
 	String objectType;
+	Boolean isRoot;
 
 	public SynBioHubQuery(SynBioHubFrontend synbiohub, Set<URI> roles, Set<URI> types, Set<URI> collections,
 			String filterText, String objectType, TableUpdater tableUpdater, Component parent) throws IOException {
 		this.synBioHub = synbiohub;
 		this.roles = roles;
 		this.types = types;
+		Boolean isRoot = false;
 		for (URI uri : collections) {
-			if (uri == null || uri.toString().equals("")) {
-				// a uri of "" means "all collections"
+			if (uri.toString().equals("http://RootCollections")) {
+				isRoot = true;
+				collections = new HashSet<URI>();
+				break;
+			}else if(uri.toString().equals("http://AllCollections")) {
 				collections = new HashSet<URI>();
 				break;
 			}
 		}
+		this.isRoot = isRoot;
 		this.collections = collections;
 		this.filterText = filterText;
 		this.objectType = objectType;
@@ -57,7 +63,7 @@ public class SynBioHubQuery extends SwingWorker<Object, Object> {
 		loading.start();
 
 		// collections are empty, so we show only root collections
-		if (collections.isEmpty()) {
+		if (isRoot) {
 			ArrayList<IdentifiedMetadata> rootCollections = synBioHub.getRootCollectionMetadata();
 			if (!rootCollections.isEmpty()) {
 				identified.addAll(getTableMetadata(rootCollections, null));

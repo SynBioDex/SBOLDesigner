@@ -105,7 +105,7 @@ public enum UserInfoTab implements PreferencesTab {
 	}
 
 	@Override
-	public void save() {
+	public boolean save() {
 		boolean noURI = Strings.isNullOrEmpty(uri.getText());
 		boolean noName = Strings.isNullOrEmpty(name.getText());
 		boolean noEmail = Strings.isNullOrEmpty(email.getText());
@@ -114,12 +114,12 @@ public enum UserInfoTab implements PreferencesTab {
 			JOptionPane.showMessageDialog(getComponent(),
 					"The user's domain namespace cannot conflict with an existing Registry namespace.\n"
 							+ "Please enter a valid domain for your organization (ex. http://dummy.org/).");
-			return;
+			return false;
 		}
 		if (!isURIprefixCompliant(uri.getText())) {
 			JOptionPane.showMessageDialog(getComponent(), "Invalid URI provided for the domain.\n"
 					+ "Please enter a valid domain for your organization (ex. http://dummy.org/).");
-			return;
+			return false;
 		}
 
 		URI personURI = noURI ? Terms.uri("http://dummy.org/") : Terms.uri(uri.getText());
@@ -127,6 +127,7 @@ public enum UserInfoTab implements PreferencesTab {
 		URI personEmail = noEmail ? null : Terms.uri("mailto:" + email.getText());
 		PersonInfo info = Infos.forPerson(personURI, personName, personEmail);
 		SBOLEditorPreferences.INSTANCE.saveUserInfo(info);
+		return true;
 	}
 
 	private boolean hasNamespaceCollision(String newNamespace) {
