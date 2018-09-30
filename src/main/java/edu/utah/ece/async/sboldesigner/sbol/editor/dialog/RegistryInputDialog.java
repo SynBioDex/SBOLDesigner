@@ -524,8 +524,15 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 				}
 				
 
-				// TODO: if uri below starts with uriPrefix then get from synbiohub as below
-				// otherwise, create a new synbiohubFrontend which has location/uriPrefix which matches uri below
+				if(!compMeta.identified.getUri().toString().startsWith(uriPrefix)) {
+					Registries regs = Registries.get();
+					for(Registry reg : regs){
+					    if(compMeta.identified.getUri().toString().startsWith(reg.getUriPrefix())) {
+					    		synBioHub = createSynBioHubFrontend(reg.getLocation(), reg.getUriPrefix());
+					    		break;
+					    }
+					}
+				}
 				document = synBioHub.getSBOL(URI.create(compMeta.identified.getUri()));
 				comp = document.getComponentDefinition(URI.create(compMeta.identified.getUri()));
 
