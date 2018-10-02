@@ -480,7 +480,7 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 				// create the query
 				IdentifiedMetadata selectedCollection = (IdentifiedMetadata) collectionSelection.getSelectedItem();
 
-				if (selectedCollection == null || selectedCollection.getUri() == null) {
+				if (selectedCollection == null) {
 					return;
 				}
 
@@ -514,6 +514,7 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 				TableMetadata compMeta = ((TableMetadataTableModel) table.getModel()).getElement(row);
 
 				if (synBioHub == null) {
+					System.out.print(uriPrefix);
 					synBioHub = createSynBioHubFrontend(location, uriPrefix);
 				}
 
@@ -521,9 +522,17 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 					JOptionPane.showMessageDialog(getParent(), "Selecting collections is not allowed");
 					return new SBOLDocument();
 				}
+				
 
-				// TODO: if uri below starts with uriPrefix then get from synbiohub as below
-				// otherwise, create a new synbiohubFrontend which has location/uriPrefix which matches uri below
+				if(!compMeta.identified.getUri().toString().startsWith(uriPrefix)) {
+					Registries regs = Registries.get();
+					for(Registry reg : regs){
+					    if(compMeta.identified.getUri().toString().startsWith(reg.getUriPrefix())) {
+					    		synBioHub = createSynBioHubFrontend(reg.getLocation(), reg.getUriPrefix());
+					    		break;
+					    }
+					}
+				}
 				document = synBioHub.getSBOL(URI.create(compMeta.identified.getUri()));
 				comp = document.getComponentDefinition(URI.create(compMeta.identified.getUri()));
 
@@ -575,11 +584,16 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 		updateCollection = false;
 		if (registryChanged) {
 			// display only "rootCollections"
+			IdentifiedMetadata allCollections = new IdentifiedMetadata();
+			allCollections.setName("All Collections");
+			allCollections.setDisplayId("All Collections");
+			allCollections.setUri("http://AllCollections");
 			IdentifiedMetadata rootCollections = new IdentifiedMetadata();
 			rootCollections.setName("Root Collections");
 			rootCollections.setDisplayId("Root Collections");
-			rootCollections.setUri("");
+			rootCollections.setUri("http://RootCollections");
 			collectionSelection.removeAllItems();
+			collectionSelection.addItem(allCollections);
 			collectionSelection.addItem(rootCollections);
 			collectionSelection.setSelectedItem(rootCollections);
 
@@ -599,8 +613,12 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 				collectionSelection.setSelectedItem(newCollection);
 				collectionPaths.get(registry).add(newCollection);
 			} else {
-				while (collectionSelection.getSelectedIndex() + 1 < collectionSelection.getItemCount()) {
-					collectionSelection.removeItemAt(collectionSelection.getSelectedIndex() + 1);
+				int stackMod = 1;
+				if(collectionSelection.getSelectedIndex() == 0) {
+					stackMod = 2;
+				}
+				while (collectionSelection.getSelectedIndex() + stackMod < collectionSelection.getItemCount()) {
+					collectionSelection.removeItemAt(collectionSelection.getSelectedIndex() + stackMod);
 					collectionPaths.get(registry).remove(collectionSelection.getSelectedIndex());
 				}
 			}

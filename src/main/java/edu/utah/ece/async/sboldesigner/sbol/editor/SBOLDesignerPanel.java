@@ -349,6 +349,7 @@ public class SBOLDesignerPanel extends JPanel {
 
 		try {
 		PersonInfo userInfo = Infos.forPerson("https://www.sboldesigner.github.io/" + URLEncoder.encode(email.toLowerCase().replaceAll("\\s+",""), "UTF-8") + "/", name, email);
+
 		SBOLEditorPreferences.INSTANCE.saveUserInfo(userInfo);
 		}
 		catch(UnsupportedEncodingException e) {
