@@ -348,7 +348,7 @@ public class SBOLDesignerPanel extends JPanel {
 		} while (Strings.isNullOrEmpty(name) && (Strings.isNullOrEmpty(email)) || (oldUserInfo.getURI().toString().equals("http://dummy.org")));
 
 		try {
-		PersonInfo userInfo = Infos.forPerson("https://www.sboldesigner.github.io/" + name.toLowerCase().replaceAll("\\s+","") + "/" + URLEncoder.encode(email.toLowerCase().replaceAll("\\s+",""), "UTF-8") + "/", name, email);
+		PersonInfo userInfo = Infos.forPerson("https://www.sboldesigner.github.io/" + URLEncoder.encode(email.toLowerCase().replaceAll("\\s+",""), "UTF-8") + "/", name, email);
 		SBOLEditorPreferences.INSTANCE.saveUserInfo(userInfo);
 		}
 		catch(UnsupportedEncodingException e) {
