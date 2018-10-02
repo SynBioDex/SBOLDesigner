@@ -1010,7 +1010,9 @@ public class SBOLDesign {
 			 */
 			if (comp.getSequences().isEmpty() || comp.getSequenceByEncoding(Sequence.IUPAC_DNA) == null
 					|| comp.getSequenceByEncoding(Sequence.IUPAC_DNA).getElements().equals("")) {
-				sb.append("<b>Error: No sequence</b><br>");
+				sb.append("<b>Sequence incomplete</b><br>");
+			}if (comp.getComponents().size() > 1) {
+				sb.append("<b>Composite</b><br>");
 			}
 		} else {
 			sb.append("<b>Feature</b><br>");
