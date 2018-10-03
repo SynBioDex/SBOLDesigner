@@ -44,6 +44,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -1014,6 +1015,22 @@ public class SBOLDesign {
 			}if (comp.getComponents().size() > 1) {
 				sb.append("<b>Composite</b><br>");
 			}
+//			SBOLDocument sbol = new SBOLDocument();
+//			try {
+//				sbol = designerPanel.documentIO.read();
+//			} catch (SBOLValidationException e1) {
+//				// TODO Auto-generated catch block
+//				e1.printStackTrace();
+//			} catch (IOException e1) {
+//				// TODO Auto-generated catch block
+//				e1.printStackTrace();
+//			} catch (SBOLConversionException e1) {
+//				// TODO Auto-generated catch block
+//				e1.printStackTrace();
+//			}
+//			if(sbol.getCombinatorialDerivations().contains(comp)) {
+//				sb.append("<b>Combinatorial</b><br>");
+//			}
 		} else {
 			sb.append("<b>Feature</b><br>");
 			sb.append("<b>Display ID:</b> ").append(sa.getDisplayId()).append("<br>");
