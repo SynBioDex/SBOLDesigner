@@ -1012,25 +1012,17 @@ public class SBOLDesign {
 			if (comp.getSequences().isEmpty() || comp.getSequenceByEncoding(Sequence.IUPAC_DNA) == null
 					|| comp.getSequenceByEncoding(Sequence.IUPAC_DNA).getElements().equals("")) {
 				sb.append("<b>Sequence incomplete</b><br>");
-			}if (comp.getComponents().size() > 1) {
+			}if (e.isComposite()) {
 				sb.append("<b>Composite</b><br>");
 			}
-//			SBOLDocument sbol = new SBOLDocument();
-//			try {
-//				sbol = designerPanel.documentIO.read();
-//			} catch (SBOLValidationException e1) {
-//				// TODO Auto-generated catch block
-//				e1.printStackTrace();
-//			} catch (IOException e1) {
-//				// TODO Auto-generated catch block
-//				e1.printStackTrace();
-//			} catch (SBOLConversionException e1) {
-//				// TODO Auto-generated catch block
-//				e1.printStackTrace();
-//			}
-//			if(sbol.getCombinatorialDerivations().contains(comp)) {
-//				sb.append("<b>Combinatorial</b><br>");
-//			}
+			try {
+				if(e.hasVariants(getDesign(), comp)) {
+					sb.append("<b>Combinatorial</b><br>");
+				}
+			} catch (SBOLValidationException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
 		} else {
 			sb.append("<b>Feature</b><br>");
 			sb.append("<b>Display ID:</b> ").append(sa.getDisplayId()).append("<br>");
