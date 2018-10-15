@@ -52,6 +52,7 @@ public enum UserInfoTab implements PreferencesTab {
 	private JTextField name;
 	private JTextField email;
 	private JTextField uri;
+	private boolean stillInvalid; 
 
 	@Override
 	public String getTitle() {
@@ -106,10 +107,17 @@ public enum UserInfoTab implements PreferencesTab {
 
 	@Override
 	public boolean save() {
+		String test = uri.getText();
 		boolean noURI = Strings.isNullOrEmpty(uri.getText());
 		boolean noName = Strings.isNullOrEmpty(name.getText());
 		boolean noEmail = Strings.isNullOrEmpty(email.getText());
-
+		
+		URI personURI = noURI ? Terms.uri("http://dummy.org/") : Terms.uri(uri.getText());
+		String personName = noName ? "" : name.getText();
+		URI personEmail = noEmail ? null : Terms.uri("mailto:" + email.getText());
+		PersonInfo info = Infos.forPerson(personURI, personName, personEmail);
+		SBOLEditorPreferences.INSTANCE.saveUserInfo(info);
+		
 		if (hasNamespaceCollision(uri.getText())) {
 			JOptionPane.showMessageDialog(getComponent(),
 					"The user's domain namespace cannot conflict with an existing Registry namespace.\n"
@@ -122,11 +130,6 @@ public enum UserInfoTab implements PreferencesTab {
 			return false;
 		}
 
-		URI personURI = noURI ? Terms.uri("http://dummy.org/") : Terms.uri(uri.getText());
-		String personName = noName ? "" : name.getText();
-		URI personEmail = noEmail ? null : Terms.uri("mailto:" + email.getText());
-		PersonInfo info = Infos.forPerson(personURI, personName, personEmail);
-		SBOLEditorPreferences.INSTANCE.saveUserInfo(info);
 		return true;
 	}
 
