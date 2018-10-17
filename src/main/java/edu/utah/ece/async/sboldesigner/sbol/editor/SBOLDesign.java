@@ -52,6 +52,7 @@ import java.util.Arrays;
 import java.util.Deque;
 import java.util.EnumSet;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -883,14 +884,37 @@ public class SBOLDesign {
 	}
 
 	private void setupIcons(final JLabel button, final DesignElement e) throws SBOLValidationException {
-//		if(e.isComposite()) {
-//			e.component
-//		}
+		final ComponentDefinition comp = e.getCD();
+		boolean hasSequence = getAllSequences(comp);
 		Image image = e.getPart().getImage(e.getOrientation(), e.isComposite(), e.hasVariants(design, canvasCD),
-				e.hasSequence());
+				hasSequence);
 		Image selectedImage = Images.createBorderedImage(image, Color.LIGHT_GRAY);
 		button.setIcon(new ImageIcon(image));
 		button.setDisabledIcon(new ImageIcon(selectedImage));
+	}
+	
+	private boolean getAllSequences(final ComponentDefinition comp) {
+		Set<org.sbolstandard.core2.Component> comps;
+		try {
+			comps = comp.getComponents();
+		}catch(Exception e) {
+			return true;
+		}
+		Iterator<org.sbolstandard.core2.Component> it = comps.iterator();
+		if(comps.size() == 0) {
+			if(comp.getSequenceAnnotations().size() > 0) {
+				return true;
+			}else {
+				return false;
+			}
+		}else {
+			while(it.hasNext()) {
+				if(!getAllSequences(it.next().getDefinition())) {
+					return false;
+				}
+			}
+		}
+		return true;
 	}
 
 	private String getButtonText(final DesignElement e) {
