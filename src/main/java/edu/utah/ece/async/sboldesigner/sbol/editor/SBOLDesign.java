@@ -509,10 +509,10 @@ public class SBOLDesign {
 		}
 		design = doc;
 
-		ComponentDefinition[] rootCDs = doc.getRootComponentDefinitions().toArray(new ComponentDefinition[0]);
+		ComponentDefinition[] CDs = doc.getComponentDefinitions().toArray(new ComponentDefinition[0]);
 		ComponentDefinition rootCD = null;
 
-		switch (rootCDs.length) {
+		switch (CDs.length) {
 		case 0:
 			// There isn't a rootCD
 			rootCD = design.createComponentDefinition("UnnamedPart", "1", ComponentDefinition.DNA);
@@ -520,7 +520,7 @@ public class SBOLDesign {
 			break;
 		case 1:
 			// There is a single root CD
-			rootCD = rootCDs[0];
+			rootCD = CDs[0];
 			break;
 		default:
 			// There are multiple root CDs
