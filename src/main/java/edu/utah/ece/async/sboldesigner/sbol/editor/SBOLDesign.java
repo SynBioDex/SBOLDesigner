@@ -894,15 +894,12 @@ public class SBOLDesign {
 	}
 	
 	private boolean getAllSequences(final ComponentDefinition comp) {
+		if (comp==null) return true;
 		Set<org.sbolstandard.core2.Component> comps;
-		try {
-			comps = comp.getComponents();
-		}catch(Exception e) {
-			return true;
-		}
+		comps = comp.getComponents();
 		Iterator<org.sbolstandard.core2.Component> it = comps.iterator();
 		if(comps.size() == 0) {
-			if(comp.getSequenceAnnotations().size() > 0) {
+			if(comp.getSequences().size() > 0) {
 				return true;
 			}else {
 				return false;
