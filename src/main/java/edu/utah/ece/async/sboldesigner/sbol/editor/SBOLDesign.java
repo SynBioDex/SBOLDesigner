@@ -52,6 +52,7 @@ import java.util.Arrays;
 import java.util.Deque;
 import java.util.EnumSet;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -883,14 +884,37 @@ public class SBOLDesign {
 	}
 
 	private void setupIcons(final JLabel button, final DesignElement e) throws SBOLValidationException {
-//		if(e.isComposite()) {
-//			e.component
-//		}
+		final ComponentDefinition comp = e.getCD();
+		boolean hasSequence = getAllSequences(comp);
 		Image image = e.getPart().getImage(e.getOrientation(), e.isComposite(), e.hasVariants(design, canvasCD),
-				e.hasSequence());
+				hasSequence);
 		Image selectedImage = Images.createBorderedImage(image, Color.LIGHT_GRAY);
 		button.setIcon(new ImageIcon(image));
 		button.setDisabledIcon(new ImageIcon(selectedImage));
+	}
+	
+	private boolean getAllSequences(final ComponentDefinition comp) {
+		Set<org.sbolstandard.core2.Component> comps;
+		try {
+			comps = comp.getComponents();
+		}catch(Exception e) {
+			return true;
+		}
+		Iterator<org.sbolstandard.core2.Component> it = comps.iterator();
+		if(comps.size() == 0) {
+			if(comp.getSequenceAnnotations().size() > 0) {
+				return true;
+			}else {
+				return false;
+			}
+		}else {
+			while(it.hasNext()) {
+				if(!getAllSequences(it.next().getDefinition())) {
+					return false;
+				}
+			}
+		}
+		return true;
 	}
 
 	private String getButtonText(final DesignElement e) {
@@ -987,6 +1011,27 @@ public class SBOLDesign {
 		sb.append("<html>");
 		final ComponentDefinition comp = e.getCD();
 		SequenceAnnotation sa = e.getSeqAnn();
+		if (sa != null) {
+			for (Location location : sa.getLocations()) {
+				if (location instanceof Range) {
+					Range range = (Range) location;
+					if (range.isSetOrientation()) {
+						sb.append("<b>Orientation:</b> ").append(range.getOrientation().toString()).append("<br>");
+					}
+					sb.append(range.getStart() + ".." + range.getEnd() + "<br>");
+				} else if (location instanceof Cut) {
+					Cut cut = (Cut) location;
+					if (cut.isSetOrientation()) {
+						sb.append("<b>Orientation:</b> ").append(cut.getOrientation().toString()).append("<br>");
+					}
+					sb.append(cut.getAt() + "^" + cut.getAt() + "<br>");
+				} else {
+					if (location.isSetOrientation()) {
+						sb.append("<b>Orientation:</b> ").append(location.getOrientation().toString()).append("<br>");
+					}
+				}
+			}
+		}
 		if (comp != null) {
 			sb.append("<b>Component</b><br>");
 			sb.append("<b>Display ID:</b> ").append(comp.getDisplayId()).append("<br>");
@@ -1035,27 +1080,6 @@ public class SBOLDesign {
 				String roleStr = so.getName(role);
 				if (roleStr != null)
 					sb.append("<b>Role:</b> ").append(roleStr).append("<br>");
-			}
-		}
-		if (sa != null) {
-			for (Location location : sa.getLocations()) {
-				if (location instanceof Range) {
-					Range range = (Range) location;
-					if (range.isSetOrientation()) {
-						sb.append("<b>Orientation:</b> ").append(range.getOrientation().toString()).append("<br>");
-					}
-					sb.append(range.getStart() + ".." + range.getEnd() + "<br>");
-				} else if (location instanceof Cut) {
-					Cut cut = (Cut) location;
-					if (cut.isSetOrientation()) {
-						sb.append("<b>Orientation:</b> ").append(cut.getOrientation().toString()).append("<br>");
-					}
-					sb.append(cut.getAt() + "^" + cut.getAt() + "<br>");
-				} else {
-					if (location.isSetOrientation()) {
-						sb.append("<b>Orientation:</b> ").append(location.getOrientation().toString()).append("<br>");
-					}
-				}
 			}
 		}
 		sb.append("</html>");
