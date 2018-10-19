@@ -1047,7 +1047,7 @@ public class SBOLDesign {
 			 * ).append(e.getOrientation()).append("<br>"); }
 			 */
 			// Not sure sequence very useful on tooltip - CJM
-			/*
+			/*/
 			 * if (!comp.getSequences().isEmpty() &&
 			 * comp.getSequences().iterator().next().getElements() != null) { // String
 			 * sequence = comp.getSequence().getNucleotides(); String sequence =
@@ -1057,19 +1057,19 @@ public class SBOLDesign {
 			 * "<b>Sequence:</b> ").append(CharSequenceUtil.shorten(sequence, 25));
 			 * sb.append("<br>"); }
 			 */
-			if (comp.getSequences().isEmpty() || comp.getSequenceByEncoding(Sequence.IUPAC_DNA) == null
-					|| comp.getSequenceByEncoding(Sequence.IUPAC_DNA).getElements().equals("")) {
-				sb.append("<b>Sequence incomplete</b><br>");
-			}if (e.isComposite()) {
+			if (e.isComposite()) {
 				sb.append("<b>Composite</b><br>");
 			}
 			try {
-				if(e.hasVariants(getDesign(), comp)) {
+				if(e.hasVariants(design, canvasCD)) {
 					sb.append("<b>Combinatorial</b><br>");
 				}
 			} catch (SBOLValidationException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
+			}if (comp.getSequences().isEmpty() || comp.getSequenceByEncoding(Sequence.IUPAC_DNA) == null
+					|| comp.getSequenceByEncoding(Sequence.IUPAC_DNA).getElements().equals("")) {
+				sb.append("<b>Sequence incomplete</b><br>");
 			}
 		} else {
 			sb.append("<b>Feature</b><br>");
