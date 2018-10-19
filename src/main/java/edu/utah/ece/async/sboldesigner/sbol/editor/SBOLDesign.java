@@ -1047,7 +1047,7 @@ public class SBOLDesign {
 			 * ).append(e.getOrientation()).append("<br>"); }
 			 */
 			// Not sure sequence very useful on tooltip - CJM
-			/*
+			/*/
 			 * if (!comp.getSequences().isEmpty() &&
 			 * comp.getSequences().iterator().next().getElements() != null) { // String
 			 * sequence = comp.getSequence().getNucleotides(); String sequence =
