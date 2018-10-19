@@ -151,7 +151,7 @@ public class Parts {
 
 		SequenceOntology so = new SequenceOntology();
 		for (Part part : PARTS.values()) {
-			if (part == UNSPECIFIED) {
+			if (part == UNSPECIFIED  || part == NO_GLYPH_ASSIGNED) {
 				// UNSPECIFIED has role SequenceFeature, which all other roles
 				// inherit from. Must therefore skip and let forComponent return
 				// UNSPECIFIED if nothing else matches.
