@@ -41,7 +41,7 @@ public class Parts {
 
 	// unspecified part is for parts without roles that get opened
 	public static final Part UNSPECIFIED = createPart("Unspecified", "IDK", "unspecified.png",
-			ImageType.TALL_OVER_BASELINE, new String[0]);
+			ImageType.TALL_OVER_BASELINE, SequenceOntology.SEQUENCE_FEATURE);
 	public static final Part GENERIC = createPart("Engineered Region", "Gen", "engineered-region.png",
 			ImageType.SHORT_OVER_BASELINE, SequenceOntology.ENGINEERED_REGION);
 	public static final Part PROMOTER = createPart("Promoter", "Pro", "promoter.png", ImageType.TALL_OVER_BASELINE,
@@ -186,6 +186,6 @@ public class Parts {
 			}
 		}
 
-		return result != null ? result : UNSPECIFIED;
+		return result != null ? result : NO_GLYPH_ASSIGNED;
 	}
 }
