@@ -1039,10 +1039,7 @@ public class SBOLDesign {
 			if (sa != null) {
 				sb = appendOrientation(sa, sb);
 			}
-			if (comp.getSequences().isEmpty() || comp.getSequenceByEncoding(Sequence.IUPAC_DNA) == null
-					|| comp.getSequenceByEncoding(Sequence.IUPAC_DNA).getElements().equals("")) {
-				sb.append("<b>Sequence incomplete</b><br>");
-			}if (e.isComposite()) {
+			if (e.isComposite()) {
 				sb.append("<b>Composite</b><br>");
 			}
 			try {
@@ -1052,6 +1049,10 @@ public class SBOLDesign {
 			} catch (SBOLValidationException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
+			}
+			if (comp.getSequences().isEmpty() || comp.getSequenceByEncoding(Sequence.IUPAC_DNA) == null
+					|| comp.getSequenceByEncoding(Sequence.IUPAC_DNA).getElements().equals("")) {
+				sb.append("<b>Sequence incomplete</b><br>");
 			}
 		} else {
 			sb.append("<b>Feature</b><br>");
