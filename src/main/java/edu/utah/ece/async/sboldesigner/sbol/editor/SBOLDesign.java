@@ -1008,27 +1008,6 @@ public class SBOLDesign {
 		sb.append("<html>");
 		final ComponentDefinition comp = e.getCD();
 		SequenceAnnotation sa = e.getSeqAnn();
-		if (sa != null) {
-			for (Location location : sa.getLocations()) {
-				if (location instanceof Range) {
-					Range range = (Range) location;
-					if (range.isSetOrientation()) {
-						sb.append("<b>Orientation:</b> ").append(range.getOrientation().toString()).append("<br>");
-					}
-					sb.append(range.getStart() + ".." + range.getEnd() + "<br>");
-				} else if (location instanceof Cut) {
-					Cut cut = (Cut) location;
-					if (cut.isSetOrientation()) {
-						sb.append("<b>Orientation:</b> ").append(cut.getOrientation().toString()).append("<br>");
-					}
-					sb.append(cut.getAt() + "^" + cut.getAt() + "<br>");
-				} else {
-					if (location.isSetOrientation()) {
-						sb.append("<b>Orientation:</b> ").append(location.getOrientation().toString()).append("<br>");
-					}
-				}
-			}
-		}
 		if (comp != null) {
 			sb.append("<b>Component</b><br>");
 			sb.append("<b>Display ID:</b> ").append(comp.getDisplayId()).append("<br>");
@@ -1044,7 +1023,7 @@ public class SBOLDesign {
 			 * ).append(e.getOrientation()).append("<br>"); }
 			 */
 			// Not sure sequence very useful on tooltip - CJM
-			/*/
+			/*
 			 * if (!comp.getSequences().isEmpty() &&
 			 * comp.getSequences().iterator().next().getElements() != null) { // String
 			 * sequence = comp.getSequence().getNucleotides(); String sequence =
@@ -1054,17 +1033,21 @@ public class SBOLDesign {
 			 * "<b>Sequence:</b> ").append(CharSequenceUtil.shorten(sequence, 25));
 			 * sb.append("<br>"); }
 			 */
+			if (sa != null) {
+				sb = appendOrientation(sa, sb);
+			}
 			if (e.isComposite()) {
 				sb.append("<b>Composite</b><br>");
 			}
 			try {
-				if(e.hasVariants(design, canvasCD)) {
+				if(e.hasVariants(getDesign(), comp)) {
 					sb.append("<b>Combinatorial</b><br>");
 				}
 			} catch (SBOLValidationException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
-			}if (comp.getSequences().isEmpty() || comp.getSequenceByEncoding(Sequence.IUPAC_DNA) == null
+			}
+			if (comp.getSequences().isEmpty() || comp.getSequenceByEncoding(Sequence.IUPAC_DNA) == null
 					|| comp.getSequenceByEncoding(Sequence.IUPAC_DNA).getElements().equals("")) {
 				sb.append("<b>Sequence incomplete</b><br>");
 			}
@@ -1078,9 +1061,36 @@ public class SBOLDesign {
 				if (roleStr != null)
 					sb.append("<b>Role:</b> ").append(roleStr).append("<br>");
 			}
+			if (sa != null) {
+				sb = appendOrientation(sa, sb);
+			}
 		}
 		sb.append("</html>");
 		return sb.toString();
+	}
+	
+	private StringBuilder appendOrientation(SequenceAnnotation sa, StringBuilder input) {
+		StringBuilder sb = input;
+		for (Location location : sa.getLocations()) {
+			if (location instanceof Range) {
+				Range range = (Range) location;
+				if (range.isSetOrientation()) {
+					sb.append("<b>Orientation:</b> ").append(range.getOrientation().toString()).append("<br>");
+				}
+				sb.append(range.getStart() + ".." + range.getEnd() + "<br>");
+			} else if (location instanceof Cut) {
+				Cut cut = (Cut) location;
+				if (cut.isSetOrientation()) {
+					sb.append("<b>Orientation:</b> ").append(cut.getOrientation().toString()).append("<br>");
+				}
+				sb.append(cut.getAt() + "^" + cut.getAt() + "<br>");
+			} else {
+				if (location.isSetOrientation()) {
+					sb.append("<b>Orientation:</b> ").append(location.getOrientation().toString()).append("<br>");
+				}
+			}
+		}
+		return sb;
 	}
 
 	private void moveSelectedElement(int index) {
