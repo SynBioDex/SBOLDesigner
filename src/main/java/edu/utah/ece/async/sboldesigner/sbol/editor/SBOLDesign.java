@@ -1554,7 +1554,7 @@ public class SBOLDesign {
 			updateSequenceAnnotations();
 			updateSequenceConstraints();
 
-			if (canvasCD.getComponents().isEmpty()) {
+			if (canvasCD.getComponents().isEmpty() && !canvasCD.getSequenceAnnotations().isEmpty()) {
 				return;
 			}
 
@@ -1613,7 +1613,9 @@ public class SBOLDesign {
 						"Sequence", design);
 				Sequence newSequence = design.createSequence(uniqueId, "1", nucleotides, Sequence.IUPAC_DNA);
 				canvasCD.addSequence(newSequence);
-			} else {
+			}
+			// TODO: removed, not sure what this is for and it is preventing a sequence from being deleted
+			/* else {
 				// use the old sequence provided it was there
 				if (oldSeq != null) {
 					// only recreate it if it isn't in design
@@ -1625,7 +1627,8 @@ public class SBOLDesign {
 					}
 					canvasCD.addSequence(oldSeq);
 				}
-			}
+			} */
+			
 			LOGGER.debug("Updated root:\n{}", canvasCD.toString());
 		} catch (SBOLValidationException e) {
 			MessageDialog.showMessage(null, "Error in updating root component: ", e.getMessage());
