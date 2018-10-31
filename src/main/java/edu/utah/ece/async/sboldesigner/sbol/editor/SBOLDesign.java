@@ -805,7 +805,7 @@ public class SBOLDesign {
 		}
 
 		ComponentDefinition comp = part.createComponentDefinition(design);
-		if (edit) {
+		if (edit || part.getDisplayId() == "NGA") {
 			comp = PartEditDialog.editPart(panel.getParent(), getCanvasCD(), comp, edit, true, design);
 			if (comp == null) {
 				return null;
@@ -827,6 +827,14 @@ public class SBOLDesign {
 			throws SBOLValidationException {
 		boolean backbone = (part == Parts.CIRCULAR);
 		DesignElement e = new DesignElement(component, canvasCD, comp, part, design);
+//		if(comp.getDisplayId() == "NGA") {
+//			try {
+//				editSelectedCD();
+//			} catch (SBOLValidationException err) {
+//				MessageDialog.showMessage(panel, "There was a problem editing: ", err.getMessage());
+//				err.printStackTrace();
+//			}
+//		}
 		JLabel button = createComponentButton(e);
 
 		if (backbone) {
