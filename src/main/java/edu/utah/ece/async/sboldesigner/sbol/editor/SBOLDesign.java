@@ -855,7 +855,7 @@ public class SBOLDesign {
 		}
 
 		if (!loading) {
-			fireDesignChangedEvent();
+			fireDesignChangedEvent(true);
 		}
 	}
 
@@ -872,7 +872,7 @@ public class SBOLDesign {
 		}
 
 		if (!loading) {
-			fireDesignChangedEvent();
+			fireDesignChangedEvent(true);
 		}
 	}
 
@@ -888,7 +888,7 @@ public class SBOLDesign {
 		elementBox.remove(button);
 		elementBox.add(button, target);
 
-		fireDesignChangedEvent();
+		fireDesignChangedEvent(true);
 	}
 
 	private void setupIcons(final JLabel button, final DesignElement e) throws SBOLValidationException {
@@ -1118,7 +1118,7 @@ public class SBOLDesign {
 				elementBox.remove(selectedIndex + indexAdjustment);
 				elementBox.add(button, index + indexAdjustment);
 
-				fireDesignChangedEvent();
+				fireDesignChangedEvent(true);
 			}
 		}
 	}
@@ -1135,7 +1135,7 @@ public class SBOLDesign {
 		setupIcons(button, e);
 		button.setToolTipText(getTooltipText(e));
 
-		fireDesignChangedEvent();
+		fireDesignChangedEvent(true);
 	}
 
 	public void deleteCD(ComponentDefinition component) throws SBOLValidationException {
@@ -1164,8 +1164,8 @@ public class SBOLDesign {
 			} else {
 				elementBox.remove(button);
 			}
-			updateCanvasCD();
-			fireDesignChangedEvent();
+			//updateCanvasCD();
+			fireDesignChangedEvent(true);
 		}
 	}
 
@@ -1221,7 +1221,7 @@ public class SBOLDesign {
 			button.setText(getButtonText(e));
 			button.setToolTipText(getTooltipText(e));
 
-			fireDesignChangedEvent();
+			fireDesignChangedEvent(true);
 		}
 	}
 
@@ -1230,8 +1230,8 @@ public class SBOLDesign {
 		panel.repaint();
 	}
 
-	private void fireDesignChangedEvent() {
-		updateCanvasCD();
+	private void fireDesignChangedEvent(boolean updateSequence) {
+		updateCanvasCD(updateSequence);
 		refreshUI();
 		eventBus.post(new DesignChangedEvent(this));
 	}
@@ -1308,7 +1308,7 @@ public class SBOLDesign {
 		}
 
 		if (size != elements.size()) {
-			fireDesignChangedEvent();
+			fireDesignChangedEvent(true);
 		}
 
 		setPartVisible(Parts.SCAR, true);
@@ -1323,14 +1323,14 @@ public class SBOLDesign {
 
 		ComponentDefinition comp = getCanvasCD();
 		URI originalIdentity = comp.getIdentity();
-		updateCanvasCD();
+		//updateCanvasCD();
 		comp = PartEditDialog.editPart(panel.getParent(), parentCDs.peekFirst(), comp, false, true, design);
 		if (comp != null) {
 			if (!originalIdentity.equals(comp.getIdentity())) {
 				updateComponentReferences(originalIdentity, comp.getIdentity());
 			}
 			load(comp);
-			fireDesignChangedEvent();
+			fireDesignChangedEvent(false);
 		}
 	}
 
@@ -1375,7 +1375,7 @@ public class SBOLDesign {
 			setupIcons(buttons.get(e), e);
 		}
 
-		fireDesignChangedEvent();
+		fireDesignChangedEvent(true);
 	}
 
 	public void findPartForSelectedCD() throws Exception {
@@ -1521,10 +1521,10 @@ public class SBOLDesign {
 		// updatecanvasCD on every level of the tree
 		while (canvasCD != rootComp) {
 			focusOut(parentCDs.getFirst());
-			updateCanvasCD();
+			updateCanvasCD(false);
 		}
 		focusOut(rootComp);
-		updateCanvasCD();
+		updateCanvasCD(false);
 
 		SBOLDocument doc = new SBOLDocument();
 		doc = design.createRecursiveCopy(rootComp);
@@ -1545,7 +1545,7 @@ public class SBOLDesign {
 	 * Updates the canvasCD's Sequences, SequenceConstraints, and
 	 * SequenceAnnotations.
 	 */
-	private void updateCanvasCD() {
+	private void updateCanvasCD(boolean updateSequence) {
 		// should not allow updating of CDs outside our namespace
 		if (SBOLUtils.notInNamespace(canvasCD)) {
 			return;
@@ -1562,7 +1562,7 @@ public class SBOLDesign {
 			updateSequenceAnnotations();
 			updateSequenceConstraints();
 
-			if (canvasCD.getComponents().isEmpty() && !canvasCD.getSequenceAnnotations().isEmpty()) {
+			if ((canvasCD.getComponents().isEmpty() && !canvasCD.getSequenceAnnotations().isEmpty())||!updateSequence) {
 				return;
 			}
 
