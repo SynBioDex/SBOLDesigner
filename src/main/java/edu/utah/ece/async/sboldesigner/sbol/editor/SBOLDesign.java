@@ -456,7 +456,7 @@ public class SBOLDesign {
 
 		BufferedImage snapshot = getSnapshot();
 
-		updateCanvasCD();
+		//updateCanvasCD();
 		parentCDs.push(canvasCD);
 
 		load(comp);
@@ -479,7 +479,7 @@ public class SBOLDesign {
 			return;
 		}
 
-		updateCanvasCD();
+		//updateCanvasCD();
 
 		ComponentDefinition parentComponent = parentCDs.pop();
 		while (!parentComponent.equals(comp)) {
