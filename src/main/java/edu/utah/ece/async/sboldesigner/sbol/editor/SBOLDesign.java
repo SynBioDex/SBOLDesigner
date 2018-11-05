@@ -886,6 +886,7 @@ public class SBOLDesign {
 	private void setupIcons(final JLabel button, final DesignElement e) throws SBOLValidationException {
 		final ComponentDefinition comp = e.getCD();
 		boolean hasSequence = getAllSequences(comp);
+		updateCanvasCD();
 		Image image = e.getPart().getImage(e.getOrientation(), e.isComposite(), e.hasVariants(design, canvasCD),
 				hasSequence);
 		Image selectedImage = Images.createBorderedImage(image, Color.LIGHT_GRAY);
@@ -1044,7 +1045,7 @@ public class SBOLDesign {
 			}
 			boolean comb = false;
 			try {
-				if(e.hasVariants(getDesign(), comp)) {
+				if(e.hasVariants(design, canvasCD)) {
 					sb.append("<b>Combinatorial</b><br>");
 					comb = true;
 				}
