@@ -106,6 +106,11 @@ public class Part {
 	}
 
 	public URI getRole() {
+		URI curr;
+		for(int i = 0; i < roles.size(); i++) {
+			curr = roles.get(i);
+			//if(curr)
+		}
 		return roles.isEmpty() ? null : roles.get(0);
 	}
 
