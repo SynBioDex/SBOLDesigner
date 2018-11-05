@@ -106,11 +106,6 @@ public class Part {
 	}
 
 	public URI getRole() {
-		URI curr;
-		for(int i = 0; i < roles.size(); i++) {
-			curr = roles.get(i);
-			//if(curr)
-		}
 		return roles.isEmpty() ? null : roles.get(0);
 	}
 
@@ -123,17 +118,23 @@ public class Part {
 	 */
 	public Image getImage(OrientationType orientation, boolean composite, boolean hasVariants, boolean hasSequence) {
 		Image image = this.largeImage;
-
-		if (orientation == OrientationType.REVERSECOMPLEMENT) {
-			image = Images.rotate180(image);
-		}
-
+		boolean hasRotatedComposite = false;
 		if (composite) {
 			BufferedImage scaledCompositeOverlay = Images
 					.toBufferedImage(Images.scaleImageToWidth(Images.getPartImage("composite-overlay.png"), IMG_WIDTH));
 			image = Images.overlay(image, scaledCompositeOverlay, IMG_WIDTH, IMG_HEIGHT);
+			if (orientation == OrientationType.REVERSECOMPLEMENT) {
+				image = Images.rotate180(image);
+				hasRotatedComposite = true;
+			}
 		}
 
+		if(!hasRotatedComposite) {
+			if (orientation == OrientationType.REVERSECOMPLEMENT) {
+				image = Images.rotate180(image);
+			}
+		}
+		
 		if (hasVariants) {
 			BufferedImage scaledVariantOverlay = Images
 					.toBufferedImage(Images.scaleImageToWidth(Images.getPartImage("variant-overlay.png"), IMG_WIDTH));
