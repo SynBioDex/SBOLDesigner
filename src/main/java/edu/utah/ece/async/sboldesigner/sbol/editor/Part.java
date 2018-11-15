@@ -106,7 +106,18 @@ public class Part {
 	}
 
 	public URI getRole() {
-		return roles.isEmpty() ? null : roles.get(0);
+		return roles.isEmpty() ? null : roleCheck();
+	}
+	
+	private URI roleCheck() {
+		URI curr;
+		for(int i = 0; i < roles.size(); i++) {
+			curr = roles.get(i);
+			if(curr.toString().startsWith("http://identifiers.org/so/")) {
+				return curr;
+			}
+		}
+		return null;
 	}
 
 	public List<URI> getRoles() {
