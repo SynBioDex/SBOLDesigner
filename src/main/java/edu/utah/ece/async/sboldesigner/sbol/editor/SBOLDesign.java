@@ -583,10 +583,10 @@ public class SBOLDesign {
 	}
 
 	private boolean confirmEditable() throws SBOLValidationException {
-//		if (readOnly.contains(ReadOnly.REGISTRY_COMPONENT)) {
-//			readOnlyError();
-//			return false;
-//		}
+		if (readOnly.contains(ReadOnly.REGISTRY_COMPONENT)) {
+			readOnlyError();
+			return false;
+		}
 
 		/*
 		 * if (readOnly.contains(ReadOnly.MISSING_START_END)) { int result =
