@@ -28,7 +28,7 @@ public enum SBOLEditorPreferences {
 		Preferences prefs = Preferences.userNodeForPackage(SBOLEditorPreferences.class).node("user");
 		String name = prefs.get("name", "");
 		String email = prefs.get("email", "");
-		String uri = prefs.get("uri", "http://www.dummy.org");
+		String uri = prefs.get("uri", "http://www.dummy.org/");
 		PersonInfo userInfo = Infos.forPerson(uri, name, email);
 
 		return userInfo;

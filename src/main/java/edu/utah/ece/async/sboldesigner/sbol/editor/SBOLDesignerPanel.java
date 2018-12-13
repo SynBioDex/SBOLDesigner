@@ -29,9 +29,12 @@ import java.util.prefs.Preferences;
 
 import javax.swing.AbstractButton;
 import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.JFileChooser;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JTextField;
 import javax.swing.JToolBar;
 import javax.swing.UIManager;
 
@@ -335,25 +338,46 @@ public class SBOLDesignerPanel extends JPanel {
 	 * SBOLEditorPreferences.
 	 */
 	private void getURIprefix() {
-		PersonInfo oldUserInfo = SBOLEditorPreferences.INSTANCE.getUserInfo();
+		JTextField nameField = new JTextField(5);
+	    JTextField emailField = new JTextField(5);
 
-		String name;
-		String email;
-		do {
-			name = JOptionPane.showInputDialog("Please enter your name:", oldUserInfo.getName());
-			email=JOptionPane.showInputDialog("Please enter your email:", oldUserInfo.getEmail());
-			if (name == null && email == null) {
-				System.exit(0);
+	    JPanel myPanel = new JPanel();
+	    myPanel.setLayout(new BoxLayout(myPanel, BoxLayout.Y_AXIS));
+	    myPanel.add(new JLabel("<html>Welcome to SBOLDesigner!<br/>"
+	    		+ "Please enter your name and email address<br/>"
+	    		+ "so that it can be added to the parts that<br/>"
+	    		+ "you create to identify you as the author.<br/>"
+	    		+ "If you aren't ready to do so now, you can always <br/>"
+	    		+ "always do so later through preferences.</html>"));
+	    myPanel.add(Box.createVerticalStrut(15));
+	    myPanel.add(new JLabel("Name:"));
+	    myPanel.add(nameField);
+	    myPanel.add(Box.createVerticalStrut(15)); // a spacer
+	    myPanel.add(new JLabel("Email:"));
+	    myPanel.add(emailField);
+
+	    int result = JOptionPane.showConfirmDialog(null, myPanel, 
+	               "Author Info", JOptionPane.OK_CANCEL_OPTION);
+	    if (result == JOptionPane.OK_OPTION) {
+	         System.out.println("x value: " + nameField.getText());
+	         System.out.println("y value: " + emailField.getText());
+	    }
+	    String name; 
+	    String email;
+		if (Strings.isNullOrEmpty(nameField.getText()) && (Strings.isNullOrEmpty(emailField.getText())) || result == JOptionPane.CANCEL_OPTION) {
+			name = "dummy";
+			email = "dummy@dummy.com";
+		}else {
+			name = nameField.getText();
+			email = emailField.getText();
+			try {
+				PersonInfo userInfo = Infos.forPerson("https://www.sboldesigner.github.io/" + URLEncoder.encode(name.toLowerCase().replaceAll("\\s+",""), "UTF-8") + "/", name, email);
+
+				SBOLEditorPreferences.INSTANCE.saveUserInfo(userInfo);
+				}
+				catch(UnsupportedEncodingException e) {
+					System.out.println("Invalid encoding type.");
 			}
-		} while (Strings.isNullOrEmpty(name) && (Strings.isNullOrEmpty(email)) || (oldUserInfo.getURI().toString().equals("http://dummy.org")));
-
-		try {
-		PersonInfo userInfo = Infos.forPerson("https://www.sboldesigner.github.io/" + URLEncoder.encode(email.toLowerCase().replaceAll("\\s+",""), "UTF-8") + "/", name, email);
-
-		SBOLEditorPreferences.INSTANCE.saveUserInfo(userInfo);
-		}
-		catch(UnsupportedEncodingException e) {
-			System.out.println("Invalid encoding type.");
 		}
 	}
 
