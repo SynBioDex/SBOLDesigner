@@ -347,7 +347,7 @@ public class SBOLDesignerPanel extends JPanel {
 	    		+ "Please enter your name and email address<br/>"
 	    		+ "so that it can be added to the parts that<br/>"
 	    		+ "you create to identify you as the author.<br/>"
-	    		+ "If you aren't ready to do so now, <br/>"
+	    		+ "If you aren't ready to do so now, you can always <br/>"
 	    		+ "always do so later through preferences.</html>"));
 	    myPanel.add(Box.createVerticalStrut(15));
 	    myPanel.add(new JLabel("Name:"));
