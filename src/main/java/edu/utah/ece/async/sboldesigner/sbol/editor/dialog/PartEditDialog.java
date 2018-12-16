@@ -87,6 +87,7 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 	private SBOLDocument design;
 	private boolean canEdit;
 	private Component parent;
+	private boolean updateParents;
 
 	private final JComboBox<Part> roleSelection = new JComboBox<Part>(Iterables.toArray(Parts.sorted(), Part.class));
 	private final JComboBox<Types> typeSelection = new JComboBox<Types>(Types.values());
@@ -112,10 +113,11 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 	 * dialog throws an exception. Also pass in the design.
 	 */
 	public static ComponentDefinition editPart(Component parent, ComponentDefinition parentCD, ComponentDefinition CD,
-			boolean enableSave, boolean canEdit, SBOLDocument design) {
+			boolean enableSave, boolean canEdit, SBOLDocument design, boolean updateParents) {
 		try {
 			PartEditDialog dialog = new PartEditDialog(parent, parentCD, CD, canEdit, design);
 			dialog.saveButton.setEnabled(enableSave);
+			dialog.updateParents = updateParents;
 			dialog.setVisible(true);
 			return dialog.CD;
 		} catch (Exception e) {
@@ -801,9 +803,9 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 		if (result == JOptionPane.NO_OPTION) {
 			return null;
 		}
-
-		return (ComponentDefinition) design.createCopy(comp,
+		ComponentDefinition cd = (ComponentDefinition) design.createCopy(comp,
 				SBOLEditorPreferences.INSTANCE.getUserInfo().getURI().toString(), comp.getDisplayId(),
 				comp.getVersion());
+		return cd;
 	}
 }
