@@ -894,7 +894,7 @@ public class SBOLDesign {
 	private void setupIcons(final JLabel button, final DesignElement e) throws SBOLValidationException {
 		final ComponentDefinition comp = e.getCD();
 		boolean hasSequence = getAllSequences(comp);
-		updateCanvasCD();
+		updateCanvasCD(false);
 		Image image = e.getPart().getImage(e.getOrientation(), e.isComposite(), e.hasVariants(design, canvasCD),
 				hasSequence);
 		Image selectedImage = Images.createBorderedImage(image, Color.LIGHT_GRAY);
