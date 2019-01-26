@@ -877,6 +877,8 @@ public class SBOLDesign {
 
 		if (!loading) {
 			fireDesignChangedEvent(true);
+		}else {
+			updateCanvasCD(true);
 		}
 	}
 
