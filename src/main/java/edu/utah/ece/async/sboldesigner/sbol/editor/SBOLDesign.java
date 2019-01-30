@@ -1324,7 +1324,19 @@ public class SBOLDesign {
 	}
 
 	public void addScars() throws SBOLValidationException {
-		confirmEditable();
+		boolean autoUpdate = false;
+		if (!confirmEditable()) {
+			int result = JOptionPane.showConfirmDialog(null,
+					"The part '" + getCanvasCD().getDisplayId() + "' is not owned by you \n" + "and cannot be edited.\n\n"
+							+ "Do you want to create an editable copy of\n" + "this part and save your changes?",
+					"Edit registry part", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+
+			if (result == JOptionPane.NO_OPTION) {
+				return;
+			}else {
+				autoUpdate = true;
+			}
+		}
 		int size = elements.size();
 		int start = isCircular ? 1 : 0;
 		int end = size - 1;
@@ -1432,43 +1444,9 @@ public class SBOLDesign {
 	}
 
 	public void editSelectedCD() throws SBOLValidationException, URISyntaxException {
-		ComponentDefinition originalCD = getSelectedCD();
-		if (originalCD == null) {
-			// opens sequenceAnnotation editor/viewer
-			PartEditDialog.editPart(panel.getParent(), getCanvasCD(), selectedElement.getSeqAnn(), false, false,
-					design);
-			return;
-		}
-		if (!confirmEditable()) {
-			// read-only
-			int result = JOptionPane.showConfirmDialog(null,
-					"The part '" + getCanvasCD().getDisplayId() + "' is not owned by you \n" + "and cannot be edited.\n\n"
-							+ "Do you want to create an editable copy of\n" + "this part and save your changes?",
-					"Edit registry part", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
-
-			if (result == JOptionPane.NO_OPTION) {
-				return;
-			}
-			parentCDs.push(canvasCD);
-			autoUpdateComponentReferences(panel.getParent(), getCanvasCD(), originalCD, true);
-			focusOut();
-			return;
-		}
-
-		ComponentDefinition editedCD = PartEditDialog.editPart(panel.getParent(), getCanvasCD(), originalCD, false,
-				true, design, false);
-
-		if (editedCD != null) {
-			// if the CD type or the displyId has been edited we need to
-			// update the component view so we'll replace it with the new CD
-			replaceCD(originalCD, editedCD);
-		} else {
-			// update how the glyph is drawn
-			DesignElement e = elements.get(getElementIndex(originalCD));
-			setupIcons(buttons.get(e), e);
-		}
-
-		fireDesignChangedEvent(true);
+		focusIn();
+		editCanvasCD();
+		focusOut();
 	}
 
 	public void findPartForSelectedCD() throws Exception {
