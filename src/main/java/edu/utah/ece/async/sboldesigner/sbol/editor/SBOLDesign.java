@@ -829,7 +829,7 @@ public class SBOLDesign {
 		{
 			parentCDs.push(canvasCD);
 			autoUpdateComponentReferences(panel.getParent(), getCanvasCD(), comp, false);
-			focusOut();
+			parentCDs.pop();
 		}
 		
 		part = Parts.forIdentified(comp);
@@ -1153,11 +1153,27 @@ public class SBOLDesign {
 			}
 		}
 		return true;
-	}
+	} 
 
 	public void flipOrientation(ComponentDefinition comp) throws SBOLValidationException, URISyntaxException {
-		if (!confirmEditable()) {
-			editCanvasCD();
+		if (SBOLUtils.notInNamespace(comp)) {
+			int result = JOptionPane.showConfirmDialog(null,
+					"The part '" + getCanvasCD().getDisplayId() + "' is not owned by you \n" + "and cannot be edited.\n\n"
+							+ "Do you want to create an editable copy of\n" + "this part and save your changes?",
+					"Edit registry part", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+
+			if (result == JOptionPane.NO_OPTION) {
+				return;
+			}
+			parentCDs.push(canvasCD);
+			URI newURI = autoUpdateComponentReferences(panel.getParent(), getCanvasCD(), comp, false);
+			//focusOut();
+			for (org.sbolstandard.core2.Component comps : getCanvasCD().getComponents()) {
+				if (comps.getDefinitionURI().equals(newURI)) {
+					flipOrientation(comps.getDefinition());
+					return;
+				}
+			}
 		}
 
 		DesignElement e = getElement(comp);
@@ -1324,19 +1340,6 @@ public class SBOLDesign {
 	}
 
 	public void addScars() throws SBOLValidationException {
-		boolean autoUpdate = false;
-		if (!confirmEditable()) {
-			int result = JOptionPane.showConfirmDialog(null,
-					"The part '" + getCanvasCD().getDisplayId() + "' is not owned by you \n" + "and cannot be edited.\n\n"
-							+ "Do you want to create an editable copy of\n" + "this part and save your changes?",
-					"Edit registry part", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
-
-			if (result == JOptionPane.NO_OPTION) {
-				return;
-			}else {
-				autoUpdate = true;
-			}
-		}
 		int size = elements.size();
 		int start = isCircular ? 1 : 0;
 		int end = size - 1;
@@ -1369,7 +1372,6 @@ public class SBOLDesign {
 		confirmEditable();
 		ComponentDefinition comp = getCanvasCD();
 		URI originalIdentity = comp.getIdentity();
-		//updateCanvasCD();
 		comp = PartEditDialog.editPart(panel.getParent(), parentCDs.peekFirst(), comp, false, true, design, false);
 		if (comp != null) {
 			if (!originalIdentity.equals(comp.getIdentity())) {
@@ -1420,27 +1422,31 @@ public class SBOLDesign {
 	 * @throws SBOLValidationException
 	 * @throws URISyntaxException
 	 */
-	private void autoUpdateComponentReferences(Component parent, ComponentDefinition parentCD, 
+	private URI autoUpdateComponentReferences(Component parent, ComponentDefinition parentCD, 
 			ComponentDefinition CD, boolean openEditor) throws SBOLValidationException, URISyntaxException{
-		ComponentDefinition comp = CD;
-		URI originalIdentity = comp.getIdentity();
+		URI originalIdentity = CD.getIdentity();
 		URI newIdentity;
 		if (openEditor) {
-			comp = PartEditDialog.editPart(parent, parentCD, comp, false, true, design, false);
-			newIdentity = comp.getIdentity();
+			newIdentity = PartEditDialog.editPart(parent, parentCD, CD, false, true, design, false).getIdentity();
 		}else {
-			newIdentity = new URI(SBOLEditorPreferences.INSTANCE.getUserInfo().getURI().toString());
+			ComponentDefinition cd = (ComponentDefinition) design.createCopy(CD,
+					SBOLEditorPreferences.INSTANCE.getUserInfo().getURI().toString(), CD.getDisplayId(),
+					CD.getVersion());
+			newIdentity = cd.getIdentity();
 		}
-		if (comp != null) {
+		if (CD != null) {
 			try {
 				updateComponentReferences(originalIdentity, newIdentity, CD);
 			} catch (URISyntaxException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			load(comp);
+			ComponentDefinition newParentCD = getParentCD();
+			load(newParentCD);
 			fireDesignChangedEvent(false);
+			return newIdentity;
 		}
+		return null;
 	}
 
 	public void editSelectedCD() throws SBOLValidationException, URISyntaxException {
