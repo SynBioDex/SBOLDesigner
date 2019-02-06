@@ -294,7 +294,7 @@ public class SBOLDesign {
 		protected void perform() {
 			try {
 				addScars();
-			} catch (SBOLValidationException e) {
+			} catch (SBOLValidationException | URISyntaxException e) {
 				MessageDialog.showMessage(panel, "There was a problem adding scars: ", e.getMessage());
 				e.printStackTrace();
 			}
@@ -1339,7 +1339,35 @@ public class SBOLDesign {
 		}
 	}
 
-	public void addScars() throws SBOLValidationException {
+	public void addScars() throws SBOLValidationException, URISyntaxException {
+		if (!confirmEditable()) {
+			int result = JOptionPane.showConfirmDialog(null,
+					"The part '" + getCanvasCD().getDisplayId() + "' is not owned by you \n" + "and cannot be edited.\n\n"
+							+ "Do you want to create an editable copy of\n" + "this part and save your changes?",
+					"Edit registry part", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+
+			if (result == JOptionPane.NO_OPTION) {
+				return;
+			}else {
+				ComponentDefinition comp = getCanvasCD();
+				URI originalIdentity = comp.getIdentity();
+				comp = (ComponentDefinition) design.createCopy(comp,
+						SBOLEditorPreferences.INSTANCE.getUserInfo().getURI().toString(), comp.getDisplayId(),
+						comp.getVersion());
+				if (comp != null) {
+					if (!originalIdentity.equals(comp.getIdentity())) {
+						try {
+							updateComponentReferences(originalIdentity, comp.getIdentity(), null);
+						} catch (URISyntaxException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}
+					load(comp);
+					fireDesignChangedEvent(false);
+				}
+			}
+		}
 		int size = elements.size();
 		int start = isCircular ? 1 : 0;
 		int end = size - 1;
