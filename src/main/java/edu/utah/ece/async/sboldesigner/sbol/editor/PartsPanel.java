@@ -17,6 +17,7 @@ package edu.utah.ece.async.sboldesigner.sbol.editor;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.net.URISyntaxException;
 import java.util.Map;
 
 import javax.swing.ImageIcon;
@@ -75,7 +76,7 @@ public class PartsPanel extends JPanel {
 			public void actionPerformed(ActionEvent event) {
 				try {
 					design.addCD(part, part == Parts.UNSPECIFIED);
-				} catch (SBOLValidationException e) {
+				} catch (SBOLValidationException | URISyntaxException e) {
 					MessageDialog.showMessage(null, "There was an error: ", e.getMessage());
 					e.printStackTrace();
 				}
