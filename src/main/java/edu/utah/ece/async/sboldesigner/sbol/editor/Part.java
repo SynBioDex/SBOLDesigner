@@ -63,18 +63,20 @@ public class Part {
 	private final List<URI> roles;
 	private final Image largeImage;
 	private final Image smallImage;
+	private final boolean inPalette;
 
 	public Part(String name, String displayId) {
-		this(name, displayId, null, null, new URI[0]);
+		this(name, displayId, null, null, true, new URI[0]);
 	}
 
 	public Part(URI role, String name, String displayId) {
-		this(name, displayId, null, null, role);
+		this(name, displayId, null, null, true, role);
 	}
 
-	public Part(String name, String displayId, String imageFileName, ImageType imageType, URI... roles) {
+	public Part(String name, String displayId, String imageFileName, ImageType imageType, boolean inPalette, URI... roles) {
 		this.name = name;
 		this.displayId = displayId;
+		this.inPalette = inPalette;
 		this.roles = ImmutableList.copyOf(roles);
 		if (imageFileName == null) {
 			largeImage = smallImage = null;
@@ -103,6 +105,10 @@ public class Part {
 
 	public String getDisplayId() {
 		return displayId;
+	}
+	
+	public boolean inPalette() {
+		return inPalette;
 	}
 
 	public URI getRole() {
