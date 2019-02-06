@@ -41,84 +41,86 @@ public class Parts {
 
 	// unspecified part is for parts without roles that get opened
 	public static final Part UNSPECIFIED = createPart("Unspecified", "UNS", "unspecified.png",
-			ImageType.TALL_OVER_BASELINE, SequenceOntology.SEQUENCE_FEATURE);
+			ImageType.TALL_OVER_BASELINE, false, SequenceOntology.SEQUENCE_FEATURE);
 	public static final Part GENERIC = createPart("Engineered Region", "Gen", "engineered-region.png",
-			ImageType.SHORT_OVER_BASELINE, SequenceOntology.ENGINEERED_REGION);
-	public static final Part PROMOTER = createPart("Promoter", "Pro", "promoter.png", ImageType.TALL_OVER_BASELINE,
+			ImageType.SHORT_OVER_BASELINE, true, SequenceOntology.ENGINEERED_REGION);
+	public static final Part PROMOTER = createPart("Promoter", "Pro", "promoter.png", ImageType.TALL_OVER_BASELINE, true,
 			SequenceOntology.PROMOTER);
 	public static final Part RBS = createPart("Ribosome Binding Site", "RBS", "translational-start-site.png",
-			ImageType.SHORT_OVER_BASELINE, SequenceOntology.RIBOSOME_ENTRY_SITE);
-	public static final Part CDS = createPart("Coding Sequence", "CDS", "cds.png", ImageType.CENTERED_ON_BASELINE,
+			ImageType.SHORT_OVER_BASELINE, true, SequenceOntology.RIBOSOME_ENTRY_SITE);
+	public static final Part CDS = createPart("Coding Sequence", "CDS", "cds.png", ImageType.CENTERED_ON_BASELINE, true,
 			SequenceOntology.CDS);
 	public static final Part TERMINATOR = createPart("Terminator", "Ter", "terminator.png",
-			ImageType.SHORT_OVER_BASELINE, SequenceOntology.TERMINATOR);
+			ImageType.SHORT_OVER_BASELINE, true, SequenceOntology.TERMINATOR);
 	public static final Part CIRCULAR = createPart("Circular Backbone", "Cir", "blank-backbone.png",
-			ImageType.CENTERED_ON_BASELINE, "SO:0000755");
+			ImageType.CENTERED_ON_BASELINE, true, "SO:0000755");
 	public static final Part NON_CODING_RNA_GENE = createPart("Non-Coding RNA Gene", "gRNA", "non-coding-rna-gene.png",
-			ImageType.SHORT_OVER_BASELINE, "SO:0001263");
+			ImageType.SHORT_OVER_BASELINE, true, "SO:0001263");
 	public static final Part ORI = createPart("Origin of Replication", "Ori", "origin-of-replication.png",
-			ImageType.CENTERED_ON_BASELINE, SequenceOntology.ORIGIN_OF_REPLICATION);
+			ImageType.CENTERED_ON_BASELINE, true, SequenceOntology.ORIGIN_OF_REPLICATION);
 	public static final Part ORIT = createPart("Origin of Transfer", "OriT", "origin-of-transfer.png",
-			ImageType.CENTERED_ON_BASELINE, "SO:0000724");
+			ImageType.CENTERED_ON_BASELINE, true, "SO:0000724");
 	public static final Part PBS = createPart("Primer Binding Site", "PBS", "primer-binding-site.png",
-			ImageType.SHORT_OVER_BASELINE, SequenceOntology.PRIMER_BINDING_SITE);
+			ImageType.SHORT_OVER_BASELINE, true, SequenceOntology.PRIMER_BINDING_SITE);
 	public static final Part CUT5 = createPart("5' Sticky Restriction Site", "SRS5", "cut.png",
-			ImageType.CENTERED_ON_BASELINE, "SO:0001975");
+			ImageType.CENTERED_ON_BASELINE, true, "SO:0001975");
 	public static final Part CUT3 = createPart("3' Sticky Restriction Site", "SRS3", "cut2.png",
-			ImageType.CENTERED_ON_BASELINE, "SO:0001976");
+			ImageType.CENTERED_ON_BASELINE, true, "SO:0001976");
 	public static final Part SCAR = createPart("Assembly Scar", "Scar", "assembly-junction.png",
-			ImageType.CENTERED_ON_BASELINE, "SO:0001953");
-	public static final Part OP = createPart("Operator", "Op", "operator.png", ImageType.CENTERED_ON_BASELINE,
-			SequenceOntology.OPERATOR);
-	public static final Part INS = createPart("Insulator", "Ins", "insulator.png", ImageType.SHORT_OVER_BASELINE,
+			ImageType.CENTERED_ON_BASELINE, true, "SO:0001953");
+	public static final Part OP = createPart("Operator", "Op", "operator.png", ImageType.CENTERED_ON_BASELINE, true,
+			"SO:0000409");
+	public static final Part OP_2 = createPart("Operator", "Op", "operator.png", ImageType.CENTERED_ON_BASELINE, false,
+			"SO:0000057");
+	public static final Part INS = createPart("Insulator", "Ins", "insulator.png", ImageType.SHORT_OVER_BASELINE, true,
 			SequenceOntology.INSULATOR);
 	public static final Part BRS = createPart("Blunt Restriction Site", "BRS", "blunt-restriction-site.png",
-			ImageType.CENTERED_ON_BASELINE, "SO:0001691");
+			ImageType.CENTERED_ON_BASELINE, true, "SO:0001691");
 	public static final Part FIVEOH = createPart("5' Overhang", "OH5", "five-prime-overhang.png",
-			ImageType.CENTERED_ON_BASELINE, "SO:0001932");
+			ImageType.CENTERED_ON_BASELINE, true, "SO:0001932");
 	public static final Part THREEOH = createPart("3' Overhang", "OH3", "three-prime-overhang.png",
-			ImageType.CENTERED_ON_BASELINE, "SO:0001933");
-	public static final Part APTAMER = createPart("Aptamer", "APT", "aptamer.png", ImageType.TALL_OVER_BASELINE,
+			ImageType.CENTERED_ON_BASELINE, true, "SO:0001933");
+	public static final Part APTAMER = createPart("Aptamer", "APT", "aptamer.png", ImageType.TALL_OVER_BASELINE, true,
 			"SO:0000031");
-	public static final Part POLYA = createPart("PolyA Site", "PolyA", "poly-a-site.png", ImageType.SHORT_OVER_BASELINE,
+	public static final Part POLYA = createPart("PolyA Site", "PolyA", "poly-a-site.png", ImageType.SHORT_OVER_BASELINE, true,
 			"SO:0000553");
 	public static final Part SRS = createPart("Specific Recombination Site", "SRS", "specific-recombination-site.png",
-			ImageType.CENTERED_ON_BASELINE, "SO:0000299");
+			ImageType.CENTERED_ON_BASELINE, true, "SO:0000299");
 	public static final Part NO_GLYPH_ASSIGNED = createPart("No Glyph Assigned", "NGA", "no-glyph-assigned.png",
-			ImageType.TALL_OVER_BASELINE, SequenceOntology.SEQUENCE_FEATURE);
-	public static final Part SIGNATURE = createPart("Signature", "Sig", "signature.png", ImageType.TALL_OVER_BASELINE,
+			ImageType.TALL_OVER_BASELINE, true, SequenceOntology.SEQUENCE_FEATURE);
+	public static final Part SIGNATURE = createPart("Signature", "Sig", "signature.png", ImageType.TALL_OVER_BASELINE, true,
 			"SO:0001978");
-	public static final Part BS = createPart("Base", "BS", "base.png", ImageType.SHORT_OVER_BASELINE, "SO:0001236");
-	public static final Part JUN = createPart("Junction", "Jun", "junction.png", ImageType.SHORT_OVER_BASELINE,
+	public static final Part BS = createPart("Base", "BS", "base.png", ImageType.SHORT_OVER_BASELINE, true, "SO:0001236");
+	public static final Part JUN = createPart("Junction", "Jun", "junction.png", ImageType.SHORT_OVER_BASELINE, true,
 			"SO:0000699");
-	public static final Part AA = createPart("Amino Acid", "AA", "amino-acid.png", ImageType.SHORT_OVER_BASELINE,
+	public static final Part AA = createPart("Amino Acid", "AA", "amino-acid.png", ImageType.SHORT_OVER_BASELINE, true,
 			"SO:0001237");
 	public static final Part RERS = createPart("Restriction Enzyme Recognition Site", "RERS",
-			"restriction-enzyme-recognition-site.png", ImageType.SHORT_OVER_BASELINE, "SO:0001687");
+			"restriction-enzyme-recognition-site.png", ImageType.SHORT_OVER_BASELINE, true, "SO:0001687");
 	public static final Part RS = createPart("Ribonuclease Site", "RS", "ribonuclease-site.png",
-			ImageType.SHORT_OVER_BASELINE, "SO:0001977");
-	public static final Part PS = createPart("Protease Site", "PS", "protease-site.png", ImageType.SHORT_OVER_BASELINE,
+			ImageType.SHORT_OVER_BASELINE, true, "SO:0001977");
+	public static final Part PS = createPart("Protease Site", "PS", "protease-site.png", ImageType.SHORT_OVER_BASELINE, true,
 			"SO:0001956");
 	public static final Part RSE = createPart("RNA Stability Element", "RSE", "rna-stability-element.png",
-			ImageType.SHORT_OVER_BASELINE, "SO:0001979");
+			ImageType.SHORT_OVER_BASELINE, true, "SO:0001979");
 	public static final Part PSE = createPart("Protein Stability Element", "PSE", "protein-stability-element.png",
-			ImageType.SHORT_OVER_BASELINE, "SO:0001955");
+			ImageType.SHORT_OVER_BASELINE, true, "SO:0001955");
 
 	private static Iterable<Part> SORTED_PARTS;
 
-	private static Part createPart(String name, String displayId, String imageFileName, ImageType imageType,
+	private static Part createPart(String name, String displayId, String imageFileName, ImageType imageType, boolean inPalette,
 			String... soIDs) {
 		URI[] roles = new URI[soIDs.length];
 		SequenceOntology so = new SequenceOntology();
 		for (int i = 0; i < soIDs.length; i++) {
 			roles[i] = so.getURIbyId(soIDs[i]);
 		}
-		return createPart(name, displayId, imageFileName, imageType, roles);
+		return createPart(name, displayId, imageFileName, imageType, inPalette, roles);
 	}
 
-	private static Part createPart(String name, String displayId, String imageFileName, ImageType imageType,
+	private static Part createPart(String name, String displayId, String imageFileName, ImageType imageType, boolean inPalette,
 			URI... roles) {
-		Part part = new Part(name, displayId, imageFileName, imageType, roles);
+		Part part = new Part(name, displayId, imageFileName, imageType, inPalette, roles);
 		for (URI role : roles) {
 			if (!PARTS.containsKey(role)) {
 				PARTS.put(role, part);

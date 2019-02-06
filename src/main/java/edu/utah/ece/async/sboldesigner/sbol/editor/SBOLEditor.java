@@ -26,6 +26,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.net.URISyntaxException;
 
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
@@ -56,7 +57,7 @@ public class SBOLEditor extends JPanel {
 	private final boolean editable;
 	private JFileChooser snapshotFileChooser;
 
-	public SBOLEditor(boolean isEditable) {
+	public SBOLEditor(boolean isEditable){
 		super(new BorderLayout());
 
 		editable = isEditable;
