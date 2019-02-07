@@ -38,6 +38,8 @@ public class Parts {
 	private static final Map<URI, Part> PARTS = Maps.newHashMap();
 
 	private static final List<Part> PARTS_LIST = Lists.newArrayList();
+	
+	private static final List<Part> RENDERED_PARTS = Lists.newArrayList();
 
 	// unspecified part is for parts without roles that get opened
 	public static final Part UNSPECIFIED = createPart("Unspecified", "UNS", "unspecified.png",
@@ -129,7 +131,16 @@ public class Parts {
 		PARTS_LIST.add(part);
 		return part;
 	}
-
+	
+	public static Iterable<Part> renderable() {
+		for (Part part : Parts.all()) {
+			if (part.inPalette()) {
+				RENDERED_PARTS.add(part);
+			}
+		}
+		return RENDERED_PARTS;
+	}
+	
 	public static Iterable<Part> all() {
 		return PARTS_LIST;
 	}

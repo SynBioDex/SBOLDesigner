@@ -89,7 +89,7 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 	private Component parent;
 	private boolean updateParents;
 
-	private final JComboBox<Part> roleSelection = new JComboBox<Part>(Iterables.toArray(Parts.sorted(), Part.class));
+	private final JComboBox<Part> roleSelection = new JComboBox<Part>(Iterables.toArray(Parts.renderable(), Part.class));
 	private final JComboBox<Types> typeSelection = new JComboBox<Types>(Types.values());
 	private final JComboBox<String> roleRefinement;
 	private final JButton saveButton;
