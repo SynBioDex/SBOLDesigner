@@ -1187,6 +1187,7 @@ public class SBOLDesign {
 	}
 
 	public void deleteCD(ComponentDefinition component) throws SBOLValidationException, URISyntaxException {
+		int index = getElementIndex(component);
 		if (!confirmEditable()) {
 			int result = JOptionPane.showConfirmDialog(null,
 					"The part '" + getCanvasCD().getDisplayId() + "' is not owned by you \n" + "and cannot be edited.\n\n"
@@ -1201,7 +1202,6 @@ public class SBOLDesign {
 			focusOut();
 		}
 
-		int index = getElementIndex(component);
 		if (index >= 0) {
 			DesignElement e = elements.get(index);
 
