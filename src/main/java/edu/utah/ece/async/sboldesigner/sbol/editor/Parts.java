@@ -38,8 +38,6 @@ public class Parts {
 	private static final Map<URI, Part> PARTS = Maps.newHashMap();
 
 	private static final List<Part> PARTS_LIST = Lists.newArrayList();
-	
-	private static final List<Part> RENDERED_PARTS = Lists.newArrayList();
 
 	// unspecified part is for parts without roles that get opened
 	public static final Part UNSPECIFIED = createPart("Unspecified", "UNS", "unspecified.png",
@@ -72,7 +70,7 @@ public class Parts {
 			ImageType.CENTERED_ON_BASELINE, true, "SO:0001953");
 	public static final Part OP = createPart("Operator", "Op", "operator.png", ImageType.CENTERED_ON_BASELINE, true,
 			"SO:0000409");
-	public static final Part OP_2 = createPart("Operator", "Op", "operator.png", ImageType.CENTERED_ON_BASELINE, false,
+	public static final Part OP_2 = createPart("Binding Site", "Bind", "operator.png", ImageType.CENTERED_ON_BASELINE, true,
 			"SO:0000057");
 	public static final Part INS = createPart("Insulator", "Ins", "insulator.png", ImageType.SHORT_OVER_BASELINE, true,
 			SequenceOntology.INSULATOR);
@@ -130,15 +128,6 @@ public class Parts {
 		}
 		PARTS_LIST.add(part);
 		return part;
-	}
-	
-	public static Iterable<Part> renderable() {
-		for (Part part : Parts.all()) {
-			if (part.inPalette()) {
-				RENDERED_PARTS.add(part);
-			}
-		}
-		return RENDERED_PARTS;
 	}
 	
 	public static Iterable<Part> all() {
