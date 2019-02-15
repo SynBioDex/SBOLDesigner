@@ -17,6 +17,7 @@ package edu.utah.ece.async.sboldesigner.sbol.editor;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Map;
 
@@ -41,14 +42,12 @@ public class PartsPanel extends JPanel {
 	private final SBOLDesign design;
 	private final Map<Part, JButton> buttons = Maps.newHashMap();
 
-	public PartsPanel(SBOLEditor editor) {
+	public PartsPanel(SBOLEditor editor){
 		super();
 
 		design = editor.getDesign();
-
 		for (Part part : Parts.all()) {
-			// don't show the un specified part in the parts panel
-			if (part != Parts.UNSPECIFIED) {
+			if (part.inPalette()) {
 				addPartButton(part);
 			}
 		}
