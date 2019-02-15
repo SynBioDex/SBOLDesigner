@@ -70,9 +70,9 @@ public class Parts {
 			ImageType.CENTERED_ON_BASELINE, true, "SO:0001976");
 	public static final Part SCAR = createPart("Assembly Scar", "Scar", "assembly-junction.png",
 			ImageType.CENTERED_ON_BASELINE, true, "SO:0001953");
-	public static final Part Bind = createPart("Binding Site", "Bind", "operator.png", ImageType.CENTERED_ON_BASELINE, false,
+	public static final Part Bind = createPart("Binding Site", "Bind", "operator.png", ImageType.CENTERED_ON_BASELINE, true,
 			"SO:0000409");
-	public static final Part OP = createPart("Operator", "Op", "operator.png", ImageType.CENTERED_ON_BASELINE, true,
+	public static final Part OP = createPart("Operator", "Op", "operator.png", ImageType.CENTERED_ON_BASELINE, false,
 			"SO:0000057");
 	public static final Part INS = createPart("Insulator", "Ins", "insulator.png", ImageType.SHORT_OVER_BASELINE, true,
 			SequenceOntology.INSULATOR);
