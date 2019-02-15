@@ -21,6 +21,8 @@ import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.RegistryInputDialog.Ta
 public class SynBioHubQuery extends SwingWorker<Object, Object> {
 
 	public static int QUERY_LIMIT = 10000;
+	static SynBioHubQuery lastQuery = null;
+	private boolean cancelled = false;
 
 	SynBioHubFrontend synBioHub;
 	Set<URI> roles;
@@ -60,6 +62,7 @@ public class SynBioHubQuery extends SwingWorker<Object, Object> {
 
 	@Override
 	protected ArrayList<TableMetadata> doInBackground() throws Exception {
+		cancelPrevious();
 		loading.start();
 
 		// collections are empty, so we show only root collections
@@ -150,10 +153,20 @@ public class SynBioHubQuery extends SwingWorker<Object, Object> {
 
 		return tableMeta;
 	}
+	
+	private void cancelPrevious() {
+		if (lastQuery!=null) {
+			lastQuery.loading.stop();
+			lastQuery.cancelled = true;
+		}
+		lastQuery = this;
+	}
 
 	@Override
 	protected void done() {
-		loading.stop();
-		tableUpdater.updateTable(identified, filterText);
+		if(!cancelled) {
+			loading.stop();
+			tableUpdater.updateTable(identified, filterText);
+		}
 	}
 }
