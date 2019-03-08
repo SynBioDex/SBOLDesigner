@@ -1156,7 +1156,9 @@ public class SBOLDesign {
 	} 
 
 	public void flipOrientation(ComponentDefinition comp) throws SBOLValidationException, URISyntaxException {
-		if (SBOLUtils.notInNamespace(comp)) {
+		int index = getElementIndex(comp);
+		boolean designChanged = false;
+		if (!confirmEditable()) {
 			int result = JOptionPane.showConfirmDialog(null,
 					"The part '" + getCanvasCD().getDisplayId() + "' is not owned by you \n" + "and cannot be edited.\n\n"
 							+ "Do you want to create an editable copy of\n" + "this part and save your changes?",
@@ -1166,17 +1168,18 @@ public class SBOLDesign {
 				return;
 			}
 			parentCDs.push(canvasCD);
-			URI newURI = autoUpdateComponentReferences(panel.getParent(), getCanvasCD(), comp, false);
-			//focusOut();
-			for (org.sbolstandard.core2.Component comps : getCanvasCD().getComponents()) {
-				if (comps.getDefinitionURI().equals(newURI)) {
-					flipOrientation(comps.getDefinition());
-					return;
-				}
-			}
+			updateComponentReferences(null, null, null);
+			load(getParentCD());
+			fireDesignChangedEvent(false);
+			designChanged = true;
 		}
-
-		DesignElement e = getElement(comp);
+		
+		DesignElement e;
+		if(designChanged) {
+			e = elements.get(index); 
+		}else {
+			e = getElement(comp);
+		}
 		e.flipOrientation();
 
 		JLabel button = buttons.get(e);
@@ -1188,6 +1191,7 @@ public class SBOLDesign {
 
 	public void deleteCD(ComponentDefinition component) throws SBOLValidationException, URISyntaxException {
 		int index = getElementIndex(component);
+		boolean designChanged = false;
 		if (!confirmEditable()) {
 			int result = JOptionPane.showConfirmDialog(null,
 					"The part '" + getCanvasCD().getDisplayId() + "' is not owned by you \n" + "and cannot be edited.\n\n"
@@ -1198,14 +1202,16 @@ public class SBOLDesign {
 				return;
 			}
 			parentCDs.push(canvasCD);
-			autoUpdateComponentReferences(panel.getParent(), getCanvasCD(), component, false);
-			focusOut();
+			updateComponentReferences(null, null, null);
+			load(getParentCD());
+			fireDesignChangedEvent(false);
+			designChanged = true;
 		}
 
 		if (index >= 0) {
 			DesignElement e = elements.get(index);
 
-			if (e == selectedElement) {
+			if (e == selectedElement || designChanged) {
 				setSelectedElement(null);
 				deleteCombinatorialDesign(canvasCD, e.component);
 				design.removeComponentDefinition(e.component.getDefinition());
@@ -1222,7 +1228,6 @@ public class SBOLDesign {
 			} else {
 				elementBox.remove(button);
 			}
-			//updateCanvasCD();
 			fireDesignChangedEvent(true);
 		}
 	}
