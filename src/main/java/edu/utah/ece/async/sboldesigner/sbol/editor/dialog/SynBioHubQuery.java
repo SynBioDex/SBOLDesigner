@@ -165,8 +165,8 @@ public class SynBioHubQuery extends SwingWorker<Object, Object> {
 	@Override
 	protected void done() {
 		if(!cancelled) {
-			loading.stop();
 			tableUpdater.updateTable(identified, filterText);
 		}
+		loading.stop();
 	}
 }
