@@ -130,6 +130,8 @@ import edu.utah.ece.async.sboldesigner.sbol.editor.event.SelectionChangedEvent;
  * @author Evren Sirin
  */
 public class SBOLDesign {
+	
+	
 	private static Logger LOGGER = LoggerFactory.getLogger(SBOLDesign.class.getName());
 
 	private static final Font LABEL_FONT = new Font(Font.SANS_SERIF, Font.PLAIN, 12);
@@ -359,6 +361,8 @@ public class SBOLDesign {
 	 * The current CD displayed in the canvas.
 	 */
 	private ComponentDefinition canvasCD;
+	
+	private ArrayList<Feature> features;
 
 	private final Deque<ComponentDefinition> parentCDs = new ArrayDeque<ComponentDefinition>();
 
@@ -448,22 +452,46 @@ public class SBOLDesign {
 
 	public boolean canFocusIn() {
 		ComponentDefinition comp = getSelectedCD();
-		return comp != null;
+		boolean feature = false;
+		if(selectedElement != null) {
+			feature = selectedElement.isFeature();
+		}
+		return comp != null || feature;
 	}
 
 	public void focusIn() throws SBOLValidationException {
 		Preconditions.checkState(canFocusIn(), "No selection to focus in");
+		
+		if(selectedElement.isFeature()) {
+			SequenceAnnotation sa = selectedElement.getSeqAnn();
+			int start = -1;
+			int end = -1;
+			for (Location location : sa.getLocations()) {
+				if (location instanceof Range) {
+					Range range = (Range) location;
+					start = range.getStart(); 
+					end = range.getEnd();
+				}
+			} 
+			displayFeatures(start, end);
+			System.out.print("");
+		}else {
 
-		ComponentDefinition comp = getSelectedCD();
-
-		BufferedImage snapshot = getSnapshot();
-
-		//updateCanvasCD();
-		parentCDs.push(canvasCD);
-
-		load(comp);
-
-		eventBus.post(new FocusInEvent(this, comp, snapshot));
+			ComponentDefinition comp = getSelectedCD();
+	
+			BufferedImage snapshot = getSnapshot();
+	
+			//updateCanvasCD();
+			parentCDs.push(canvasCD);
+	
+			load(comp);
+	
+			eventBus.post(new FocusInEvent(this, comp, snapshot));
+		}
+	}
+	
+	private void displayFeatures(int start, int end) {
+		return;
 	}
 
 	public boolean canFocusOut() {
@@ -707,6 +735,20 @@ public class SBOLDesign {
 					addSA(sequenceAnnotation, Parts.forIdentified(sequenceAnnotation));
 				}
 			}
+			if(features == null) {
+				features = new ArrayList<Feature>();	
+			}
+			if(!features.isEmpty()) {
+				for(int i = 0; i < features.size(); i++) {
+					Feature f = features.get(i);
+					for(int j = 0; j < features.size(); j++) {
+						if(features.get(j).start <= f.start && features.get(j).end >= f.end && i != j) {
+							setElementVisible(f.element, false);
+							break;
+						}
+					}
+				}
+			}
 			return;
 		}
 
@@ -881,6 +923,27 @@ public class SBOLDesign {
 			updateCanvasCD(true);
 		}
 	}
+	
+	static class Feature{
+		public ArrayList<Feature> children;
+		DesignElement element;
+		public int start;
+		public int end;
+		public int size; 
+		
+		public Feature(int start, int end, DesignElement element) {
+			this.start = start;
+			this.end = end;
+			this.size = end-start;
+			this.element = element;
+			children = new ArrayList<Feature>();
+		}
+		
+		public void addChild(Feature child) {
+			this.children.add(child);
+		}
+		
+	}
 
 	private void addSA(SequenceAnnotation sequenceAnnotation, Part part) throws SBOLValidationException {
 		DesignElement e = new DesignElement(sequenceAnnotation, canvasCD, part, design);
@@ -893,6 +956,18 @@ public class SBOLDesign {
 		if (!isPartVisible(part)) {
 			setPartVisible(part, true);
 		}
+		
+		int start = -1;
+		int end = -1;
+		for (Location location : sequenceAnnotation.getLocations()) {
+			if (location instanceof Range) {
+				Range range = (Range) location;
+				start = range.getStart(); 
+				end = range.getEnd();
+				Feature f = new Feature(start, end, e);
+				features.add(f);
+			}
+		} 
 
 		if (!loading) {
 			fireDesignChangedEvent(true);
@@ -1317,6 +1392,12 @@ public class SBOLDesign {
 
 	public boolean isPartVisible(Part part) {
 		return !hiddenParts.contains(part);
+	}
+	
+	public void setElementVisible(DesignElement e, boolean isVisible) {
+		JLabel button = buttons.get(e);
+		button.setVisible(isVisible);
+		refreshUI();
 	}
 
 	public void setPartVisible(Part part, boolean isVisible) {
@@ -1892,6 +1973,11 @@ public class SBOLDesign {
 
 		SequenceAnnotation getSeqAnn() {
 			return seqAnn;
+		}
+		
+		
+		boolean isFeature() {
+			return !seqAnn.isSetComponent();
 		}
 
 		void setCD(ComponentDefinition CD) throws SBOLValidationException {
