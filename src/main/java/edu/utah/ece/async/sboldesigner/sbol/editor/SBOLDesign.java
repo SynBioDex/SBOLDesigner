@@ -57,6 +57,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Stack;
 
 import javax.swing.Action;
 import javax.swing.BorderFactory;
@@ -362,7 +363,13 @@ public class SBOLDesign {
 	 */
 	private ComponentDefinition canvasCD;
 	
+	/**
+	 * Features and featureStack is responsible for displaying the desired 
+	 * range of features on the canvas. 
+	 * */
 	private ArrayList<Feature> features;
+	private Stack<Feature> featureRange;
+	private Stack<Integer> zoomStack;
 
 	private final Deque<ComponentDefinition> parentCDs = new ArrayDeque<ComponentDefinition>();
 
@@ -388,7 +395,7 @@ public class SBOLDesign {
 		contentPanel.add(elementBox);
 		contentPanel.add(backboneBox);
 
-		panel = new DesignPanel();
+		panel = new DesignPanel(); 
 		panel.setOpaque(false);
 		panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
 		panel.setAlignmentX(0.5f);
@@ -462,21 +469,22 @@ public class SBOLDesign {
 	public void focusIn() throws SBOLValidationException {
 		Preconditions.checkState(canFocusIn(), "No selection to focus in");
 		
+		if(zoomStack == null) {
+			zoomStack = new Stack<Integer>();
+		}
 		if(selectedElement.isFeature()) {
+			zoomStack.push(1);
 			SequenceAnnotation sa = selectedElement.getSeqAnn();
-			int start = -1;
-			int end = -1;
-			for (Location location : sa.getLocations()) {
-				if (location instanceof Range) {
-					Range range = (Range) location;
-					start = range.getStart(); 
-					end = range.getEnd();
+			for(Feature f: features) {
+				if(f.element.equals(selectedElement)) {
+					featureRange.push(f);
+					displayFeatures();
+					break;
 				}
-			} 
-			displayFeatures(start, end);
+			}
 			System.out.print("");
 		}else {
-
+			zoomStack.push(0);
 			ComponentDefinition comp = getSelectedCD();
 	
 			BufferedImage snapshot = getSnapshot();
@@ -490,18 +498,76 @@ public class SBOLDesign {
 		}
 	}
 	
-	private void displayFeatures(int start, int end) {
+	private void displayFeatures() {
+		int start = featureRange.peek().start;
+		int end = featureRange.peek().end;
+		setElementVisible(featureRange.peek().element, false);
+		features.remove(featureRange.peek());
+		for(int i = 0; i < features.size(); i++) {
+			Feature f = features.get(i);
+			if(f.start >= start && f.end <= end) {
+				setElementVisible(f.element, true);
+				for(int j = 0; j < features.size(); j++) {
+					if(features.get(j).start <= f.start && features.get(j).end >= f.end && i != j) {
+						setElementVisible(f.element, false);
+						break;
+					}
+				}
+			}else {
+				setElementVisible(f.element, false);
+			}
+		}
 		return;
+	}
+	private void displayFeatures(Feature parent) {
+		features.add(parent);
+		if(!featureRange.isEmpty()) {
+			for(int i = 0; i < features.size(); i++) {
+				Feature f = features.get(i);
+				if(f.start >= featureRange.peek().start && f.end <= featureRange.peek().end) {
+					setElementVisible(f.element, true);
+					for(int j = 0; j < features.size(); j++) {
+						if(features.get(j).start <= f.start && features.get(j).end >= f.end && i != j) {
+							setElementVisible(f.element, false);
+							break;
+						}
+					}
+				}
+			}
+		}else {
+			for(int i = 0; i < features.size(); i++) {
+				Feature f = features.get(i);
+				setElementVisible(f.element, true);
+				for(int j = 0; j < features.size(); j++) {
+					if(features.get(j).start <= f.start && features.get(j).end >= f.end && i != j) {
+						setElementVisible(f.element, false);
+						break;
+					}
+				}
+			}
+		}
+
 	}
 
 	public boolean canFocusOut() {
-		return !parentCDs.isEmpty();
+		boolean zoom = false;
+		if(zoomStack != null) {
+			if(zoomStack.peek() == 1) {
+				zoom = true;
+			}
+		}
+		return !parentCDs.isEmpty() || zoom;
 	}
 
 	public void focusOut() throws SBOLValidationException {
 		Preconditions.checkState(canFocusOut(), "No parent design to focus out");
 
-		focusOut(getParentCD());
+		if(zoomStack != null) {
+			if(zoomStack.pop() == 1)
+				displayFeatures(featureRange.pop());
+		}else {
+			focusOut(getParentCD());
+		}
 	}
 
 	public void focusOut(ComponentDefinition comp) throws SBOLValidationException {
@@ -737,6 +803,9 @@ public class SBOLDesign {
 			}
 			if(features == null) {
 				features = new ArrayList<Feature>();	
+			}
+			if(featureRange == null) {
+				featureRange = new Stack<Feature>();
 			}
 			if(!features.isEmpty()) {
 				for(int i = 0; i < features.size(); i++) {
