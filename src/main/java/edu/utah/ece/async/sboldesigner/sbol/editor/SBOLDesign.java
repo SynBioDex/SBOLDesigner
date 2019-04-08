@@ -462,8 +462,30 @@ public class SBOLDesign {
 		boolean feature = false;
 		if(selectedElement != null) {
 			feature = selectedElement.isFeature();
+			if(feature) {
+				feature = feature && isElementCompositeFeature(selectedElement);
+			}
 		}
 		return comp != null || feature;
+	}
+	
+	private boolean isElementCompositeFeature(DesignElement e) {
+		boolean iscomposite = false;
+		if(!features.isEmpty()) {
+			for(Feature f: features) {
+				if(f.element.equals(selectedElement)) {
+					iscomposite = false;
+					for(int j = 0; j < features.size(); j++) {
+						if(features.get(j).start >= f.start && features.get(j).end <= f.end && !features.get(j).element.equals(selectedElement)) {
+							iscomposite = true;
+							break;
+						}
+					}
+					break;
+				}
+			}
+		}
+		return iscomposite;
 	}
 
 	public void focusIn() throws SBOLValidationException {
@@ -496,6 +518,7 @@ public class SBOLDesign {
 	
 			eventBus.post(new FocusInEvent(this, comp, snapshot));
 		}
+		updateEnabledActions();
 	}
 	
 	private void displayFeatures() {
@@ -547,13 +570,15 @@ public class SBOLDesign {
 			}
 		}
 
-	}
+	} 
 
 	public boolean canFocusOut() {
 		boolean zoom = false;
 		if(zoomStack != null) {
-			if(zoomStack.peek() == 1) {
-				zoom = true;
+			if(!zoomStack.empty()) {
+				if(zoomStack.peek() == 1) {
+					zoom = true;
+				}
 			}
 		}
 		return !parentCDs.isEmpty() || zoom;
@@ -568,6 +593,7 @@ public class SBOLDesign {
 		}else {
 			focusOut(getParentCD());
 		}
+		updateEnabledActions();
 	}
 
 	public void focusOut(ComponentDefinition comp) throws SBOLValidationException {
