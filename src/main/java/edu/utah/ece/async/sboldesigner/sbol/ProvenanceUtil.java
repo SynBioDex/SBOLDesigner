@@ -125,60 +125,6 @@ public class ProvenanceUtil {
 	}
 
 	/*
-	 * The old broken version of createProvenance.
-	 */
-	private void addSBOLDesignerAnnotation(ComponentDefinition cd, SBOLDocument design) throws SBOLValidationException {
-		// get/create SBOLDesigner agent
-		URI designerURI = URI.create("https://synbiohub.org/public/SBOL_Software/SBOLDesigner/2.2");
-		// unused because designerURI will be dereferenced on SynBioHub
-		// designerURI = createSBOLDesignerAgent().getIdentity();
-
-		// get/create the activity
-		URI activityURI = URI
-				.create(design.getDefaultURIprefix() + cd.getDisplayId() + "_SBOLDesigner" + "/" + cd.getVersion());
-		GenericTopLevel oldActivity = design.getGenericTopLevel(activityURI);
-
-		if (oldActivity != null) {
-			design.removeGenericTopLevel(oldActivity);
-		}
-
-		GenericTopLevel partActivity = design.createGenericTopLevel(design.getDefaultURIprefix(),
-				cd.getDisplayId() + "_SBOLDesigner", cd.getVersion(),
-				new QName("http://www.w3.org/ns/prov#", "Activity", "prov"));
-
-		String creator = SBOLEditorPreferences.INSTANCE.getUserInfo().getName();
-		partActivity.createAnnotation(new QName("http://purl.org/dc/elements/1.1/", "creator", "dc"), creator);
-
-		partActivity.createAnnotation(new QName("http://www.w3.org/ns/prov#", "endedAtTime", "prov"),
-				ZonedDateTime.now().format(DateTimeFormatter.ISO_INSTANT));
-
-		// create the qualified usage annotation
-		Annotation agentAnnotation = new Annotation(new QName("http://www.w3.org/ns/prov#", "agent", "prov"),
-				designerURI);
-
-		partActivity.createAnnotation(new QName("http://www.w3.org/ns/prov#", "qualifiedAssociation", "prov"),
-				new QName("http://www.w3.org/ns/prov#", "Association", "prov"),
-				URI.create(partActivity.getIdentity().toString() + "/association"),
-				new ArrayList<Annotation>(Arrays.asList(agentAnnotation)));
-
-		// link the cd/part to partActivity
-		Annotation prev = null;
-		for (Annotation a : cd.getAnnotations()) {
-			if (a.getQName().getLocalPart().equals("wasGeneratedBy") && a.isURIValue()
-					&& a.getURIValue().equals(designerURI)) {
-				prev = a;
-			}
-		}
-
-		if (prev != null) {
-			cd.removeAnnotation(prev);
-		}
-
-		cd.createAnnotation(new QName("http://www.w3.org/ns/prov#", "wasGeneratedBy", "prov"),
-				partActivity.getIdentity());
-	}
-
-	/*
 	 * The reference implementation for generating the SBOLDesigner Agent.
 	 */
 	private static GenericTopLevel createSBOLDesignerAgent(SBOLDocument design) throws SBOLValidationException {

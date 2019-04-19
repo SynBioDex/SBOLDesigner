@@ -1917,7 +1917,7 @@ public class SBOLDesign {
 				canvasCD.addSequence(newSequence);
 			}
 			// TODO: removed, not sure what this is for and it is preventing a sequence from being deleted
-			/* else {
+			else if (nucleotides==null){
 				// use the old sequence provided it was there
 				if (oldSeq != null) {
 					// only recreate it if it isn't in design
@@ -1929,7 +1929,7 @@ public class SBOLDesign {
 					}
 					canvasCD.addSequence(oldSeq);
 				}
-			} */
+			} 
 			
 			LOGGER.debug("Updated root:\n{}", canvasCD.toString());
 		} catch (SBOLValidationException e) {
