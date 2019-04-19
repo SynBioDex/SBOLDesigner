@@ -1579,20 +1579,24 @@ public class SBOLDesign {
 
 	public void editCanvasCD() throws SBOLValidationException {
 		confirmEditable();
-		ComponentDefinition comp = getCanvasCD();
-		URI originalIdentity = comp.getIdentity();
-		comp = PartEditDialog.editPart(panel.getParent(), parentCDs.peekFirst(), comp, false, true, design, false);
-		if (comp != null) {
-			if (!originalIdentity.equals(comp.getIdentity())) {
-				try {
-					updateComponentReferences(originalIdentity, comp.getIdentity(), null);
-				} catch (URISyntaxException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+		if(!features.isEmpty()) {
+			PartEditDialog.editPart(panel.getParent(), parentCDs.peekFirst(), getCanvasCD(), false, true, design, false);
+		}else {
+			ComponentDefinition comp = getCanvasCD();
+			URI originalIdentity = comp.getIdentity();
+			comp = PartEditDialog.editPart(panel.getParent(), parentCDs.peekFirst(), comp, false, true, design, false);
+			if (comp != null) {
+				if (!originalIdentity.equals(comp.getIdentity())) {
+					try {
+						updateComponentReferences(originalIdentity, comp.getIdentity(), null);
+					} catch (URISyntaxException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 				}
+				load(comp);
+				fireDesignChangedEvent(false);
 			}
-			load(comp);
-			fireDesignChangedEvent(false);
 		}
 	}
 
@@ -1659,9 +1663,13 @@ public class SBOLDesign {
 	}
 
 	public void editSelectedCD() throws SBOLValidationException, URISyntaxException {
-		focusIn();
-		editCanvasCD();
-		focusOut();
+		if(selectedElement.isFeature()) {
+			PartEditDialog.editPart(panel.getParent(), parentCDs.peekFirst(), getCanvasCD(), false, true, design, false);
+		}else {
+			focusIn();
+			editCanvasCD();
+			focusOut();
+		}
 	}
 
 	public void findPartForSelectedCD() throws Exception {
