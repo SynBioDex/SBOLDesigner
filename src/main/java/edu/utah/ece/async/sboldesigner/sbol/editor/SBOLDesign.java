@@ -477,8 +477,12 @@ public class SBOLDesign {
 					iscomposite = false;
 					for(int j = 0; j < features.size(); j++) {
 						if(features.get(j).start >= f.start && features.get(j).end <= f.end && !features.get(j).element.equals(selectedElement)) {
-							iscomposite = true;
-							break;
+							if(features.get(j).start > f.start || features.get(j).end < f.end) {
+								iscomposite = true;
+								break;
+							}
+//							iscomposite = true;
+//							break;
 						}
 					}
 					break;
@@ -526,33 +530,51 @@ public class SBOLDesign {
 		int end = featureRange.peek().end;
 		setElementVisible(featureRange.peek().element, false);
 		features.remove(featureRange.peek());
+		ArrayList<Feature> currentlyDisplayedFeatures = new ArrayList<Feature>();
+		//ArrayList<DesignElement> currentlyDisplayedElements = new ArrayList<DesignElement>();
 		for(int i = 0; i < features.size(); i++) {
 			Feature f = features.get(i);
 			if(f.start >= start && f.end <= end) {
 				setElementVisible(f.element, true);
+				currentlyDisplayedFeatures.add(f);
 				for(int j = 0; j < features.size(); j++) {
-					if(features.get(j).start <= f.start && features.get(j).end >= f.end && i != j) {
-						setElementVisible(f.element, false);
-						break;
+					if(features.get(j).start > start && features.get(j).end < end) {
+						if(features.get(j).start <= f.start && features.get(j).end >= f.end && i != j) {
+							if(features.get(j).start < f.start || features.get(j).end > f.end) {
+								setElementVisible(f.element, false);
+								currentlyDisplayedFeatures.remove(f);
+								break;
+							}
+							
+						}
 					}
 				}
 			}else {
 				setElementVisible(f.element, false);
 			}
 		}
+		for(Feature f : currentlyDisplayedFeatures){
+			setElementVisible(f.element, true);
+		}
 		return;
 	}
 	private void displayFeatures(Feature parent) {
 		features.add(parent);
 		if(!featureRange.isEmpty()) {
+			int start = featureRange.peek().start;
+			int end = featureRange.peek().end;
 			for(int i = 0; i < features.size(); i++) {
 				Feature f = features.get(i);
 				if(f.start >= featureRange.peek().start && f.end <= featureRange.peek().end) {
 					setElementVisible(f.element, true);
 					for(int j = 0; j < features.size(); j++) {
-						if(features.get(j).start <= f.start && features.get(j).end >= f.end && i != j) {
-							setElementVisible(f.element, false);
-							break;
+						if(features.get(j).start > start && features.get(j).end < end) {
+							if(features.get(j).start <= f.start && features.get(j).end >= f.end && i != j) {
+								if(features.get(j).start < f.start || features.get(j).end > f.end) {
+									setElementVisible(f.element, false);
+									break;
+								}
+							}
 						}
 					}
 				}
@@ -563,8 +585,10 @@ public class SBOLDesign {
 				setElementVisible(f.element, true);
 				for(int j = 0; j < features.size(); j++) {
 					if(features.get(j).start <= f.start && features.get(j).end >= f.end && i != j) {
-						setElementVisible(f.element, false);
-						break;
+						if(features.get(j).start < f.start || features.get(j).end > f.end) {
+							setElementVisible(f.element, false);
+							break;
+						}
 					}
 				}
 			}
@@ -838,8 +862,10 @@ public class SBOLDesign {
 					Feature f = features.get(i);
 					for(int j = 0; j < features.size(); j++) {
 						if(features.get(j).start <= f.start && features.get(j).end >= f.end && i != j) {
-							setElementVisible(f.element, false);
-							break;
+							if(features.get(j).start < f.start || features.get(j).end > f.end) {
+								setElementVisible(f.element, false);
+								break;
+							}
 						}
 					}
 				}
@@ -1057,11 +1083,15 @@ public class SBOLDesign {
 		for (Location location : sequenceAnnotation.getLocations()) {
 			if (location instanceof Range) {
 				Range range = (Range) location;
-				start = range.getStart(); 
-				end = range.getEnd();
-				Feature f = new Feature(start, end, e);
-				features.add(f);
+				if(range.getStart()  == -1 || range.getStart() < start) {
+					start = range.getStart(); 
+				}
+				if(range.getEnd()  == -1 || range.getEnd() > start) {
+					end = range.getEnd(); 
+				}
 			}
+			Feature f = new Feature(start, end, e);
+			features.add(f);
 		} 
 
 		if (!loading) {
@@ -1580,7 +1610,7 @@ public class SBOLDesign {
 	public void editCanvasCD() throws SBOLValidationException {
 		confirmEditable();
 		if(!features.isEmpty()) {
-			PartEditDialog.editPart(panel.getParent(), parentCDs.peekFirst(), getCanvasCD(), false, true, design, false);
+			PartEditDialog.editPart(panel.getParent(), parentCDs.peekFirst(), getCanvasCD(), false, false, design, false);
 		}else {
 			ComponentDefinition comp = getCanvasCD();
 			URI originalIdentity = comp.getIdentity();
@@ -1664,7 +1694,7 @@ public class SBOLDesign {
 
 	public void editSelectedCD() throws SBOLValidationException, URISyntaxException {
 		if(selectedElement.isFeature()) {
-			PartEditDialog.editPart(panel.getParent(), parentCDs.peekFirst(), getCanvasCD(), false, true, design, false);
+			PartEditDialog.editPart(panel.getParent(), parentCDs.peekFirst(), getCanvasCD(), false, false, design, false);
 		}else {
 			focusIn();
 			editCanvasCD();
