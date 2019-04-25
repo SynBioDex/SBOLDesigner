@@ -481,8 +481,6 @@ public class SBOLDesign {
 								iscomposite = true;
 								break;
 							}
-//							iscomposite = true;
-//							break;
 						}
 					}
 					break;
@@ -508,6 +506,7 @@ public class SBOLDesign {
 					break;
 				}
 			}
+			setSelectedElement(null);
 			System.out.print("");
 		}else {
 			zoomStack.push(0);
@@ -560,6 +559,7 @@ public class SBOLDesign {
 	}
 	private void displayFeatures(Feature parent) {
 		features.add(parent);
+		ArrayList<Feature> currentlyDisplayedFeatures = new ArrayList<Feature>();
 		if(!featureRange.isEmpty()) {
 			int start = featureRange.peek().start;
 			int end = featureRange.peek().end;
@@ -567,11 +567,13 @@ public class SBOLDesign {
 				Feature f = features.get(i);
 				if(f.start >= featureRange.peek().start && f.end <= featureRange.peek().end) {
 					setElementVisible(f.element, true);
+					currentlyDisplayedFeatures.add(f);
 					for(int j = 0; j < features.size(); j++) {
 						if(features.get(j).start > start && features.get(j).end < end) {
 							if(features.get(j).start <= f.start && features.get(j).end >= f.end && i != j) {
 								if(features.get(j).start < f.start || features.get(j).end > f.end) {
 									setElementVisible(f.element, false);
+									currentlyDisplayedFeatures.remove(f);
 									break;
 								}
 							}
@@ -583,15 +585,20 @@ public class SBOLDesign {
 			for(int i = 0; i < features.size(); i++) {
 				Feature f = features.get(i);
 				setElementVisible(f.element, true);
+				currentlyDisplayedFeatures.add(f);
 				for(int j = 0; j < features.size(); j++) {
 					if(features.get(j).start <= f.start && features.get(j).end >= f.end && i != j) {
 						if(features.get(j).start < f.start || features.get(j).end > f.end) {
 							setElementVisible(f.element, false);
+							currentlyDisplayedFeatures.remove(f);
 							break;
 						}
 					}
 				}
 			}
+		}
+		for(Feature f : currentlyDisplayedFeatures){
+			setElementVisible(f.element, true);
 		}
 
 	} 
@@ -1083,10 +1090,10 @@ public class SBOLDesign {
 		for (Location location : sequenceAnnotation.getLocations()) {
 			if (location instanceof Range) {
 				Range range = (Range) location;
-				if(range.getStart()  == -1 || range.getStart() < start) {
+				if(start == -1 || range.getStart() < start) {
 					start = range.getStart(); 
 				}
-				if(range.getEnd()  == -1 || range.getEnd() > start) {
+				if(end  == -1 || range.getEnd() > end) {
 					end = range.getEnd(); 
 				}
 			}
