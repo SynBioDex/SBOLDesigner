@@ -473,10 +473,10 @@ public class SBOLDesign {
 		boolean iscomposite = false;
 		if(!features.isEmpty()) {
 			for(Feature f: features) {
-				if(f.element.equals(selectedElement)) {
+				if(f.element.equals(e)) {
 					iscomposite = false;
 					for(int j = 0; j < features.size(); j++) {
-						if(features.get(j).start >= f.start && features.get(j).end <= f.end && !features.get(j).element.equals(selectedElement)) {
+						if(features.get(j).start >= f.start && features.get(j).end <= f.end && !features.get(j).element.equals(e)) {
 							if(features.get(j).start > f.start || features.get(j).end < f.end) {
 								iscomposite = true;
 								break;
@@ -521,7 +521,7 @@ public class SBOLDesign {
 		updateEnabledActions();
 	}
 	
-	private void displayFeatures() {
+	private void displayFeatures() throws SBOLValidationException {
 		int start = featureRange.peek().start;
 		int end = featureRange.peek().end;
 		setElementVisible(featureRange.peek().element, false);
@@ -551,10 +551,12 @@ public class SBOLDesign {
 		}
 		for(Feature f : currentlyDisplayedFeatures){
 			setElementVisible(f.element, true);
+			JLabel button = buttons.get(f.element);
+			setupIcons(button, f.element);
 		}
 		return;
 	}
-	private void displayFeatures(Feature parent) {
+	private void displayFeatures(Feature parent) throws SBOLValidationException {
 		features.add(parent);
 		ArrayList<Feature> currentlyDisplayedFeatures = new ArrayList<Feature>();
 		if(!featureRange.isEmpty()) {
@@ -596,6 +598,8 @@ public class SBOLDesign {
 		}
 		for(Feature f : currentlyDisplayedFeatures){
 			setElementVisible(f.element, true);
+			JLabel button = buttons.get(f.element);
+			setupIcons(button, f.element);
 		}
 
 	} 
@@ -875,6 +879,8 @@ public class SBOLDesign {
 				}
 				for(Feature f : currentlyDisplayedFeatures){
 					setElementVisible(f.element, true);
+					JLabel button = buttons.get(f.element);
+					setupIcons(button, f.element);
 				}
 			}
 			return;
@@ -1097,10 +1103,9 @@ public class SBOLDesign {
 					end = range.getEnd(); 
 				}
 			}
-			Feature f = new Feature(start, end, e);
-			features.add(f);
 		} 
-
+		Feature f = new Feature(start, end, e);
+		features.add(f);
 		if (!loading) {
 			fireDesignChangedEvent(true);
 		}
@@ -1122,7 +1127,11 @@ public class SBOLDesign {
 		final ComponentDefinition comp = e.getCD();
 		boolean hasSequence = getAllSequences(comp);
 		updateCanvasCD(false);
-		Image image = e.getPart().getImage(e.getOrientation(), e.isComposite(), e.hasVariants(design, canvasCD),
+		boolean composite = e.isComposite();
+		if(e.isFeature()) {
+			composite = isElementCompositeFeature(e);
+		}
+		Image image = e.getPart().getImage(e.getOrientation(), composite, e.hasVariants(design, canvasCD),
 				hasSequence);
 		Image selectedImage = Images.createBorderedImage(image, Color.LIGHT_GRAY);
 		button.setIcon(new ImageIcon(image));
