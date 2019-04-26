@@ -367,9 +367,9 @@ public class SBOLDesign {
 	 * Features and featureStack is responsible for displaying the desired 
 	 * range of features on the canvas. 
 	 * */
-	private ArrayList<Feature> features;
-	private Stack<Feature> featureRange;
-	private Stack<Integer> zoomStack;
+	private final ArrayList<Feature> features = new ArrayList<Feature>();
+	private final Stack<Feature> featureRange = new Stack<Feature>();
+	private final Stack<Integer> zoomStack = new Stack<Integer>();
 
 	private final Deque<ComponentDefinition> parentCDs = new ArrayDeque<ComponentDefinition>();
 
@@ -493,9 +493,6 @@ public class SBOLDesign {
 	public void focusIn() throws SBOLValidationException {
 		Preconditions.checkState(canFocusIn(), "No selection to focus in");
 		
-		if(zoomStack == null) {
-			zoomStack = new Stack<Integer>();
-		}
 		if(selectedElement.isFeature()) {
 			zoomStack.push(1);
 			SequenceAnnotation sa = selectedElement.getSeqAnn();
@@ -693,6 +690,9 @@ public class SBOLDesign {
 		}
 
 		parentCDs.clear();
+		features.clear();
+		featureRange.clear();
+		zoomStack.clear();
 		load(rootCD);
 
 		eventBus.post(new DesignLoadedEvent(this));
@@ -857,12 +857,6 @@ public class SBOLDesign {
 				} else {
 					addSA(sequenceAnnotation, Parts.forIdentified(sequenceAnnotation));
 				}
-			}
-			if(features == null) {
-				features = new ArrayList<Feature>();	
-			}
-			if(featureRange == null) {
-				featureRange = new Stack<Feature>();
 			}
 			if(!features.isEmpty()) {
 				for(int i = 0; i < features.size(); i++) {
