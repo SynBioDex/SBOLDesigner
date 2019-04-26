@@ -859,16 +859,22 @@ public class SBOLDesign {
 				}
 			}
 			if(!features.isEmpty()) {
+				ArrayList<Feature> currentlyDisplayedFeatures = new ArrayList<Feature>();
 				for(int i = 0; i < features.size(); i++) {
 					Feature f = features.get(i);
+					currentlyDisplayedFeatures.add(f);
 					for(int j = 0; j < features.size(); j++) {
 						if(features.get(j).start <= f.start && features.get(j).end >= f.end && i != j) {
 							if(features.get(j).start < f.start || features.get(j).end > f.end) {
 								setElementVisible(f.element, false);
+								currentlyDisplayedFeatures.remove(f);
 								break;
 							}
 						}
 					}
+				}
+				for(Feature f : currentlyDisplayedFeatures){
+					setElementVisible(f.element, true);
 				}
 			}
 			return;
