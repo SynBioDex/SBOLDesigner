@@ -38,6 +38,7 @@ import org.sbolstandard.core2.ComponentDefinition;
 import org.sbolstandard.core2.Identified;
 
 import edu.utah.ece.async.sboldesigner.sbol.CharSequenceUtil;
+import edu.utah.ece.async.sboldesigner.sbol.editor.SBOLDesign;
 import edu.utah.ece.async.sboldesigner.swing.AbstractListTableModel;
 
 public class AnnotationEditor extends JDialog implements ActionListener {
@@ -70,7 +71,15 @@ public class AnnotationEditor extends JDialog implements ActionListener {
 		this.CD = CD;
 
 		addButton.addActionListener(this);
-		addButton.setEnabled(true);
+		if(SBOLDesign.features != null) {
+			if(SBOLDesign.features.isEmpty()) {
+				addButton.setEnabled(true);
+			}else {
+				addButton.setEnabled(false);
+			}
+		}else {
+			addButton.setEnabled(false);
+		}
 		editButton.addActionListener(this);
 		editButton.setEnabled(false);
 		removeButton.addActionListener(this);

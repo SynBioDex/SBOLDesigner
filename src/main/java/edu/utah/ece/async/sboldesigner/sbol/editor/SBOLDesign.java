@@ -259,8 +259,10 @@ public class SBOLDesign {
 		@Override
 		protected void perform() {
 			try {
-				ComponentDefinition comp = getSelectedCD();
-				deleteCD(comp);
+				if(features.isEmpty()) {
+					ComponentDefinition comp = getSelectedCD();
+					deleteCD(comp);
+				}
 			} catch (SBOLValidationException | URISyntaxException e) {
 				MessageDialog.showMessage(panel, "There was an error deleting the part: ", e.getMessage());
 				e.printStackTrace();
@@ -273,8 +275,10 @@ public class SBOLDesign {
 		@Override
 		protected void perform() {
 			try {
-				ComponentDefinition comp = getSelectedCD();
-				flipOrientation(comp);
+				if(features.isEmpty()) {
+					ComponentDefinition comp = getSelectedCD();
+					flipOrientation(comp);
+				}
 			} catch (SBOLValidationException | URISyntaxException e) {
 				MessageDialog.showMessage(panel, "There was an error flipping the orientation: ", e.getMessage());
 				e.printStackTrace();
@@ -286,8 +290,10 @@ public class SBOLDesign {
 			"hideScars.png") {
 		@Override
 		protected void perform() {
-			boolean isVisible = isPartVisible(Parts.SCAR);
-			setPartVisible(Parts.SCAR, !isVisible);
+			if(features.isEmpty()) {
+				boolean isVisible = isPartVisible(Parts.SCAR);
+				setPartVisible(Parts.SCAR, !isVisible);
+			}
 		}
 	}.toggle();
 
@@ -296,7 +302,9 @@ public class SBOLDesign {
 		@Override
 		protected void perform() {
 			try {
-				addScars();
+				if(features.isEmpty()) {
+					addScars();
+				}
 			} catch (SBOLValidationException | URISyntaxException e) {
 				MessageDialog.showMessage(panel, "There was a problem adding scars: ", e.getMessage());
 				e.printStackTrace();
@@ -367,7 +375,7 @@ public class SBOLDesign {
 	 * Features and featureStack is responsible for displaying the desired 
 	 * range of features on the canvas. 
 	 * */
-	private final ArrayList<Feature> features = new ArrayList<Feature>();
+	public final static ArrayList<Feature> features = new ArrayList<Feature>();
 	private final Stack<Feature> featureRange = new Stack<Feature>();
 	private final Stack<Integer> zoomStack = new Stack<Integer>();
 
@@ -622,6 +630,9 @@ public class SBOLDesign {
 		if(zoomStack != null) {
 			if(zoomStack.pop() == 1)
 				displayFeatures(featureRange.pop());
+			else {
+				focusOut(getParentCD());
+			}
 		}else {
 			focusOut(getParentCD());
 		}
