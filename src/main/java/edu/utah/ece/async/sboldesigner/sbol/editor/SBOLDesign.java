@@ -1004,6 +1004,10 @@ public class SBOLDesign {
 				autoUpdate = true;
 			}
 		}
+		
+		if(!features.isEmpty()) {
+			return null;
+		}
 
 		if (edit || part.getDisplayId() == "NGA") {
 			comp = PartEditDialog.editPart(panel.getParent(), getCanvasCD(), comp, edit, true, design, false);
