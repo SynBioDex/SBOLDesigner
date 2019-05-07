@@ -1438,6 +1438,9 @@ public class SBOLDesign {
 			fireDesignChangedEvent(false);
 			designChanged = true;
 		}
+		if (!features.isEmpty()) {
+			return;
+		}
 
 		if (index >= 0) {
 			DesignElement e = elements.get(index);
@@ -1677,7 +1680,7 @@ public class SBOLDesign {
 					CD.getDisplayId(), CD.getVersion());
 		}
 		for (org.sbolstandard.core2.Component comp : newCD.getComponents()) {
-			if (comp.getDefinitionURI().equals(originalIdentity)) {
+			if (comp.getDefinitionIdentity().equals(originalIdentity)) {
 				comp.setDefinition(newIdentity);
 			}
 		}
