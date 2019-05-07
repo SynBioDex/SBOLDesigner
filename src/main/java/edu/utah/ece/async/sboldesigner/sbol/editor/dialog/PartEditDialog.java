@@ -117,6 +117,18 @@ public class PartEditDialog extends JDialog implements ActionListener, DocumentL
 		try {
 			PartEditDialog dialog = new PartEditDialog(parent, parentCD, CD, canEdit, design);
 			dialog.saveButton.setEnabled(enableSave);
+			if(canEdit == false) {
+				dialog.importSequence.setEnabled(false);
+				dialog.importFromRegistry.setEnabled(false);
+				dialog.importCD.setEnabled(false);
+				dialog.sequenceEncoding.setEnabled(false);
+				dialog.description.setEnabled(false);
+				dialog.name.setEnabled(false);
+				dialog.displayId.setEnabled(false);
+				dialog.roleRefinement.setEnabled(false);
+				dialog.roleSelection.setEnabled(false);
+				dialog.typeSelection.setEnabled(false);
+			}
 			dialog.updateParents = updateParents;
 			dialog.setVisible(true);
 			return dialog.CD;

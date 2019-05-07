@@ -57,6 +57,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Stack;
 
 import javax.swing.Action;
 import javax.swing.BorderFactory;
@@ -130,6 +131,8 @@ import edu.utah.ece.async.sboldesigner.sbol.editor.event.SelectionChangedEvent;
  * @author Evren Sirin
  */
 public class SBOLDesign {
+	
+	
 	private static Logger LOGGER = LoggerFactory.getLogger(SBOLDesign.class.getName());
 
 	private static final Font LABEL_FONT = new Font(Font.SANS_SERIF, Font.PLAIN, 12);
@@ -256,8 +259,10 @@ public class SBOLDesign {
 		@Override
 		protected void perform() {
 			try {
-				ComponentDefinition comp = getSelectedCD();
-				deleteCD(comp);
+				if(features.isEmpty()) {
+					ComponentDefinition comp = getSelectedCD();
+					deleteCD(comp);
+				}
 			} catch (SBOLValidationException | URISyntaxException e) {
 				MessageDialog.showMessage(panel, "There was an error deleting the part: ", e.getMessage());
 				e.printStackTrace();
@@ -270,8 +275,10 @@ public class SBOLDesign {
 		@Override
 		protected void perform() {
 			try {
-				ComponentDefinition comp = getSelectedCD();
-				flipOrientation(comp);
+				if(features.isEmpty()) {
+					ComponentDefinition comp = getSelectedCD();
+					flipOrientation(comp);
+				}
 			} catch (SBOLValidationException | URISyntaxException e) {
 				MessageDialog.showMessage(panel, "There was an error flipping the orientation: ", e.getMessage());
 				e.printStackTrace();
@@ -283,8 +290,10 @@ public class SBOLDesign {
 			"hideScars.png") {
 		@Override
 		protected void perform() {
-			boolean isVisible = isPartVisible(Parts.SCAR);
-			setPartVisible(Parts.SCAR, !isVisible);
+			if(features.isEmpty()) {
+				boolean isVisible = isPartVisible(Parts.SCAR);
+				setPartVisible(Parts.SCAR, !isVisible);
+			}
 		}
 	}.toggle();
 
@@ -293,7 +302,9 @@ public class SBOLDesign {
 		@Override
 		protected void perform() {
 			try {
-				addScars();
+				if(features.isEmpty()) {
+					addScars();
+				}
 			} catch (SBOLValidationException | URISyntaxException e) {
 				MessageDialog.showMessage(panel, "There was a problem adding scars: ", e.getMessage());
 				e.printStackTrace();
@@ -359,6 +370,14 @@ public class SBOLDesign {
 	 * The current CD displayed in the canvas.
 	 */
 	private ComponentDefinition canvasCD;
+	
+	/**
+	 * Features and featureStack is responsible for displaying the desired 
+	 * range of features on the canvas. 
+	 * */
+	public final static ArrayList<Feature> features = new ArrayList<Feature>();
+	private final Stack<Feature> featureRange = new Stack<Feature>();
+	private final Stack<Integer> zoomStack = new Stack<Integer>();
 
 	private final Deque<ComponentDefinition> parentCDs = new ArrayDeque<ComponentDefinition>();
 
@@ -384,7 +403,7 @@ public class SBOLDesign {
 		contentPanel.add(elementBox);
 		contentPanel.add(backboneBox);
 
-		panel = new DesignPanel();
+		panel = new DesignPanel(); 
 		panel.setOpaque(false);
 		panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
 		panel.setAlignmentX(0.5f);
@@ -448,32 +467,176 @@ public class SBOLDesign {
 
 	public boolean canFocusIn() {
 		ComponentDefinition comp = getSelectedCD();
-		return comp != null;
+		boolean feature = false;
+		if(selectedElement != null) {
+			feature = selectedElement.isFeature();
+			if(feature) {
+				feature = feature && isElementCompositeFeature(selectedElement);
+			}
+		}
+		return comp != null || feature;
+	}
+	
+	private boolean isElementCompositeFeature(DesignElement e) {
+		boolean iscomposite = false;
+		if(!features.isEmpty()) {
+			for(Feature f: features) {
+				if(f.element.equals(e)) {
+					iscomposite = false;
+					for(int j = 0; j < features.size(); j++) {
+						if(features.get(j).start >= f.start && features.get(j).end <= f.end && !features.get(j).element.equals(e)) {
+							if(features.get(j).start > f.start || features.get(j).end < f.end) {
+								iscomposite = true;
+								break;
+							}
+						}
+					}
+					break;
+				}
+			}
+		}
+		return iscomposite;
 	}
 
 	public void focusIn() throws SBOLValidationException {
 		Preconditions.checkState(canFocusIn(), "No selection to focus in");
-
-		ComponentDefinition comp = getSelectedCD();
-
-		BufferedImage snapshot = getSnapshot();
-
-		//updateCanvasCD();
-		parentCDs.push(canvasCD);
-
-		load(comp);
-
-		eventBus.post(new FocusInEvent(this, comp, snapshot));
+		
+		if(selectedElement.isFeature()) {
+			zoomStack.push(1);
+			SequenceAnnotation sa = selectedElement.getSeqAnn();
+			for(Feature f: features) {
+				if(f.element.equals(selectedElement)) {
+					featureRange.push(f);
+					displayFeatures();
+					break;
+				}
+			}
+			setSelectedElement(null);
+			System.out.print("");
+		}else {
+			zoomStack.push(0);
+			ComponentDefinition comp = getSelectedCD();
+	
+			BufferedImage snapshot = getSnapshot();
+	
+			//updateCanvasCD();
+			parentCDs.push(canvasCD);
+	
+			load(comp);
+	
+			eventBus.post(new FocusInEvent(this, comp, snapshot));
+		}
+		updateEnabledActions();
 	}
+	
+	private void displayFeatures() throws SBOLValidationException {
+		int start = featureRange.peek().start;
+		int end = featureRange.peek().end;
+		setElementVisible(featureRange.peek().element, false);
+		features.remove(featureRange.peek());
+		ArrayList<Feature> currentlyDisplayedFeatures = new ArrayList<Feature>();
+		//ArrayList<DesignElement> currentlyDisplayedElements = new ArrayList<DesignElement>();
+		for(int i = 0; i < features.size(); i++) {
+			Feature f = features.get(i);
+			if(f.start >= start && f.end <= end) {
+				setElementVisible(f.element, true);
+				currentlyDisplayedFeatures.add(f);
+				for(int j = 0; j < features.size(); j++) {
+					if(features.get(j).start > start && features.get(j).end < end) {
+						if(features.get(j).start <= f.start && features.get(j).end >= f.end && i != j) {
+							if(features.get(j).start < f.start || features.get(j).end > f.end) {
+								setElementVisible(f.element, false);
+								currentlyDisplayedFeatures.remove(f);
+								break;
+							}
+							
+						}
+					}
+				}
+			}else {
+				setElementVisible(f.element, false);
+			}
+		}
+		for(Feature f : currentlyDisplayedFeatures){
+			setElementVisible(f.element, true);
+			JLabel button = buttons.get(f.element);
+			setupIcons(button, f.element);
+		}
+		return;
+	}
+	private void displayFeatures(Feature parent) throws SBOLValidationException {
+		features.add(parent);
+		ArrayList<Feature> currentlyDisplayedFeatures = new ArrayList<Feature>();
+		if(!featureRange.isEmpty()) {
+			int start = featureRange.peek().start;
+			int end = featureRange.peek().end;
+			for(int i = 0; i < features.size(); i++) {
+				Feature f = features.get(i);
+				if(f.start >= featureRange.peek().start && f.end <= featureRange.peek().end) {
+					setElementVisible(f.element, true);
+					currentlyDisplayedFeatures.add(f);
+					for(int j = 0; j < features.size(); j++) {
+						if(features.get(j).start > start && features.get(j).end < end) {
+							if(features.get(j).start <= f.start && features.get(j).end >= f.end && i != j) {
+								if(features.get(j).start < f.start || features.get(j).end > f.end) {
+									setElementVisible(f.element, false);
+									currentlyDisplayedFeatures.remove(f);
+									break;
+								}
+							}
+						}
+					}
+				}
+			}
+		}else {
+			for(int i = 0; i < features.size(); i++) {
+				Feature f = features.get(i);
+				setElementVisible(f.element, true);
+				currentlyDisplayedFeatures.add(f);
+				for(int j = 0; j < features.size(); j++) {
+					if(features.get(j).start <= f.start && features.get(j).end >= f.end && i != j) {
+						if(features.get(j).start < f.start || features.get(j).end > f.end) {
+							setElementVisible(f.element, false);
+							currentlyDisplayedFeatures.remove(f);
+							break;
+						}
+					}
+				}
+			}
+		}
+		for(Feature f : currentlyDisplayedFeatures){
+			setElementVisible(f.element, true);
+			JLabel button = buttons.get(f.element);
+			setupIcons(button, f.element);
+		}
+
+	} 
 
 	public boolean canFocusOut() {
-		return !parentCDs.isEmpty();
+		boolean zoom = false;
+		if(zoomStack != null) {
+			if(!zoomStack.empty()) {
+				if(zoomStack.peek() == 1) {
+					zoom = true;
+				}
+			}
+		}
+		return !parentCDs.isEmpty() || zoom;
 	}
 
 	public void focusOut() throws SBOLValidationException {
 		Preconditions.checkState(canFocusOut(), "No parent design to focus out");
 
-		focusOut(getParentCD());
+		if(zoomStack != null) {
+			if(zoomStack.pop() == 1)
+				displayFeatures(featureRange.pop());
+			else {
+				focusOut(getParentCD());
+			}
+		}else {
+			focusOut(getParentCD());
+		}
+		updateEnabledActions();
 	}
 
 	public void focusOut(ComponentDefinition comp) throws SBOLValidationException {
@@ -542,6 +705,9 @@ public class SBOLDesign {
 		}
 
 		parentCDs.clear();
+		features.clear();
+		featureRange.clear();
+		zoomStack.clear();
 		load(rootCD);
 
 		eventBus.post(new DesignLoadedEvent(this));
@@ -707,6 +873,27 @@ public class SBOLDesign {
 					addSA(sequenceAnnotation, Parts.forIdentified(sequenceAnnotation));
 				}
 			}
+			if(!features.isEmpty()) {
+				ArrayList<Feature> currentlyDisplayedFeatures = new ArrayList<Feature>();
+				for(int i = 0; i < features.size(); i++) {
+					Feature f = features.get(i);
+					currentlyDisplayedFeatures.add(f);
+					for(int j = 0; j < features.size(); j++) {
+						if(features.get(j).start <= f.start && features.get(j).end >= f.end && i != j) {
+							if(features.get(j).start < f.start || features.get(j).end > f.end) {
+								setElementVisible(f.element, false);
+								currentlyDisplayedFeatures.remove(f);
+								break;
+							}
+						}
+					}
+				}
+				for(Feature f : currentlyDisplayedFeatures){
+					setElementVisible(f.element, true);
+					JLabel button = buttons.get(f.element);
+					setupIcons(button, f.element);
+				}
+			}
 			return;
 		}
 
@@ -817,6 +1004,10 @@ public class SBOLDesign {
 				autoUpdate = true;
 			}
 		}
+		
+		if(!features.isEmpty()) {
+			return null;
+		}
 
 		if (edit || part.getDisplayId() == "NGA") {
 			comp = PartEditDialog.editPart(panel.getParent(), getCanvasCD(), comp, edit, true, design, false);
@@ -881,6 +1072,27 @@ public class SBOLDesign {
 			updateCanvasCD(true);
 		}
 	}
+	
+	static class Feature{
+		public ArrayList<Feature> children;
+		DesignElement element;
+		public int start;
+		public int end;
+		public int size; 
+		
+		public Feature(int start, int end, DesignElement element) {
+			this.start = start;
+			this.end = end;
+			this.size = end-start;
+			this.element = element;
+			children = new ArrayList<Feature>();
+		}
+		
+		public void addChild(Feature child) {
+			this.children.add(child);
+		}
+		
+	}
 
 	private void addSA(SequenceAnnotation sequenceAnnotation, Part part) throws SBOLValidationException {
 		DesignElement e = new DesignElement(sequenceAnnotation, canvasCD, part, design);
@@ -893,7 +1105,22 @@ public class SBOLDesign {
 		if (!isPartVisible(part)) {
 			setPartVisible(part, true);
 		}
-
+		
+		int start = -1;
+		int end = -1;
+		for (Location location : sequenceAnnotation.getLocations()) {
+			if (location instanceof Range) {
+				Range range = (Range) location;
+				if(start == -1 || range.getStart() < start) {
+					start = range.getStart(); 
+				}
+				if(end  == -1 || range.getEnd() > end) {
+					end = range.getEnd(); 
+				}
+			}
+		} 
+		Feature f = new Feature(start, end, e);
+		features.add(f);
 		if (!loading) {
 			fireDesignChangedEvent(true);
 		}
@@ -915,7 +1142,11 @@ public class SBOLDesign {
 		final ComponentDefinition comp = e.getCD();
 		boolean hasSequence = getAllSequences(comp);
 		updateCanvasCD(false);
-		Image image = e.getPart().getImage(e.getOrientation(), e.isComposite(), e.hasVariants(design, canvasCD),
+		boolean composite = e.isComposite();
+		if(e.isFeature()) {
+			composite = isElementCompositeFeature(e);
+		}
+		Image image = e.getPart().getImage(e.getOrientation(), composite, e.hasVariants(design, canvasCD),
 				hasSequence);
 		Image selectedImage = Images.createBorderedImage(image, Color.LIGHT_GRAY);
 		button.setIcon(new ImageIcon(image));
@@ -1207,6 +1438,9 @@ public class SBOLDesign {
 			fireDesignChangedEvent(false);
 			designChanged = true;
 		}
+		if (!features.isEmpty()) {
+			return;
+		}
 
 		if (index >= 0) {
 			DesignElement e = elements.get(index);
@@ -1318,6 +1552,12 @@ public class SBOLDesign {
 	public boolean isPartVisible(Part part) {
 		return !hiddenParts.contains(part);
 	}
+	
+	public void setElementVisible(DesignElement e, boolean isVisible) {
+		JLabel button = buttons.get(e);
+		button.setVisible(isVisible);
+		refreshUI();
+	}
 
 	public void setPartVisible(Part part, boolean isVisible) {
 		boolean visibilityChanged = isVisible ? hiddenParts.remove(part) : hiddenParts.add(part);
@@ -1403,20 +1643,24 @@ public class SBOLDesign {
 
 	public void editCanvasCD() throws SBOLValidationException {
 		confirmEditable();
-		ComponentDefinition comp = getCanvasCD();
-		URI originalIdentity = comp.getIdentity();
-		comp = PartEditDialog.editPart(panel.getParent(), parentCDs.peekFirst(), comp, false, true, design, false);
-		if (comp != null) {
-			if (!originalIdentity.equals(comp.getIdentity())) {
-				try {
-					updateComponentReferences(originalIdentity, comp.getIdentity(), null);
-				} catch (URISyntaxException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+		if(!features.isEmpty()) {
+			PartEditDialog.editPart(panel.getParent(), parentCDs.peekFirst(), getCanvasCD(), false, false, design, false);
+		}else {
+			ComponentDefinition comp = getCanvasCD();
+			URI originalIdentity = comp.getIdentity();
+			comp = PartEditDialog.editPart(panel.getParent(), parentCDs.peekFirst(), comp, false, true, design, false);
+			if (comp != null) {
+				if (!originalIdentity.equals(comp.getIdentity())) {
+					try {
+						updateComponentReferences(originalIdentity, comp.getIdentity(), null);
+					} catch (URISyntaxException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 				}
+				load(comp);
+				fireDesignChangedEvent(false);
 			}
-			load(comp);
-			fireDesignChangedEvent(false);
 		}
 	}
 
@@ -1436,7 +1680,7 @@ public class SBOLDesign {
 					CD.getDisplayId(), CD.getVersion());
 		}
 		for (org.sbolstandard.core2.Component comp : newCD.getComponents()) {
-			if (comp.getDefinitionURI().equals(originalIdentity)) {
+			if (comp.getDefinitionIdentity().equals(originalIdentity)) {
 				comp.setDefinition(newIdentity);
 			}
 		}
@@ -1483,9 +1727,13 @@ public class SBOLDesign {
 	}
 
 	public void editSelectedCD() throws SBOLValidationException, URISyntaxException {
-		focusIn();
-		editCanvasCD();
-		focusOut();
+		if(selectedElement.isFeature()) {
+			PartEditDialog.editPart(panel.getParent(), parentCDs.peekFirst(), getCanvasCD(), false, false, design, false);
+		}else {
+			focusIn();
+			editCanvasCD();
+			focusOut();
+		}
 	}
 
 	public void findPartForSelectedCD() throws Exception {
@@ -1892,6 +2140,11 @@ public class SBOLDesign {
 
 		SequenceAnnotation getSeqAnn() {
 			return seqAnn;
+		}
+		
+		
+		boolean isFeature() {
+			return !seqAnn.isSetComponent();
 		}
 
 		void setCD(ComponentDefinition CD) throws SBOLValidationException {
