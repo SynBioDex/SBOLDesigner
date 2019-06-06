@@ -514,6 +514,9 @@ public class SBOLDesign {
 			setSelectedElement(null);
 			System.out.print("");
 		}else {
+			features.clear();
+			featureRange.clear();
+			
 			zoomStack.push(0);
 			ComponentDefinition comp = getSelectedCD();
 	
@@ -631,9 +634,13 @@ public class SBOLDesign {
 			if(zoomStack.pop() == 1)
 				displayFeatures(featureRange.pop());
 			else {
+				features.clear();
+				featureRange.clear();
 				focusOut(getParentCD());
 			}
 		}else {
+			features.clear();
+			featureRange.clear();
 			focusOut(getParentCD());
 		}
 		updateEnabledActions();
@@ -1555,7 +1562,10 @@ public class SBOLDesign {
 	
 	public void setElementVisible(DesignElement e, boolean isVisible) {
 		JLabel button = buttons.get(e);
-		button.setVisible(isVisible);
+		// TODO: new check
+		if (button != null) {
+			button.setVisible(isVisible);
+		}
 		refreshUI();
 	}
 
