@@ -619,7 +619,10 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 				}
 				while (collectionSelection.getSelectedIndex() + stackMod < collectionSelection.getItemCount()) {
 					collectionSelection.removeItemAt(collectionSelection.getSelectedIndex() + stackMod);
-					collectionPaths.get(registry).remove(collectionSelection.getSelectedIndex());
+					// TODO: new check
+					if (collectionSelection.getSelectedIndex() < collectionPaths.get(registry).size()) {
+						collectionPaths.get(registry).remove(collectionSelection.getSelectedIndex());
+					}
 				}
 			}
 		}
