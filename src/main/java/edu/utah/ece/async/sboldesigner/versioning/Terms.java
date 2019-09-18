@@ -18,8 +18,6 @@ package edu.utah.ece.async.sboldesigner.versioning;
 import java.util.Calendar;
 import java.util.UUID;
 
-import javax.xml.bind.DatatypeConverter;
-
 import org.openrdf.model.Literal;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
@@ -85,9 +83,9 @@ public class Terms {
 		return VF.createLiteral(label);		
 	}
 	
-	public static Literal literal(Calendar date) {
-		return VF.createLiteral(DatatypeConverter.printDateTime(date), XMLSchema.DATETIME);		
-	}
+//	public static Literal literal(Calendar date) {
+//		return VF.createLiteral(DatatypeConverter.printDateTime(date), XMLSchema.DATETIME);		
+//	}
 
 	public static Statement stmt(Resource s, URI p, Value o) {
 		return VF.createStatement(s, p, o);
