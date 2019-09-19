@@ -138,6 +138,8 @@ public class ProvenanceUtil {
 			designerAgent.setDescription(
 					"SBOLDesigner is a simple, biologist-friendly CAD software tool for creating and manipulating the sequences of genetic constructs using the Synthetic Biology Open Language (SBOL) 2 data model. Throughout the design process, SBOL Visual symbols, a system of schematic glyphs, provide standardized visualizations of individual parts. SBOLDesigner completes a workflow for users of genetic design automation tools. It combines a simple user interface with the power of the SBOL standard and serves as a launchpad for more detailed designs involving simulations and experiments. Some new features in SBOLDesigner are SynBioHub integration, local repositories, importing of parts/sequences from existing files, import and export of GenBank and FASTA files, extended role ontology support, the ability to partially open designs with multiple root ComponentDefinitions, backward compatibility with SBOL 1.1, and versioning.");
 			designerAgent.createAnnotation(new QName("http://purl.org/dc/elements/1.1/", "creator", "dc"),
+					"Samuel Bridge");
+			designerAgent.createAnnotation(new QName("http://purl.org/dc/elements/1.1/", "creator", "dc"),
 					"Michael Zhang");
 			designerAgent.createAnnotation(new QName("http://purl.org/dc/elements/1.1/", "creator", "dc"),
 					"Chris Myers");

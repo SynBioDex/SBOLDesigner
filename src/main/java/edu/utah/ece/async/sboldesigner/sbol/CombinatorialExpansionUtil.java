@@ -14,6 +14,7 @@ import org.sbolstandard.core2.OperatorType;
 import org.sbolstandard.core2.RestrictionType;
 import org.sbolstandard.core2.SBOLDocument;
 import org.sbolstandard.core2.SBOLValidationException;
+import org.sbolstandard.core2.SequenceAnnotation;
 import org.sbolstandard.core2.SequenceConstraint;
 import org.sbolstandard.core2.StrategyType;
 import org.sbolstandard.core2.TopLevel;
@@ -78,7 +79,7 @@ public class CombinatorialExpansionUtil {
 			component.addWasDerivedFrom(template.getComponent(component.getDisplayId()).getIdentity());
 		}
 
-		copy.clearSequenceAnnotations();
+		//copy.clearSequenceAnnotations();
 
 		return copy;
 	}
@@ -112,6 +113,7 @@ public class CombinatorialExpansionUtil {
 
 		return parents;
 	}
+	
 
 	private static void addChildren(ComponentDefinition originalTemplate, Component originalComponent,
 			ComponentDefinition newParent, HashSet<ComponentDefinition> children) throws SBOLValidationException {
@@ -120,6 +122,11 @@ public class CombinatorialExpansionUtil {
 
 		if (children.isEmpty()) {
 			removeConstraintReferences(newParent, newComponent);
+			for (SequenceAnnotation sa : newParent.getSequenceAnnotations()) {
+				if (sa.isSetComponent() && sa.getComponentURI().equals(newComponent.getIdentity())) {
+					newParent.removeSequenceAnnotation(sa);
+				}
+			}
 			newParent.removeComponent(newComponent);
 			return;
 		}
@@ -165,10 +172,31 @@ public class CombinatorialExpansionUtil {
 		}
 	}
 
-	private static void removeConstraintReferences(ComponentDefinition newParent, Component newComponent) {
+	private static void removeConstraintReferences(ComponentDefinition newParent, Component newComponent) throws SBOLValidationException {
+		Component subject = null;
+		Component object = null;
 		for (SequenceConstraint sc : newParent.getSequenceConstraints()) {
-			if (sc.getSubject().equals(newComponent) || sc.getObject().equals(newComponent)) {
-				newParent.removeSequenceConstraint(sc);
+			if (sc.getSubject().equals(newComponent)) {
+				object = sc.getObject();
+				//If we know what the new subject of this sequence constraint should be, modify it
+				if(subject != null) {
+					sc.setSubject(subject.getIdentity());
+					object = null;
+					subject = null;
+				}else {//else remove it
+					newParent.removeSequenceConstraint(sc);
+				}
+			}
+			if(sc.getObject().equals(newComponent)){
+				subject = sc.getSubject();
+				//If we know what the new object of this sequence constraint should be, modify it
+				if(object != null) {
+					sc.setObject(object.getIdentity());
+					object = null;
+					subject = null;
+				}else {//else remove it
+					newParent.removeSequenceConstraint(sc);
+				}
 			}
 		}
 	}

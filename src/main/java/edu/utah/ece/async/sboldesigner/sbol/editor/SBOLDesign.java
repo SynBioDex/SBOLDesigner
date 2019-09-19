@@ -1792,13 +1792,58 @@ public class SBOLDesign {
 		}
 
 		doc = CombinatorialExpansionUtil.createCombinatorialDesign(doc);
-
+		
+		
+		for(ComponentDefinition c : doc.getRootComponentDefinitions()) {
+			rebuildSequences(c);
+		}
+		
 		if (doc != null) {
 			if (!file.getName().contains(".")) {
 				file = new File(file + ".xml");
 			}
 			SBOLWriter.write(doc, new FileOutputStream(file));
 		}
+	}
+	
+	private void rebuildSequences(ComponentDefinition comp) throws SBOLValidationException {
+		Set<SequenceAnnotation> oldSequenceAnn = comp.getSequenceAnnotations();
+		comp.clearSequenceAnnotations();
+		Set<Sequence> currSequences = new HashSet<Sequence>();
+		int start = 1;
+		int length;
+		int count = 0;
+		String newSeq = "";
+		ComponentDefinition curr;
+		for(org.sbolstandard.core2.Component c : comp.getSortedComponents()) {
+			curr = c.getDefinition();
+			
+			length = 0;
+			//Append sequences to build newly constructed sequence
+			for(Sequence s : curr.getSequences()) {
+				currSequences.add(s);
+				newSeq.concat(s.getElements());
+				length += s.getElements().length();
+			}
+			
+			OrientationType o = OrientationType.INLINE;
+			for(SequenceAnnotation sa : oldSequenceAnn) {
+				if(sa.getComponent().getIdentity() == c.getIdentity()) {
+					o = sa.getLocations().iterator().next().getOrientation();
+				}
+			}
+			
+			SequenceAnnotation seqAnn = comp.createSequenceAnnotation("SequenceAnnotation_"+count, "Range" , start, start+length, o);
+			
+			seqAnn.setComponent(c.getIdentity());
+			
+			start += length+1;
+			count++;
+		}
+		if(newSeq != "") {
+			comp.getSequences().iterator().next().setElements(newSeq);
+		}
+		
 	}
 
 	public static void uploadDesign(Component panel, SBOLDocument uploadDoc, File uploadFile)
