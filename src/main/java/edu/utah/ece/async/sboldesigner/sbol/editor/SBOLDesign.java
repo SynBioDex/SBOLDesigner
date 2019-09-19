@@ -1840,8 +1840,9 @@ public class SBOLDesign {
 			start += length+1;
 			count++;
 		}
-		
-		comp.getSequences().iterator().next().setElements(newSeq);
+		if(newSeq != "") {
+			comp.getSequences().iterator().next().setElements(newSeq);
+		}
 		
 	}
 
