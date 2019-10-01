@@ -1989,7 +1989,7 @@ public class SBOLDesign {
 			String nucleotides = canvasCD.getImpliedNucleicAcidSequence();
 
 			if (nucleotides != null && nucleotides.length() > 0) {
-				if (nucleotides.length() < oldElements.length()) {
+				if (nucleotides != oldElements) {
 					// report to the user if the updated sequence is shorter
 					int option = 0;
 					// check preferences
