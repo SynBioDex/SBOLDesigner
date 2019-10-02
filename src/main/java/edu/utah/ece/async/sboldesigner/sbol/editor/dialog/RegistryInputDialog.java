@@ -51,6 +51,7 @@ import org.sbolstandard.core2.SBOLDocument;
 import org.sbolstandard.core2.SBOLReader;
 import org.sbolstandard.core2.SBOLValidationException;
 import org.sbolstandard.core2.SequenceOntology;
+import org.sbolstandard.core2.TopLevel;
 import org.synbiohub.frontend.IdentifiedMetadata;
 import org.synbiohub.frontend.SynBioHubException;
 import org.synbiohub.frontend.SynBioHubFrontend;
@@ -403,6 +404,61 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 		return location.startsWith("http://") || location.startsWith("https://");
 	}
 
+	private List<TopLevel> searchAllParts(Part part) {
+		try {
+			if (isMetadata()) {
+				throw new Exception("Incorrect state.  url isn't a path");
+			}
+
+			if (part.equals(ALL_PARTS)) {
+				part = null;
+			}
+
+			SBOLReader.setURIPrefix(SBOLEditorPreferences.INSTANCE.getUserInfo().getURI().toString());
+			SBOLReader.setCompliant(true);
+			SBOLDocument doc;
+			Registry registry = (Registry) registrySelection.getSelectedItem();
+
+			if (registry.equals(Registry.BUILT_IN)) {
+				// read from BuiltInParts.xml
+				doc = SBOLReader.read(Registry.class.getResourceAsStream("/BuiltInParts.xml"));
+
+			} else if (registry.equals(Registry.WORKING_DOCUMENT)) {
+				if (workingDoc != null) {
+					// workingDoc is specified, so use that
+					doc = workingDoc;
+				} else {
+					// read from SBOLUtils.setupFile();
+					File file = SBOLUtils.setupFile();
+
+					if (file.exists()) {
+						doc = SBOLReader.read(file);
+					} else {
+						// JOptionPane.showMessageDialog(null, "The working
+						// document could not be found on disk. Try opening the
+						// file again.");
+						return new ArrayList<TopLevel>();
+					}
+				}
+
+			} else {
+				// read from the location (path)
+				doc = SBOLReader.read(location);
+			}
+
+			doc.setDefaultURIprefix(SBOLEditorPreferences.INSTANCE.getUserInfo().getURI().toString());
+			return SBOLUtils.getCDCollectionsAndComboDerv(doc);
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			MessageDialog.showMessage(null, "Getting the SBOLDocument from path failed: ", e.getMessage());
+			Registries registries = Registries.get();
+			registries.setVersionRegistryIndex(0);
+			registries.save();
+			return null;
+		}
+	}
+	
 	/**
 	 * Gets the SBOLDocument from the path (file on disk) and returns all its
 	 * CDs.

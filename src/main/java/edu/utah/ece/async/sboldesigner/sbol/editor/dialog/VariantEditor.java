@@ -44,6 +44,7 @@ import org.sbolstandard.core2.OperatorType;
 import org.sbolstandard.core2.SBOLDocument;
 import org.sbolstandard.core2.SBOLValidationException;
 import org.sbolstandard.core2.StrategyType;
+import org.sbolstandard.core2.TopLevel;
 import org.sbolstandard.core2.VariableComponent;
 
 import edu.utah.ece.async.sboldesigner.sbol.CharSequenceUtil;
@@ -206,8 +207,8 @@ public class VariantEditor extends JDialog implements ActionListener {
 	}
 
 	protected JPanel initMainPanel() throws SBOLValidationException {
-		ComponentDefinitionTableModel tableModel = new ComponentDefinitionTableModel(getVariants());
-
+		//ComponentDefinitionTableModel tableModel = new ComponentDefinitionTableModel(getVariants());
+		TopLevelTableModel tableModel = new TopLevelTableModel(getVariantsCollectionsAndDerivations());
 		JPanel panel = createTablePanel(tableModel, "Variant count (" + tableModel.getRowCount() + ")");
 
 		table = (JTable) panel.getClientProperty("table");
@@ -360,6 +361,7 @@ public class VariantEditor extends JDialog implements ActionListener {
 		return null;
 	}
 
+	//TODO: Deprecate once getVariantsCollectionsAndDerivations() is implemented
 	private List<ComponentDefinition> getVariants() throws SBOLValidationException {
 		ArrayList<ComponentDefinition> variants = new ArrayList<>();
 
@@ -370,6 +372,32 @@ public class VariantEditor extends JDialog implements ActionListener {
 
 		for (URI cd : variable.getVariantURIs()) {
 			variants.add(design.getComponentDefinition(cd));
+		}
+
+		return variants;
+	}
+	
+	private List<TopLevel> getVariantsCollectionsAndDerivations() throws SBOLValidationException {
+		ArrayList<TopLevel> variants = new ArrayList<>();
+
+		VariableComponent variable = getVariableComponent();
+		if (variable == null) {
+			return variants;
+		}
+
+		//Get variants
+		for (URI cd : variable.getVariantURIs()) {
+			variants.add(design.getComponentDefinition(cd));
+		}
+		
+		//Get variantCollections
+		for (URI col : variable.getVariantCollectionURIs()) {
+			variants.add(design.getCollection(col));
+		}
+		
+		//Get 
+		for (URI der : variable.getVariantDerivationURIs()) {
+			variants.add(design.getCombinatorialDerivation(der));
 		}
 
 		return variants;
@@ -574,7 +602,8 @@ public class VariantEditor extends JDialog implements ActionListener {
 	}
 
 	private void updateTable() throws SBOLValidationException {
-		ComponentDefinitionTableModel tableModel = new ComponentDefinitionTableModel(getVariants());
+		//ComponentDefinitionTableModel tableModel = new ComponentDefinitionTableModel(getVariants());
+		TopLevelTableModel tableModel = new TopLevelTableModel(getVariantsCollectionsAndDerivations());
 		table.setModel(tableModel);
 		setWidthAsPercentages(table, tableModel.getWidths());
 		TableRowSorter<TableModel> sorter = new TableRowSorter<TableModel>(tableModel);

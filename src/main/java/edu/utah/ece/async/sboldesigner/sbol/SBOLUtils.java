@@ -20,6 +20,7 @@ import java.io.File;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -488,6 +489,19 @@ public class SBOLUtils {
 			}
 		}
 		return result;
+	}
+	
+	public static List<TopLevel> getCDCollectionsAndComboDerv(SBOLDocument doc)
+	{
+		List<TopLevel> list = new ArrayList<TopLevel>();
+		
+		for(org.sbolstandard.core2.Collection col : doc.getCollections())
+			list.add(col);
+		for(ComponentDefinition cd : doc.getComponentDefinitions())
+			list.add(cd);
+		for(CombinatorialDerivation comb : doc.getCombinatorialDerivations())
+			list.add(comb);
+		return list;
 	}
 
 	/**
