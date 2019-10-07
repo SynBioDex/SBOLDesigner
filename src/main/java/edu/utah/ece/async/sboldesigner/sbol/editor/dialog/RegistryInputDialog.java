@@ -574,9 +574,17 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 					synBioHub = createSynBioHubFrontend(location, uriPrefix);
 				}
 
-				if (compMeta.isCollection && !allowCollectionSelection) {
-					JOptionPane.showMessageDialog(getParent(), "Selecting collections is not allowed");
-					return new SBOLDocument();
+				if (compMeta.isCollection) {
+					if(!allowCollectionSelection)
+					{
+						JOptionPane.showMessageDialog(getParent(), "Selecting collections is not allowed");
+						return new SBOLDocument();
+					}else {
+						document = new SBOLDocument();
+						document.createCollection(compMeta.identified.getUri(), compMeta.identified.getDisplayId(), compMeta.identified.getVersion());
+						return document;
+					}
+					
 				}
 				
 

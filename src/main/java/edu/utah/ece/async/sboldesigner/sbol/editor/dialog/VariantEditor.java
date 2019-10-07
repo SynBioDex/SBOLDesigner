@@ -37,6 +37,7 @@ import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 
+import org.sbolstandard.core2.Collection;
 import org.sbolstandard.core2.CombinatorialDerivation;
 import org.sbolstandard.core2.ComponentDefinition;
 import org.sbolstandard.core2.Identified;
@@ -407,6 +408,11 @@ public class VariantEditor extends JDialog implements ActionListener {
 		VariableComponent variable = getVariableComponent((OperatorType) operatorSelection.getSelectedItem());
 		variable.addVariant(variant.getIdentity());
 	}
+	
+	private void addCollection(Collection collection) throws Exception {
+		VariableComponent variable = getVariableComponent((OperatorType) operatorSelection.getSelectedItem());
+		variable.addVariantCollection(collection.getIdentity());
+	}
 
 	private VariableComponent createVariableComponent(CombinatorialDerivation derivation, OperatorType operator,
 			org.sbolstandard.core2.Component link) throws SBOLValidationException {
@@ -502,6 +508,10 @@ public class VariantEditor extends JDialog implements ActionListener {
 		{
 			variable.removeVariantDerivation((CombinatorialDerivation)element);
 			design.removeCombinatorialDerivation((CombinatorialDerivation)element);
+		}else if(element instanceof Collection)
+		{
+			variable.removeVariantCollection((Collection) element);
+			design.removeCollection((Collection) element);
 		}
 
 	}
@@ -535,15 +545,22 @@ public class VariantEditor extends JDialog implements ActionListener {
 
 			if (e.getSource() == addButton) {
 				ComponentDefinitionBox root = new ComponentDefinitionBox();
-				SBOLDocument selection = new RegistryInputDialog(parent, root, Parts.forIdentified(variableCD),
-						SBOLUtils.Types.DNA, null, design).getInput();
+				RegistryInputDialog dialog = new RegistryInputDialog(parent, root, Parts.forIdentified(variableCD),
+						SBOLUtils.Types.DNA, null, design);
+				dialog.allowCollectionSelection();
+				SBOLDocument selection = dialog.getInput();
 
 				if (selection == null) {
 					return;
 				}
 
 				SBOLUtils.insertTopLevels(selection, design);
-				addVariant(root.cd);
+				if(selection.getComponentDefinitions().isEmpty() && !selection.getCollections().isEmpty())
+				{
+					addCollection(selection.getCollections().iterator().next());
+				}else {
+					addVariant(root.cd);
+				}
 
 				updateTable();
 				return;
