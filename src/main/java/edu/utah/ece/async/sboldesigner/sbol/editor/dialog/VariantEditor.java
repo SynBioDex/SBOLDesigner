@@ -63,7 +63,7 @@ public class VariantEditor extends JDialog implements ActionListener {
 	private final JComboBox<OperatorType> operatorSelection = new JComboBox<>(OperatorType.values());
 	private final JComboBox<Strategy> strategySelection = new JComboBox<>(getStrategies());
 	private final JButton addButton = new JButton("Add Variant");
-	private final JButton removeButton = new JButton("Remove Variant");
+	private final JButton removeButton = new JButton("Remove");
 	private final JButton newButton = new JButton("Add new Combinatorial Derivation");
 	private final JButton saveButton = new JButton("Save");
 	private final JTextField displayId = new JTextField();
@@ -474,27 +474,36 @@ public class VariantEditor extends JDialog implements ActionListener {
 		}
 	}
 
-	private void removeVariant(ComponentDefinition variant) throws Exception {
+	private void removeElement(TopLevel element) throws Exception {
 		VariableComponent variable = getVariableComponent();
-		if (variable == null) {
-			return;
-		}
-
-		variable.removeVariant(variant);
-
-		if (variable.getVariants().isEmpty()) {
-			CombinatorialDerivation derivation = getCombinatorialDerivation(derivationCD);
-			if (derivation == null) {
+		if(element instanceof ComponentDefinition)
+		{
+			ComponentDefinition variant = (ComponentDefinition) element;
+			if (variable == null) {
 				return;
 			}
 
-			derivation.removeVariableComponent(variable);
+			variable.removeVariant(variant);
 
-			if (derivation.getVariableComponents().isEmpty()) {
-				design.removeCombinatorialDerivation(derivation);
-				chosenDerivation = null;
+			if (variable.getVariants().isEmpty()) {
+				CombinatorialDerivation derivation = getCombinatorialDerivation(derivationCD);
+				if (derivation == null) {
+					return;
+				}
+
+				derivation.removeVariableComponent(variable);
+
+				if (derivation.getVariableComponents().isEmpty()) {
+					design.removeCombinatorialDerivation(derivation);
+					chosenDerivation = null;
+				}
 			}
+		}else if (element instanceof CombinatorialDerivation)
+		{
+			variable.removeVariantDerivation((CombinatorialDerivation)element);
+			design.removeCombinatorialDerivation((CombinatorialDerivation)element);
 		}
+
 	}
 
 	@Override
@@ -542,8 +551,10 @@ public class VariantEditor extends JDialog implements ActionListener {
 
 			if (e.getSource() == removeButton) {
 				int row = table.convertRowIndexToModel(table.getSelectedRow());
-				ComponentDefinition variant = ((ComponentDefinitionTableModel) table.getModel()).getElement(row);
-				removeVariant(variant);
+				TopLevelTableModel model = (TopLevelTableModel) table.getModel();
+				TopLevel element = model.getElement(row);
+				//ComponentDefinition variant = ((ComponentDefinitionTableModel) table.getModel()).getElement(row);
+				removeElement(element);
 				updateTable();
 				return;
 			}

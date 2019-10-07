@@ -16,6 +16,8 @@ public class TopLevelTableModel extends AbstractListTableModel<TopLevel>{
 	}
 	
 	public Object getField(TopLevel obj, int col) {
+		if(obj == null)
+			return null;
 		String type = removePrefix(obj.getClass().toString(), "class org.sbolstandard.core2.");
 		switch (col) {
 		case 0:
