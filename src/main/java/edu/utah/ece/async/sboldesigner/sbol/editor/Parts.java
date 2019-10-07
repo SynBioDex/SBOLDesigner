@@ -105,6 +105,8 @@ public class Parts {
 			"SO:0001956");
 	public static final Part RSE = createPart("RNA Stability Element", "RSE", "rna-stability-element.png",
 			ImageType.SHORT_OVER_BASELINE, true, "SO:0001979");
+	public static final Part RSE_2 = createPart("RNA Stability Element", "RSE", "rna-stability-element.png",
+			ImageType.SHORT_OVER_BASELINE, true, "SO:0000374");
 	public static final Part PSE = createPart("Protein Stability Element", "PSE", "protein-stability-element.png",
 			ImageType.SHORT_OVER_BASELINE, true, "SO:0001955");
 

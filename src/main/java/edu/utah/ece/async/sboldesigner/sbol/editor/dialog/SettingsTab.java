@@ -61,7 +61,7 @@ public enum SettingsTab implements PreferencesTab {
 	@Override
 	public Component getComponent() {
 		JLabel impliedSequence = new JLabel(
-				"<html>Every time the implied sequence is shorter than the original <br>sequence, would you like to overwrite or keep the original sequence?</html>");
+				"<html>Every time the implied sequence is different than the original <br>sequence, would you like to overwrite or keep the original sequence?</html>");
 		ButtonGroup seqGroup = new ButtonGroup();
 		seqGroup.add(seqAskUser);
 		seqGroup.add(seqOverwrite);
