@@ -170,7 +170,7 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 
 	private boolean allowCollectionSelection = false;
 
-	private String objectType = "ComponentDefinition";
+	private String objectType = "TopLevel";
 
 	/**
 	 * Allows a collection to be selected.
@@ -384,9 +384,11 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 			TableMetadataTableModel tableModel = new TableMetadataTableModel(new ArrayList<TableMetadata>());
 			panel = createTablePanel(tableModel, "Matching parts (" + tableModel.getRowCount() + ")");
 		} else {
-			List<ComponentDefinition> components = searchParts(part);
-			ComponentDefinitionTableModel tableModel = new ComponentDefinitionTableModel(components);
-			panel = createTablePanel(tableModel, "Matching parts (" + tableModel.getRowCount() + ")");
+			//List<ComponentDefinition> components = searchParts(part);
+			//ComponentDefinitionTableModel tableModel = new ComponentDefinitionTableModel(components);
+			List<TopLevel> topLevels = searchAllParts(part);
+			TopLevelTableModel model = new TopLevelTableModel(topLevels);
+			panel = createTablePanel(model, "Matching parts (" + model.getRowCount() + ")");
 		}
 
 		table = (JTable) panel.getClientProperty("table");
