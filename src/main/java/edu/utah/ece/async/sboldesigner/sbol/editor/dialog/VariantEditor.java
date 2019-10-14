@@ -397,6 +397,11 @@ public class VariantEditor extends JDialog implements ActionListener {
 		VariableComponent variable = getVariableComponent((OperatorType) operatorSelection.getSelectedItem());
 		variable.addVariantCollection(collection.getIdentity());
 	}
+	
+	private void addDerivation(CombinatorialDerivation derivation) throws Exception {
+		VariableComponent variable = getVariableComponent((OperatorType) operatorSelection.getSelectedItem());
+		variable.addVariantDerivation(derivation.getIdentity());
+	}
 
 	private VariableComponent createVariableComponent(CombinatorialDerivation derivation, OperatorType operator,
 			org.sbolstandard.core2.Component link) throws SBOLValidationException {
@@ -464,7 +469,7 @@ public class VariantEditor extends JDialog implements ActionListener {
 		}
 	}
 
-	private void removeTopLevel(TopLevel top) throws Exception {
+	private void removeVariant(TopLevel top) throws Exception {
 		VariableComponent variable = getVariableComponent();
 		if(top instanceof ComponentDefinition)
 		{
@@ -532,6 +537,7 @@ public class VariantEditor extends JDialog implements ActionListener {
 				RegistryInputDialog dialog = new RegistryInputDialog(parent, root, Parts.forIdentified(variableCD),
 						SBOLUtils.Types.DNA, null, design);
 				dialog.allowCollectionSelection();
+				dialog.setObjectType("Variant");
 				SBOLDocument selection = dialog.getInput();
 
 				if (selection == null) {
@@ -539,12 +545,23 @@ public class VariantEditor extends JDialog implements ActionListener {
 				}
 
 				SBOLUtils.insertTopLevels(selection, design);
-				if(selection.getComponentDefinitions().isEmpty() && !selection.getCollections().isEmpty())
+				TopLevel top = root.top;
+				if(top instanceof ComponentDefinition)
 				{
-					addCollection(selection.getCollections().iterator().next());
-				}else {
 					addVariant(root.cd);
+				}else if (top instanceof CombinatorialDerivation)
+				{
+					addDerivation((CombinatorialDerivation)top);
+				}else if(top instanceof Collection)
+				{
+					addCollection((Collection)top);
 				}
+//				if(selection.getComponentDefinitions().isEmpty() && !selection.getCollections().isEmpty())
+//				{
+//					addCollection(selection.getCollections().iterator().next());
+//				}else {
+//					addVariant(root.cd);
+//				}
 
 				updateTable();
 				return;
@@ -554,7 +571,7 @@ public class VariantEditor extends JDialog implements ActionListener {
 				int row = table.convertRowIndexToModel(table.getSelectedRow());
 				TopLevelTableModel model = (TopLevelTableModel) table.getModel();
 				TopLevel top = model.getElement(row);
-				removeTopLevel(top);
+				removeVariant(top);
 				updateTable();
 				return;
 			}

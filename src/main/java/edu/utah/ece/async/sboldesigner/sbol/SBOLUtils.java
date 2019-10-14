@@ -491,6 +491,25 @@ public class SBOLUtils {
 		return result;
 	}
 	
+	/**
+	 * Returns a list with all the CDs in list which contain type (URI).
+	 */
+	public static List<TopLevel> getTopLevelOfType(List<TopLevel> list, Types type) {
+		if (type == Types.All_types) {
+			return list;
+		}
+		URI uri = convertTypesToSet(type).iterator().next();
+		List<TopLevel> result = new ArrayList<TopLevel>();
+		for (TopLevel CD : list) {
+			if(CD instanceof ComponentDefinition) {
+				if (((ComponentDefinition)CD).getTypes().contains(uri)) {
+					result.add(CD);
+				}
+			}
+		}
+		return result;
+	}
+	
 	public static List<TopLevel> getCDCollectionsAndComboDerv(SBOLDocument doc)
 	{
 		List<TopLevel> list = new ArrayList<TopLevel>();

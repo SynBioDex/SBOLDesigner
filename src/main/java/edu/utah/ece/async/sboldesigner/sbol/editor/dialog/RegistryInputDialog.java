@@ -170,7 +170,7 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 
 	private boolean allowCollectionSelection = false;
 
-	private String objectType = "TopLevel";
+	private String objectType = "ComponentDefinition";
 
 	/**
 	 * Allows a collection to be selected.
@@ -267,7 +267,7 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 				updateContext();
 			}
 		});
-		if (objectType == "ComponentDefinition") {
+		if (objectType == "ComponentDefinition" || objectType == "Variant") {
 			builder.add("Part type", typeSelection);
 		}
 
@@ -292,7 +292,7 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 				updateTable();
 			}
 		});
-		if (objectType == "ComponentDefinition") {
+		if (objectType == "ComponentDefinition" || objectType == "Variant") {
 			builder.add("Part role", roleSelection);
 		}
 
@@ -308,7 +308,7 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 			roleRefinement.setSelectedItem(roleName);
 		}
 		roleRefinement.addActionListener(roleRefinementListener);
-		if (objectType == "ComponentDefinition") {
+		if (objectType == "ComponentDefinition" || objectType == "Variant") {
 			builder.add("Role refinement", roleRefinement);
 		}
 		updateContext();
@@ -383,10 +383,14 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 			searchParts(part, synBioHub, filterSelection.getText());
 			TableMetadataTableModel tableModel = new TableMetadataTableModel(new ArrayList<TableMetadata>());
 			panel = createTablePanel(tableModel, "Matching parts (" + tableModel.getRowCount() + ")");
-		} else {
-			List<TopLevel> topLevels = searchAllTopLevels(part);
+		} else if(objectType == "Variant"){
+			List<TopLevel> topLevels = searchForPotentialVariants(part);
 			TopLevelTableModel model = new TopLevelTableModel(topLevels);
 			panel = createTablePanel(model, "Matching parts (" + model.getRowCount() + ")");
+		}else {
+			List<ComponentDefinition> components = searchParts(part);
+			ComponentDefinitionTableModel tableModel = new ComponentDefinitionTableModel(components);
+			panel = createTablePanel(tableModel, "Matching parts (" + tableModel.getRowCount() + ")");
 		}
 
 		table = (JTable) panel.getClientProperty("table");
@@ -404,7 +408,7 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 		return location.startsWith("http://") || location.startsWith("https://");
 	}
 
-	private List<TopLevel> searchAllTopLevels(Part part) {
+	private List<TopLevel> searchForPotentialVariants(Part part) {
 		try {
 			if (isMetadata()) {
 				throw new Exception("Incorrect state.  url isn't a path");
@@ -614,6 +618,7 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 			}
 
 			if (root != null) {
+				root.top = document.getTopLevel(comp.getIdentity());
 				root.cd = document.getComponentDefinition(comp.getIdentity());
 			}
 
@@ -728,11 +733,22 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 
 		if (isMetadata()) {
 			searchParts(part, synBioHub, filterSelection.getText());
-		} else {
-			List<TopLevel> topLevels = searchAllTopLevels(part);
+		} else if(objectType == "Variant"){
+			List<TopLevel> topLevels = searchForPotentialVariants(part);
+			topLevels = SBOLUtils.getTopLevelOfType(topLevels, (Types) typeSelection.getSelectedItem());
 			TopLevelTableModel tableModel = new TopLevelTableModel(topLevels);
 			table = new JTable(tableModel);
 			tableLabel.setText("Matching parts (" + topLevels.size() + ")");
+			refreshSearch = false;
+			TableRowSorter<TableModel> sorter = new TableRowSorter<TableModel>(tableModel);
+			table.setRowSorter(sorter);
+			setWidthAsPercentages(table, tableModel.getWidths());
+		}else {
+			List<ComponentDefinition> components = searchParts(part);
+			components = SBOLUtils.getCDOfType(components, (Types) typeSelection.getSelectedItem());
+			ComponentDefinitionTableModel tableModel = new ComponentDefinitionTableModel(components);
+			table = new JTable(tableModel);
+			tableLabel.setText("Matching parts (" + components.size() + ")");
 			refreshSearch = false;
 			TableRowSorter<TableModel> sorter = new TableRowSorter<TableModel>(tableModel);
 			table.setRowSorter(sorter);
