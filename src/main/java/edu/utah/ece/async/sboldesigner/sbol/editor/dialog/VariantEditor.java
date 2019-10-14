@@ -361,22 +361,6 @@ public class VariantEditor extends JDialog implements ActionListener {
 
 		return null;
 	}
-
-	//TODO: Deprecate once getVariantsCollectionsAndDerivations() is implemented
-	private List<ComponentDefinition> getVariants() throws SBOLValidationException {
-		ArrayList<ComponentDefinition> variants = new ArrayList<>();
-
-		VariableComponent variable = getVariableComponent();
-		if (variable == null) {
-			return variants;
-		}
-
-		for (URI cd : variable.getVariantURIs()) {
-			variants.add(design.getComponentDefinition(cd));
-		}
-
-		return variants;
-	}
 	
 	private List<TopLevel> getVariantsCollectionsAndDerivations() throws SBOLValidationException {
 		ArrayList<TopLevel> variants = new ArrayList<>();
@@ -396,7 +380,7 @@ public class VariantEditor extends JDialog implements ActionListener {
 			variants.add(design.getCollection(col));
 		}
 		
-		//Get 
+		//Get combinatoralDerivations
 		for (URI der : variable.getVariantDerivationURIs()) {
 			variants.add(design.getCombinatorialDerivation(der));
 		}
@@ -480,11 +464,11 @@ public class VariantEditor extends JDialog implements ActionListener {
 		}
 	}
 
-	private void removeElement(TopLevel element) throws Exception {
+	private void removeTopLevel(TopLevel top) throws Exception {
 		VariableComponent variable = getVariableComponent();
-		if(element instanceof ComponentDefinition)
+		if(top instanceof ComponentDefinition)
 		{
-			ComponentDefinition variant = (ComponentDefinition) element;
+			ComponentDefinition variant = (ComponentDefinition) top;
 			if (variable == null) {
 				return;
 			}
@@ -504,14 +488,14 @@ public class VariantEditor extends JDialog implements ActionListener {
 					chosenDerivation = null;
 				}
 			}
-		}else if (element instanceof CombinatorialDerivation)
+		}else if (top instanceof CombinatorialDerivation)
 		{
-			variable.removeVariantDerivation((CombinatorialDerivation)element);
-			design.removeCombinatorialDerivation((CombinatorialDerivation)element);
-		}else if(element instanceof Collection)
+			variable.removeVariantDerivation((CombinatorialDerivation)top);
+			design.removeCombinatorialDerivation((CombinatorialDerivation)top);
+		}else if(top instanceof Collection)
 		{
-			variable.removeVariantCollection((Collection) element);
-			design.removeCollection((Collection) element);
+			variable.removeVariantCollection((Collection) top);
+			design.removeCollection((Collection) top);
 		}
 
 	}
@@ -569,9 +553,8 @@ public class VariantEditor extends JDialog implements ActionListener {
 			if (e.getSource() == removeButton) {
 				int row = table.convertRowIndexToModel(table.getSelectedRow());
 				TopLevelTableModel model = (TopLevelTableModel) table.getModel();
-				TopLevel element = model.getElement(row);
-				//ComponentDefinition variant = ((ComponentDefinitionTableModel) table.getModel()).getElement(row);
-				removeElement(element);
+				TopLevel top = model.getElement(row);
+				removeTopLevel(top);
 				updateTable();
 				return;
 			}
@@ -630,7 +613,6 @@ public class VariantEditor extends JDialog implements ActionListener {
 	}
 
 	private void updateTable() throws SBOLValidationException {
-		//ComponentDefinitionTableModel tableModel = new ComponentDefinitionTableModel(getVariants());
 		TopLevelTableModel tableModel = new TopLevelTableModel(getVariantsCollectionsAndDerivations());
 		table.setModel(tableModel);
 		setWidthAsPercentages(table, tableModel.getWidths());

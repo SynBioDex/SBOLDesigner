@@ -384,9 +384,7 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 			TableMetadataTableModel tableModel = new TableMetadataTableModel(new ArrayList<TableMetadata>());
 			panel = createTablePanel(tableModel, "Matching parts (" + tableModel.getRowCount() + ")");
 		} else {
-			//List<ComponentDefinition> components = searchParts(part);
-			//ComponentDefinitionTableModel tableModel = new ComponentDefinitionTableModel(components);
-			List<TopLevel> topLevels = searchAllParts(part);
+			List<TopLevel> topLevels = searchAllTopLevels(part);
 			TopLevelTableModel model = new TopLevelTableModel(topLevels);
 			panel = createTablePanel(model, "Matching parts (" + model.getRowCount() + ")");
 		}
@@ -406,7 +404,7 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 		return location.startsWith("http://") || location.startsWith("https://");
 	}
 
-	private List<TopLevel> searchAllParts(Part part) {
+	private List<TopLevel> searchAllTopLevels(Part part) {
 		try {
 			if (isMetadata()) {
 				throw new Exception("Incorrect state.  url isn't a path");
@@ -731,11 +729,10 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 		if (isMetadata()) {
 			searchParts(part, synBioHub, filterSelection.getText());
 		} else {
-			List<ComponentDefinition> components = searchParts(part);
-			components = SBOLUtils.getCDOfType(components, (Types) typeSelection.getSelectedItem());
-			ComponentDefinitionTableModel tableModel = new ComponentDefinitionTableModel(components);
+			List<TopLevel> topLevels = searchAllTopLevels(part);
+			TopLevelTableModel tableModel = new TopLevelTableModel(topLevels);
 			table = new JTable(tableModel);
-			tableLabel.setText("Matching parts (" + components.size() + ")");
+			tableLabel.setText("Matching parts (" + topLevels.size() + ")");
 			refreshSearch = false;
 			TableRowSorter<TableModel> sorter = new TableRowSorter<TableModel>(tableModel);
 			table.setRowSorter(sorter);
@@ -791,12 +788,12 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 			}
 			tableLabel.setText("Matching parts (" + sorter.getViewRowCount() + ")");
 		} else {
-			TableRowSorter<ComponentDefinitionTableModel> sorter = (TableRowSorter) table.getRowSorter();
+			TableRowSorter<TopLevelTableModel> sorter = (TableRowSorter) table.getRowSorter();
 			if (filterText.length() == 0) {
 				sorter.setRowFilter(null);
 			} else {
 				try {
-					RowFilter<ComponentDefinitionTableModel, Object> rf = RowFilter.regexFilter(filterText, 0, 1, 2, 4);
+					RowFilter<TopLevelTableModel, Object> rf = RowFilter.regexFilter(filterText, 0, 1, 2, 4);
 					sorter.setRowFilter(rf);
 				} catch (PatternSyntaxException e) {
 					sorter.setRowFilter(null);
