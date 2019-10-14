@@ -563,7 +563,7 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 	protected SBOLDocument getSelection() {
 		try {
 			SBOLDocument document = null;
-			ComponentDefinition comp = null;
+			TopLevel comp = null;
 			int row = table.convertRowIndexToModel(table.getSelectedRow());
 
 			if (isMetadata()) {
@@ -609,7 +609,7 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 				}
 			} else {
 				document = new SBOLDocument();
-				comp = ((ComponentDefinitionTableModel) table.getModel()).getElement(row);
+				comp = ((TopLevelTableModel) table.getModel()).getElement(row);
 				document = document.createRecursiveCopy(comp);
 			}
 
