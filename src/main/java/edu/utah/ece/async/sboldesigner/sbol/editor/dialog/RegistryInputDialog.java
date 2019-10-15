@@ -451,7 +451,7 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 			}
 
 			doc.setDefaultURIprefix(SBOLEditorPreferences.INSTANCE.getUserInfo().getURI().toString());
-			return SBOLUtils.getCDCollectionsAndComboDerv(doc);
+			return SBOLUtils.getCDCollectionsAndComboDerv(doc, part);
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -547,8 +547,11 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 				Set<URI> setCollections = new HashSet<URI>(Arrays.asList(URI.create(selectedCollection.getUri())));
 				Set<URI> setRoles = new HashSet<URI>(part.getRoles());
 				Set<URI> setTypes = SBOLUtils.convertTypesToSet((Types) typeSelection.getSelectedItem());
+				String type = objectType;
+				if(type == "Variant")
+					type = "ComponentDefinition";
 				SynBioHubQuery query = new SynBioHubQuery(synbiohub, setRoles, setTypes, setCollections, filterText,
-						objectType, new TableUpdater(), this);
+						type, new TableUpdater(), this);
 				// non-blocking: will update using the TableUpdater
 				query.execute();
 			}
@@ -618,7 +621,6 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 			}
 
 			if (root != null) {
-				root.top = document.getTopLevel(comp.getIdentity());
 				root.cd = document.getComponentDefinition(comp.getIdentity());
 			}
 
@@ -735,7 +737,7 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 			searchParts(part, synBioHub, filterSelection.getText());
 		} else if(objectType == "Variant"){
 			List<TopLevel> topLevels = searchForPotentialVariants(part);
-			topLevels = SBOLUtils.getTopLevelOfType(topLevels, (Types) typeSelection.getSelectedItem());
+			//topLevels = SBOLUtils.getTopLevelOfType(topLevels, (Types) typeSelection.getSelectedItem());
 			TopLevelTableModel tableModel = new TopLevelTableModel(topLevels);
 			table = new JTable(tableModel);
 			tableLabel.setText("Matching parts (" + topLevels.size() + ")");

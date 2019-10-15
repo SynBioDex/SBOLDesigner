@@ -9,5 +9,4 @@ import org.sbolstandard.core2.TopLevel;
  */
 public class ComponentDefinitionBox {
 	public ComponentDefinition cd;
-	public TopLevel top;
 }

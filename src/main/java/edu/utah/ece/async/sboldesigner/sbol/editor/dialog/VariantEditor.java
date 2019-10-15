@@ -545,23 +545,32 @@ public class VariantEditor extends JDialog implements ActionListener {
 				}
 
 				SBOLUtils.insertTopLevels(selection, design);
-				TopLevel top = root.top;
-				if(top instanceof ComponentDefinition)
+				Collection col;
+				if(selection.getCombinatorialDerivations().isEmpty() && selection.getComponentDefinitions().isEmpty() && !selection.getCollections().isEmpty())
 				{
+					col = selection.getCollections().iterator().next();
+					boolean cont = true;
+					while(cont)
+					{
+						cont = false;
+						for(Collection c : selection.getCollections())
+						{
+							if(col != c)
+							{
+								if(c.containsMember(col.getIdentity()))
+								{
+									col = c;
+									cont = true;
+								}
+							}
+						}
+					}
+					addCollection(col);
+				}else if(!selection.getCombinatorialDerivations().isEmpty()){
+					addDerivation(selection.getCombinatorialDerivations().iterator().next());
+				}else {
 					addVariant(root.cd);
-				}else if (top instanceof CombinatorialDerivation)
-				{
-					addDerivation((CombinatorialDerivation)top);
-				}else if(top instanceof Collection)
-				{
-					addCollection((Collection)top);
 				}
-//				if(selection.getComponentDefinitions().isEmpty() && !selection.getCollections().isEmpty())
-//				{
-//					addCollection(selection.getCollections().iterator().next());
-//				}else {
-//					addVariant(root.cd);
-//				}
 
 				updateTable();
 				return;

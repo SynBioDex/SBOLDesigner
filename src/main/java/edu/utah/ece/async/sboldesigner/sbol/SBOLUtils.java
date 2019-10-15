@@ -510,13 +510,13 @@ public class SBOLUtils {
 		return result;
 	}
 	
-	public static List<TopLevel> getCDCollectionsAndComboDerv(SBOLDocument doc)
+	public static List<TopLevel> getCDCollectionsAndComboDerv(SBOLDocument doc, Part part)
 	{
 		List<TopLevel> list = new ArrayList<TopLevel>();
 		
 		for(org.sbolstandard.core2.Collection col : doc.getCollections())
 			list.add(col);
-		for(ComponentDefinition cd : doc.getComponentDefinitions())
+		for(ComponentDefinition cd : getCDOfRole(doc, part))
 			list.add(cd);
 		for(CombinatorialDerivation comb : doc.getCombinatorialDerivations())
 			list.add(comb);
