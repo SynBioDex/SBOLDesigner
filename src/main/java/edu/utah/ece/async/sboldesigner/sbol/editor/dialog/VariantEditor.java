@@ -471,16 +471,18 @@ public class VariantEditor extends JDialog implements ActionListener {
 
 	private void removeVariant(TopLevel top) throws Exception {
 		VariableComponent variable = getVariableComponent();
+		if (variable == null) {
+			return;
+		}
 		if(top instanceof ComponentDefinition)
 		{
 			ComponentDefinition variant = (ComponentDefinition) top;
-			if (variable == null) {
-				return;
-			}
-
 			variable.removeVariant(variant);
 
-			if (variable.getVariants().isEmpty()) {
+			// TODO: pull into a function and call on all three types of removes
+			if (variable.getVariants().isEmpty()) { // TODO: should check variantCollections / variantDerivations
+				// TODO: this call should not create when it cannot find
+				// also need to see why it cannot find it
 				CombinatorialDerivation derivation = getCombinatorialDerivation(derivationCD);
 				if (derivation == null) {
 					return;
@@ -488,19 +490,19 @@ public class VariantEditor extends JDialog implements ActionListener {
 
 				derivation.removeVariableComponent(variable);
 
-				if (derivation.getVariableComponents().isEmpty()) {
-					design.removeCombinatorialDerivation(derivation);
-					chosenDerivation = null;
-				}
+//				if (derivation.getVariableComponents().isEmpty()) {
+//					design.removeCombinatorialDerivation(derivation);
+//					chosenDerivation = null;
+//				}
 			}
 		}else if (top instanceof CombinatorialDerivation)
 		{
 			variable.removeVariantDerivation((CombinatorialDerivation)top);
-			design.removeCombinatorialDerivation((CombinatorialDerivation)top);
+			// TODO: remove variableComponent if last variant
 		}else if(top instanceof Collection)
 		{
 			variable.removeVariantCollection((Collection) top);
-			design.removeCollection((Collection) top);
+			// TODO: remove variableComponent if last variant
 		}
 
 	}
@@ -535,7 +537,7 @@ public class VariantEditor extends JDialog implements ActionListener {
 			if (e.getSource() == addButton) {
 				ComponentDefinitionBox root = new ComponentDefinitionBox();
 				RegistryInputDialog dialog = new RegistryInputDialog(parent, root, Parts.forIdentified(variableCD),
-						SBOLUtils.Types.DNA, null, design);
+						SBOLUtils.Types.DNA, null, null);
 				dialog.allowCollectionSelection();
 				dialog.setObjectType("Variant");
 				SBOLDocument selection = dialog.getInput();
