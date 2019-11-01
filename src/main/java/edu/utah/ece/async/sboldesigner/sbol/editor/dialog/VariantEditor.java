@@ -288,7 +288,8 @@ public class VariantEditor extends JDialog implements ActionListener {
 	private CombinatorialDerivation getCombinatorialDerivation(ComponentDefinition derivationCD)
 			throws SBOLValidationException {
 		if (chosenDerivation == null) {
-			chosenDerivation = CombinatorialDerivationInputDialog.pickCombinatorialDerivation(design, derivationCD);
+			chosenDerivation = CombinatorialDerivationInputDialog.pickCombinatorialDerivation(parent, design, derivationCD);
+			//chosenDerivation = new ComboDerivDesign();
 			if (chosenDerivation == null) {
 				String id = JOptionPane.showInputDialog("What would you like to call this combinatorial derivation?",
 						derivationCD.isSetDisplayId() ? derivationCD.getDisplayId() + "_CombinatorialDerivation" : "");

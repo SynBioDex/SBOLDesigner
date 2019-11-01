@@ -1791,7 +1791,7 @@ public class SBOLDesign {
 			return;
 		}
 
-		doc = CombinatorialExpansionUtil.createCombinatorialDesign(doc);
+		doc = CombinatorialExpansionUtil.createCombinatorialDesign((java.awt.Component)panel, doc);
 		
 		
 		for(ComponentDefinition c : doc.getRootComponentDefinitions()) {

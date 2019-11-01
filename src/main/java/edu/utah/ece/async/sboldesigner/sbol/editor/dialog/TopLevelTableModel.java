@@ -21,7 +21,10 @@ public class TopLevelTableModel extends AbstractListTableModel<TopLevel>{
 		String type = removePrefix(obj.getClass().toString(), "class org.sbolstandard.core2.");
 		switch (col) {
 		case 0:
-			return type;
+			if(type.equals("ComponentDefinition"))
+				return "Part";
+			else
+				return type;
 		case 1:
 			return obj.getDisplayId();
 		case 2:

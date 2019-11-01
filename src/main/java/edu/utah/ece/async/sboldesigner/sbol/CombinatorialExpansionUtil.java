@@ -4,6 +4,7 @@ import java.util.HashSet;
 import java.util.concurrent.ThreadLocalRandom;
 
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 
 import org.sbolstandard.core2.AccessType;
 import org.sbolstandard.core2.Collection;
@@ -25,8 +26,8 @@ import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.CombinatorialDerivatio
 
 public class CombinatorialExpansionUtil {
 
-	public static SBOLDocument createCombinatorialDesign(SBOLDocument doc) throws SBOLValidationException {
-		CombinatorialDerivation derivation = CombinatorialDerivationInputDialog.pickCombinatorialDerivation(doc, null);
+	public static SBOLDocument createCombinatorialDesign(java.awt.Component panel, SBOLDocument doc) throws SBOLValidationException {
+		CombinatorialDerivation derivation = CombinatorialDerivationInputDialog.pickCombinatorialDerivation(panel, doc, null);
 		if (derivation == null) {
 			JOptionPane.showMessageDialog(null, "There are no combinatorial designs");
 			return null;
