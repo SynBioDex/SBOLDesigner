@@ -35,7 +35,6 @@ public class CombinatorialDerivationInputDialog {
 			}
 		}
 		
-		//for(Collection )
 
 		return derivations.toArray(new Derivation[0]);
 	}
@@ -50,17 +49,11 @@ public class CombinatorialDerivationInputDialog {
 		if (options.length == 1) {
 			return options[0].derivation;
 		}
-
-//		Derivation selection = (Derivation) JOptionPane.showInputDialog(null,
-//				"Please select a combinatorial derivation.", "Pick Combinatorial Design", JOptionPane.DEFAULT_OPTION,
-//				null, options, options[0]);
-		SBOLDocument selection = new ComboDerivDialog(parent, doc, template).getInput();
+		CombinatorialDerivation selection = new ComboDerivDialog(parent, doc, template).getInput();
 		if (selection == null) {
 			return null;
 		}
-
-		//return selection.derivation;
-		return selection.getCombinatorialDerivations().iterator().next();
+		return selection;
 	}
 
 }

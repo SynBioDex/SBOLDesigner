@@ -23,6 +23,8 @@ public class TopLevelTableModel extends AbstractListTableModel<TopLevel>{
 		case 0:
 			if(type.equals("ComponentDefinition"))
 				return "Part";
+			else if(type.equals("CombinatorialDerivation"))
+				return "Derivation";
 			else
 				return type;
 		case 1:

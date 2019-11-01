@@ -40,15 +40,12 @@ import edu.utah.ece.async.sboldesigner.sbol.editor.Parts;
 import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.CombinatorialDerivationInputDialog;
 import edu.utah.ece.async.sboldesigner.swing.FormBuilder;
 
-public class ComboDerivDialog extends InputDialog<SBOLDocument> {
+public class ComboDerivDialog extends InputDialog<CombinatorialDerivation> {
 	private static final String TITLE = "Select a root design to open";
 
 	private JTable table;
 	private JLabel tableLabel;
-	//private JCheckBox onlyShowRootCDs;
 	private JButton deleteCD;
-	//private static final CombinatorialDerivation ALL_DERIV = new CombinatorialDerivation("","");
-
 	private SBOLDocument doc;
 
 	private ComponentDefinition root;
@@ -75,7 +72,7 @@ public class ComboDerivDialog extends InputDialog<SBOLDocument> {
 	public void initFormPanel(FormBuilder builder) {
 
 
-		deleteCD = new JButton("Delete selected part(s). (This will resave the file)");
+		deleteCD = new JButton("Delete selected derivations. (This will resave the file)");
 		deleteCD.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -96,26 +93,6 @@ public class ComboDerivDialog extends InputDialog<SBOLDocument> {
 			}
 		});
 		builder.add("", deleteCD);
-
-//		final JTextField filterSelection = new JTextField();
-//		filterSelection.getDocument().addDocumentListener(new DocumentListener() {
-//			@Override
-//			public void removeUpdate(DocumentEvent paramDocumentEvent) {
-//				updateFilter(filterSelection.getText());
-//			}
-//
-//			@Override
-//			public void insertUpdate(DocumentEvent paramDocumentEvent) {
-//				updateFilter(filterSelection.getText());
-//			}
-//
-//			@Override
-//			public void changedUpdate(DocumentEvent paramDocumentEvent) {
-//				updateFilter(filterSelection.getText());
-//			}
-//		});
-
-		//builder.add("Filter parts", filterSelection);
 	}
 
 	@Override
@@ -129,7 +106,7 @@ public class ComboDerivDialog extends InputDialog<SBOLDocument> {
 		}
 
 		TopLevelTableModel tableModel = new TopLevelTableModel(derivations);
-		JPanel panel = createTablePanel(tableModel, "Matching parts (" + tableModel.getRowCount() + ")");
+		JPanel panel = createTablePanel(tableModel, "Matching derivations (" + tableModel.getRowCount() + ")");
 		table = (JTable) panel.getClientProperty("table");
 		table.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 		tableLabel = (JLabel) panel.getClientProperty("label");
@@ -140,20 +117,11 @@ public class ComboDerivDialog extends InputDialog<SBOLDocument> {
 	}
 
 	@Override
-	protected SBOLDocument getSelection() {
-		try {
-			int row = table.convertRowIndexToModel(table.getSelectedRow());
-			TopLevel deriv = ((TopLevelTableModel) table.getModel()).getElement(row);
-			CombinatorialDerivation comb = (CombinatorialDerivation)deriv;
-			SBOLDocument newDoc = doc.createRecursiveCopy(comb);
-			SBOLUtils.copyReferencedCombinatorialDerivations(newDoc, doc);
-			root = newDoc.getComponentDefinition(deriv.getIdentity());
-			return newDoc;
-		} catch (SBOLValidationException e) {
-			MessageDialog.showMessage(null, "This ComponentDefinition cannot be imported: ", e.getMessage());
-			e.printStackTrace();
-			return null;
-		}
+	protected CombinatorialDerivation getSelection() {
+		int row = table.convertRowIndexToModel(table.getSelectedRow());
+		TopLevel deriv = ((TopLevelTableModel) table.getModel()).getElement(row);
+		CombinatorialDerivation comb = (CombinatorialDerivation)deriv;
+		return comb;
 	}
 
 
@@ -165,21 +133,4 @@ public class ComboDerivDialog extends InputDialog<SBOLDocument> {
 		tableLabel.setText("Derivations (" + derivations.size() + ")");
 	}
 
-//	private void updateFilter(String filterText) {
-//		filterText = "(?i)" + filterText;
-//		@SuppressWarnings({ "rawtypes", "unchecked" })
-//		TableRowSorter<ComponentDefinitionTableModel> sorter = (TableRowSorter) table.getRowSorter();
-//		if (filterText.length() == 0) {
-//			sorter.setRowFilter(null);
-//		} else {
-//			try {
-//				RowFilter<ComponentDefinitionTableModel, Object> rf = RowFilter.regexFilter(filterText, 0, 1);
-//				sorter.setRowFilter(rf);
-//			} catch (java.util.regex.PatternSyntaxException e) {
-//				sorter.setRowFilter(null);
-//			}
-//		}
-//
-//		tableLabel.setText("Matching parts (" + sorter.getViewRowCount() + ")");
-//	}
 }
