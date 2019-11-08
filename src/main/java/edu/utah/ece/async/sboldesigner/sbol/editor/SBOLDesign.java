@@ -963,6 +963,17 @@ public class SBOLDesign {
 		return parentCDs.peek();
 	}
 
+	public boolean hasEmptySequence()
+	{
+		ComponentDefinition root = getRootCD();
+		for(org.sbolstandard.core2.Component c : root.getComponents())
+		{
+			if(!getAllSequences(c.getDefinition()))
+				return true;
+		}
+		return false;
+	}
+	
 	public ComponentDefinition getSelectedCD() {
 		return selectedElement == null ? null : selectedElement.getCD();
 	}
@@ -1979,6 +1990,7 @@ public class SBOLDesign {
 				return;
 			}
 
+			boolean missing = hasEmptySequence();
 			Sequence oldSeq = canvasCD.getSequenceByEncoding(Sequence.IUPAC_DNA);
 			String oldElements = oldSeq == null ? "" : oldSeq.getElements();
 			// remove all current Sequences
@@ -2026,6 +2038,39 @@ public class SBOLDesign {
 									Sequence.IUPAC_DNA);
 							canvasCD.addSequence(oldSeq);
 						}
+						return;
+					}
+				}
+				if (missing) {
+					// report to the user if the updated sequence is different
+					int option = 0;
+					// check preferences
+					// askUser is 0, overwrite is 1, and keep is 2
+					int missingBehavior = SBOLEditorPreferences.INSTANCE.getMissingBehavior();
+					switch (missingBehavior) {
+					case 0:
+						// askUser
+						Object[] options = { "Keep", "Overwrite" };
+						do {
+							option = JOptionPane.showOptionDialog(panel, "The implied sequence for "
+									+ canvasCD.getDisplayId()
+									+ " has missing sequences.  Would you like to overwrite or keep the original sequence? \n(The default behavior can be changed in settings)",
+									"Implied sequece", JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null,
+									options, options[0]);
+						} while (option == JOptionPane.CLOSED_OPTION);
+						break;
+					case 1:
+						// overwrite
+						option = 1;
+						break;
+					case 2:
+						// keep
+						option = 0;
+						break;
+					}
+
+					if (option == 0) {
+						//This means that we don't want to overwrite because there are missing sequences
 						return;
 					}
 				}

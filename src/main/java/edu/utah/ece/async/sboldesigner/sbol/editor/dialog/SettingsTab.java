@@ -23,6 +23,12 @@ public enum SettingsTab implements PreferencesTab {
 	private JRadioButton seqOverwrite = new JRadioButton("Overwrite",
 			SBOLEditorPreferences.INSTANCE.getSeqBehavior() == 1);
 	private JRadioButton seqKeep = new JRadioButton("Keep", SBOLEditorPreferences.INSTANCE.getSeqBehavior() == 2);
+	
+	// askUser is 0, overwrite is 1, and keep is 2
+	private JRadioButton missingAskUser = new JRadioButton("Ask", SBOLEditorPreferences.INSTANCE.getMissingBehavior() == 0);
+	private JRadioButton missingOverwrite = new JRadioButton("Overwrite",
+			SBOLEditorPreferences.INSTANCE.getMissingBehavior() == 1);
+	private JRadioButton missingKeep = new JRadioButton("Keep", SBOLEditorPreferences.INSTANCE.getMissingBehavior() == 2);
 
 	// show name is 0, show displayId is 1
 	private JRadioButton showName = new JRadioButton("Show name when set",
@@ -66,6 +72,13 @@ public enum SettingsTab implements PreferencesTab {
 		seqGroup.add(seqAskUser);
 		seqGroup.add(seqOverwrite);
 		seqGroup.add(seqKeep);
+		
+		JLabel impliedMissingSequence = new JLabel(
+				"<html>Every time the implied sequence has missing <br>sequences, would you like to overwrite or keep the original sequence?</html>");
+		ButtonGroup missingGroup = new ButtonGroup();
+		missingGroup.add(missingAskUser);
+		missingGroup.add(missingOverwrite);
+		missingGroup.add(missingKeep);
 
 		JLabel showNameOrDisplayId = new JLabel("<html>Always show displayId or always show name when set?</html>");
 		ButtonGroup nameDisplayIdGroup = new ButtonGroup();
@@ -89,6 +102,10 @@ public enum SettingsTab implements PreferencesTab {
 		builder.add("", seqAskUser);
 		builder.add("", seqOverwrite);
 		builder.add("", seqKeep);
+		builder.add("", impliedMissingSequence);
+		builder.add("", missingAskUser);
+		builder.add("", missingOverwrite);
+		builder.add("", missingKeep);
 		builder.add("", showNameOrDisplayId);
 		builder.add("", showName);
 		builder.add("", showDisplayId);
@@ -115,6 +132,16 @@ public enum SettingsTab implements PreferencesTab {
 			seqBehavior = 2;
 		}
 		SBOLEditorPreferences.INSTANCE.setSeqBehavior(seqBehavior);
+		
+		int missingBehavior = 0;
+		if (missingAskUser.isSelected()) {
+			missingBehavior = 0;
+		} else if (missingOverwrite.isSelected()) {
+			missingBehavior = 1;
+		} else if (missingKeep.isSelected()) {
+			missingBehavior = 2;
+		}
+		SBOLEditorPreferences.INSTANCE.setSeqBehavior(missingBehavior);
 
 		int showNameOrDisplayId = 0;
 		if (showName.isSelected()) {

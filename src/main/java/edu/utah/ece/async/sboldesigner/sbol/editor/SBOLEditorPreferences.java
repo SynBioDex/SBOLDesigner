@@ -113,6 +113,28 @@ public enum SBOLEditorPreferences {
 		prefs.putInt("seqBehavior", seqBehavior);
 		this.seqBehavior = seqBehavior;
 	}
+	
+	private Integer missingBehavior = null;
+
+	/**
+	 * askUser is 0, overwrite is 1, and keep is 2
+	 */
+	public Integer getMissingBehavior() {
+		if (missingBehavior == null) {
+			Preferences prefs = Preferences.userNodeForPackage(SBOLEditorPreferences.class).node("settings");
+			missingBehavior = prefs.getInt("missingBehavior", 1);
+		}
+		return missingBehavior;
+	}
+
+	/**
+	 * askUser is 0, overwrite is 1, and keep is 2
+	 */
+	public void setMissingBehavior(int missingBehavior) {
+		Preferences prefs = Preferences.userNodeForPackage(SBOLEditorPreferences.class).node("settings");
+		prefs.putInt("missingBehavior", missingBehavior);
+		this.missingBehavior = missingBehavior;
+	}
 
 	private Integer nameDisplayIdBehavior = null;
 
