@@ -141,7 +141,7 @@ public enum SettingsTab implements PreferencesTab {
 		} else if (missingKeep.isSelected()) {
 			missingBehavior = 2;
 		}
-		SBOLEditorPreferences.INSTANCE.setSeqBehavior(missingBehavior);
+		SBOLEditorPreferences.INSTANCE.setMissingBehavior(missingBehavior);
 
 		int showNameOrDisplayId = 0;
 		if (showName.isSelected()) {
