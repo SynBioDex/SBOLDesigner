@@ -65,7 +65,7 @@ public class ComboDerivDialog extends InputDialog<CombinatorialDerivation> {
 
 	@Override
 	protected String initMessage() {
-		return "There are multiple designs.  Which would you like to load?  (You will be editing a new partial design)";
+		return "There are multiple combinatorial derivations. Which would you like to enumerate?";
 	}
 
 	@Override

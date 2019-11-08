@@ -89,10 +89,8 @@ public class CombinatorialExpansionUtil {
 			throws SBOLValidationException {
 		HashSet<ComponentDefinition> parents = new HashSet<>();
 		parents.add(createTemplateCopy(doc, derivation));
-
 		for (VariableComponent vc : derivation.getVariableComponents()) {
 			HashSet<ComponentDefinition> newParents = new HashSet<>();
-
 			for (ComponentDefinition parent : parents) {
 				for (HashSet<ComponentDefinition> children : group(collectVariants(doc, vc), vc.getOperator())) {
 					// create copy of parent
@@ -277,6 +275,13 @@ public class CombinatorialExpansionUtil {
 			throws SBOLValidationException {
 		HashSet<ComponentDefinition> variants = new HashSet<>();
 
+		//Recursively collect variants from possible nested VariantDerivations 
+		for(CombinatorialDerivation cd : vc.getVariantDerivations())
+		{
+			for (VariableComponent v : cd.getVariableComponents()) {
+				variants.addAll(collectVariants(doc, v));
+			}
+		}
 		// add all variants
 		variants.addAll(vc.getVariants());
 
