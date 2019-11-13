@@ -1817,12 +1817,14 @@ public class SBOLDesign {
 		ComponentDefinition curr;
 		for(org.sbolstandard.core2.Component c : comp.getSortedComponents()) {
 			curr = c.getDefinition();
-			
+			if(!curr.getComponents().isEmpty()) {
+				rebuildSequences(curr);
+			}
 			length = 0;
 			//Append sequences to build newly constructed sequence
 			for(Sequence s : curr.getSequences()) {
 				currSequences.add(s);
-				newSeq.concat(s.getElements());
+				newSeq = newSeq.concat(s.getElements());
 				length += s.getElements().length();
 			}
 			
@@ -1841,6 +1843,10 @@ public class SBOLDesign {
 			count++;
 		}
 		if(newSeq != "") {
+			if(comp.getSequences().isEmpty())
+			{
+				comp.addSequence(currSequences.iterator().next());
+			}
 			comp.getSequences().iterator().next().setElements(newSeq);
 		}
 		
@@ -1988,6 +1994,10 @@ public class SBOLDesign {
 			}
 			String nucleotides = canvasCD.getImpliedNucleicAcidSequence();
 
+			if(nucleotides != null)
+				nucleotides = nucleotides.replace("N", "");
+			if(oldElements != null)
+				oldElements = oldElements.replace("N", "");
 			if (nucleotides != null && nucleotides.length() > 0) {
 				if (!nucleotides.equals(oldElements)) {
 					// report to the user if the updated sequence is shorter
