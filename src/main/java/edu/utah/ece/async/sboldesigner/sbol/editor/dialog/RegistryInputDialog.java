@@ -565,6 +565,19 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 			registries.save();
 		}
 	}
+	
+	public URI getSelectedURI() {
+		TopLevel comp = null;
+		int row = table.convertRowIndexToModel(table.getSelectedRow());
+
+		if (isMetadata()) {
+			TableMetadata compMeta = ((TableMetadataTableModel) table.getModel()).getElement(row);
+			return URI.create(compMeta.identified.getUri());
+		} else {
+			comp = ((TopLevelTableModel) table.getModel()).getElement(row);
+			return comp.getIdentity();
+		}
+	}
 
 	@Override
 	protected SBOLDocument getSelection() {
@@ -587,8 +600,7 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 						JOptionPane.showMessageDialog(getParent(), "Selecting collections is not allowed");
 						return new SBOLDocument();
 					}else {
-						document = new SBOLDocument();
-						document.createCollection(compMeta.identified.getUri(), compMeta.identified.getDisplayId(), compMeta.identified.getVersion());
+						document = synBioHub.getSBOL(URI.create(compMeta.identified.getUri()));
 						return document;
 					}
 					

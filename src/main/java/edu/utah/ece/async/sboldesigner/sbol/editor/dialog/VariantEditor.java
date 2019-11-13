@@ -542,14 +542,16 @@ public class VariantEditor extends JDialog implements ActionListener {
 				dialog.allowCollectionSelection();
 				dialog.setObjectType("Variant");
 				SBOLDocument selection = dialog.getInput();
-
+				URI selectedURI = dialog.getSelectedURI();
+				TopLevel selectedTopLevel = selection.getTopLevel(selectedURI);
+				
 				if (selection == null) {
 					return;
 				}
 
 				SBOLUtils.insertTopLevels(selection, design);
 				Collection col;
-				if(selection.getCombinatorialDerivations().isEmpty() && selection.getComponentDefinitions().isEmpty() && !selection.getCollections().isEmpty())
+				if(selectedTopLevel instanceof Collection) 
 				{
 					col = selection.getCollections().iterator().next();
 					boolean cont = true;
@@ -569,10 +571,12 @@ public class VariantEditor extends JDialog implements ActionListener {
 						}
 					}
 					addCollection(col);
-				}else if(!selection.getCombinatorialDerivations().isEmpty()){
+				} else if(selectedTopLevel instanceof CombinatorialDerivation) {
 					addDerivation(selection.getCombinatorialDerivations().iterator().next());
-				}else {
+				} else if(selectedTopLevel instanceof ComponentDefinition) {
 					addVariant(root.cd);
+				} else {
+					System.err.println("ERROR: Variant is not a valid type (" + selectedTopLevel.getClass() + ")");
 				}
 
 				updateTable();
