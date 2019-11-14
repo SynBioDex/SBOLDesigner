@@ -15,8 +15,14 @@ downloaded.
 
 Compilation
 =================================
+
 In order to build SBOLDesigner from source, type the following into a Windows shell or create an Eclipse Maven run configuration that has the following goals (excluding the "mvn") after cloning this repository:
 mvn clean install exec:java -Dexec.mainClass="edu.utah.ece.async.sboldesigner.sbol.editor.SBOLDesignerStandalone" && mvn package
+
+Citation
+========
+
+M. Zhang, J. McLaughlin, A. Wipat, and C. Myers, [https://pubs.acs.org/doi/abs/10.1021/acssynbio.6b00275](SBOLDesigner 2: An Intuitive Tool for Structural Genetic Design, in ACS Synthetic Biology), 6(7): 1150-1160, July 21, 2017.
 
 More information
 ================
