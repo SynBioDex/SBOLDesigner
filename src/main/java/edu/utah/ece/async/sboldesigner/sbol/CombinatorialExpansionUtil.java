@@ -93,6 +93,7 @@ public class CombinatorialExpansionUtil {
 			HashSet<ComponentDefinition> newParents = new HashSet<>();
 			for (ComponentDefinition parent : parents) {
 				for (HashSet<ComponentDefinition> children : group(collectVariants(doc, vc), vc.getOperator())) {
+					
 					// create copy of parent
 					String uniqueId = SBOLUtils.getUniqueDisplayId(null, null, parent.getDisplayId(),
 							parent.getVersion(), "CD", doc);
@@ -276,12 +277,13 @@ public class CombinatorialExpansionUtil {
 		HashSet<ComponentDefinition> variants = new HashSet<>();
 
 		//Recursively collect variants from possible nested VariantDerivations 
-		for(CombinatorialDerivation cd : vc.getVariantDerivations())
-		{
-			for (VariableComponent v : cd.getVariableComponents()) {
-				variants.addAll(collectVariants(doc, v));
-			}
-		}
+//		for(CombinatorialDerivation cd : vc.getVariantDerivations())
+//		{
+//			for (VariableComponent v : cd.getVariableComponents()) {
+//				variants.addAll(collectVariants(doc, v));
+//				
+//			}
+//		}
 		// add all variants
 		variants.addAll(vc.getVariants());
 
