@@ -1833,11 +1833,15 @@ public class SBOLDesign {
 				}
 			}
 			
-			SequenceAnnotation seqAnn = comp.createSequenceAnnotation("SequenceAnnotation_"+count, "Range" , start, start+length, o);
-			
+			SequenceAnnotation seqAnn;
+			if (length==0) {
+				seqAnn = comp.createSequenceAnnotation("SequenceAnnotation_"+count, "GenericLocation", o);
+			} else {
+				seqAnn = comp.createSequenceAnnotation("SequenceAnnotation_"+count, "Range" , start, start+length-1, o);
+				start += length;
+			}
 			seqAnn.setComponent(c.getIdentity());
 			
-			start += length+1;
 			count++;
 		}
 		if(newSeq != "") {
@@ -1996,10 +2000,10 @@ public class SBOLDesign {
 			}
 			String nucleotides = canvasCD.getImpliedNucleicAcidSequence();
 
-			if(nucleotides != null)
+/*			if(nucleotides != null)
 				nucleotides = nucleotides.replace("N", "");
 			if(oldElements != null)
-				oldElements = oldElements.replace("N", "");
+				oldElements = oldElements.replace("N", "");*/
 			if (nucleotides != null && nucleotides.length() > 0) {
 				if (!nucleotides.equals(oldElements)) {
 					// report to the user if the updated sequence is shorter
