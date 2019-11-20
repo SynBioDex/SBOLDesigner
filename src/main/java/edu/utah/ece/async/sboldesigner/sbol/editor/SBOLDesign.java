@@ -2006,58 +2006,21 @@ public class SBOLDesign {
 				oldElements = oldElements.replace("N", "");
 			if (nucleotides != null && nucleotides.length() > 0) {
 				if (!nucleotides.equals(oldElements)) {
-					// report to the user if the updated sequence is shorter
-					int option = 0;
-					// check preferences
-					// askUser is 0, overwrite is 1, and keep is 2
-					int seqBehavior = SBOLEditorPreferences.INSTANCE.getSeqBehavior();
-					switch (seqBehavior) {
-					case 0:
-						// askUser
-						Object[] options = { "Keep", "Overwrite" };
-						do {
-							option = JOptionPane.showOptionDialog(panel, "The implied sequence for "
-									+ canvasCD.getDisplayId()
-									+ " is shorter than the original sequence.  Would you like to overwrite or keep the original sequence? \n(The default behavior can be changed in settings)",
-									"Implied sequece", JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null,
-									options, options[0]);
-						} while (option == JOptionPane.CLOSED_OPTION);
-						break;
-					case 1:
-						// overwrite
-						option = 1;
-						break;
-					case 2:
-						// keep
-						option = 0;
-						break;
-					}
-
-					if (option == 0) {
-						// use the old sequence provided it was there
-						if (oldSeq != null) {
-							String uniqueId = SBOLUtils.getUniqueDisplayId(null, null,
-									canvasCD.getDisplayId() + "Sequence", canvasCD.getVersion(), "Sequence", design);
-							oldSeq = design.createSequence(uniqueId, canvasCD.getVersion(), oldSeq.getElements(),
-									Sequence.IUPAC_DNA);
-							canvasCD.addSequence(oldSeq);
-						}
-						return;
-					}
-					if (missing) {
-						// report to the user if the updated sequence is different
-						option = 0;
+					if(!missing)
+					{
+						// report to the user if the updated sequence is shorter
+						int option = 0;
 						// check preferences
 						// askUser is 0, overwrite is 1, and keep is 2
-						int missingBehavior = SBOLEditorPreferences.INSTANCE.getMissingBehavior();
-						switch (missingBehavior) {
+						int seqBehavior = SBOLEditorPreferences.INSTANCE.getSeqBehavior();
+						switch (seqBehavior) {
 						case 0:
 							// askUser
 							Object[] options = { "Keep", "Overwrite" };
 							do {
 								option = JOptionPane.showOptionDialog(panel, "The implied sequence for "
 										+ canvasCD.getDisplayId()
-										+ " has missing sequences.  Would you like to overwrite or keep the original sequence? \n(The default behavior can be changed in settings)",
+										+ " is shorter than the original sequence.  Would you like to overwrite or keep the original sequence? \n(The default behavior can be changed in settings)",
 										"Implied sequece", JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null,
 										options, options[0]);
 							} while (option == JOptionPane.CLOSED_OPTION);
@@ -2071,18 +2034,59 @@ public class SBOLDesign {
 							option = 0;
 							break;
 						}
+						
+	
+						if (option == 0) {
+							// use the old sequence provided it was there
+							if (oldSeq != null) {
+								String uniqueId = SBOLUtils.getUniqueDisplayId(null, null,
+										canvasCD.getDisplayId() + "Sequence", canvasCD.getVersion(), "Sequence", design);
+								oldSeq = design.createSequence(uniqueId, canvasCD.getVersion(), oldSeq.getElements(),
+										Sequence.IUPAC_DNA);
+								canvasCD.addSequence(oldSeq);
+							}
+							return;
+						}
+						// use the implied sequence
+						String uniqueId = SBOLUtils.getUniqueDisplayId(null, null, canvasCD.getDisplayId() + "Sequence", "1",
+								"Sequence", design);
+						Sequence newSequence = design.createSequence(uniqueId, "1", nucleotides, Sequence.IUPAC_DNA);
+						canvasCD.addSequence(newSequence);
+					}
+					else{
+						// report to the user if the updated sequence is different
+						int option = 0;
+						// check preferences
+						// askUser is 0, overwrite is 1, and keep is 2
+						int missingBehavior = SBOLEditorPreferences.INSTANCE.getMissingBehavior();
+						int seqBehavior = SBOLEditorPreferences.INSTANCE.getSeqBehavior();
+						if(missingBehavior == 0 || seqBehavior == 0) {
+							// askUser
+							Object[] options = { "Keep", "Overwrite" };
+							do {
+								option = JOptionPane.showOptionDialog(panel, "The implied sequence for "
+										+ canvasCD.getDisplayId()
+										+ " has missing sequences and has changed.  Would you like to overwrite or keep the original sequence? \n(The default behavior can be changed in settings)",
+										"Implied sequece", JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null,
+										options, options[0]);
+							} while (option == JOptionPane.CLOSED_OPTION);
+						}else if(missingBehavior == 1 && seqBehavior == 1)
+						{
+							option = 1;
+						}
+						
 
 						if (option == 0) {
 							//This means that we don't want to overwrite because there are missing sequences
 							return;
 						}
+						// use the implied sequence
+						String uniqueId = SBOLUtils.getUniqueDisplayId(null, null, canvasCD.getDisplayId() + "Sequence", "1",
+								"Sequence", design);
+						Sequence newSequence = design.createSequence(uniqueId, "1", nucleotides, Sequence.IUPAC_DNA);
+						canvasCD.addSequence(newSequence);
 					}
 				}
-				// use the implied sequence
-				String uniqueId = SBOLUtils.getUniqueDisplayId(null, null, canvasCD.getDisplayId() + "Sequence", "1",
-						"Sequence", design);
-				Sequence newSequence = design.createSequence(uniqueId, "1", nucleotides, Sequence.IUPAC_DNA);
-				canvasCD.addSequence(newSequence);
 			}
 			// TODO: removed, not sure what this is for and it is preventing a sequence from being deleted
 			else if (nucleotides==null){
