@@ -1793,12 +1793,10 @@ public class SBOLDesign {
 
 		doc = CombinatorialExpansionUtil.createCombinatorialDesign((java.awt.Component)panel, doc);
 		
-		
-		for(ComponentDefinition c : doc.getRootComponentDefinitions()) {
-			rebuildSequences(c, doc);
-		}
-		
 		if (doc != null) {
+			for(ComponentDefinition c : doc.getRootComponentDefinitions()) {
+				rebuildSequences(c, doc);
+			}
 			if (!file.getName().contains(".")) {
 				file = new File(file + ".xml");
 			}

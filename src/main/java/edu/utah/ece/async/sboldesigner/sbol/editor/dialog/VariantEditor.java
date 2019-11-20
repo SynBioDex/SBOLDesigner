@@ -543,12 +543,11 @@ public class VariantEditor extends JDialog implements ActionListener {
 				dialog.setObjectType("Variant");
 				SBOLDocument selection = dialog.getInput();
 				URI selectedURI = dialog.getSelectedURI();
-				TopLevel selectedTopLevel = selection.getTopLevel(selectedURI);
 				
 				if (selection == null) {
 					return;
 				}
-
+				TopLevel selectedTopLevel = selection.getTopLevel(selectedURI);
 				SBOLUtils.insertTopLevels(selection, design);
 				Collection col;
 				if(selectedTopLevel instanceof Collection) 

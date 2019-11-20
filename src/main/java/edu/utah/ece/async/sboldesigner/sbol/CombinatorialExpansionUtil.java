@@ -34,6 +34,10 @@ public class CombinatorialExpansionUtil {
 		}
 
 		HashSet<ComponentDefinition> enumeration = enumerate(doc, derivation);
+		if (enumeration.isEmpty()) {
+			JOptionPane.showMessageDialog(null, "There are no variants to enumerate");
+			return null;
+		}
 
 		if (!derivation.isSetStrategy()) {
 			int choice = JOptionPane.showOptionDialog(null,
