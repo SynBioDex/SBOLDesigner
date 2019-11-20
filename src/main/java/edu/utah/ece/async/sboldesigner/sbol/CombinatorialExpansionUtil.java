@@ -4,6 +4,7 @@ import java.util.HashSet;
 import java.util.concurrent.ThreadLocalRandom;
 
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 
 import org.sbolstandard.core2.AccessType;
 import org.sbolstandard.core2.Collection;
@@ -25,14 +26,18 @@ import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.CombinatorialDerivatio
 
 public class CombinatorialExpansionUtil {
 
-	public static SBOLDocument createCombinatorialDesign(SBOLDocument doc) throws SBOLValidationException {
-		CombinatorialDerivation derivation = CombinatorialDerivationInputDialog.pickCombinatorialDerivation(doc, null);
+	public static SBOLDocument createCombinatorialDesign(java.awt.Component panel, SBOLDocument doc) throws SBOLValidationException {
+		CombinatorialDerivation derivation = CombinatorialDerivationInputDialog.pickCombinatorialDerivation(panel, doc, null);
 		if (derivation == null) {
 			JOptionPane.showMessageDialog(null, "There are no combinatorial designs");
 			return null;
 		}
 
 		HashSet<ComponentDefinition> enumeration = enumerate(doc, derivation);
+		if (enumeration.isEmpty()) {
+			JOptionPane.showMessageDialog(null, "There are no variants to enumerate");
+			return null;
+		}
 
 		if (!derivation.isSetStrategy()) {
 			int choice = JOptionPane.showOptionDialog(null,
@@ -88,12 +93,11 @@ public class CombinatorialExpansionUtil {
 			throws SBOLValidationException {
 		HashSet<ComponentDefinition> parents = new HashSet<>();
 		parents.add(createTemplateCopy(doc, derivation));
-
 		for (VariableComponent vc : derivation.getVariableComponents()) {
 			HashSet<ComponentDefinition> newParents = new HashSet<>();
-
 			for (ComponentDefinition parent : parents) {
 				for (HashSet<ComponentDefinition> children : group(collectVariants(doc, vc), vc.getOperator())) {
+					
 					// create copy of parent
 					String uniqueId = SBOLUtils.getUniqueDisplayId(null, null, parent.getDisplayId(),
 							parent.getVersion(), "CD", doc);
@@ -276,6 +280,14 @@ public class CombinatorialExpansionUtil {
 			throws SBOLValidationException {
 		HashSet<ComponentDefinition> variants = new HashSet<>();
 
+		//Recursively collect variants from possible nested VariantDerivations 
+//		for(CombinatorialDerivation cd : vc.getVariantDerivations())
+//		{
+//			for (VariableComponent v : cd.getVariableComponents()) {
+//				variants.addAll(collectVariants(doc, v));
+//				
+//			}
+//		}
 		// add all variants
 		variants.addAll(vc.getVariants());
 

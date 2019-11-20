@@ -1,5 +1,6 @@
 package edu.utah.ece.async.sboldesigner.sbol.editor.dialog;
 
+import java.awt.Component;
 import java.util.ArrayList;
 
 import javax.swing.JOptionPane;
@@ -10,6 +11,7 @@ import org.sbolstandard.core2.SBOLDocument;
 
 public class CombinatorialDerivationInputDialog {
 
+	private Component parent;
 	private static class Derivation {
 		CombinatorialDerivation derivation;
 
@@ -32,11 +34,12 @@ public class CombinatorialDerivationInputDialog {
 				derivations.add(d);
 			}
 		}
+		
 
 		return derivations.toArray(new Derivation[0]);
 	}
 
-	public static CombinatorialDerivation pickCombinatorialDerivation(SBOLDocument doc, ComponentDefinition template) {
+	public static CombinatorialDerivation pickCombinatorialDerivation(Component parent, SBOLDocument doc, ComponentDefinition template) {
 		Derivation[] options = getDerivations(doc, template);
 
 		if (options.length == 0) {
@@ -46,15 +49,11 @@ public class CombinatorialDerivationInputDialog {
 		if (options.length == 1) {
 			return options[0].derivation;
 		}
-
-		Derivation selection = (Derivation) JOptionPane.showInputDialog(null,
-				"Please select a combinatorial derivation.", "Pick Combinatorial Design", JOptionPane.DEFAULT_OPTION,
-				null, options, options[0]);
+		CombinatorialDerivation selection = new ComboDerivDialog(parent, doc, template).getInput();
 		if (selection == null) {
 			return null;
 		}
-
-		return selection.derivation;
+		return selection;
 	}
 
 }

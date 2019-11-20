@@ -37,6 +37,7 @@ import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 
+import org.sbolstandard.core2.Collection;
 import org.sbolstandard.core2.CombinatorialDerivation;
 import org.sbolstandard.core2.ComponentDefinition;
 import org.sbolstandard.core2.Identified;
@@ -44,6 +45,7 @@ import org.sbolstandard.core2.OperatorType;
 import org.sbolstandard.core2.SBOLDocument;
 import org.sbolstandard.core2.SBOLValidationException;
 import org.sbolstandard.core2.StrategyType;
+import org.sbolstandard.core2.TopLevel;
 import org.sbolstandard.core2.VariableComponent;
 
 import edu.utah.ece.async.sboldesigner.sbol.CharSequenceUtil;
@@ -62,7 +64,7 @@ public class VariantEditor extends JDialog implements ActionListener {
 	private final JComboBox<OperatorType> operatorSelection = new JComboBox<>(OperatorType.values());
 	private final JComboBox<Strategy> strategySelection = new JComboBox<>(getStrategies());
 	private final JButton addButton = new JButton("Add Variant");
-	private final JButton removeButton = new JButton("Remove Variant");
+	private final JButton removeButton = new JButton("Remove");
 	private final JButton newButton = new JButton("Add new Combinatorial Derivation");
 	private final JButton saveButton = new JButton("Save");
 	private final JTextField displayId = new JTextField();
@@ -206,8 +208,8 @@ public class VariantEditor extends JDialog implements ActionListener {
 	}
 
 	protected JPanel initMainPanel() throws SBOLValidationException {
-		ComponentDefinitionTableModel tableModel = new ComponentDefinitionTableModel(getVariants());
-
+		//ComponentDefinitionTableModel tableModel = new ComponentDefinitionTableModel(getVariants());
+		TopLevelTableModel tableModel = new TopLevelTableModel(getVariantsCollectionsAndDerivations());
 		JPanel panel = createTablePanel(tableModel, "Variant count (" + tableModel.getRowCount() + ")");
 
 		table = (JTable) panel.getClientProperty("table");
@@ -286,7 +288,8 @@ public class VariantEditor extends JDialog implements ActionListener {
 	private CombinatorialDerivation getCombinatorialDerivation(ComponentDefinition derivationCD)
 			throws SBOLValidationException {
 		if (chosenDerivation == null) {
-			chosenDerivation = CombinatorialDerivationInputDialog.pickCombinatorialDerivation(design, derivationCD);
+			chosenDerivation = CombinatorialDerivationInputDialog.pickCombinatorialDerivation(parent, design, derivationCD);
+			//chosenDerivation = new ComboDerivDesign();
 			if (chosenDerivation == null) {
 				String id = JOptionPane.showInputDialog("What would you like to call this combinatorial derivation?",
 						derivationCD.isSetDisplayId() ? derivationCD.getDisplayId() + "_CombinatorialDerivation" : "");
@@ -359,17 +362,28 @@ public class VariantEditor extends JDialog implements ActionListener {
 
 		return null;
 	}
-
-	private List<ComponentDefinition> getVariants() throws SBOLValidationException {
-		ArrayList<ComponentDefinition> variants = new ArrayList<>();
+	
+	private List<TopLevel> getVariantsCollectionsAndDerivations() throws SBOLValidationException {
+		ArrayList<TopLevel> variants = new ArrayList<>();
 
 		VariableComponent variable = getVariableComponent();
 		if (variable == null) {
 			return variants;
 		}
 
+		//Get variants
 		for (URI cd : variable.getVariantURIs()) {
 			variants.add(design.getComponentDefinition(cd));
+		}
+		
+		//Get variantCollections
+		for (URI col : variable.getVariantCollectionURIs()) {
+			variants.add(design.getCollection(col));
+		}
+		
+		//Get combinatoralDerivations
+		for (URI der : variable.getVariantDerivationURIs()) {
+			variants.add(design.getCombinatorialDerivation(der));
 		}
 
 		return variants;
@@ -378,6 +392,16 @@ public class VariantEditor extends JDialog implements ActionListener {
 	private void addVariant(ComponentDefinition variant) throws Exception {
 		VariableComponent variable = getVariableComponent((OperatorType) operatorSelection.getSelectedItem());
 		variable.addVariant(variant.getIdentity());
+	}
+	
+	private void addCollection(Collection collection) throws Exception {
+		VariableComponent variable = getVariableComponent((OperatorType) operatorSelection.getSelectedItem());
+		variable.addVariantCollection(collection.getIdentity());
+	}
+	
+	private void addDerivation(CombinatorialDerivation derivation) throws Exception {
+		VariableComponent variable = getVariableComponent((OperatorType) operatorSelection.getSelectedItem());
+		variable.addVariantDerivation(derivation.getIdentity());
 	}
 
 	private VariableComponent createVariableComponent(CombinatorialDerivation derivation, OperatorType operator,
@@ -446,27 +470,42 @@ public class VariantEditor extends JDialog implements ActionListener {
 		}
 	}
 
-	private void removeVariant(ComponentDefinition variant) throws Exception {
+	private void removeVariant(TopLevel top) throws Exception {
 		VariableComponent variable = getVariableComponent();
 		if (variable == null) {
 			return;
 		}
+		if(top instanceof ComponentDefinition)
+		{
+			ComponentDefinition variant = (ComponentDefinition) top;
+			variable.removeVariant(variant);
 
-		variable.removeVariant(variant);
+			// TODO: pull into a function and call on all three types of removes
+			if (variable.getVariants().isEmpty()) { // TODO: should check variantCollections / variantDerivations
+				// TODO: this call should not create when it cannot find
+				// also need to see why it cannot find it
+				CombinatorialDerivation derivation = getCombinatorialDerivation(derivationCD);
+				if (derivation == null) {
+					return;
+				}
 
-		if (variable.getVariants().isEmpty()) {
-			CombinatorialDerivation derivation = getCombinatorialDerivation(derivationCD);
-			if (derivation == null) {
-				return;
+				derivation.removeVariableComponent(variable);
+
+//				if (derivation.getVariableComponents().isEmpty()) {
+//					design.removeCombinatorialDerivation(derivation);
+//					chosenDerivation = null;
+//				}
 			}
-
-			derivation.removeVariableComponent(variable);
-
-			if (derivation.getVariableComponents().isEmpty()) {
-				design.removeCombinatorialDerivation(derivation);
-				chosenDerivation = null;
-			}
+		}else if (top instanceof CombinatorialDerivation)
+		{
+			variable.removeVariantDerivation((CombinatorialDerivation)top);
+			// TODO: remove variableComponent if last variant
+		}else if(top instanceof Collection)
+		{
+			variable.removeVariantCollection((Collection) top);
+			// TODO: remove variableComponent if last variant
 		}
+
 	}
 
 	@Override
@@ -498,15 +537,46 @@ public class VariantEditor extends JDialog implements ActionListener {
 
 			if (e.getSource() == addButton) {
 				ComponentDefinitionBox root = new ComponentDefinitionBox();
-				SBOLDocument selection = new RegistryInputDialog(parent, root, Parts.forIdentified(variableCD),
-						SBOLUtils.Types.DNA, null, design).getInput();
-
+				RegistryInputDialog dialog = new RegistryInputDialog(parent, root, Parts.forIdentified(variableCD),
+						SBOLUtils.Types.DNA, null, null);
+				dialog.allowCollectionSelection();
+				dialog.setObjectType("Variant");
+				SBOLDocument selection = dialog.getInput();
+				URI selectedURI = dialog.getSelectedURI();
+				
 				if (selection == null) {
 					return;
 				}
-
+				TopLevel selectedTopLevel = selection.getTopLevel(selectedURI);
 				SBOLUtils.insertTopLevels(selection, design);
-				addVariant(root.cd);
+				Collection col;
+				if(selectedTopLevel instanceof Collection) 
+				{
+					col = selection.getCollections().iterator().next();
+					boolean cont = true;
+					while(cont)
+					{
+						cont = false;
+						for(Collection c : selection.getCollections())
+						{
+							if(col != c)
+							{
+								if(c.containsMember(col.getIdentity()))
+								{
+									col = c;
+									cont = true;
+								}
+							}
+						}
+					}
+					addCollection(col);
+				} else if(selectedTopLevel instanceof CombinatorialDerivation) {
+					addDerivation(selection.getCombinatorialDerivations().iterator().next());
+				} else if(selectedTopLevel instanceof ComponentDefinition) {
+					addVariant(root.cd);
+				} else {
+					System.err.println("ERROR: Variant is not a valid type (" + selectedTopLevel.getClass() + ")");
+				}
 
 				updateTable();
 				return;
@@ -514,8 +584,9 @@ public class VariantEditor extends JDialog implements ActionListener {
 
 			if (e.getSource() == removeButton) {
 				int row = table.convertRowIndexToModel(table.getSelectedRow());
-				ComponentDefinition variant = ((ComponentDefinitionTableModel) table.getModel()).getElement(row);
-				removeVariant(variant);
+				TopLevelTableModel model = (TopLevelTableModel) table.getModel();
+				TopLevel top = model.getElement(row);
+				removeVariant(top);
 				updateTable();
 				return;
 			}
@@ -574,7 +645,7 @@ public class VariantEditor extends JDialog implements ActionListener {
 	}
 
 	private void updateTable() throws SBOLValidationException {
-		ComponentDefinitionTableModel tableModel = new ComponentDefinitionTableModel(getVariants());
+		TopLevelTableModel tableModel = new TopLevelTableModel(getVariantsCollectionsAndDerivations());
 		table.setModel(tableModel);
 		setWidthAsPercentages(table, tableModel.getWidths());
 		TableRowSorter<TableModel> sorter = new TableRowSorter<TableModel>(tableModel);

@@ -51,6 +51,7 @@ import org.sbolstandard.core2.SBOLDocument;
 import org.sbolstandard.core2.SBOLReader;
 import org.sbolstandard.core2.SBOLValidationException;
 import org.sbolstandard.core2.SequenceOntology;
+import org.sbolstandard.core2.TopLevel;
 import org.synbiohub.frontend.IdentifiedMetadata;
 import org.synbiohub.frontend.SynBioHubException;
 import org.synbiohub.frontend.SynBioHubFrontend;
@@ -266,7 +267,7 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 				updateContext();
 			}
 		});
-		if (objectType == "ComponentDefinition") {
+		if (objectType == "ComponentDefinition" || objectType == "Variant") {
 			builder.add("Part type", typeSelection);
 		}
 
@@ -291,7 +292,7 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 				updateTable();
 			}
 		});
-		if (objectType == "ComponentDefinition") {
+		if (objectType == "ComponentDefinition" || objectType == "Variant") {
 			builder.add("Part role", roleSelection);
 		}
 
@@ -307,7 +308,7 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 			roleRefinement.setSelectedItem(roleName);
 		}
 		roleRefinement.addActionListener(roleRefinementListener);
-		if (objectType == "ComponentDefinition") {
+		if (objectType == "ComponentDefinition" || objectType == "Variant") {
 			builder.add("Role refinement", roleRefinement);
 		}
 		updateContext();
@@ -382,7 +383,11 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 			searchParts(part, synBioHub, filterSelection.getText());
 			TableMetadataTableModel tableModel = new TableMetadataTableModel(new ArrayList<TableMetadata>());
 			panel = createTablePanel(tableModel, "Matching parts (" + tableModel.getRowCount() + ")");
-		} else {
+		} else if(objectType == "Variant"){
+			List<TopLevel> topLevels = searchForPotentialVariants(part);
+			TopLevelTableModel model = new TopLevelTableModel(topLevels);
+			panel = createTablePanel(model, "Matching parts (" + model.getRowCount() + ")");
+		}else {
 			List<ComponentDefinition> components = searchParts(part);
 			ComponentDefinitionTableModel tableModel = new ComponentDefinitionTableModel(components);
 			panel = createTablePanel(tableModel, "Matching parts (" + tableModel.getRowCount() + ")");
@@ -403,6 +408,61 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 		return location.startsWith("http://") || location.startsWith("https://");
 	}
 
+	private List<TopLevel> searchForPotentialVariants(Part part) {
+		try {
+			if (isMetadata()) {
+				throw new Exception("Incorrect state.  url isn't a path");
+			}
+
+			if (part.equals(ALL_PARTS)) {
+				part = null;
+			}
+
+			SBOLReader.setURIPrefix(SBOLEditorPreferences.INSTANCE.getUserInfo().getURI().toString());
+			SBOLReader.setCompliant(true);
+			SBOLDocument doc;
+			Registry registry = (Registry) registrySelection.getSelectedItem();
+
+			if (registry.equals(Registry.BUILT_IN)) {
+				// read from BuiltInParts.xml
+				doc = SBOLReader.read(Registry.class.getResourceAsStream("/BuiltInParts.xml"));
+
+			} else if (registry.equals(Registry.WORKING_DOCUMENT)) {
+				if (workingDoc != null) {
+					// workingDoc is specified, so use that
+					doc = workingDoc;
+				} else {
+					// read from SBOLUtils.setupFile();
+					File file = SBOLUtils.setupFile();
+
+					if (file.exists()) {
+						doc = SBOLReader.read(file);
+					} else {
+						// JOptionPane.showMessageDialog(null, "The working
+						// document could not be found on disk. Try opening the
+						// file again.");
+						return new ArrayList<TopLevel>();
+					}
+				}
+
+			} else {
+				// read from the location (path)
+				doc = SBOLReader.read(location);
+			}
+
+			doc.setDefaultURIprefix(SBOLEditorPreferences.INSTANCE.getUserInfo().getURI().toString());
+			return SBOLUtils.getCDCollectionsAndComboDerv(doc, part);
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			MessageDialog.showMessage(null, "Getting the SBOLDocument from path failed: ", e.getMessage());
+			Registries registries = Registries.get();
+			registries.setVersionRegistryIndex(0);
+			registries.save();
+			return null;
+		}
+	}
+	
 	/**
 	 * Gets the SBOLDocument from the path (file on disk) and returns all its
 	 * CDs.
@@ -487,8 +547,11 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 				Set<URI> setCollections = new HashSet<URI>(Arrays.asList(URI.create(selectedCollection.getUri())));
 				Set<URI> setRoles = new HashSet<URI>(part.getRoles());
 				Set<URI> setTypes = SBOLUtils.convertTypesToSet((Types) typeSelection.getSelectedItem());
+				String type = objectType;
+				if(type == "Variant")
+					type = "ComponentDefinition";
 				SynBioHubQuery query = new SynBioHubQuery(synbiohub, setRoles, setTypes, setCollections, filterText,
-						objectType, new TableUpdater(), this);
+						type, new TableUpdater(), this);
 				// non-blocking: will update using the TableUpdater
 				query.execute();
 			}
@@ -502,12 +565,25 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 			registries.save();
 		}
 	}
+	
+	public URI getSelectedURI() {
+		TopLevel comp = null;
+		int row = table.convertRowIndexToModel(table.getSelectedRow());
+
+		if (isMetadata()) {
+			TableMetadata compMeta = ((TableMetadataTableModel) table.getModel()).getElement(row);
+			return URI.create(compMeta.identified.getUri());
+		} else {
+			comp = ((TopLevelTableModel) table.getModel()).getElement(row);
+			return comp.getIdentity();
+		}
+	}
 
 	@Override
 	protected SBOLDocument getSelection() {
 		try {
 			SBOLDocument document = null;
-			ComponentDefinition comp = null;
+			TopLevel comp = null;
 			int row = table.convertRowIndexToModel(table.getSelectedRow());
 
 			if (isMetadata()) {
@@ -518,9 +594,16 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 					synBioHub = createSynBioHubFrontend(location, uriPrefix);
 				}
 
-				if (compMeta.isCollection && !allowCollectionSelection) {
-					JOptionPane.showMessageDialog(getParent(), "Selecting collections is not allowed");
-					return new SBOLDocument();
+				if (compMeta.isCollection) {
+					if(!allowCollectionSelection)
+					{
+						JOptionPane.showMessageDialog(getParent(), "Selecting collections is not allowed");
+						return new SBOLDocument();
+					}else {
+						document = synBioHub.getSBOL(URI.create(compMeta.identified.getUri()));
+						return document;
+					}
+					
 				}
 				
 
@@ -545,7 +628,7 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 				}
 			} else {
 				document = new SBOLDocument();
-				comp = ((ComponentDefinitionTableModel) table.getModel()).getElement(row);
+				comp = ((TopLevelTableModel) table.getModel()).getElement(row);
 				document = document.createRecursiveCopy(comp);
 			}
 
@@ -664,7 +747,17 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 
 		if (isMetadata()) {
 			searchParts(part, synBioHub, filterSelection.getText());
-		} else {
+		} else if(objectType == "Variant"){
+			List<TopLevel> topLevels = searchForPotentialVariants(part);
+			//topLevels = SBOLUtils.getTopLevelOfType(topLevels, (Types) typeSelection.getSelectedItem());
+			TopLevelTableModel tableModel = new TopLevelTableModel(topLevels);
+			table = new JTable(tableModel);
+			tableLabel.setText("Matching parts (" + topLevels.size() + ")");
+			refreshSearch = false;
+			TableRowSorter<TableModel> sorter = new TableRowSorter<TableModel>(tableModel);
+			table.setRowSorter(sorter);
+			setWidthAsPercentages(table, tableModel.getWidths());
+		}else {
 			List<ComponentDefinition> components = searchParts(part);
 			components = SBOLUtils.getCDOfType(components, (Types) typeSelection.getSelectedItem());
 			ComponentDefinitionTableModel tableModel = new ComponentDefinitionTableModel(components);
@@ -725,12 +818,12 @@ public class RegistryInputDialog extends InputDialog<SBOLDocument> {
 			}
 			tableLabel.setText("Matching parts (" + sorter.getViewRowCount() + ")");
 		} else {
-			TableRowSorter<ComponentDefinitionTableModel> sorter = (TableRowSorter) table.getRowSorter();
+			TableRowSorter<TopLevelTableModel> sorter = (TableRowSorter) table.getRowSorter();
 			if (filterText.length() == 0) {
 				sorter.setRowFilter(null);
 			} else {
 				try {
-					RowFilter<ComponentDefinitionTableModel, Object> rf = RowFilter.regexFilter(filterText, 0, 1, 2, 4);
+					RowFilter<TopLevelTableModel, Object> rf = RowFilter.regexFilter(filterText, 0, 1, 2, 4);
 					sorter.setRowFilter(rf);
 				} catch (PatternSyntaxException e) {
 					sorter.setRowFilter(null);
