@@ -871,10 +871,10 @@ public class SBOLDesign {
 					}
 
 					if (component.getRoles().isEmpty()) {
-						addCD(component, refered, Parts.forIdentified(refered));
+						addCD(component, refered, Parts.forIdentified(refered),false);
 					} else {
 						// If component has roles, then these should be used
-						addCD(component, refered, Parts.forIdentified(component));
+						addCD(component, refered, Parts.forIdentified(component),false);
 					}
 				} else {
 					addSA(sequenceAnnotation, Parts.forIdentified(sequenceAnnotation));
@@ -915,16 +915,11 @@ public class SBOLDesign {
 			}
 
 			if (component.getRoles().isEmpty()) {
-				addCD(component, refered, Parts.forIdentified(refered));
+				addCD(component, refered, Parts.forIdentified(refered),false);
 			} else {
 				// If component has roles, then these should be used
-				addCD(component, refered, Parts.forIdentified(component));
+				addCD(component, refered, Parts.forIdentified(component),false);
 			}
-		}
-		if (!loading) {
-			fireDesignChangedEvent(true);
-		}else {
-			updateCanvasCD(true);
 		}
 	}
 
@@ -1004,7 +999,7 @@ public class SBOLDesign {
 	}
 
 	public void addCD(ComponentDefinition comp) throws SBOLValidationException {
-		addCD(null, comp, Parts.forIdentified(comp));
+		addCD(null, comp, Parts.forIdentified(comp),true);
 	}
 
 	/**
@@ -1047,7 +1042,7 @@ public class SBOLDesign {
 		}
 		
 		part = Parts.forIdentified(comp);
-		addCD(null, comp, part);
+		addCD(null, comp, part,true);
 
 		return comp;
 	}
@@ -1058,7 +1053,8 @@ public class SBOLDesign {
 	 * 
 	 * @throws SBOLValidationException
 	 */
-	private void addCD(org.sbolstandard.core2.Component component, ComponentDefinition comp, Part part)
+	private void addCD(org.sbolstandard.core2.Component component, ComponentDefinition comp, Part part,
+			Boolean updateSequences)
 			throws SBOLValidationException {
 		boolean backbone = (part == Parts.CIRCULAR);
 		DesignElement e = new DesignElement(component, canvasCD, comp, part, design);
@@ -1089,9 +1085,9 @@ public class SBOLDesign {
 			setPartVisible(part, true);
 		}
 		if (!loading) {
-			fireDesignChangedEvent(true);
+			fireDesignChangedEvent(updateSequences);
 		}else {
-			updateCanvasCD(false);
+			updateCanvasCD(updateSequences);
 		}
 	}
 	
@@ -1684,7 +1680,7 @@ public class SBOLDesign {
 					}
 				}
 				load(comp);
-				fireDesignChangedEvent(false);
+				fireDesignChangedEvent(true);
 			}
 		}
 	}
@@ -1758,6 +1754,7 @@ public class SBOLDesign {
 			focusIn();
 			editCanvasCD();
 			focusOut();
+			fireDesignChangedEvent(true);
 		}
 	}
 
@@ -1987,6 +1984,7 @@ public class SBOLDesign {
 	 */
 	private void updateCanvasCD(boolean updateSequence) {
 		// should not allow updating of CDs outside our namespace
+		// TODO: can we just exit if updateSequence is false?
 		if (SBOLUtils.notInNamespace(canvasCD)) {
 			return;
 		}
