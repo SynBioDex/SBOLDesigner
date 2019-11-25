@@ -921,6 +921,11 @@ public class SBOLDesign {
 				addCD(component, refered, Parts.forIdentified(component));
 			}
 		}
+		if (!loading) {
+			fireDesignChangedEvent(true);
+		}else {
+			updateCanvasCD(true);
+		}
 	}
 
 	public boolean isCircular() {
@@ -1083,11 +1088,10 @@ public class SBOLDesign {
 		if (!isPartVisible(part)) {
 			setPartVisible(part, true);
 		}
-
 		if (!loading) {
 			fireDesignChangedEvent(true);
 		}else {
-			updateCanvasCD(true);
+			updateCanvasCD(false);
 		}
 	}
 	
@@ -2012,7 +2016,7 @@ public class SBOLDesign {
 			}
 			String nucleotides = canvasCD.getImpliedNucleicAcidSequence();
 			if (nucleotides != null && nucleotides.length() > 0) {
-				if (!nucleotides.equals(oldElements)) {
+ 				if (!nucleotides.equals(oldElements)) {
 					if(!missing)
 					{
 						// report to the user if the updated sequence is shorter
@@ -2054,11 +2058,6 @@ public class SBOLDesign {
 							}
 							return;
 						}
-						// use the implied sequence
-						String uniqueId = SBOLUtils.getUniqueDisplayId(null, null, canvasCD.getDisplayId() + "Sequence", "1",
-								"Sequence", design);
-						Sequence newSequence = design.createSequence(uniqueId, "1", nucleotides, Sequence.IUPAC_DNA);
-						canvasCD.addSequence(newSequence);
 					}
 					else{
 						// report to the user if the updated sequence is different
@@ -2084,16 +2083,23 @@ public class SBOLDesign {
 						
 
 						if (option == 0) {
-							//This means that we don't want to overwrite because there are missing sequences
+							// use the old sequence provided it was there
+							if (oldSeq != null) {
+								String uniqueId = SBOLUtils.getUniqueDisplayId(null, null,
+										canvasCD.getDisplayId() + "Sequence", canvasCD.getVersion(), "Sequence", design);
+								oldSeq = design.createSequence(uniqueId, canvasCD.getVersion(), oldSeq.getElements(),
+										Sequence.IUPAC_DNA);
+								canvasCD.addSequence(oldSeq);
+							}
 							return;
 						}
-						// use the implied sequence
-						String uniqueId = SBOLUtils.getUniqueDisplayId(null, null, canvasCD.getDisplayId() + "Sequence", "1",
-								"Sequence", design);
-						Sequence newSequence = design.createSequence(uniqueId, "1", nucleotides, Sequence.IUPAC_DNA);
-						canvasCD.addSequence(newSequence);
 					}
 				}
+				// use the implied sequence
+				String uniqueId = SBOLUtils.getUniqueDisplayId(null, null, canvasCD.getDisplayId() + "Sequence", "1",
+						"Sequence", design);
+				Sequence newSequence = design.createSequence(uniqueId, "1", nucleotides, Sequence.IUPAC_DNA);
+				canvasCD.addSequence(newSequence);
 			}
 			// TODO: removed, not sure what this is for and it is preventing a sequence from being deleted
 			else if (nucleotides==null){
