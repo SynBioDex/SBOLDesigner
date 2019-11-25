@@ -20,6 +20,7 @@ import java.io.File;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -488,6 +489,38 @@ public class SBOLUtils {
 			}
 		}
 		return result;
+	}
+	
+	/**
+	 * Returns a list with all the CDs in list which contain type (URI).
+	 */
+	public static List<TopLevel> getTopLevelOfType(List<TopLevel> list, Types type) {
+		if (type == Types.All_types) {
+			return list;
+		}
+		URI uri = convertTypesToSet(type).iterator().next();
+		List<TopLevel> result = new ArrayList<TopLevel>();
+		for (TopLevel CD : list) {
+			if(CD instanceof ComponentDefinition) {
+				if (((ComponentDefinition)CD).getTypes().contains(uri)) {
+					result.add(CD);
+				}
+			}
+		}
+		return result;
+	}
+	
+	public static List<TopLevel> getCDCollectionsAndComboDerv(SBOLDocument doc, Part part)
+	{
+		List<TopLevel> list = new ArrayList<TopLevel>();
+		
+		for(org.sbolstandard.core2.Collection col : doc.getCollections())
+			list.add(col);
+		for(ComponentDefinition cd : getCDOfRole(doc, part))
+			list.add(cd);
+		for(CombinatorialDerivation comb : doc.getCombinatorialDerivations())
+			list.add(comb);
+		return list;
 	}
 
 	/**
