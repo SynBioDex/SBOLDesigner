@@ -871,10 +871,10 @@ public class SBOLDesign {
 					}
 
 					if (component.getRoles().isEmpty()) {
-						addCD(component, refered, Parts.forIdentified(refered));
+						addCD(component, refered, Parts.forIdentified(refered),false);
 					} else {
 						// If component has roles, then these should be used
-						addCD(component, refered, Parts.forIdentified(component));
+						addCD(component, refered, Parts.forIdentified(component),false);
 					}
 				} else {
 					addSA(sequenceAnnotation, Parts.forIdentified(sequenceAnnotation));
@@ -915,10 +915,10 @@ public class SBOLDesign {
 			}
 
 			if (component.getRoles().isEmpty()) {
-				addCD(component, refered, Parts.forIdentified(refered));
+				addCD(component, refered, Parts.forIdentified(refered),false);
 			} else {
 				// If component has roles, then these should be used
-				addCD(component, refered, Parts.forIdentified(component));
+				addCD(component, refered, Parts.forIdentified(component),false);
 			}
 		}
 	}
@@ -963,6 +963,17 @@ public class SBOLDesign {
 		return parentCDs.peek();
 	}
 
+	public boolean hasEmptySequence()
+	{
+		ComponentDefinition root = getRootCD();
+		for(org.sbolstandard.core2.Component c : root.getComponents())
+		{
+			if(!getAllSequences(c.getDefinition()))
+				return true;
+		}
+		return false;
+	}
+	
 	public ComponentDefinition getSelectedCD() {
 		return selectedElement == null ? null : selectedElement.getCD();
 	}
@@ -988,7 +999,7 @@ public class SBOLDesign {
 	}
 
 	public void addCD(ComponentDefinition comp) throws SBOLValidationException {
-		addCD(null, comp, Parts.forIdentified(comp));
+		addCD(null, comp, Parts.forIdentified(comp),true);
 	}
 
 	/**
@@ -1031,7 +1042,7 @@ public class SBOLDesign {
 		}
 		
 		part = Parts.forIdentified(comp);
-		addCD(null, comp, part);
+		addCD(null, comp, part,true);
 
 		return comp;
 	}
@@ -1042,7 +1053,8 @@ public class SBOLDesign {
 	 * 
 	 * @throws SBOLValidationException
 	 */
-	private void addCD(org.sbolstandard.core2.Component component, ComponentDefinition comp, Part part)
+	private void addCD(org.sbolstandard.core2.Component component, ComponentDefinition comp, Part part,
+			Boolean updateSequences)
 			throws SBOLValidationException {
 		boolean backbone = (part == Parts.CIRCULAR);
 		DesignElement e = new DesignElement(component, canvasCD, comp, part, design);
@@ -1072,11 +1084,10 @@ public class SBOLDesign {
 		if (!isPartVisible(part)) {
 			setPartVisible(part, true);
 		}
-
 		if (!loading) {
-			fireDesignChangedEvent(true);
+			fireDesignChangedEvent(updateSequences);
 		}else {
-			updateCanvasCD(true);
+			updateCanvasCD(updateSequences);
 		}
 	}
 	
@@ -1669,7 +1680,7 @@ public class SBOLDesign {
 					}
 				}
 				load(comp);
-				fireDesignChangedEvent(false);
+				fireDesignChangedEvent(true);
 			}
 		}
 	}
@@ -1743,6 +1754,7 @@ public class SBOLDesign {
 			focusIn();
 			editCanvasCD();
 			focusOut();
+			fireDesignChangedEvent(true);
 		}
 	}
 
@@ -1972,6 +1984,7 @@ public class SBOLDesign {
 	 */
 	private void updateCanvasCD(boolean updateSequence) {
 		// should not allow updating of CDs outside our namespace
+		// TODO: can we just exit if updateSequence is false?
 		if (SBOLUtils.notInNamespace(canvasCD)) {
 			return;
 		}
@@ -1991,6 +2004,7 @@ public class SBOLDesign {
 				return;
 			}
 
+			boolean missing = hasEmptySequence();
 			Sequence oldSeq = canvasCD.getSequenceByEncoding(Sequence.IUPAC_DNA);
 			String oldElements = oldSeq == null ? "" : oldSeq.getElements();
 			// remove all current Sequences
@@ -1999,50 +2013,84 @@ public class SBOLDesign {
 				design.removeSequence(s);
 			}
 			String nucleotides = canvasCD.getImpliedNucleicAcidSequence();
-
-/*			if(nucleotides != null)
-				nucleotides = nucleotides.replace("N", "");
-			if(oldElements != null)
-				oldElements = oldElements.replace("N", "");*/
 			if (nucleotides != null && nucleotides.length() > 0) {
-				if (!nucleotides.equals(oldElements)) {
-					// report to the user if the updated sequence is shorter
-					int option = 0;
-					// check preferences
-					// askUser is 0, overwrite is 1, and keep is 2
-					int seqBehavior = SBOLEditorPreferences.INSTANCE.getSeqBehavior();
-					switch (seqBehavior) {
-					case 0:
-						// askUser
-						Object[] options = { "Keep", "Overwrite" };
-						do {
-							option = JOptionPane.showOptionDialog(panel, "The implied sequence for "
-									+ canvasCD.getDisplayId()
-									+ " is shorter than the original sequence.  Would you like to overwrite or keep the original sequence? \n(The default behavior can be changed in settings)",
-									"Implied sequece", JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null,
-									options, options[0]);
-						} while (option == JOptionPane.CLOSED_OPTION);
-						break;
-					case 1:
-						// overwrite
-						option = 1;
-						break;
-					case 2:
-						// keep
-						option = 0;
-						break;
-					}
-
-					if (option == 0) {
-						// use the old sequence provided it was there
-						if (oldSeq != null) {
-							String uniqueId = SBOLUtils.getUniqueDisplayId(null, null,
-									canvasCD.getDisplayId() + "Sequence", canvasCD.getVersion(), "Sequence", design);
-							oldSeq = design.createSequence(uniqueId, canvasCD.getVersion(), oldSeq.getElements(),
-									Sequence.IUPAC_DNA);
-							canvasCD.addSequence(oldSeq);
+ 				if (!nucleotides.equals(oldElements)) {
+					if(!missing)
+					{
+						// report to the user if the updated sequence is shorter
+						int option = 0;
+						// check preferences
+						// askUser is 0, overwrite is 1, and keep is 2
+						int seqBehavior = SBOLEditorPreferences.INSTANCE.getSeqBehavior();
+						switch (seqBehavior) {
+						case 0:
+							// askUser
+							Object[] options = { "Keep", "Overwrite" };
+							do {
+								option = JOptionPane.showOptionDialog(panel, "The implied sequence for "
+										+ canvasCD.getDisplayId()
+										+ " is shorter than the original sequence.  Would you like to overwrite or keep the original sequence? \n(The default behavior can be changed in settings)",
+										"Implied sequece", JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null,
+										options, options[0]);
+							} while (option == JOptionPane.CLOSED_OPTION);
+							break;
+						case 1:
+							// overwrite
+							option = 1;
+							break;
+						case 2:
+							// keep
+							option = 0;
+							break;
 						}
-						return;
+						
+	
+						if (option == 0) {
+							// use the old sequence provided it was there
+							if (oldSeq != null) {
+								String uniqueId = SBOLUtils.getUniqueDisplayId(null, null,
+										canvasCD.getDisplayId() + "Sequence", canvasCD.getVersion(), "Sequence", design);
+								oldSeq = design.createSequence(uniqueId, canvasCD.getVersion(), oldSeq.getElements(),
+										Sequence.IUPAC_DNA);
+								canvasCD.addSequence(oldSeq);
+							}
+							return;
+						}
+					}
+					else{
+						// report to the user if the updated sequence is different
+						int option = 0;
+						// check preferences
+						// askUser is 0, overwrite is 1, and keep is 2
+						int missingBehavior = SBOLEditorPreferences.INSTANCE.getMissingBehavior();
+						int seqBehavior = SBOLEditorPreferences.INSTANCE.getSeqBehavior();
+						if(missingBehavior == 0 || seqBehavior == 0) {
+							// askUser
+							Object[] options = { "Keep", "Overwrite" };
+							do {
+								option = JOptionPane.showOptionDialog(panel, "The implied sequence for "
+										+ canvasCD.getDisplayId()
+										+ " has missing sequences and has changed.  Would you like to overwrite or keep the original sequence? \n(The default behavior can be changed in settings)",
+										"Implied sequece", JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null,
+										options, options[0]);
+							} while (option == JOptionPane.CLOSED_OPTION);
+						}else if(missingBehavior == 1 && seqBehavior == 1)
+						{
+							option = 1;
+						}
+						
+
+						if (option == 0) {
+							// use the old sequence provided it was there
+							if (oldSeq != null) {
+								String uniqueId = SBOLUtils.getUniqueDisplayId(null, null,
+										canvasCD.getDisplayId() + "Sequence", canvasCD.getVersion(), "Sequence", design);
+								oldSeq = design.createSequence(uniqueId, canvasCD.getVersion(), oldSeq.getElements(),
+										Sequence.IUPAC_DNA);
+								canvasCD.addSequence(oldSeq);
+							}
+							return;
+						}
 					}
 				}
 				// use the implied sequence
