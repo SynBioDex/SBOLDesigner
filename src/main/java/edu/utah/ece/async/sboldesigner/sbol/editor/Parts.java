@@ -106,9 +106,14 @@ public class Parts {
 	public static final Part RSE = createPart("RNA Stability Element", "RSE", "rna-stability-element.png",
 			ImageType.SHORT_OVER_BASELINE, true, "SO:0001979");
 	public static final Part RSE_2 = createPart("RNA Stability Element", "RSE", "rna-stability-element.png",
-			ImageType.SHORT_OVER_BASELINE, true, "SO:0000374");
+			ImageType.SHORT_OVER_BASELINE, false, "SO:0000374");
 	public static final Part PSE = createPart("Protein Stability Element", "PSE", "protein-stability-element.png",
 			ImageType.SHORT_OVER_BASELINE, true, "SO:0001955");
+	public static final Part TS_END = createPart("Transcription End Element", "TsE", "transcription-end-specification.png",
+			ImageType.SHORT_OVER_BASELINE, true, "SO:0000616");
+	public static final Part TL_END = createPart("Translation End Element", "TlE", "translation-end-specification.png",
+			ImageType.SHORT_OVER_BASELINE, true, "SO:0000327");
+	
 
 	private static Iterable<Part> SORTED_PARTS;
 
