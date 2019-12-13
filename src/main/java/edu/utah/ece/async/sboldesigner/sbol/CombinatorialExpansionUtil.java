@@ -77,7 +77,23 @@ public class CombinatorialExpansionUtil {
 
 		String uniqueId = SBOLUtils.getUniqueDisplayId(null, null, template.getDisplayId() + "_GeneratedInstance",
 				template.getVersion(), "CD", doc);
-		ComponentDefinition copy = (ComponentDefinition) doc.createCopy(template, uniqueId, template.getVersion());
+		//ComponentDefinition copy = (ComponentDefinition) doc.createCopy(template, uniqueId, template.getVersion());
+		ComponentDefinition copy = doc.createComponentDefinition(uniqueId, template.getVersion(), template.getTypes());
+		copy.setRoles(template.getRoles());
+		Component prev = null;
+		Component curr;
+		for(Component c : template.getSortedComponents())
+		{
+			curr = copy.createComponent(c.getDisplayId(), c.getAccess(), c.getDefinitionURI());
+			if(prev != null)
+			{
+				uniqueId = SBOLUtils.getUniqueDisplayId(copy, null,
+						copy.getDisplayId() + "_SequenceConstraint", null, "SequenceConstraint", null);
+				copy.createSequenceConstraint(uniqueId, RestrictionType.PRECEDES, prev.getIdentity(),
+						curr.getIdentity());
+			}
+			prev = curr;
+		}
 		copy.addWasDerivedFrom(template.getIdentity());
 		copy.addWasDerivedFrom(derivation.getIdentity());
 		for (Component component : copy.getComponents()) {
