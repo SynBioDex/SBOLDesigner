@@ -1999,7 +1999,7 @@ public class SBOLDesign {
 			updateSequenceAnnotations();
 			updateSequenceConstraints();
 
-			if ((canvasCD.getComponents().isEmpty() && !canvasCD.getSequenceAnnotations().isEmpty())||!updateSequence) {
+			if (canvasCD.getComponents().isEmpty()|!updateSequence) {
 				return;
 			}
 
