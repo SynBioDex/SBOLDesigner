@@ -1697,8 +1697,7 @@ public class SBOLDesign {
 		}
 		ComponentDefinition newCD = CD;
 		if(SBOLUtils.notInNamespace(CD)) {
-			newCD = (ComponentDefinition)design.createCopy(CD, SBOLEditorPreferences.INSTANCE.getUserInfo().getURI().toString(),
-					CD.getDisplayId(), CD.getVersion());
+			newCD = (ComponentDefinition) design.rename(CD, SBOLEditorPreferences.INSTANCE.getUserInfo().getURI().toString(), CD.getDisplayId(), CD.getVersion());
 		}
 		for (org.sbolstandard.core2.Component comp : newCD.getComponents()) {
 			if (comp.getDefinitionIdentity().equals(originalIdentity)) {
@@ -2000,7 +1999,7 @@ public class SBOLDesign {
 			updateSequenceAnnotations();
 			updateSequenceConstraints();
 
-			if ((canvasCD.getComponents().isEmpty() && !canvasCD.getSequenceAnnotations().isEmpty())||!updateSequence) {
+			if (canvasCD.getComponents().isEmpty()|!updateSequence) {
 				return;
 			}
 
