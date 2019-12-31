@@ -1617,7 +1617,7 @@ public class SBOLDesign {
 			}else {
 				ComponentDefinition comp = getCanvasCD();
 				URI originalIdentity = comp.getIdentity();
-				comp = (ComponentDefinition) design.createCopy(comp,
+				comp = (ComponentDefinition) design.rename(comp,
 						SBOLEditorPreferences.INSTANCE.getUserInfo().getURI().toString(), comp.getDisplayId(),
 						comp.getVersion());
 				if (comp != null) {
@@ -1699,11 +1699,6 @@ public class SBOLDesign {
 		if(SBOLUtils.notInNamespace(CD)) {
 			newCD = (ComponentDefinition) design.rename(CD, SBOLEditorPreferences.INSTANCE.getUserInfo().getURI().toString(), CD.getDisplayId(), CD.getVersion());
 		}
-		for (org.sbolstandard.core2.Component comp : newCD.getComponents()) {
-			if (comp.getDefinitionIdentity().equals(originalIdentity)) {
-				comp.setDefinition(newIdentity);
-			}
-		}
 		if(SBOLUtils.notInNamespace(CD)) {
 			parentCDs.pop();
 			updateComponentReferences(CD.getIdentity(), newCD.getIdentity(), null);
@@ -1726,7 +1721,7 @@ public class SBOLDesign {
 		if (openEditor) {
 			newIdentity = PartEditDialog.editPart(parent, parentCD, CD, false, true, design, false).getIdentity();
 		}else {
-			ComponentDefinition cd = (ComponentDefinition) design.createCopy(CD,
+			ComponentDefinition cd = (ComponentDefinition) design.rename(CD,
 					SBOLEditorPreferences.INSTANCE.getUserInfo().getURI().toString(), CD.getDisplayId(),
 					CD.getVersion());
 			newIdentity = cd.getIdentity();
