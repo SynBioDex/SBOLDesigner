@@ -1699,6 +1699,11 @@ public class SBOLDesign {
 		if(SBOLUtils.notInNamespace(CD)) {
 			newCD = (ComponentDefinition) design.rename(CD, SBOLEditorPreferences.INSTANCE.getUserInfo().getURI().toString(), CD.getDisplayId(), CD.getVersion());
 		}
+		for (org.sbolstandard.core2.Component comp : newCD.getComponents()) {		
+ 			if (comp.getDefinitionIdentity().equals(originalIdentity)) {		
+ 				comp.setDefinition(newIdentity);		
+ 			}		
+ 		}
 		if(SBOLUtils.notInNamespace(CD)) {
 			parentCDs.pop();
 			updateComponentReferences(CD.getIdentity(), newCD.getIdentity(), null);
