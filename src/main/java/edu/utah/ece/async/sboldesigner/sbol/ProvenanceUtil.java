@@ -98,7 +98,7 @@ public class ProvenanceUtil {
 			Association association = activity.createAssociation("Association", designerURI);
 			association.addRole(SEQUENCE_EDITOR);
 		}
-
+		createSBOLDesignerAgent(doc);
 		// Link with all TopLevels
 		for (TopLevel tl : doc.getTopLevels()) {
 			// check if in namespace
