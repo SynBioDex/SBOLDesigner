@@ -85,7 +85,7 @@ public class ProvenanceUtil {
 		}
 
 		// Create the qualifiedAssociation
-		URI designerURI = URI.create("https://synbiohub.org/public/SBOL_Software/SBOLDesigner/3.0");
+		URI designerURI = URI.create("https://synbiohub.org/public/SBOL_Software/SBOLDesigner/3.1");
 		String designerPrefix = "https://synbiohub.org/public/SBOL_Software/SBOLDesigner/";
 		boolean hasAssociation = false;
 		for (Association a : activity.getAssociations()) {
@@ -129,14 +129,21 @@ public class ProvenanceUtil {
 	 */
 	private static GenericTopLevel createSBOLDesignerAgent(SBOLDocument design) throws SBOLValidationException {
 		GenericTopLevel designerAgent = design
-				.getGenericTopLevel(URI.create("https://synbiohub.org/public/SBOL_Software/SBOLDesigner/3.0"));
+				.getGenericTopLevel(URI.create("https://synbiohub.org/public/SBOL_Software/SBOLDesigner/3.1"));
 
 		if (designerAgent == null) {
-			designerAgent = design.createGenericTopLevel("http://www.async.ece.utah.edu", "SBOLDesigner", "3.0",
+			designerAgent = design.createGenericTopLevel("http://www.async.ece.utah.edu", "SBOLDesigner", "3.1",
 					new QName("http://www.w3.org/ns/prov#", "Agent", "prov"));
 			designerAgent.setName("SBOLDesigner CAD Tool");
 			designerAgent.setDescription(
-					"SBOLDesigner is a simple, biologist-friendly CAD software tool for creating and manipulating the sequences of genetic constructs using the Synthetic Biology Open Language (SBOL) 2 data model. Throughout the design process, SBOL Visual symbols, a system of schematic glyphs, provide standardized visualizations of individual parts. SBOLDesigner completes a workflow for users of genetic design automation tools. It combines a simple user interface with the power of the SBOL standard and serves as a launchpad for more detailed designs involving simulations and experiments. Some new features in SBOLDesigner are SynBioHub integration, local repositories, importing of parts/sequences from existing files, import and export of GenBank and FASTA files, extended role ontology support, the ability to partially open designs with multiple root ComponentDefinitions, backward compatibility with SBOL 1.1, and versioning.");
+					"SBOLDesigner is a simple, biologist-friendly CAD software tool for creating and "
+					+ "manipulating the sequences of genetic constructs using the Synthetic Biology Open Language (SBOL) 2 data model. "
+					+ "Throughout the design process, SBOL Visual symbols, a system of schematic glyphs, provide standardized visualizations "
+					+ "of individual parts. SBOLDesigner completes a workflow for users of genetic design automation tools. It combines a "
+					+ "simple user interface with the power of the SBOL standard and serves as a launchpad for more detailed designs involving "
+					+ "simulations and experiments. Some new features in SBOLDesigner are the ability to add variant collections to combinatorial derivations"
+					+ ", enumerating those collections, and the ability to view sequence features hierarchically. There are also some small changes to the way"
+					+ " that preferences work in regards to saving a design with incomplete sequences.");
 			designerAgent.createAnnotation(new QName("http://purl.org/dc/elements/1.1/", "creator", "dc"),
 					"Samuel Bridge");
 			designerAgent.createAnnotation(new QName("http://purl.org/dc/elements/1.1/", "creator", "dc"),
@@ -161,7 +168,7 @@ public class ProvenanceUtil {
 	public static void main(String[] args) throws SBOLValidationException, IOException, SBOLConversionException {
 		SBOLDocument doc = new SBOLDocument();
 		createSBOLDesignerAgent(doc);
-		
-		SBOLWriter.write(doc, new File("C:/Users/Michael/Desktop/SBOLDesignerAgent.xml"));
+		String home = System.getProperty("user.home");
+		SBOLWriter.write(doc, new File(home+"/Downloads/provenanceutil.txt"));
 	}
 }
