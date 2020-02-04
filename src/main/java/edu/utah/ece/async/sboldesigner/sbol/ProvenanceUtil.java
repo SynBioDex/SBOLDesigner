@@ -132,7 +132,7 @@ public class ProvenanceUtil {
 				.getGenericTopLevel(URI.create("https://synbiohub.org/public/SBOL_Software/SBOLDesigner/3.1"));
 
 		if (designerAgent == null) {
-			designerAgent = design.createGenericTopLevel("http://www.async.ece.utah.edu", "SBOLDesigner", "3.1",
+			designerAgent = design.createGenericTopLevel("https://synbiohub.org/public/SBOL_Software", "SBOLDesigner", "3.1",
 					new QName("http://www.w3.org/ns/prov#", "Agent", "prov"));
 			designerAgent.setName("SBOLDesigner CAD Tool");
 			designerAgent.setDescription(
