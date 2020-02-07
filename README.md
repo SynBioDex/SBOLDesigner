@@ -11,6 +11,11 @@ SBOLDesigner requires Java 8 to be installed on your computer. To run SBOL desig
 simply double click the jar file, which can be downloaded from https://github.com/SynBioDex/SBOLDesigner/releases. If your OS does not support running Java applications by double clicking, you can run the designer from command-line by using the `java -jar <jarFileName>` command at a terminal where `jarFileName` will be the name of the SBOL Designer jar file you
 downloaded.
 
+Instruction
+=============
+
+Comprehensive instructions for using SBOLDesigner can be found here: https://sboldesigner.github.io/
+
 Compilation
 =================================
 
