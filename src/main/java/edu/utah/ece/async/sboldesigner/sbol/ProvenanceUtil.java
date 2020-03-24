@@ -12,6 +12,7 @@ import javax.xml.namespace.QName;
 
 import org.joda.time.DateTime;
 import org.sbolstandard.core2.Activity;
+import org.sbolstandard.core2.Agent;
 import org.sbolstandard.core2.Annotation;
 import org.sbolstandard.core2.Association;
 import org.sbolstandard.core2.CombinatorialDerivation;
@@ -127,13 +128,11 @@ public class ProvenanceUtil {
 	/*
 	 * The reference implementation for generating the SBOLDesigner Agent.
 	 */
-	private static GenericTopLevel createSBOLDesignerAgent(SBOLDocument design) throws SBOLValidationException {
-		GenericTopLevel designerAgent = design
-				.getGenericTopLevel(URI.create("https://synbiohub.org/public/SBOL_Software/SBOLDesigner/3.1"));
+	private static Agent createSBOLDesignerAgent(SBOLDocument design) throws SBOLValidationException {
+		Agent designerAgent = design.getAgent(URI.create("https://synbiohub.org/public/SBOL_Software/SBOLDesigner/3.1"));
 
 		if (designerAgent == null) {
-			designerAgent = design.createGenericTopLevel("https://synbiohub.org/public/SBOL_Software", "SBOLDesigner", "3.1",
-					new QName("http://www.w3.org/ns/prov#", "Agent", "prov"));
+			designerAgent = design.createAgent("https://synbiohub.org/public/SBOL_Software", "SBOLDesigner", "3.1");
 			designerAgent.setName("SBOLDesigner CAD Tool");
 			designerAgent.setDescription(
 					"SBOLDesigner is a simple, biologist-friendly CAD software tool for creating and "
