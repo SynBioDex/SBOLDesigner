@@ -1,11 +1,17 @@
 package edu.utah.ece.async.sboldesigner.sbol;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
 import java.util.HashSet;
 import java.util.concurrent.ThreadLocalRandom;
 
+import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
+import org.apache.commons.io.FilenameUtils;
 import org.sbolstandard.core2.AccessType;
 import org.sbolstandard.core2.Collection;
 import org.sbolstandard.core2.CombinatorialDerivation;
@@ -26,7 +32,7 @@ import edu.utah.ece.async.sboldesigner.sbol.editor.dialog.CombinatorialDerivatio
 
 public class CombinatorialExpansionUtil {
 
-	public static SBOLDocument createCombinatorialDesign(java.awt.Component panel, SBOLDocument doc) throws SBOLValidationException {
+	public static SBOLDocument createCombinatorialDesign(java.awt.Component panel, SBOLDocument doc) throws SBOLValidationException, FileNotFoundException {
 		CombinatorialDerivation derivation = CombinatorialDerivationInputDialog.pickCombinatorialDerivation(panel, doc, null);
 		if (derivation == null) {
 			JOptionPane.showMessageDialog(null, "There are no combinatorial designs");
@@ -51,6 +57,37 @@ public class CombinatorialExpansionUtil {
 			derivation.setStrategy(StrategyType.values()[choice]);
 		}
 
+		int tocsv = JOptionPane.showConfirmDialog(null, 
+				"Would you like to export the enumerated design to a .csv file?", 
+				"Export to CSV", JOptionPane.YES_NO_OPTION);
+        if (tocsv == JOptionPane.YES_OPTION) {
+        	JFileChooser chooser = new JFileChooser();
+            chooser.setDialogTitle("choosertitle");
+            chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+            chooser.setAcceptAllFileFilterUsed(false);
+            int result = chooser.showSaveDialog(null);
+            if (result == chooser.APPROVE_OPTION)
+            {
+            	File f = chooser.getSelectedFile();
+            	if (FilenameUtils.getExtension(f.getName()).equalsIgnoreCase("csv")) {
+            	    // filename is OK as-is
+            	} else {
+            	    f = new File(f.toString() + ".csv");  // append .xml if "foo.jpg.xml" is OK
+            	}
+            	PrintWriter writer = new PrintWriter(f);
+            	String s;
+	        	for(ComponentDefinition cd: enumeration)
+	    		{
+	        		s = "";
+	    			for(Component comp: cd.getSortedComponents())
+	    			{
+	    				s += comp.getDefinition().getDisplayId() + ", ";
+	    			}
+	    			writer.println(s);
+	    		}
+	        	writer.close();
+            }
+        }
 		SBOLDocument generated = new SBOLDocument();
 		generated.setDefaultURIprefix(SBOLEditorPreferences.INSTANCE.getUserInfo().getURI().toString());
 
